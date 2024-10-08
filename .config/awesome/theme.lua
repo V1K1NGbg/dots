@@ -169,7 +169,7 @@ local bat = lain.widget.bat({
             perc = perc .. " AC"
         end
 
-        widget:set_markup(markup.fontfg(theme.font, black, perc))
+        widget:set_markup(markup.fontfg(theme.font, black, "Bat: " .. perc))
 
         bat_notification_charged_preset = {
             title   = "Battery full",
@@ -197,31 +197,6 @@ local bat = lain.widget.bat({
     end,
 })
 
--- MEM
-local memicon = wibox.widget.imagebox(theme.widget_mem)
-local mem = lain.widget.mem({
-    settings = function()
-        widget:set_markup(markup.fontfg(theme.font, black, mem_now.perc .. "%"))
-    end
-})
-
--- CPU
-local cpuicon = wibox.widget.imagebox(theme.widget_cpu)
-local cpu = lain.widget.cpu({
-    settings = function()
-        widget:set_markup(markup.fontfg(theme.font, black, cpu_now.usage .. "%"))
-    end
-})
-
--- CPU temp
-local tempicon = wibox.widget.imagebox(theme.widget_temp)
-local temp = lain.widget.temp({
-    tempfile = '/sys/devices/virtual/thermal/thermal_zone1/temp',
-    settings = function()
-        widget:set_markup(markup.fontfg(theme.font, black, coretemp_now .. "°C"))
-    end
-})
-
 -- Net
 local neticon = wibox.widget.imagebox(theme.widget_net)
 local net = lain.widget.net({
@@ -237,9 +212,34 @@ local net = lain.widget.net({
         end
 
         widget:set_markup(markup.font(theme.font,
-            markup(black, " " .. dynamic(tonumber(net_now.received)))
+            markup(black, "Net: " .. " " .. dynamic(tonumber(net_now.received)))
             .. " " ..
             markup(black, " " .. dynamic(tonumber(net_now.sent)))))
+    end
+})
+
+-- MEM
+local memicon = wibox.widget.imagebox(theme.widget_mem)
+local mem = lain.widget.mem({
+    settings = function()
+        widget:set_markup(markup.fontfg(theme.font, black, "Mem: " .. mem_now.perc .. "%"))
+    end
+})
+
+-- CPU
+local cpuicon = wibox.widget.imagebox(theme.widget_cpu)
+local cpu = lain.widget.cpu({
+    settings = function()
+        widget:set_markup(markup.fontfg(theme.font, black, "Cpu: " .. cpu_now.usage .. "%"))
+    end
+})
+
+-- CPU temp
+local tempicon = wibox.widget.imagebox(theme.widget_temp)
+local temp = lain.widget.temp({
+    tempfile = '/sys/devices/virtual/thermal/thermal_zone1/temp',
+    settings = function()
+        widget:set_markup(markup.fontfg(theme.font, black, "Temp: " .. coretemp_now .. "°C"))
     end
 })
 
@@ -273,7 +273,7 @@ theme.volume = lain.widget.alsa({
             volume_now.level = volume_now.level .. "M"
         end
 
-        widget:set_markup(markup.fontfg(theme.font, white, volume_now.level .. "%"))
+        widget:set_markup(markup.fontfg(theme.font, white, "Vol: " .. volume_now.level .. "%"))
     end
 })
 
