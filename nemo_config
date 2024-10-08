@@ -1,0 +1,62 @@
+export -> dconf dump /org/nemo/ > nemo_settings.txt
+import -> dconf load /org/nemo/ < nemo_settings.txt
+
+[compact-view]
+default-zoom-level='standard'
+
+[icon-view]
+captions=['none', 'size', 'date_modified']
+default-zoom-level='small'
+labels-beside-icons=false
+
+[list-view]
+default-column-order=['name', 'size', 'type', 'detailed_type', 'owner', 'permissions', 'date_modified', 'date_created_with_time', 'date_accessed', 'date_created', 'group', 'where', 'mime_type', 'date_modified_with_time', 'octal_permissions']
+default-visible-columns=['name', 'size', 'type', 'detailed_type', 'owner', 'permissions', 'date_modified']
+default-zoom-level='small'
+
+[plugins]
+disabled-actions=@as []
+
+[preferences]
+click-double-parent-folder=false
+close-device-view-on-device-eject=true
+date-font-choice='no-mono'
+date-format='iso'
+default-folder-viewer='list-view'
+ignore-view-metadata=true
+inherit-folder-viewer=true
+show-advanced-permissions=true
+show-compact-view-icon-toolbar=false
+show-directory-item-counts='local-only'
+show-edit-icon-toolbar=false
+show-full-path-titles=true
+show-hidden-files=true
+show-home-icon-toolbar=false
+show-new-folder-icon-toolbar=true
+show-next-icon-toolbar=false
+show-open-in-terminal-toolbar=false
+show-previous-icon-toolbar=false
+show-reload-icon-toolbar=false
+show-search-icon-toolbar=true
+show-show-thumbnails-toolbar=false
+show-up-icon-toolbar=false
+size-prefixes='base-10'
+start-with-dual-pane=true
+thumbnail-limit=uint64 10485760
+tooltips-in-icon-view=false
+tooltips-in-list-view=false
+tooltips-on-desktop=false
+tooltips-show-file-type=false
+
+[preferences/menu-config]
+background-menu-open-as-root=false
+
+[sidebar-panels/tree]
+show-only-directories=false
+
+[window-state]
+geometry='1278x1383+0+19'
+maximized=false
+side-pane-view='places'
+sidebar-bookmark-breakpoint=0
+start-with-sidebar=true
