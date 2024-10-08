@@ -18,13 +18,8 @@ sudo pacman -Rs awesome
 # install the latest
 paru -S awesome-git (have to let compile)
 
-# remove sddm
-sudo pacman -Rs sddm
-# install the latest
-paru -S sddm-git (have to let compile)
-
 # install packages
-paru -S acpi alacritty alsa-utils arandr autorandr bash-completion blueman bluez bluez-utils bottles capitaine-cursors cowsay cpupower-gui-git curl discord docker dracut fd firefox flameshot fzf gimp git github-cli gnome-boxes gnome-disk-utility htop i3lock-color jdk21-openjdk jdk8-openjdk keepassxc less lolcat man-db man-pages nano nemo neofetch network-manager-applet obs-studio parsec-bin pcloud-drive plymouth plymouth-theme-hexagon-hud-git prismlauncher ranger remmina rofi ruby-fusuma spotify-launcher tmux tree qt6-svg unzip vim visual-studio-code-bin wget xdotool zip
+paru -S acpi alacritty alsa-utils arandr autorandr bash-completi1on blueman bluez bluez-utils bottles capitaine-cursors cowsay cpupower-gui-git curl discord docker dracut fd firefox flameshot fzf gimp git github-cli gnome-boxes gnome-disk-utility htop i3lock-color jdk21-openjdk jdk8-openjdk keepassxc less lolcat man-db man-pages nano nemo neofetch network-manager-applet obs-studio parsec-bin pcloud-drive plymouth plymouth-theme-hexagon-hud-git prismlauncher ranger remmina rofi ruby-fusuma spotify-launcher tmux tree qt6-svg unzip vim visual-studio-code-bin wget xdotool zip
 
 # pcom
 git clone https://github.com/pijulius/picom.git
@@ -32,7 +27,7 @@ cd picom
 meson setup --buildtype=release build
 ninja -C build
 ninja -C build install
-# copy everything from (https://gist.github.com/V1K1NGbg/eee9194e0833f65dd0884da9ddee82d4) to ~/.config/picom/picom.conf
+# copy everything from (https://gist.github.com/V1K1NGbg/eee9194e0833f65dd0884da9ddee82d4) to ~/.config/picom/picom.conf--!
 
 # plymouth
 sudo vim /boot/loader/entries/{TAB}.conf
@@ -49,7 +44,7 @@ git config --global user.email "victor@ilchev.com"
 git config pull.rebase true
 gh auth login
 
-# pcloud (? fix)
+# pcloud
 # sign in (Google + Auth)
 # Backup ~/Documents/BackUp
 # Sync ~/Documents/PC <-> pCloudDrive/PC
@@ -68,11 +63,11 @@ nvm install node
 # install oh-my-bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)"
 
-# copy agnoster config
-# copy everything from (https://gist.github.com/V1K1NGbg/a2c3ed8558e8e1aaa57fa6ade26f63f1) to .oh-my-bash/themes/agnoster/agnoster.theme.sh
+# copy agnoster config --!
+# copy everything from (https://gist.github.com/V1K1NGbg/a2c3ed8558e8e1aaa57fa6ade26f63f1) to .oh-my-bash/themes/agnoster/agnoster.theme.sh--!
 
-# copy .bashrc config
-# take options from (https://gist.github.com/V1K1NGbg/0b9bdffff4532854c013d6d60dc1240b)
+# copy .bashrc config--!
+# take options from (https://gist.github.com/V1K1NGbg/0b9bdffff4532854c013d6d60dc1240b)--!
 
 # install nvidia drivers (https://wiki.archlinux.org/title/NVIDIA)
 paru -S nvidia-open nvidia-utils nvidia-settings
@@ -82,7 +77,7 @@ paru -S envycontrol
 sudo envycontrol -s integrated
 
 # flameshot
-# open the settings and import the file at: (https://gist.github.com/V1K1NGbg/65f1a4eeddf4f0a07670c8046b9d1652)
+# open the settings and import the file at: (https://gist.github.com/V1K1NGbg/65f1a4eeddf4f0a07670c8046b9d1652)--!
 
 # enable tap clicking, natural scrolling and double tap
 # in (/usr/share/X11/xorg.conf.d/40-libinput.conf)
@@ -139,7 +134,7 @@ sudo vim /etc/NetworkManager/conf.d/dns-servers.conf
 [global-dns-domain-*]
 servers=::1,1.1.1.1
 
-# feh (?)
+# feh
 feh --bg-scale ${imageurl}
 
 # fix monitoor setup
@@ -165,7 +160,7 @@ dconf dump /org/nemo/ > nemo_settings.txt
 dconf load /org/nemo/ < nemo_settings.txt
 rm nemo_settings.txt
 
-# copy awesome config (?)
+# copy awesome config
 mkdir -p ~/.config/awesome/
 cp /etc/xdg/awesome/rc.lua ~/.config/awesome/
 
@@ -195,27 +190,12 @@ mkdir -p .vim/colors/
 # copy vscode
 # sync extentions or gist(https://gist.github.com/V1K1NGbg/c8f2f23760d8a7b4fa672e3a531285a6)
 
-# # copy sddm (?)
-# sudo git clone https://github.com/keyitdev/sddm-astronaut-theme.git /usr/share/sddm/themes/sddm-astronaut-theme
-# sudo cp /usr/share/sddm/themes/sddm-astronaut-theme/Fonts/* /usr/share/fonts/
-# sudo vim /etc/sddm.conf
-# #[Theme]
-# #Current=sddm-astronaut-theme
-# # copy everything from (https://gist.github.com/V1K1NGbg/32970bcf7e7596e6c3c87514f734fc51) to /usr/share/sddm/themes/sddm-astronaut-theme/theme.conf
-
 # copy i3lock config
 # sync everything from gist(https://gist.github.com/V1K1NGbg/79c29af48c53b3aa06b32b5cf5a3b139) to ~/i3lock.sh
 chmod +x ~/i3lock.sh
 
-# sync firefox (? configure)
+# firefox
 
-# apps to setup
-# launcher (?)
-# desktop widgets (?) conky
 # docker
 # solo key
 # phone integration
-# widjets(?)
-# auto start up tray icons and monitor auto update and setup
-
-# make script / export iso
