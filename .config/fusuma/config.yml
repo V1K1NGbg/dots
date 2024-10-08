@@ -1,0 +1,31 @@
+swipe:
+  3:
+    left:
+      command: "xdotool key super+period" # Switch workspace next
+    right:
+      command: "xdotool key super+comma" # Switch workspace back
+    up:
+      command: "xdotool key alt+m" # Focus
+    down:
+      command: "xdotool key alt+m" # Focus
+  4:
+    left:
+      command: "xdotool key super+shift+Tab" # Switch tab back
+    right:
+      command: "xdotool key super+Tab" # Switch tab
+    up:
+      command: "xdotool key super+n" # Minimize
+    down:
+      command: "xdotool key super+shift+n" # Unminimize
+#pinch:
+#  in:
+#    command: "xdotool key " # 
+#  out:
+#    command: "xdotool key" # 
+hold:
+  4:
+    command: "xdotool key super+l" # Lock
+interval:
+  swipe: 0.75
+  pinch: 0.5
+  hold: 1.5
