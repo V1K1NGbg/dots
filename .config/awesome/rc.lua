@@ -337,7 +337,12 @@ globalkeys = mytable.join(
 
     -- Prompt
     awful.key({ modkey }, "r", function() os.execute("rofi -show run") end,
-        { description = "run prompt", group = "launcher" })
+        { description = "run prompt", group = "launcher" }),
+
+    awful.key({ modkey, }, "semicolon", function() awful.screen.focus_relative(1) end,
+        { description = "move to left screen", group = "client" }),
+    awful.key({ modkey, }, "apostrophe", function() awful.screen.focus_relative(-1) end,
+        { description = "move to right screen", group = "client" })
 
 )
 
@@ -371,10 +376,11 @@ clientkeys = mytable.join(
             c:raise()
         end,
         { description = "(un)maximize", group = "client" }),
-    awful.key({ modkey, "Shift" }, "h", function(c) c:move_to_screen(c.screen.index - 1) end,
-        { description = "move to screen left", group = "client" }),
-    awful.key({ modkey, "Shift" }, "l", function(c) c:move_to_screen(c.screen.index + 1) end,
-        { description = "move to screen right", group = "client" })
+
+    awful.key({ modkey, "Shift" }, "semicolon", function(c) c:move_to_screen(c.screen.index - 1) end,
+        { description = "move client to left screen", group = "client" }),
+    awful.key({ modkey, "Shift" }, "apostrophe", function(c) c:move_to_screen(c.screen.index + 1) end,
+        { description = "move client to right screen", group = "client" })
 )
 
 -- Bind all key numbers to tags.
