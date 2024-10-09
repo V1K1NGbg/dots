@@ -336,7 +336,7 @@ globalkeys = mytable.join(
         { description = "toggle mute", group = "hotkeys" }),
 
     -- Prompt
-    awful.key({ modkey }, "r", function() os.execute("rofi -show run") end,
+    awful.key({ modkey }, "r", function() os.execute("rofi -terminal "..terminal.." -show run") end,
         { description = "run prompt, calc, apps, files...", group = "launcher" }),
 
     awful.key({ modkey, }, "semicolon", function() awful.screen.focus_relative(1) end,

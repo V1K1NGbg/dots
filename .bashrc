@@ -40,6 +40,3 @@ _fzf_compgen_dir() {
 #Ranger
 export VISUAL=vim
 export EDITOR=vim
-
-#Rofi
-export TERMINAL=/usr/bin/alacritty
