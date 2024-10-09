@@ -136,7 +136,6 @@ local markup                                    = lain.util.markup
 
 -- Textclock
 os.setlocale(os.getenv("LANG")) -- to localize the clock
-local clockicon = wibox.widget.imagebox(theme.widget_clock)
 local clock = awful.widget.watch(
     "date +'%a %d %b %R'", 60,
     function(widget, stdout)
@@ -157,7 +156,6 @@ theme.cal = lain.widget.cal({
 })
 
 -- Battery
-local baticon = wibox.widget.imagebox(theme.widget_batt)
 local bat = lain.widget.bat({
     timeout = 10,
     battery = "BAT1",
@@ -198,7 +196,6 @@ local bat = lain.widget.bat({
 })
 
 -- Net
-local neticon = wibox.widget.imagebox(theme.widget_net)
 local net = lain.widget.net({
     units = 128,
     settings = function()
@@ -219,7 +216,6 @@ local net = lain.widget.net({
 })
 
 -- MEM
-local memicon = wibox.widget.imagebox(theme.widget_mem)
 local mem = lain.widget.mem({
     settings = function()
         widget:set_markup(markup.fontfg(theme.font, black, "Mem: " .. mem_now.perc .. "%"))
@@ -227,7 +223,6 @@ local mem = lain.widget.mem({
 })
 
 -- CPU
-local cpuicon = wibox.widget.imagebox(theme.widget_cpu)
 local cpu = lain.widget.cpu({
     settings = function()
         widget:set_markup(markup.fontfg(theme.font, black, "Cpu: " .. cpu_now.usage .. "%"))
@@ -235,7 +230,6 @@ local cpu = lain.widget.cpu({
 })
 
 -- CPU temp
-local tempicon = wibox.widget.imagebox(theme.widget_temp)
 local temp = lain.widget.temp({
     tempfile = '/sys/devices/virtual/thermal/thermal_zone1/temp',
     settings = function()
@@ -244,10 +238,10 @@ local temp = lain.widget.temp({
 })
 
 -- Weather
-local weathericon = wibox.widget.imagebox(theme.widget_weather)
 weather = lain.widget.weather({
-    APPID = const.openweathermap_api_key,
-    city_id = const.openweathermap_city_id,
+    APPID = const.APPID,
+    lat = const.lat,
+    lon = const.lon,
     units = "metric",
     notification_preset = { font = font, fg = white, bg = red },
     weather_na_markup = markup.fontfg(theme.font, white, "N/A "),
@@ -259,14 +253,12 @@ weather = lain.widget.weather({
     notification_text_fun = function (wn)
         local day = string.format("%16s ", os.date('%A, %I %p', wn['dt']))
         local temp = math.floor(wn["main"]["temp"])
-        local rain = wn["rain"] and string.format("and %dmm rain ", wn["rain"]["1h"]) or ""
         local desc = wn["weather"][1]["description"]
-        return string.format("<b>%s</b>: %d°C with %s %s", day, temp, desc, rain)
+        return string.format("<b>%s</b>: %d°C with %s", day, temp, desc )
     end
 })
 
 -- ALSA volume
-local volicon = wibox.widget.imagebox(theme.widget_vol)
 theme.volume = lain.widget.alsa({
     settings = function()
         if volume_now.status == "off" then
