@@ -18,7 +18,7 @@ default-zoom-level='small'
 disabled-actions=@as []
 
 [preferences]
-click-double-parent-folder=false
+click-double-parent-folder=true
 close-device-view-on-device-eject=true
 date-font-choice='no-mono'
 date-format='iso'
@@ -32,6 +32,7 @@ show-edit-icon-toolbar=false
 show-full-path-titles=true
 show-hidden-files=true
 show-home-icon-toolbar=false
+show-location-entry=true
 show-new-folder-icon-toolbar=true
 show-next-icon-toolbar=false
 show-open-in-terminal-toolbar=false
@@ -55,8 +56,12 @@ background-menu-open-as-root=false
 show-only-directories=false
 
 [window-state]
-geometry='1278x1383+0+19'
+devices-expanded=true
+geometry='1257x1357+13+32'
 maximized=false
+my-computer-expanded=false
+network-expanded=false
 side-pane-view='places'
 sidebar-bookmark-breakpoint=0
 start-with-sidebar=true
+start-with-toolbar=false
