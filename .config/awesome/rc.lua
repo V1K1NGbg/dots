@@ -337,9 +337,7 @@ globalkeys = mytable.join(
 
     -- Prompt
     awful.key({ modkey }, "r", function() os.execute("rofi -show run") end,
-        { description = "run prompt", group = "launcher" }),
-    awful.key({ modkey }, "\\", function() os.execute("rofi -show calc -modi calc -no-show-match -no-sort") end,
-        { description = "run calc prompt", group = "launcher" }),
+        { description = "run prompt, calc, apps, files...", group = "launcher" }),
 
     awful.key({ modkey, }, "semicolon", function() awful.screen.focus_relative(1) end,
         { description = "move to left screen", group = "client" }),

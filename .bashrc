@@ -37,7 +37,9 @@ _fzf_compgen_dir() {
    fd --type d --hidden --follow --exclude ".git" . "$1"
 }
 
-
 #Ranger
 export VISUAL=vim
 export EDITOR=vim
+
+#Rofi
+export TERMINAL=/usr/bin/alacritty
