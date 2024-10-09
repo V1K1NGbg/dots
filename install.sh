@@ -19,7 +19,7 @@ sudo pacman -Rs awesome
 paru -S awesome-git (have to let compile)
 
 # install packages
-paru -S acpi alacritty alsa-utils arandr autorandr bash-completi1on blueman bluez bluez-utils bottles capitaine-cursors cowsay cpupower-gui-git curl discord docker dracut fd firefox flameshot fzf gimp git github-cli gnome-boxes gnome-disk-utility htop i3lock-color jdk21-openjdk jdk8-openjdk keepassxc less lolcat man-db man-pages nano nemo neofetch network-manager-applet obs-studio parsec-bin pcloud-drive plymouth plymouth-theme-hexagon-hud-git prismlauncher ranger remmina rofi rofi-emoji rofi-calc ruby-fusuma spotify-launcher tmux tree qt6-svg unzip vim visual-studio-code-bin wget xdotool zip
+paru -S acpi alacritty alsa-utils arandr autorandr bash-completi1on blueman bluez bluez-utils bottles capitaine-cursors cowsay cpupower-gui-git curl discord docker dracut fd firefox flameshot fzf gimp git github-cli gnome-boxes gnome-disk-utility htop i3lock-color jdk21-openjdk jdk8-openjdk keepassxc less lolcat man-db man-pages nano nemo neofetch network-manager-applet obs-studio parsec-bin pcloud-drive plymouth plymouth-theme-hexagon-hud-git prismlauncher ranger remmina rofi rofi-calc ruby-fusuma spotify-launcher tmux tree qt6-svg unzip vim visual-studio-code-bin wget xdotool zip
 
 # pcom
 git clone https://github.com/pijulius/picom.git

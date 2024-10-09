@@ -27,7 +27,7 @@ purple         = "#9359ff"
 cyan           = "#67ffeb"
 
 font           = "Monocraft Nerd Font 12"
-fontbig        = "Monocraft Nerd Font 14"
+fontbig        = "Monocraft Nerd Font 13"
 
 
 local theme                                     = {}
