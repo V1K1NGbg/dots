@@ -199,5 +199,6 @@ chmod +x ~/i3lock.sh
 # firefox
 
 # docker
+
 # solo key
 # phone integration
