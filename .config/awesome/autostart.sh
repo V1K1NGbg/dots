@@ -7,16 +7,18 @@ start() {
   fi
 }
 
-start nm-applet
-start blueman-applet
-start pcloud
-start flameshot
-start picom -b
+start firefox
 start code
 start alacritty
 start discord
 start nemo
 start spotify-launcher
-start firefox
+
+start nm-applet
+start blueman-applet
+start pcloud
+start flameshot
 start pasystray
+
+start picom -b
 start fusuma -d
