@@ -18,4 +18,5 @@ start discord
 start nemo
 start spotify-launcher
 start firefox
+start pasystray
 start fusuma -d
