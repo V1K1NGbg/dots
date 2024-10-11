@@ -14,9 +14,9 @@ swipe:
     right:
       command: "xdotool key super+Tab" # Switch tab
     up:
-      command: "xdotool key super+n" # Minimize
-    down:
       command: "xdotool key super+shift+n" # Unminimize
+    down:
+      command: "xdotool key super+n" # Minimize
 #pinch:
 #  in:
 #    command: "xdotool key " # 
