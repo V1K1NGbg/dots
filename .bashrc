@@ -37,6 +37,8 @@ _fzf_compgen_dir() {
    fd --type d --hidden --follow --exclude ".git" . "$1"
 }
 
+setxkbmap -layout us,bg -variant ,bas_phonetic -option 'grp:alt_shift_toggle'
+
 #Ranger
 export VISUAL=vim
 export EDITOR=vim
