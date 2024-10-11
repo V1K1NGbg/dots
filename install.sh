@@ -200,5 +200,8 @@ chmod +x ~/i3lock.sh
 
 # docker
 
+# wireguard
+nmcli connection import type wireguard file "/path/to/wg0.conf" # (?)
+
 # solo key
 # phone integration
