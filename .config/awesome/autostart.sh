@@ -13,6 +13,7 @@ start alacritty
 start discord
 start nemo
 start spotify-launcher
+start keepassxc
 
 start nm-applet
 start blueman-applet

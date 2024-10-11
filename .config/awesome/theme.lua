@@ -128,7 +128,7 @@ theme.border_normal                             = gray
 theme.border_focus                              = white
 theme.border_marked                             = black
 
-awful.util.tagnames                             = { "  ", "  ", "  ", "  ", "  ", "  ", "  ", "  ", "  " }
+awful.util.tagnames                             = { "  ", "  ", "  ", "  ", "  ", "  ", "  ", "  ", "  " }
 
 local keyboardlayout                            = awful.widget.keyboardlayout:new()
 

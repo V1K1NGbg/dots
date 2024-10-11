@@ -343,7 +343,6 @@ globalkeys = mytable.join(
         { description = "move to left screen", group = "client" }),
     awful.key({ modkey, }, "apostrophe", function() awful.screen.focus_relative(-1) end,
         { description = "move to right screen", group = "client" })
-
 )
 
 clientkeys = mytable.join(
@@ -533,6 +532,11 @@ awful.rules.rules = {
     {
         rule = { class = "Spotify" },
         properties = { screen = 1, tag = "  " }
+    },
+
+    {
+        rule = { class = "KeePassXC" },
+        properties = { screen = 1, tag = "  " }
     },
 }
 
