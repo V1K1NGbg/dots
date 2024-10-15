@@ -7,13 +7,13 @@ start() {
   fi
 }
 
-start firefox
-start code
-start alacritty
 start discord
+start alacritty
 start nemo
 start spotify-launcher
 start keepassxc
+start code
+start firefox
 
 start nm-applet
 start blueman-applet
@@ -24,3 +24,4 @@ start pasystray
 start picom -b
 start fusuma -d
 start xss-lock ~/i3lock.sh
+start glava -d
