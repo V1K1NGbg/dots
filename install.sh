@@ -197,6 +197,7 @@ mkdir -p .vim/colors/
 chmod +x ~/i3lock.sh
 
 # firefox
+# bookmark for calendar and mail
 
 # docker
 
