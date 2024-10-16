@@ -342,7 +342,10 @@ globalkeys = mytable.join(
     awful.key({ modkey, }, "semicolon", function() awful.screen.focus_relative(1) end,
         { description = "move to left screen", group = "client" }),
     awful.key({ modkey, }, "apostrophe", function() awful.screen.focus_relative(-1) end,
-        { description = "move to right screen", group = "client" })
+        { description = "move to right screen", group = "client" }),
+
+    awful.key({ modkey, }, "g", function() awful.spawn.easy_async_with_shell("pgrep -x glava", function(stdout, stderr, reason, exit_code) if exit_code == 0 then awful.spawn.with_shell("pkill glava") else awful.spawn.with_shell("glava --desktop") end end) end,
+        { description = "start/stop glava", group = "client" })
 )
 
 clientkeys = mytable.join(
