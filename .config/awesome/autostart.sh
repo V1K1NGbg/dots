@@ -7,7 +7,7 @@ start() {
   fi
 }
 
-start discord
+start discord --start-minimized
 start alacritty
 start nemo
 start spotify-launcher
