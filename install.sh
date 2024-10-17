@@ -204,6 +204,13 @@ chmod +x ~/i3lock.sh
 # glava
 # glava --copy-config
 
+# discord
+# download https://betterdiscord.app/
+cd Downloads
+chmod +x BetterDiscord-Linux.AppImage
+./BetterDiscord-Linux.AppImage
+
+
 # wireguard
 nmcli connection import type wireguard file "/path/to/wg0.conf" # (?)
 

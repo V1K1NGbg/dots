@@ -1,0 +1,52 @@
+/**
+ * @name Neutron
+ * @version 8.1
+ * @description A simple but highly customizable theme, now sugar free!
+ * @author Spectra
+ * @invite PZdnCVD
+ * @source https://github.com/xcruxiex/themes
+ * @website https://betterdiscord.app/theme/Neutron
+ *//*
+$$\   $$\ $$$$$$$$\ $$\   $$\ $$$$$$$$\ $$$$$$$\   $$$$$$\  $$\   $$\
+$$$\  $$ |$$  _____|$$ |  $$ |\__$$  __|$$  __$$\ $$  __$$\ $$$\  $$ |
+$$$$\ $$ |$$ |      $$ |  $$ |   $$ |   $$ |  $$ |$$ /  $$ |$$$$\ $$ |
+$$ $$\$$ |$$$$$\    $$ |  $$ |   $$ |   $$$$$$$  |$$ |  $$ |$$ $$\$$ |
+$$ \$$$$ |$$  __|   $$ |  $$ |   $$ |   $$  __$$< $$ |  $$ |$$ \$$$$ |
+$$ |\$$$ |$$ |      $$ |  $$ |   $$ |   $$ |  $$ |$$ |  $$ |$$ |\$$$ |
+$$ | \$$ |$$$$$$$$\ \$$$$$$  |   $$ |   $$ |  $$ | $$$$$$  |$$ | \$$ |
+\__|  \__|\________| \______/    \__|   \__|  \__| \______/ \__|  \__|
+*/
+@import url("https://xcruxiex.github.io/themes/themes-cores/neutron8.css");
+@import url("https://xcruxiex.github.io/themes/core/badges.css");
+@import url("https://xcruxiex.github.io/themes/core/custom-font.css");
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap'); /* Custom font import link (see fonts.google.com) */
+/*##########################################################################
+
+                 CHANGE VALUES BELOW TO CUSTOMIZE YOU THEME
+
+##########################################################################*/
+:root {
+  /* COLORS */
+  --themeColor1: #67ffeb; /* Theme's color 1 */
+  --themeColor2: #35ddff; /* Theme's color 2 */
+
+  /* CUSTOM FONT */
+  --customFont: 'Monocraft Nerd Font', 'Open sans', sans-serif; /* Custom font, change the name in 'font name here', you must import the font first */
+
+  /* HOME BUTTON */
+  --homeImage: url('https://i.redd.it/made-myself-a-custom-discord-icon-v0-t9j9padwfdqb1.png?width=1280&format=png&auto=webp&s=371514ea86a6d79c037ae1b3a93ba57e3021c0ac');/*Home button image, must be a direct link | You can also set it to a gradient, google "css gradient" */
+  --homeImageSize: cover;/* To cover the button, set to "cover". You can also set it to "100% 100%" but the image will be stretched. Set to "contain" to see the entire image */
+
+  /* BACKGROUND */
+  --backgroundColor: #191919; /* Background color */
+  --backgroundImage: url('https://raw.githubusercontent.com/V1K1NGbg/dots/refs/heads/master/.config/awesome/wall.jpg'); /* Backround image, must be a direct link | You can also set it to a gradient, google "css gradient"*/
+  --backgroundPosition: center; /* Image position | center, left, right, bottom, top */
+  --backgroundSize: cover; /* To cover the entire app, set to "cover". You can also set it to "100% 100%" but the image will be stretched. Set to "contain" to see the entire image */
+  --backgroundRepeat: no-repeat; /* if you want the image to repeat | Google "css background repeat" */
+  --backgroundBlur: 10px; /* Set to 0 to remove blur | Set to 10px for average blur */
+  --backgroundOpacity: .90; /* 0 is transparent */
+
+  /* CODE BLOCKS */
+  --backgroundCode: rgba(0,0,0,.5);
+  --backgroundName: rgba(0,0,0,.5);
+}

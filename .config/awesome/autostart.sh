@@ -24,4 +24,4 @@ start pasystray
 start picom -b
 start fusuma -d
 start xss-lock ~/i3lock.sh
-start glava -d
+# start glava -d
