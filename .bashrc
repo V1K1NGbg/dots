@@ -42,3 +42,6 @@ setxkbmap -layout us,bg -variant ,bas_phonetic -option 'grp:alt_shift_toggle'
 #Ranger
 export VISUAL=vim
 export EDITOR=vim
+
+#Rofi
+export TERMINAL=/usr/bin/alacritty
