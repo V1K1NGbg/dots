@@ -3,7 +3,7 @@
 		"changeLogs": {
 			"BDFDB": "3.8.1",
 			"GameActivityToggle": "1.2.6",
-			"ImageUtilities": "5.4.6",
+			"ImageUtilities": "5.4.7",
 			"PluginRepo": "2.5.8",
 			"SpellCheck": "1.6.9",
 			"SplitLargeMessages": "1.8.4",
@@ -20,7 +20,7 @@
 			"useChromium": false
 		},
 		"hashes": {
-			"0BDFDB.data.json": "e5c48a46f2e40085d52861d0371f0805bbdbeddb",
+			"0BDFDB.data.json": "9a0cafe21be07f173fa52496dbf028019452e2f0",
 			"0BDFDB.raw.css": "81dd52fb9f66039d356f9370779b76d476321e33"
 		}
 	}
