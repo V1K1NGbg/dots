@@ -1,6 +1,3 @@
-export -> dconf dump /org/nemo/ > nemo_settings.txt
-import -> dconf load /org/nemo/ < nemo_settings.txt
-
 [compact-view]
 default-zoom-level='standard'
 
