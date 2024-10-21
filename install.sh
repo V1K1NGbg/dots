@@ -39,7 +39,7 @@ ExecStart=-/sbin/agetty -a victor - $TERM
 vim ~/.bash_profile
 
 if [[ -z $DISPLAY ]] && [[ $(tty) = /dev/tty1 ]]; then
-startx
+   exec startx
 fi
 
 # pcom
@@ -197,12 +197,6 @@ mkdir -p ~/.config/alacritty/
 # vim
 mkdir -p .vim/colors/
 
-# i3lock
-cp i3lock.sh ~
-chmod +x ~/i3lock.sh
-
-# docker
-
 # discord
 # start discord and login to install the propper files
 # download https://betterdiscord.app/
@@ -213,9 +207,30 @@ chmod +x ~/Downloads/BetterDiscord-Linux.AppImage
 nmcli connection import type wireguard file "/path/to/WG.conf" # !!! CHANGE PATH !!!
 nmcli connection modify WG connection.autoconnect no # !!! CHANGE NAME !!!
 
+# bashrc
+# to remove the sourcing of the theme in oh my bash
+grep -v "source" ~/.bashrc > tmpfile && mv -f tmpfile ~/.bashrc
+
+cat .bashrc >> ~/.bashrc
+
+# copy configs
+yes | cp -rf .config/ ~
+yes | cp -rf .oh-my-bash/ ~
+yes | cp -rf .vim/ ~
+yes | cp -rf .screenlayout/ ~
+
+yes | cp -f .tmux.conf .vimrc .Xresources ~
+
+# i3lock
+chmod +x ~/i3lock.sh
+
+# RESTART
+reboot
+
 # solo key
 # phone integration
-
+# vscode
+# docker
 # firefox
 # bookmark for calendar and mail
 

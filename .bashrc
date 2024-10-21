@@ -1,24 +1,22 @@
-#FOR AUTO COMPLETE: (!OH MY BASH SUPPORTS IT OUT OF THE BOX!)
-echo 'set completion-ignore-case On' | sudo tee -a /etc/inputrc
+# #FOR AUTO COMPLETE: (!OH MY BASH SUPPORTS IT OUT OF THE BOX && RESTART TERMINAL!)
+# echo 'set completion-ignore-case On' | sudo tee -a /etc/inputrc
 
-#FOR CTRL+BCKSPACE to delete last word: (!RESTART TERMINAL!)
-echo '"\C-H":"\C-W"' | sudo tee -a /etc/inputrc
+# #FOR CTRL+BCKSPACE to delete last word: (!OH MY BASH SUPPORTS IT OUT OF THE BOX && RESTART TERMINAL!)
+# echo '"\C-H":"\C-W"' | sudo tee -a /etc/inputrc
 
-#BASH PROFILE (.bash_profile):
-if [ -z "$DISPLAY" ] && [ "$XDG_VTNR" = 1 ]; then
- exec startx
-fi
+# #BASH PROFILE (.bash_profile):
+# if [ -z "$DISPLAY" ] && [ "$XDG_VTNR" = 1 ]; then
+#  exec startx
+# fi
 
----
+# ---
 
 OSH_THEME="agnoster"
-
 DISABLE_AUTO_UPDATE="true"
-
 #ENABLE_CORRECTION="true"
-
 COMPLETION_WAITING_DOTS="true"
 
+source "$OSH"/oh-my-bash.sh
 
 echo "UwU" | cowsay -f tux | lolcat --spread=0.5
 
