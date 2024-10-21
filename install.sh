@@ -197,11 +197,14 @@ mkdir -p ~/.config/alacritty/
 # vim
 mkdir -p .vim/colors/
 
-# discord
-# start discord and login to install the propper files
-# download https://betterdiscord.app/
-chmod +x ~/Downloads/BetterDiscord-Linux.AppImage
-~/Downloads/BetterDiscord-Linux.AppImage
+# flameshot
+mkdir -p  Documents/BackUp/screenshots
+
+# docker
+sudo systemctl enable docker.service
+sudo systemctl start docker.service
+sudo usermod -aG docker $USER
+newgrp docker
 
 # wireguard
 nmcli connection import type wireguard file "/path/to/WG.conf" # !!! CHANGE PATH !!!
@@ -210,7 +213,6 @@ nmcli connection modify WG connection.autoconnect no # !!! CHANGE NAME !!!
 # bashrc
 # to remove the sourcing of the theme in oh my bash
 grep -v "source" ~/.bashrc > tmpfile && mv -f tmpfile ~/.bashrc
-
 cat .bashrc >> ~/.bashrc
 
 # copy configs
@@ -221,18 +223,31 @@ yes | cp -rf .screenlayout/ ~
 
 yes | cp -f .tmux.conf .vimrc .Xresources ~
 
+# discord
+# start discord and login to install the propper files
+# download https://betterdiscord.app/
+chmod +x ~/Downloads/BetterDiscord-Linux.AppImage
+~/Downloads/BetterDiscord-Linux.AppImage
+
 # i3lock
 chmod +x ~/i3lock.sh
 
 # RESTART
 reboot
 
+# vscode
+# sign in
+
+# firefox
+# sign in
+# import VIMIUM and ONE_TAB
+
+# spotify
+# sign in
+
+
 # solo key
 # phone integration
-# vscode
-# docker
-# firefox
-# bookmark for calendar and mail
 
 #--------------------------------------------
 
