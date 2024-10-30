@@ -345,7 +345,21 @@ globalkeys = mytable.join(
         { description = "move to right screen", group = "client" }),
 
     awful.key({ modkey, }, "g", function() awful.spawn.easy_async_with_shell("pgrep -x glava", function(stdout, stderr, reason, exit_code) if exit_code == 0 then awful.spawn.with_shell("pkill glava") else awful.spawn.with_shell("glava --desktop") end end) end,
-        { description = "start/stop glava", group = "client" })
+        { description = "start/stop glava", group = "client" }),
+
+    awful.key({ altkey }, "h", function() os.execute("xdotool mousemove_relative -- -50 0") end,
+        { description = "Move cursor", group = "client" }),
+    awful.key({ altkey }, "j", function() os.execute("xdotool mousemove_relative -- 0 50") end,
+        { description = "Move cursor", group = "client" }),
+    awful.key({ altkey }, "k", function() os.execute("xdotool mousemove_relative -- 0 -50") end,
+        { description = "Move cursor", group = "client" }),
+    awful.key({ altkey }, "l", function() os.execute("xdotool mousemove_relative -- 50 0") end,
+        { description = "Move cursor", group = "client" }),
+
+    awful.key({ altkey }, "[", function() os.execute("xdotool click 1") end,
+        { description = "Left click cursor", group = "client" }),
+    awful.key({ altkey }, "]", function() os.execute("xdotool click 3 ") end,
+        { description = "Right click cursor", group = "client" })
 )
 
 clientkeys = mytable.join(
