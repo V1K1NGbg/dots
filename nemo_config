@@ -13,8 +13,10 @@ default-zoom-level='small'
 
 [plugins]
 disabled-actions=@as []
+disabled-extensions=@as []
 
 [preferences]
+bulk-rename-tool=b'bulky'
 click-double-parent-folder=true
 close-device-view-on-device-eject=true
 date-font-choice='no-mono'
@@ -54,9 +56,9 @@ show-only-directories=false
 
 [window-state]
 devices-expanded=true
-geometry='1257x1357+13+32'
+geometry='2531x1357+13+32'
 maximized=false
-my-computer-expanded=false
+my-computer-expanded=true
 network-expanded=false
 side-pane-view='places'
 sidebar-bookmark-breakpoint=0

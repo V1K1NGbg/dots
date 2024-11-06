@@ -27,7 +27,7 @@ sudo pacman -Rs awesome
 paru -S awesome-git
 
 # install packages (if using vim with no copy you can use cat)
-paru -S acpi alacritty alsa-utils arandr autorandr bash-completion blueman bluez bluez-utils capitaine-cursors cowsay cpupower-gui-git curl discord docker dracut fd firefox flameshot fzf gimp git github-cli glava gnome-boxes gnome-disk-utility htop i3lock-color jdk21-openjdk jdk8-openjdk keepassxc less lolcat man-db man-pages nano nemo neofetch network-manager-applet obs-studio parsec-bin pasystray pavucontrol pcloud-drive plymouth plymouth-theme-hexagon-hud-git prismlauncher qt6-svg ranger remmina rofi rofi-calc ruby-fusuma spotify-launcher tmux tree unclutter unzip usbimager-x11 vim visual-studio-code-bin wget xdotool xorg-xinput xss-lock zip
+paru -S acpi alacritty alsa-utils arandr autorandr bash-completion blueman bluez bluez-utils bottles bulky capitaine-cursors cowsay cpupower-gui-git curl discord docker dracut fd firefox flameshot fzf gimp git github-cli glava gnome-boxes gnome-disk-utility htop i3lock-color jdk21-openjdk jdk8-openjdk keepassxc less lolcat man-db man-pages meld nano nemo nemo-compare nemo-fileroller nemo-preview neofetch network-manager-applet obs-studio parsec-bin pasystray pavucontrol pcloud-drive plymouth plymouth-theme-hexagon-hud-git prismlauncher qt6-svg ranger remmina rofi rofi-calc ruby-fusuma spotify-launcher tmux tree unclutter unzip usbimager-x11 vim visual-studio-code-bin wget xdotool xorg-xinput xss-lock zip
 
 # auto login
 sudo vim /etc/systemd/system/getty.target.wants/getty\@tty1.service
