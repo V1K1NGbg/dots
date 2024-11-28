@@ -5,18 +5,18 @@ swipe:
     right:
       command: "xdotool key super+comma" # Switch workspace back
     up:
-      command: "xdotool key alt+m" # Focus
+      command: "xdotool key super+shift+n" # Unminimize
     down:
-      command: "xdotool key alt+m" # Focus
+      command: "xdotool key super+n" # Minimize
   4:
     left:
       command: "xdotool key super+shift+Tab" # Switch tab back
     right:
       command: "xdotool key super+Tab" # Switch tab
     up:
-      command: "xdotool key super+shift+n" # Unminimize
+      command: "xdotool key alt+m" # Focus
     down:
-      command: "xdotool key super+n" # Minimize
+      command: "xdotool key alt+m" # Focus
 #pinch:
 #  in:
 #    command: "xdotool key " # 
