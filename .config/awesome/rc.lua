@@ -301,7 +301,7 @@ globalkeys = mytable.join(
         { description = "open a file manager", group = "launcher" }),
     awful.key({ modkey, }, "c", function() awful.spawn(guieditor) end,
         { description = "open a vs code instance", group = "launcher" }),
-    awful.key({ modkey, }, "space", function() awful.layout.inc(1) end,
+    awful.key({ modkey, "Shift" }, "space", function() awful.layout.inc(1) end,
         { description = "select next", group = "client" }),
 
     awful.key({ modkey, "Shift" }, "n", function()
