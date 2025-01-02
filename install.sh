@@ -246,6 +246,7 @@ reboot
 # spotify
 # sign in
 
+# vtop?
 
 # solo key
 # phone integration
