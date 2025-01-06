@@ -336,17 +336,24 @@ globalkeys = mytable.join(
         { description = "toggle mute", group = "hotkeys" }),
 
     -- Prompt
-    awful.key({ modkey }, "r", function() os.execute("rofi -terminal "..terminal.." -show run") end,
+    awful.key({ modkey }, "r", function() os.execute("rofi -terminal " .. terminal .. " -show run") end,
         { description = "run prompt, calc, apps, files...", group = "launcher" }),
-
     awful.key({ modkey, }, "semicolon", function() awful.screen.focus_relative(1) end,
         { description = "move to left screen", group = "client" }),
     awful.key({ modkey, }, "apostrophe", function() awful.screen.focus_relative(-1) end,
         { description = "move to right screen", group = "client" }),
-
-    awful.key({ modkey, }, "g", function() awful.spawn.easy_async_with_shell("pgrep -x glava", function(stdout, stderr, reason, exit_code) if exit_code == 0 then awful.spawn.with_shell("pkill glava") else awful.spawn.with_shell("glava --desktop") end end) end,
+    awful.key({ modkey, }, "g",
+        function()
+            awful.spawn.easy_async_with_shell("pgrep -x glava",
+                function(stdout, stderr, reason, exit_code)
+                    if exit_code == 0 then
+                        awful.spawn.with_shell("pkill glava")
+                    else
+                        awful.spawn.with_shell("glava --desktop")
+                    end
+                end)
+        end,
         { description = "start/stop glava", group = "client" }),
-
     awful.key({ altkey }, "h", function() os.execute("xdotool mousemove_relative -- -50 0") end,
         { description = "Move cursor", group = "client" }),
     awful.key({ altkey }, "j", function() os.execute("xdotool mousemove_relative -- 0 50") end,
@@ -355,7 +362,14 @@ globalkeys = mytable.join(
         { description = "Move cursor", group = "client" }),
     awful.key({ altkey }, "l", function() os.execute("xdotool mousemove_relative -- 50 0") end,
         { description = "Move cursor", group = "client" }),
-
+    awful.key({ altkey, "Shift" }, "h", function() os.execute("xdotool mousemove_relative -- -5 0") end,
+        { description = "Move cursor", group = "client" }),
+    awful.key({ altkey, "Shift" }, "j", function() os.execute("xdotool mousemove_relative -- 0 5") end,
+        { description = "Move cursor", group = "client" }),
+    awful.key({ altkey, "Shift" }, "k", function() os.execute("xdotool mousemove_relative -- 0 -5") end,
+        { description = "Move cursor", group = "client" }),
+    awful.key({ altkey, "Shift" }, "l", function() os.execute("xdotool mousemove_relative -- 5 0") end,
+        { description = "Move cursor", group = "client" }),
     awful.key({ altkey }, "[", function() os.execute("xdotool click 1") end,
         { description = "Left click cursor", group = "client" }),
     awful.key({ altkey }, "]", function() os.execute("xdotool click 3 ") end,
@@ -392,7 +406,6 @@ clientkeys = mytable.join(
             c:raise()
         end,
         { description = "(un)maximize", group = "client" }),
-
     awful.key({ modkey, "Shift" }, "semicolon", function(c) c:move_to_screen(c.screen.index - 1) end,
         { description = "move client to left screen", group = "client" }),
     awful.key({ modkey, "Shift" }, "apostrophe", function(c) c:move_to_screen(c.screen.index + 1) end,
