@@ -8,13 +8,13 @@ start() {
 }
 
 # start discord --start-minimized
+start code
+start firefox
 start discord
 start alacritty
 start nemo
 start spotify-launcher
 start keepassxc
-start code
-start firefox
 
 start nm-applet
 start blueman-applet
