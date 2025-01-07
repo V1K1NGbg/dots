@@ -5,29 +5,27 @@
 # extra packages: git vim firefox
 
 git clone https://github.com/V1K1NGbg/dots.git
-cd dots
+
 # vim install.sh
 
 # update
 sudo pacman -Syu
 
-# install paru dependencies
-sudo pacman -S git
 # install paru
 sudo pacman -S --needed base-devel
 git clone https://aur.archlinux.org/paru-git.git
 cd paru-git
 makepkg -si
 cd ..
-sudo rm -r paru
+sudo rm -r paru-git
 
 # remove awesome
 sudo pacman -Rs awesome
 # install the latest
 paru -S awesome-git
 
-# install packages (if using vim with no copy you can use cat)
-paru -S acpi alacritty alsa-utils arandr autorandr bash-completion blueman bluez bluez-utils baobab bottles bulky capitaine-cursors cowsay cpupower-gui-git curl discord docker dracut fd firefox flameshot fzf gimp git github-cli glava gnome-boxes gnome-disk-utility htop i3lock-color jdk21-openjdk jdk8-openjdk keepassxc less lolcat man-db man-pages meld nano nemo nemo-compare nemo-fileroller nemo-preview neofetch network-manager-applet obs-studio parsec-bin pasystray pavucontrol pcloud-drive plymouth plymouth-theme-hexagon-hud-git prismlauncher qt6-svg ranger remmina rofi rofi-calc rpi-imager ruby-fusuma spotify-launcher tmux tree unclutter unzip vim visual-studio-code-bin vlc wget xdotool xorg-xinput xss-lock zip
+# install packages
+paru -S acpi alacritty alsa-utils arandr autorandr bash-completion blueman bluez bluez-utils baobab bottles bulky capitaine-cursors cowsay cpupower-gui-git curl discord docker dracut fd firefox flameshot fzf gimp git github-cli glava gnome-disk-utility htop i3lock-color jdk21-openjdk jdk8-openjdk keepassxc less lolcat man-db man-pages nano nemo nemo-compare nemo-fileroller nemo-preview neofetch network-manager-applet pasystray pavucontrol pcloud-drive plymouth plymouth-theme-hexagon-hud-git prismlauncher qt6-svg ranger rofi rofi-calc rpi-imager ruby-fusuma spotify-launcher tmux tree unclutter unzip uthash vim visual-studio-code-bin vlc wget xdotool xorg-xinput xss-lock zip
 
 # auto login
 sudo vim /etc/systemd/system/getty.target.wants/getty\@tty1.service
@@ -63,14 +61,15 @@ sudo plymouth-set-default-theme -R hexagon_hud
 # git
 git config --global user.name "V1K1NGbg"
 git config --global user.email "victor@ilchev.com"
-git config pull.rebase true
+git config --global pull.rebase true
 gh auth login
+mkdir -p ~/Documents/GitHub
 
 # pcloud
+pcloud
 # sign in (Google + Auth)
 mkdir -p ~/Documents/BackUp
 mkdir -p ~/Documents/PC
-mkdir -p ~/Documents/GitHub
 # Backup ~/Documents/BackUp
 # Sync ~/Documents/PC <-> pCloudDrive/PC
 
@@ -175,6 +174,8 @@ sudo vim /etc/NetworkManager/conf.d/dns-servers.conf
 # # set show_hidden true
 # # set colorscheme jungle
 
+cd dots
+
 # copy nemo
 # # export
 # dconf dump /org/nemo/ > nemo_config
@@ -196,10 +197,10 @@ mkdir -p ~/.config/awesome/
 mkdir -p ~/.config/alacritty/
 
 # vim
-mkdir -p .vim/colors/
+mkdir -p ~/.vim/colors/
 
 # flameshot
-mkdir -p  Documents/BackUp/screenshots
+mkdir -p ~/Documents/BackUp/screenshots
 
 # docker
 sudo systemctl enable docker.service
@@ -222,9 +223,10 @@ yes | cp -rf .oh-my-bash/ ~
 yes | cp -rf .vim/ ~
 yes | cp -rf .screenlayout/ ~
 
-yes | cp -f .tmux.conf .vimrc .Xresources ~
+yes | cp -f .tmux.conf .vimrc .Xresources i3lock.sh ~
 
 # discord
+discord
 # start discord and login to install the propper files
 # download https://betterdiscord.app/
 chmod +x ~/Downloads/BetterDiscord-Linux.AppImage
