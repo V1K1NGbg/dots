@@ -647,7 +647,7 @@ end)
 -- client.connect_signal("request::activate", awful.ewmh.activate)
 
 -- Enable jump to urgent client
--- client.connect_signal("property::urgent", function(c) c:jump_to() end)
+client.connect_signal("property::urgent", function(c) c:jump_to() end)
 
 
 -- Remove wibar on full screen

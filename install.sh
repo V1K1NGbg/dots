@@ -84,6 +84,9 @@ source ~/.bashrc
 # install node and npm
 nvm install node
 
+# vtop
+sudo npm install -g vtop
+
 # install oh-my-bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)"
 
@@ -95,7 +98,6 @@ paru -S nvidia-open nvidia-utils nvidia-settings
 paru -S envycontrol
 # change to integrated
 sudo envycontrol -s integrated
-
 
 # enable tap clicking, natural scrolling and double tap
 # in (/usr/share/X11/xorg.conf.d/40-libinput.conf)
@@ -144,7 +146,6 @@ fc-list | grep Monocraft
 # # gtk
 # vim ~/.config/gtk-3.0/settings.ini
 # #gtk-application-prefer-dark-theme=1
-
 
 # fusuma
 sudo gpasswd -a $USER input
@@ -224,6 +225,7 @@ yes | cp -rf .vim/ ~
 yes | cp -rf .screenlayout/ ~
 
 yes | cp -f .tmux.conf .vimrc .Xresources i3lock.sh ~
+yes | cp -f /path/to/const.lua ~/.config/awesome/ # !!! CHANGE PATH !!!
 
 # discord
 discord
@@ -231,9 +233,22 @@ discord
 # download https://betterdiscord.app/
 chmod +x ~/Downloads/BetterDiscord-Linux.AppImage
 ~/Downloads/BetterDiscord-Linux.AppImage
+# sign in
 
 # i3lock
 chmod +x ~/i3lock.sh
+
+# default applications
+
+xdg-mime default xdg-open.desktop *
+
+xdg-mime default code.desktop text/*
+xdg-mime default firefox.desktop text/html
+xdg-mime default firefox.desktop application/pdf
+xdg-mime default vlc.desktop video/*
+xdg-mime default vlc.desktop audio/*
+xdg-mime default gimp.desktop image/*
+xdg-mime default nemo.desktop inode/*
 
 # RESTART
 reboot
@@ -243,16 +258,15 @@ reboot
 
 # firefox
 # sign in
-# import VIMIUM and ONE_TAB
+# import VIMIUM and Bonjourr
+# bookmarks fix layout
+# cookies exceptions (uni,google,github)
 
 # spotify
 # sign in
 
-# vtop?
-# vmware?
-
-# solo key
 # phone integration
+# villager sounds
 
 #--------------------------------------------
 
