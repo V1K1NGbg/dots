@@ -247,6 +247,7 @@ reboot
 # sign in
 
 # vtop?
+# vmware?
 
 # solo key
 # phone integration
