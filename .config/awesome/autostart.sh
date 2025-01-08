@@ -5,16 +5,8 @@ start() {
   then
     "$@"&
   fi
+  sleep 0.5
 }
-
-# start discord --start-minimized
-start code
-start firefox
-start discord
-start alacritty
-start nemo
-start spotify-launcher
-start keepassxc
 
 start nm-applet
 start blueman-applet
@@ -26,6 +18,15 @@ start picom -b
 start fusuma -d
 start xss-lock ~/i3lock.sh
 # start glava -d
+
+# start discord --start-minimized
+start firefox
+start discord
+start alacritty
+start nemo
+start spotify-launcher
+start keepassxc
+start code
 
 start unclutter -idle 1 -jitter 2 -root &
 ~/.bashrc
