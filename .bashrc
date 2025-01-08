@@ -21,7 +21,7 @@ source "$OSH"/oh-my-bash.sh
 echo "UwU" | cowsay -f tux | lolcat --spread=0.5
 
 alias clear="clear && source ~/.bashrc"
-alias notes="code ~/pCloudDrive/0Notes.md"
+alias notes="code -n ~/pCloudDrive/0Notes.md"
 alias shutdown="shutdown now"
 
 #Fzf
