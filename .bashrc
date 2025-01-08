@@ -1,7 +1,7 @@
 # #FOR AUTO COMPLETE: (!OH MY BASH SUPPORTS IT OUT OF THE BOX && RESTART TERMINAL!)
 # echo 'set completion-ignore-case On' | sudo tee -a /etc/inputrc
 
-# #FOR CTRL+BCKSPACE to delete last word: (!OH MY BASH SUPPORTS IT OUT OF THE BOX && RESTART TERMINAL!)
+# #FOR CTRL+BCKSPACE to delete last word:
 # echo '"\C-H":"\C-W"' | sudo tee -a /etc/inputrc
 
 # #BASH PROFILE (.bash_profile):

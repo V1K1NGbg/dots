@@ -218,6 +218,9 @@ nmcli connection modify WG connection.autoconnect no # !!! CHANGE NAME !!!
 grep -v "source" ~/.bashrc > tmpfile && mv -f tmpfile ~/.bashrc
 cat .bashrc >> ~/.bashrc
 
+# for ctrl+backspace in terminal
+echo '"\C-H":"\C-W"' | sudo tee -a /etc/inputrc
+
 # copy configs
 yes | cp -rf .config/ ~
 yes | cp -rf .oh-my-bash/ ~
