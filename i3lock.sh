@@ -15,6 +15,8 @@ cyan='#67ffeb'
 font="Monocraft Nerd Font"
 size="24"
 
+setxkbmap us
+
 i3lock \
   --insidever-color=$selection$alpha \
   --insidewrong-color=$selection$alpha \
@@ -49,13 +51,15 @@ i3lock \
   --pass-media-keys \
   --pass-screen-keys \
   --pass-volume-keys \
- --time-font="$font" \
- --date-font="$font" \
- --layout-font="$font" \
- --verif-font="$font" \
- --wrong-font="$font" \
- --time-size="$size" \
- --date-size="$size" \
- --layout-size="$size" \
- --verif-size="$size" \
- --wrong-size="$size" \
+  --time-font="$font" \
+  --date-font="$font" \
+  --layout-font="$font" \
+  --verif-font="$font" \
+  --wrong-font="$font" \
+  --time-size="$size" \
+  --date-size="$size" \
+  --layout-size="$size" \
+  --verif-size="$size" \
+  --wrong-size="$size"
+
+source .bashrc
