@@ -28,10 +28,14 @@ paru -S awesome-git
 paru -S acpi alacritty alsa-utils arandr autorandr bash-completion blueman bluez bluez-utils baobab bottles bulky capitaine-cursors cowsay cpupower-gui-git curl discord docker dracut fd firefox flameshot fzf gimp git github-cli glava gnome-disk-utility htop i3lock-color jdk21-openjdk jdk8-openjdk keepassxc less lolcat man-db man-pages nano nemo nemo-compare nemo-fileroller nemo-preview neofetch network-manager-applet pasystray pavucontrol pcloud-drive plymouth plymouth-theme-hexagon-hud-git prismlauncher qt6-svg ranger rofi rofi-calc rpi-imager ruby-fusuma sof-firmware spotify-launcher tmux tree unclutter unzip uthash vim visual-studio-code-bin vlc wget xdotool xorg-xinput xss-lock zip
 
 # auto login
-sudo vim /etc/systemd/system/getty.target.wants/getty\@tty1.service
 
+# sudo vim /etc/systemd/system/getty.target.wants/getty\@tty1.servic
+#from
 #ExecStart=-/sbin/agetty -o '-p -- \\u' --noclear - $TERM
-ExecStart=-/sbin/agetty -a victor - $TERM
+#to
+#ExecStart=-/sbin/agetty -a victor - $TERM
+
+sudo sed -i 's|^ExecStart=.*|ExecStart=-/sbin/agetty -a victor - $TERM|' "/etc/systemd/system/getty.target.wants/getty@tty1.service"
 
 # add to ~/.bash_profile
 vim ~/.bash_profile
@@ -280,3 +284,6 @@ paru -Qqen > pkglist.txt
 
 # change brightness
 xrandr --output eDP-1 --brightness 0.5
+
+# autologin
+sudo sed -i 's|^ExecStart=.*|ExecStart=-/sbin/agetty -a victor - $TERM|' "/etc/systemd/system/getty.target.wants/getty@tty1.service"
