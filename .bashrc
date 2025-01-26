@@ -38,6 +38,8 @@ _fzf_compgen_dir() {
 
 setxkbmap -layout us,bg -variant ,bas_phonetic -option 'grp:win_space_toggle'
 
+complete -d cd
+
 #Ranger
 export VISUAL=vim
 export EDITOR=vim
