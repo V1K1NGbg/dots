@@ -288,7 +288,10 @@ xrandr --output eDP-1 --brightness 0.5
 # autologin
 sudo sed -i 's|^ExecStart=.*|ExecStart=-/sbin/agetty -a victor - $TERM|' "/etc/systemd/system/getty.target.wants/getty@tty1.service"
 
+# verify signature
+gpg --keyserver-options auto-key-retrieve --verify archlinux.iso.sig
 
+# vim
 vim:
 multiview
 files
