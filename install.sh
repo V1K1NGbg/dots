@@ -29,7 +29,7 @@ paru -S acpi alacritty alsa-utils arandr autorandr bash-completion blueman bluez
 
 # auto login
 
-# sudo vim /etc/systemd/system/getty.target.wants/getty\@tty1.servic
+# sudo vim /etc/systemd/system/getty.target.wants/getty\@tty1.service
 #from
 #ExecStart=-/sbin/agetty -o '-p -- \\u' --noclear - $TERM
 #to
