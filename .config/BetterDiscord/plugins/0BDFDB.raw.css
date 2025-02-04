@@ -146,7 +146,7 @@ img:not([src]), img[src=""], img[src="null"] {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	text-transform: capitalize;
+	text-transform: uppercase;
 	cursor: pointer;
 	order: 1;
 }
@@ -408,14 +408,16 @@ img:not([src]), img[src=""], img[src="null"] {
 	margin-left: 6px;
 }
 [REPLACE_CLASS_discoverycard] [REPLACE_CLASS_favbuttoncontainer] {
+	background: transparent;
 	width: 20px;
 	height: 20px;
 	flex: 0 0 auto;
 	margin-left: 3px;
 }
-[REPLACE_CLASS_discoverycard] [REPLACE_CLASS_favbuttoncontainer] [REPLACE_CLASS_giffavoritesize] {
+[REPLACE_CLASS_discoverycard] [REPLACE_CLASS_favbuttoncontainer] [REPLACE_CLASS_giffavoriteicon] {
 	width: 20px;
 	height: 20px;
+	flex: none;
 }
 [REPLACE_CLASS_discoverycardauthor] {
 	color: var(--header-secondary);
@@ -590,7 +592,14 @@ img:not([src]), img[src=""], img[src="null"] {
 [REPLACE_CLASS_selectwrapper] [REPLACE_CLASS_selectsearchinput] {
 	width: 100%;
 }
-[REPLACE_CLASS_selectoption] [REPLACE_CLASS_giffavoritesize] {
+[REPLACE_CLASS_selectoption] [REPLACE_CLASS_favbuttoncontainer] {
+	background: transparent;
+	width: 20px;
+	height: 20px;
+	padding: 0;
+	flex: 0 0 auto;
+}
+[REPLACE_CLASS_selectoption] [REPLACE_CLASS_giffavoriteicon] {
 	width: 20px;
 	height: 20px;
 }
@@ -971,7 +980,12 @@ img:not([src]), img[src=""], img[src="null"] {
 [REPLACE_CLASS_dateinputbuttonselected] [REPLACE_CLASS_svgicon]:hover {
 	color: var(--interactive-active);
 }
-
+[REPLACE_CLASS_input][REPLACE_CLASS_inputerror] {
+	border-color: var(--status-danger);
+}
+[REPLACE_CLASS_input][REPLACE_CLASS_inputsuccess] {
+	border-color: var(--status-positive);
+}
 input[REPLACE_CLASS_input][REPLACE_CLASS_inputsuccess],
 input[REPLACE_CLASS_input][REPLACE_CLASS_inputerror] {
 	border-style: solid;
@@ -1350,6 +1364,13 @@ input[REPLACE_CLASS_input][REPLACE_CLASS_inputerror] {
 [REPLACE_CLASS_noticeclosing] {
 	height: 0 !important;
 	overflow: hidden !important;
+}
+[REPLACE_CLASS_noticesuccess] {
+	background-color: var(--status-positive-background);
+	color: var(--status-positive-text)
+}
+[REPLACE_CLASS_noticesuccess] [REPLACE_CLASS_noticebutton]:hover {
+	color: var(--text-positive)
 }
 [REPLACE_CLASS_noticetext] {
 	display: inline-flex;

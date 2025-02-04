@@ -5,7 +5,8 @@
 			"maxMessages": 0
 		},
 		"general": {
-			"byNewlines": false
+			"byNewlines": false,
+			"leaveGaps": false
 		}
 	}
 }
