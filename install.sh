@@ -35,7 +35,11 @@ paru -S acpi alacritty alsa-utils arandr autorandr bash-completion blueman bluez
 #to
 #ExecStart=-/sbin/agetty -a victor - $TERM
 
-sudo sed -i 's|^ExecStart=.*|ExecStart=-/sbin/agetty -a victor - $TERM|' "/etc/systemd/system/getty.target.wants/getty@tty1.service"
+sudo systemctl edit getty@tty1.service --drop-in=autologin
+
+#[Service]
+#ExecStart=
+#ExecStart=-/sbin/agetty -o '-p -f -- \\u' --noclear --autologin victor %I %TERM
 
 # add to ~/.bash_profile
 vim ~/.bash_profile
@@ -70,10 +74,10 @@ gh auth login
 mkdir -p ~/Documents/GitHub
 
 # pcloud
-pcloud
-# sign in (Google + Auth)
 mkdir -p ~/Documents/BackUp
 mkdir -p ~/Documents/PC
+# sign in (Google + Auth)
+pcloud
 # Backup ~/Documents/BackUp
 # Sync ~/Documents/PC <-> pCloudDrive/PC
 
@@ -284,9 +288,6 @@ paru -Qqen > pkglist.txt
 
 # change brightness
 xrandr --output eDP-1 --brightness 0.5
-
-# autologin
-sudo sed -i 's|^ExecStart=.*|ExecStart=-/sbin/agetty -a victor - $TERM|' "/etc/systemd/system/getty.target.wants/getty@tty1.service"
 
 # verify signature
 gpg --keyserver-options auto-key-retrieve --verify archlinux.iso.sig
