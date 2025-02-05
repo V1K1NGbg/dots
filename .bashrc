@@ -25,6 +25,8 @@ alias notes="code -n ~/pCloudDrive/0Notes.md"
 alias config="code -n ~/dots"
 alias shutdown="shutdown now"
 
+alias lgit="lazygit"
+
 #Fzf
 source /usr/share/fzf/completion.bash
 
