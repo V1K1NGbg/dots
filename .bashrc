@@ -26,6 +26,7 @@ alias config="code -n ~/dots"
 alias shutdown="shutdown now"
 
 alias lgit="lazygit"
+alias mov-cli="lobster"
 
 #Fzf
 source /usr/share/fzf/completion.bash
