@@ -165,6 +165,15 @@ sudo vim /etc/NetworkManager/conf.d/dns-servers.conf
 # [global-dns-domain-*]
 # servers=::1,1.1.1.1
 
+# steam
+sudo vim /etc/pacman.conf
+# and add the following
+#[multilib]
+#include = /etc/pacman.d/mirrorlist
+paru
+paru -S steam
+
+
 # # feh
 # feh --bg-scale ${imageurl}
 
