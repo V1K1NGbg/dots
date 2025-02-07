@@ -227,6 +227,11 @@ newgrp docker
 nmcli connection import type wireguard file "/path/to/WG.conf" # !!! CHANGE PATH !!!
 nmcli connection modify WG connection.autoconnect no # !!! CHANGE NAME !!!
 
+# # cloudflare-warp
+# sudo systemctl enable warp-svc
+# sudo systemctl start warp-svc
+# warp-cli registration new
+
 # bashrc
 # to remove the sourcing of the theme in oh my bash
 grep -v "source" ~/.bashrc > tmpfile && mv -f tmpfile ~/.bashrc
