@@ -173,7 +173,6 @@ sudo vim /etc/pacman.conf
 paru
 paru -S steam
 
-
 # # feh
 # feh --bg-scale ${imageurl}
 
@@ -281,6 +280,9 @@ reboot
 # import VIMIUM and Bonjourr
 # bookmarks fix layout
 # cookies exceptions (uni,google,github)
+
+# steam
+# sign in
 
 # spotify
 # sign in
