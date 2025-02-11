@@ -27,8 +27,8 @@ docker run -d \
     --restart=no \
     portainer/portainer-ce:2.21.5
 
-docker run -d \
-    --name watchtower \
-    -v /var/run/docker.sock:/var/run/docker.sock \
-    --restart=unless-stopped \
-    containrrr/watchtower
+# docker run -d \
+#     --name watchtower \
+#     -v /var/run/docker.sock:/var/run/docker.sock \
+#     --restart=unless-stopped \
+#     containrrr/watchtower
