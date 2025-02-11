@@ -282,7 +282,7 @@ mkdir ~/docker_data/pihole/etc-pihole
 mkdir ~/docker_data/pihole/etc-dnsmasq.d
 mkdir ~/docker_data/portainer
 
-./docker_run.sh
+./docker_setup.sh
 
 # vscode
 # sign in
@@ -314,17 +314,3 @@ xrandr --output eDP-1 --brightness 0.5
 
 # verify signature
 gpg --keyserver-options auto-key-retrieve --verify archlinux.iso.sig
-
-# vim
-vim:
-multiview
-files
-search
-git
-run and debug
-copilot
-spell check
-highlite
-intelisence
-errors
-markdown

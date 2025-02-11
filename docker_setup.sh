@@ -15,9 +15,6 @@ docker run -d \
     -e FTLCONF_LOCAL_IPV4="127.0.0.1" \
     pihole/pihole:latest
 
-# change password
-docker exec -it pihole pihole -a -p
-
 docker run -d \
     --name portainer \
     -p 8000:8000 \
@@ -26,6 +23,11 @@ docker run -d \
     -v /home/victor/docker_data/portainer:/data \
     --restart=no \
     portainer/portainer-ce:2.21.5
+
+# change password
+docker exec -it pihole pihole -a -p
+
+docker stop portainer
 
 # docker run -d \
 #     --name watchtower \
