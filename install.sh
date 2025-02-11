@@ -31,7 +31,7 @@ sudo pacman -Rs awesome
 paru -S awesome-git
 
 # install packages
-paru -S acpi alacritty alsa-utils ani-cli arandr autorandr bash-completion blueman bluez bluez-utils baobab bottles bulky capitaine-cursors cowsay cpupower-gui-git curl discord docker dracut fd firefox flameshot fzf gimp git github-cli glava gnome-disk-utility highlight htop i3lock-color jdk21-openjdk jdk8-openjdk keepassxc lazygit less lobster lolcat man-db man-pages nano nemo nemo-compare nemo-fileroller nemo-preview neofetch network-manager-applet pasystray pavucontrol pcloud-drive plymouth plymouth-theme-hexagon-hud-git prismlauncher qt6-svg ranger rofi rofi-calc ruby-fusuma sof-firmware spotify-launcher steam tmux tree unclutter unzip usbimager uthash vim visual-studio-code-bin vlc wget xdotool xorg-xinput xss-lock zip
+paru -S acpi alacritty alsa-utils ani-cli arandr autorandr bash-completion blueman bluez bluez-utils baobab bottles bulky capitaine-cursors cowsay cpupower-gui-git curl dangerzone-bin discord docker dracut fd firefox flameshot fzf gimp git github-cli glava gnome-disk-utility highlight htop i3lock-color jdk21-openjdk jdk8-openjdk keepassxc lazygit less lobster lolcat man-db man-pages nano nemo nemo-compare nemo-fileroller nemo-preview neofetch network-manager-applet pasystray pavucontrol pcloud-drive plymouth plymouth-theme-hexagon-hud-git prismlauncher qt6-svg ranger rofi rofi-calc ruby-fusuma sof-firmware spotify-launcher steam tmux tree unclutter unzip usbimager uthash vim visual-studio-code-bin vlc wget xdotool xorg-xinput xss-lock zip
 
 # auto login
 
@@ -166,10 +166,10 @@ sudo gpasswd -a $USER input
 newgrp input
 mkdir -p ~/.config/fusuma
 
-# static dns
+# static dns (WITH PIHOLE)
 sudo vim /etc/NetworkManager/conf.d/dns-servers.conf
 # [global-dns-domain-*]
-# servers=::1,1.1.1.1
+# servers=127.0.0.1,1.1.1.1
 
 # # feh
 # feh --bg-scale ${imageurl}
@@ -274,6 +274,15 @@ xdg-mime default nemo.desktop inode/*
 
 # RESTART
 reboot
+
+# docker containers
+cd dots
+
+mkdir ~/docker_data/pihole/etc-pihole
+mkdir ~/docker_data/pihole/etc-dnsmasq.d
+mkdir ~/docker_data/portainer
+
+./docker_run.sh
 
 # vscode
 # sign in
