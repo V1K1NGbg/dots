@@ -28,6 +28,9 @@ alias shutdown="shutdown now"
 alias lgit="lazygit"
 alias mov-cli="lobster"
 
+# fix double type
+xset r rate 200 60
+
 #Fzf
 source /usr/share/fzf/completion.bash
 
