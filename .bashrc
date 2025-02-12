@@ -31,6 +31,8 @@ alias mov-cli="lobster"
 #Fzf
 source /usr/share/fzf/completion.bash
 
+export FZF_COMPLETION_TRIGGER='`'
+
 _fzf_compgen_path() {
    fd --hidden --follow --exclude ".git" . "$1"
 }
@@ -41,7 +43,7 @@ _fzf_compgen_dir() {
 
 setxkbmap -layout us,bg -variant ,bas_phonetic -option 'grp:win_space_toggle'
 
-complete -d cd
+# complete -d cd
 
 #Ranger
 export VISUAL=vim
