@@ -13,6 +13,7 @@ start blueman-applet
 start pcloud
 start flameshot
 start pasystray
+start parcellite
 
 start picom -b
 start fusuma -d

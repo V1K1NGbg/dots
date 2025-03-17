@@ -34,7 +34,7 @@ xset r rate 220 40
 #Fzf
 source /usr/share/fzf/completion.bash
 
-export FZF_COMPLETION_TRIGGER=''
+# export FZF_COMPLETION_TRIGGER=''
 
 _fzf_compgen_path() {
    fd --hidden --follow --exclude ".git" . "$1"
@@ -43,6 +43,11 @@ _fzf_compgen_path() {
 _fzf_compgen_dir() {
    fd --type d --hidden --follow --exclude ".git" . "$1"
 }
+
+source $HOME/fzf-tab-completion/bash/fzf-bash-completion.sh
+bind -x '"\t": fzf_bash_completion'
+
+# _fzf_bash_completion_loading_msg() { echo "${PS1@P}${READLINE_LINE}"; }
 
 setxkbmap -layout us,bg -variant ,bas_phonetic -option 'grp:win_space_toggle'
 

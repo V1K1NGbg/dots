@@ -31,7 +31,7 @@ sudo pacman -Rs awesome
 paru -S awesome-git
 
 # install packages
-paru -S acpi alacritty alsa-utils ani-cli arandr autorandr bash-completion blueman bluez bluez-utils baobab bottles bulky capitaine-cursors cowsay cpupower-gui-git curl dangerzone-bin discord docker dracut fd firefox flameshot fzf gimp git github-cli glava gnome-disk-utility highlight htop i3lock-color jdk21-openjdk jdk8-openjdk keepassxc lazygit less lobster lolcat man-db man-pages moonlight-qt nano nemo nemo-compare nemo-fileroller nemo-preview neofetch network-manager-applet pasystray pavucontrol pcloud-drive plymouth plymouth-theme-hexagon-hud-git prismlauncher qt6-svg ranger rofi rofi-calc ruby-fusuma sof-firmware spotify-launcher steam sunshine tmux tree unclutter unzip usbimager uthash vim visual-studio-code-bin vlc wget xdotool xorg-xinput xss-lock zip
+paru -S acpi alacritty alsa-utils ani-cli arandr autorandr bash-completion blueman bluez bluez-utils baobab bottles bulky capitaine-cursors cowsay cpupower-gui-git curl dangerzone-bin discord docker dracut fd firefox flameshot fzf gimp git github-cli glava gnome-disk-utility highlight htop i3lock-color jdk21-openjdk jdk8-openjdk keepassxc lazygit less lobster lolcat man-db man-pages moonlight-qt nano nemo nemo-compare nemo-fileroller nemo-preview neofetch network-manager-applet parcellite pasystray pavucontrol pcloud-drive plymouth plymouth-theme-hexagon-hud-git prismlauncher qt6-svg ranger rofi rofi-calc ruby-fusuma sof-firmware spotify-launcher steam sunshine tmux tree unclutter unzip usbimager uthash vim visual-studio-code-bin vlc wget xdotool xorg-xinput xss-lock zip
 
 # auto login
 
@@ -103,6 +103,10 @@ npm install -g vtop
 
 # install oh-my-bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)"
+
+# install fzf-completion
+git clone https://github.com/lincheney/fzf-tab-completion
+
 
 # !!! ONLY FON NVIDIA GPU'S !!!
 
