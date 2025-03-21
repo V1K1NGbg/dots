@@ -16,6 +16,8 @@ font="Monocraft Nerd Font"
 size="24"
 
 setxkbmap us
+sleep 0.1 # this works by magic, don't touch it
+setxkbmap -layout us,bg -variant ,bas_phonetic -option 'grp:win_space_toggle'
 
 i3lock \
   --insidever-color=$selection$alpha \
