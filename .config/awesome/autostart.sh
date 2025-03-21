@@ -25,7 +25,7 @@ start firefox
 start discord
 start alacritty
 start nemo
-start spotify-launcher
+# start spotify-launcher
 start keepassxc
 start code
 
