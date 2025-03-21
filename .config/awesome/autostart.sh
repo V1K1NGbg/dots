@@ -26,7 +26,7 @@ start discord
 start alacritty
 start nemo
 # start spotify-launcher
-start keepassxc
+# start keepassxc
 start code
 
 start unclutter -idle 1 -jitter 2 -root &
