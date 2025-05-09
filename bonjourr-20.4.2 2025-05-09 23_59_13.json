@@ -1,0 +1,302 @@
+{
+  "about": {
+    "browser": "firefox",
+    "version": "20.4.2"
+  },
+  "showall": true,
+  "lang": "en",
+  "dark": "system",
+  "favicon": "",
+  "tabtitle": "",
+  "greeting": "Victor",
+  "pagegap": 0,
+  "pagewidth": 2200,
+  "time": true,
+  "main": true,
+  "dateformat": "eu",
+  "background_blur": 15,
+  "background_bright": 0.8,
+  "background_type": "local",
+  "quicklinks": false,
+  "syncbookmarks": null,
+  "textShadow": 0.2,
+  "announcements": "major",
+  "review": -1,
+  "css": "",
+  "hide": {
+    "settingsicon": true,
+    "date": false,
+    "greetings": false,
+    "clock": false
+  },
+  "linkstyle": "medium",
+  "linktitles": true,
+  "linkbackgrounds": true,
+  "linknewtab": false,
+  "linksrow": 6,
+  "linksnjllhg": {
+    "_id": "linksnjllhg",
+    "parent": "Bookmarks Toolbar",
+    "order": 12,
+    "title": "3D model community. Search & download free 3D models. Share 3D m",
+    "url": "https://thangs.com/search/kaisa/?scope=all"
+  },
+  "linkscoifqp": {
+    "_id": "linkscoifqp",
+    "parent": "Bookmarks Toolbar",
+    "order": 13,
+    "title": "The Top 25 iPhone and iPad Games - Spring 2015 - IGN",
+    "url": "https://www.ign.com/videos/2015/02/27/the-top-25-iphone-and-ipad-games-spring-2015"
+  },
+  "linksonjkkl": {
+    "_id": "linksonjkkl",
+    "parent": "Bookmarks Toolbar",
+    "order": 14,
+    "title": "5etools",
+    "url": "https://5e.tools/"
+  },
+  "linksqlenkb": {
+    "_id": "linksqlenkb",
+    "parent": "Bookmarks Toolbar",
+    "order": 15,
+    "title": "Roll 1 d20 dice - 1 times",
+    "url": "https://rolladie.net/roll-a-d20-die#!numbers=1&high=20&length=1&sets=&addfilters=&last_roll_only=false&totals_only=false"
+  },
+  "linksmfelmj": {
+    "_id": "linksmfelmj",
+    "parent": "Bookmarks Toolbar",
+    "order": 16,
+    "title": "LEGO MOC Han's Mazda RX-7 VeilSide Fortune (1:8) by Artemy Zotov",
+    "url": "https://rebrickable.com/mocs/MOC-57488/Artemy%20Zotov/hans-mazda-rx-7-veilside-fortune-18/#details"
+  },
+  "linkslggcbg": {
+    "_id": "linkslggcbg",
+    "parent": "Bookmarks Toolbar",
+    "order": 17,
+    "title": "#1 Source on Legends of Runeterra | Mastering Runeterra",
+    "url": "https://masteringruneterra.com/"
+  },
+  "linksihpaph": {
+    "_id": "linksihpaph",
+    "parent": "Bookmarks Toolbar",
+    "order": 18,
+    "title": "Chocolatey Software | Chocolatey - The package manager for Windo",
+    "url": "https://chocolatey.org/"
+  },
+  "linksoanckc": {
+    "_id": "linksoanckc",
+    "parent": "Bookmarks Toolbar",
+    "order": 19,
+    "title": "The Eternal Jukebox",
+    "url": "https://eternalbox.dev/jukebox_index.html"
+  },
+  "linksnmejfj": {
+    "_id": "linksnmejfj",
+    "parent": "Bookmarks Toolbar",
+    "order": 20,
+    "title": "Jorcana",
+    "url": "https://www.jorcana.ink/proxies/"
+  },
+  "linksnbiqlo": {
+    "_id": "linksnbiqlo",
+    "parent": "Bookmarks Toolbar",
+    "order": 21,
+    "title": "Sint Sebastiaansbrug - Google Maps",
+    "url": "https://www.google.com/maps/place/Sint+Sebastiaansbrug/@52.00795,4.364817,199m/data=!3m1!1e3!4m10!1m3!2m2!1sice+cream+shop!6e5!3m5!1s0x47c5b5ebbabbea53:0xbcbca61ee53ff9af!8m2!3d52.0076797!4d4.3657636!16s%2Fg%2F11gfb4bzgn?entry=ttu"
+  },
+  "linkskmebqo": {
+    "_id": "linkskmebqo",
+    "parent": "Bookmarks Toolbar",
+    "order": 0,
+    "title": "UIS | 100+ best free ui, background, wallpaper and render photos",
+    "url": "https://unsplash.com/collections/U9CLLxQVTQE/uis"
+  },
+  "linksdhaprm": {
+    "_id": "linksdhaprm",
+    "parent": "Bookmarks Toolbar",
+    "order": 1,
+    "title": "P.Craft by NuSan",
+    "url": "https://nusan.itch.io/pcraft"
+  },
+  "linkshehllp": {
+    "_id": "linkshehllp",
+    "parent": "Bookmarks Toolbar",
+    "order": 2,
+    "title": "YouTube",
+    "url": "https://www.youtube.com/"
+  },
+  "linksemmgrl": {
+    "_id": "linksemmgrl",
+    "parent": "Bookmarks Toolbar",
+    "order": 3,
+    "title": "MyTUDelft",
+    "url": "https://my.tudelft.nl/#/home"
+  },
+  "linksaekjrn": {
+    "_id": "linksaekjrn",
+    "parent": "Bookmarks Toolbar",
+    "order": 4,
+    "title": "Xisumavoid.com Official Website Of Xisuma",
+    "url": "https://xisumavoid.com/vanillatweaks/"
+  },
+  "linksgrhnon": {
+    "_id": "linksgrhnon",
+    "parent": "Bookmarks Toolbar",
+    "order": 5,
+    "title": "Voodoo Packs :: Data & Resource Packs for Minecraft",
+    "url": "http://mc.voodoobeard.com/#datapacks",
+    "icon": "1729550238453"
+  },
+  "linksogaenb": {
+    "_id": "linksogaenb",
+    "parent": "Bookmarks Toolbar",
+    "order": 6,
+    "title": "Minecraft Schematics, the Minecraft creations and schematics ref",
+    "url": "https://www.minecraft-schematics.com/"
+  },
+  "linksnkedih": {
+    "_id": "linksnkedih",
+    "parent": "Bookmarks Toolbar",
+    "order": 7,
+    "title": "Categories | WALLDISCOVER.COM",
+    "url": "https://www.walldiscover.com/category.html"
+  },
+  "linkspdjbbl": {
+    "_id": "linkspdjbbl",
+    "parent": "Bookmarks Toolbar",
+    "order": 8,
+    "title": "Dynamic Wallpaper Club",
+    "url": "https://dynamicwallpaper.club/wallpaper/jculsb683ok"
+  },
+  "linkslqjbmg": {
+    "_id": "linkslqjbmg",
+    "parent": "Bookmarks Toolbar",
+    "order": 9,
+    "title": "Dungeon Screener - Play on Armor Games",
+    "url": "https://armorgames.com/play/17955/dungeon-screener?via-search=1"
+  },
+  "linkscridbe": {
+    "_id": "linkscridbe",
+    "parent": "Bookmarks Toolbar",
+    "order": 10,
+    "title": "Recipes | Joshua Weissman",
+    "url": "https://www.joshuaweissman.com/blog"
+  },
+  "linksqkaplg": {
+    "_id": "linksqkaplg",
+    "parent": "Bookmarks Toolbar",
+    "order": 11,
+    "title": "edclub",
+    "url": "https://www.typingclub.com/sportal/program-3/4637.play"
+  },
+  "linkgroups": {
+    "on": true,
+    "selected": "Bookmarks Toolbar",
+    "groups": [
+      "Bookmarks Toolbar"
+    ],
+    "pinned": [],
+    "synced": []
+  },
+  "clock": {
+    "size": 2,
+    "timezone": "auto",
+    "ampm": false,
+    "analog": false,
+    "seconds": false,
+    "ampmlabel": false,
+    "worldclocks": false
+  },
+  "analogstyle": {
+    "face": "none",
+    "hands": "modern",
+    "shape": "round",
+    "border": "#ffff",
+    "background": "#fff2"
+  },
+  "worldclocks": [
+    {
+      "timezone": "Europe/Sofia",
+      "region": "Delft"
+    },
+    {
+      "timezone": "Europe/Sofia",
+      "region": ""
+    }
+  ],
+  "unsplash": {
+    "every": "hour",
+    "collection": "",
+    "lastCollec": "day",
+    "time": 1746295427549
+  },
+  "weather": {
+    "ccode": "NL",
+    "city": "delft centrum",
+    "unit": "metric",
+    "provider": "",
+    "moreinfo": "none",
+    "forecast": "auto",
+    "temperature": "actual",
+    "geolocation": "approximate"
+  },
+  "notes": {
+    "on": false,
+    "opacity": 0.1,
+    "width": 40,
+    "align": "left"
+  },
+  "searchbar": {
+    "on": false,
+    "opacity": 0.1,
+    "newtab": false,
+    "suggestions": true,
+    "engine": "default",
+    "request": "",
+    "placeholder": ""
+  },
+  "quotes": {
+    "on": false,
+    "author": false,
+    "type": "classic",
+    "frequency": "day",
+    "last": 1746785972046
+  },
+  "font": {
+    "size": "14",
+    "family": "",
+    "system": true,
+    "weightlist": [],
+    "weight": "300"
+  },
+  "supporters": {
+    "enabled": true,
+    "closed": true,
+    "month": 5
+  },
+  "move": {
+    "selection": "single",
+    "layouts": {
+      "single": {
+        "items": {
+          "time": {
+            "box": "end center",
+            "text": ""
+          },
+          "quicklinks": {
+            "box": "center",
+            "text": ""
+          }
+        },
+        "grid": [
+          [
+            "time"
+          ],
+          [
+            "main"
+          ]
+        ]
+      }
+    }
+  }
+}

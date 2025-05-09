@@ -41,7 +41,7 @@ show-search-icon-toolbar=true
 show-show-thumbnails-toolbar=false
 show-up-icon-toolbar=false
 size-prefixes='base-10'
-start-with-dual-pane=true
+start-with-dual-pane=false
 thumbnail-limit=uint64 10485760
 tooltips-in-icon-view=false
 tooltips-in-list-view=false
@@ -56,10 +56,10 @@ show-only-directories=false
 
 [window-state]
 devices-expanded=true
-geometry='2531x1357+13+32'
+geometry='1257x1357+13+32'
 maximized=false
 my-computer-expanded=true
-network-expanded=false
+network-expanded=true
 side-pane-view='places'
 sidebar-bookmark-breakpoint=0
 start-with-sidebar=true

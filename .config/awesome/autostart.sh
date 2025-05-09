@@ -17,7 +17,7 @@ start parcellite
 
 start picom -b
 start fusuma -d
-start xss-lock ~/i3lock.sh
+start xss-lock -l --session=${XDG_SESSION_ID} ~/i3lock.sh
 # start glava -d
 
 # start discord --start-minimized
@@ -25,8 +25,8 @@ start firefox
 start discord
 start alacritty
 start nemo
-# start spotify-launcher
-# start keepassxc
+start spotify-launcher
+start keepassxc
 start code
 
 start unclutter -idle 1 -jitter 2 -root &

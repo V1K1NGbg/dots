@@ -4,8 +4,24 @@
 	--bdfdb-blurple: var(--brand-experiment, hsl(235, calc(var(--saturation-factor, 1) * 85.6%), 64.7%));
 }
 
+#bd-notices:has(.bd-notice) {
+	display: block;
+	width: 100vw;
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 1000;
+}
+[REPLACE_CLASS_appbase]:has(#bd-notices .bd-notice) {
+	margin-top: 36px;
+}
+
 img:not([src]), img[src=""], img[src="null"] {
 	opacity: 0;
+}
+
+[REPLACE_CLASS_avatarpointerevents][fill="#80848e"][mask="url(#svg-mask-status-online)"] {
+	mask: url(#svg-mask-status-offline);
 }
 
 [REPLACE_CLASS_appmount] > [REPLACE_CLASS_itemlayercontainer] {
@@ -13,8 +29,8 @@ img:not([src]), img[src=""], img[src="null"] {
 	z-index: 1001;
 }
 
-[REPLACE_CLASS_titlebarmac] {
-	z-index: 1000001;
+[REPLACE_CLASS_userpopoutmenuitemicon] {
+	align-self: center;
 }
 
 [REPLACE_CLASS_itemlayercontainerzindexdisabled] {
@@ -1194,15 +1210,15 @@ input[REPLACE_CLASS_input][REPLACE_CLASS_inputerror] {
 	position: absolute;
 	left: 0;
 	top: 0;
-	margin: 0 var(--custom-custom-status-modal-emoji-margin);
-	height: 100%
+	margin: 0 10px;
+	height: 100%;
 }
 [REPLACE_CLASS_emojiinputbuttonemoji] {
-	width: var(--custom-custom-status-modal-emoji-size);
-	height: var(--custom-custom-status-modal-emoji-size)
+	width: var(--custom-status-modal-emoji-size, var(--custom-emoji-sprite-size, 22px));
+	height: var(--custom-status-modal-emoji-size, var(--custom-emoji-sprite-size, 22px));
 }
 [REPLACE_CLASS_emojiinput] {
-	padding-left: calc(var(--custom-custom-status-modal-emoji-margin) + var(--custom-custom-status-modal-emoji-size) + var(--custom-custom-status-modal-emoji-margin));
+	padding-left: calc(var(--custom-status-modal-emoji-margin, 10px) + var(--custom-status-modal-emoji-size, var(--custom-emoji-sprite-size, 18px)) + var(--custom-status-modal-emoji-margin, 10px));
 	padding-right: 36px
 }
 [REPLACE_CLASS_emojiinputclearbutton] {
@@ -1224,6 +1240,289 @@ input[REPLACE_CLASS_input][REPLACE_CLASS_inputerror] {
 	width: 16px;
 	height: 16px;
 	color: var(--interactive-normal)
+}
+
+[REPLACE_CLASS_modalmini] {
+	font-size: 13px;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+	width: 490px;
+	max-height: 800px;
+	min-height: 0
+}
+@media (max-width: 490px) {
+	[REPLACE_CLASS_modalmini] {
+		width:100%
+	}
+}
+[REPLACE_CLASS_modalminicontent] {
+	font-size: 16px;
+	line-height: 20px
+}
+[REPLACE_CLASS_modalminicontent] [REPLACE_CLASS_emojiold] {
+	-o-object-fit: contain;
+	object-fit: contain;
+	width: 22px;
+	height: 22px
+}
+[REPLACE_CLASS_modalminicontent] h1 {
+	line-height: 20px;
+	font-size: 16px
+}
+[REPLACE_CLASS_modalminicontent] h1,
+[REPLACE_CLASS_modalminicontent] h2,
+[REPLACE_CLASS_modalminicontent] strong {
+	font-weight: 700
+}
+[REPLACE_CLASS_modalminicontent] em,
+[REPLACE_CLASS_modalminicontent] i {
+	font-style: italic
+}
+[REPLACE_CLASS_modalminicontent] p+p {
+	margin-top: 10px
+}
+[REPLACE_CLASS_modalminicontent] ol {
+	margin: 16px 0 16px 16px
+}
+[REPLACE_CLASS_modalminicontent] ol li {
+	list-style-type: decimal;
+	margin-bottom: 8px;
+	margin-left: 20px
+}
+[REPLACE_CLASS_modalminicontent] ul {
+	margin: 20px 0 8px 20px
+}
+[REPLACE_CLASS_modalminicontent] ul ul {
+	margin-top: 8px
+}
+[REPLACE_CLASS_modalminicontent] ul li {
+	position: relative;
+	list-style: none;
+	margin-bottom: 8px;
+	-webkit-user-select: text;
+	-moz-user-select: text;
+	user-select: text
+}
+[REPLACE_CLASS_modalminicontent] ul li:last-child {
+	margin-bottom: 0
+}
+[REPLACE_CLASS_modalminicontent] ul li:before {
+	content: "";
+	position: absolute;
+	top: 10px;
+	left: -15px;
+	width: 6px;
+	height: 6px;
+	margin-top: -4px;
+	margin-left: -3px;
+	border-radius: 50%;
+	opacity: .3
+}
+[REPLACE_CLASS_modalminicontent] ul li li:before {
+	top: 12px;
+	height: 2px;
+	border-radius: 0
+}
+[REPLACE_CLASS_modalminicontent] img {
+	width: 100%
+}
+[REPLACE_CLASS_modalminicontent] a {
+	color: hsl(200 calc(1*100%) 49.4%);
+	transition: .05s;
+	-webkit-text-decoration: none;
+	text-decoration: none
+}
+@supports (color: hsl(0 0% 0% / 0)) and (top: var(--f)) {
+	[REPLACE_CLASS_modalminicontent] a {
+		color: hsl(200 calc(var(--saturation-factor, 1)*100%) 49.4%)
+	}
+}
+[REPLACE_CLASS_modalminicontent] a:hover {
+	-webkit-text-decoration: underline;
+	text-decoration: underline
+}
+[REPLACE_CLASS_themedark] [REPLACE_CLASS_modalminicontent] ol,
+[REPLACE_CLASS_themedark] [REPLACE_CLASS_modalminicontent] p,
+[REPLACE_CLASS_themedark] [REPLACE_CLASS_modalminicontent] ul li {
+	color: hsl(210 calc(1*9.3%) 78.8%)
+}
+@supports (color: hsl(0 0% 0% / 0)) and (top: var(--f)) {
+	[REPLACE_CLASS_themedark] [REPLACE_CLASS_modalminicontent] ol,
+	[REPLACE_CLASS_themedark] [REPLACE_CLASS_modalminicontent] p,
+	[REPLACE_CLASS_themedark] [REPLACE_CLASS_modalminicontent] ul li {
+		color: hsl(210 calc(var(--saturation-factor, 1)*9.3%) 78.8%)
+	}
+}
+[REPLACE_CLASS_themedark] [REPLACE_CLASS_modalminicontent] ul li:before {
+	background-color: hsl(216 calc(1*9.8%) 90%)
+}
+@supports (color: hsl(0 0% 0% / 0)) and (top: var(--f)) {
+	[REPLACE_CLASS_themedark] [REPLACE_CLASS_modalminicontent] ul li:before {
+		background-color: hsl(216 calc(var(--saturation-factor, 1)*9.8%) 90%)
+	}
+}
+[REPLACE_CLASS_themelight] [REPLACE_CLASS_modalminicontent] ol,
+[REPLACE_CLASS_themelight] [REPLACE_CLASS_modalminicontent] p,
+[REPLACE_CLASS_themelight] [REPLACE_CLASS_modalminicontent] ul li {
+	color: hsl(223 calc(1*5.8%) 52.9%)
+}
+@supports (color: hsl(0 0% 0% / 0)) and (top: var(--f)) {
+	[REPLACE_CLASS_themelight] [REPLACE_CLASS_modalminicontent] ol,
+	[REPLACE_CLASS_themelight] [REPLACE_CLASS_modalminicontent] p,
+	[REPLACE_CLASS_themelight] [REPLACE_CLASS_modalminicontent] ul li {
+		color: hsl(223 calc(var(--saturation-factor, 1)*5.8%) 52.9%)
+	}
+}
+[REPLACE_CLASS_themelight] [REPLACE_CLASS_modalminicontent] ul li:before {
+	background-color: hsl(223 calc(1*5.8%) 52.9%)
+}
+@supports (color: hsl(0 0% 0% / 0)) and (top: var(--f)) {
+	[REPLACE_CLASS_themelight] [REPLACE_CLASS_modalminicontent] ul li:before {
+		background-color: hsl(223 calc(var(--saturation-factor, 1)*5.8%) 52.9%)
+	}
+}
+
+[REPLACE_CLASS_colorpickerswatchescontainer] {
+	display: flex;
+	flex-wrap: wrap;
+	margin-top: -10px;
+	margin-right: -10px
+}
+[REPLACE_CLASS_colorpickerswatchcustomcontainer], [REPLACE_CLASS_colorpickerswatchdefaultcontainer] {
+	margin-top: 10px;
+	margin-right: 10px;
+	flex: 1;
+	min-width: 60px;
+	max-width: 70px
+}
+[REPLACE_CLASS_colorpicker] {
+	display: flex;
+	flex-direction: column;
+	width: 220px;
+	padding: 16px;
+	gap: 16px;
+	border: 1px solid var(--border-subtle);
+	background-color: var(--background-primary);
+	border-radius: 4px;
+	box-shadow: var(--elevation-high)
+}
+[REPLACE_CLASS_colorpickerhexinputcontainer] {
+	display: flex;
+	align-items: center;
+	gap: 12px
+}
+[REPLACE_CLASS_colorpickereyedropper] {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	width: 16px;
+	height: 16px;
+	margin: 0
+}
+[REPLACE_CLASS_colorpickerhexinput] {
+	flex: 1
+}
+[REPLACE_CLASS_colorpickerrow] {
+	margin-top: 10px;
+	display: flex;
+	flex-wrap: wrap;
+	height: 20px;
+	overflow: hidden
+}
+[REPLACE_CLASS_colorpickerswatch] {
+	background-color: transparent;
+	position: relative;
+	box-sizing: border-box;
+	width: 20px;
+	height: 20px;
+	border-radius: 3px;
+	margin-right: 10px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border: 1px solid transparent;
+	cursor: pointer;
+	padding: 0
+}
+[REPLACE_CLASS_colorpickerswatch][REPLACE_CLASS_colorpickerswatchcustom],[REPLACE_CLASS_colorpickerswatch][REPLACE_CLASS_colorpickerswatchdefault] {
+	margin-right: 0;
+	width: 100%;
+	height: 50px;
+	border-radius: 4px
+}
+[REPLACE_CLASS_colorpickerswatch][REPLACE_CLASS_colorpickerswatchdisabled] {
+	opacity: .3;
+	cursor: not-allowed;
+	pointer-events: none
+}
+[REPLACE_CLASS_colorpickerswatch] [REPLACE_CLASS_colorpickerswatchdropper] {
+	position: absolute;
+	top: 4px;
+	right: 4px
+}
+[REPLACE_CLASS_colorpickerswatch] [REPLACE_CLASS_colorpickerswatchdropperfg] {
+	fill: var(--text-normal)
+}
+[REPLACE_CLASS_colorpickersuggestedcolors] {
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
+	gap: 12px
+}
+[REPLACE_CLASS_colorpickersuggestedcolor] {
+	width: 32px;
+	height: 32px;
+	border-radius: 4px;
+	cursor: pointer;
+	border: 1px solid var(--primary-400)
+}
+[REPLACE_CLASS_themedark] [REPLACE_CLASS_colorpickerswatch][REPLACE_CLASS_colorpickerswatchnocolor] {
+	border-color: var(--opacity-white-8)
+}
+[REPLACE_CLASS_themelight] [REPLACE_CLASS_colorpickerswatch][REPLACE_CLASS_colorpickerswatchnocolor] {
+	border-color: hsl(var(--primary-500-hsl)/.1)
+}
+[REPLACE_CLASS_themeenableforcedcolors] [REPLACE_CLASS_colorpickerswatch] {
+	border: 1px solid ButtonText;
+	forced-color-adjust: none
+}
+[REPLACE_CLASS_themeenableforcedcolors] [REPLACE_CLASS_colorpickerswatch][REPLACE_CLASS_colorpickerswatchdisabled] {
+	border-color: GrayText
+}
+[REPLACE_CLASS_colorpickerinner] {
+	width: auto
+}
+[REPLACE_CLASS_colorpickersaturation] {
+	position: relative;
+	width: auto;
+	height: 150px;
+	cursor: crosshair
+}
+[REPLACE_CLASS_colorpickersaturation] > div,
+[REPLACE_CLASS_colorpickersaturation] > div > div {
+	border-radius: 3px
+}
+[REPLACE_CLASS_colorpickersaturation] > div > div > div {
+	cursor: crosshair!important
+}
+[REPLACE_CLASS_colorpickerhue] {
+	height: 8px;
+	margin: 8px 0;
+	position: relative;
+	cursor: crosshair
+}
+[REPLACE_CLASS_colorpickerhue] > div > div {
+	border-radius: 3px
+}
+[REPLACE_CLASS_colorpickerhue] > div > div > div > div {
+	height: 16px !important;
+	width: 8px !important;
+	margin-top: -3px !important;
+	border-radius: 3px !important
+}
+[REPLACE_CLASS_colorpickerhue] > div > div > div > div {
+	cursor: ew-resize
 }
 
 [REPLACE_CLASS_popoutwrapper] {
@@ -1448,6 +1747,9 @@ input[REPLACE_CLASS_input][REPLACE_CLASS_inputerror] {
 [REPLACE_CLASS_tooltip][REPLACE_CLASS_tooltipcustom] [REPLACE_CLASS_tooltipnote],
 [REPLACE_CLASS_tooltiplistitem][REPLACE_CLASS_tooltipcustom] [REPLACE_CLASS_tooltipnote] {
 	color: #bbb;
+}
+[REPLACE_CLASS_tooltipcustom] [REPLACE_CLASS_tooltippointer][REPLACE_CLASS_tooltippointerbg]:after {
+	border-color: transparent !important;
 }
 [REPLACE_CLASS_tooltipcustom] [REPLACE_CLASS_tooltippointer] {
 	border-top-color: inherit !important;
@@ -1806,4 +2108,8 @@ input[REPLACE_CLASS_input][REPLACE_CLASS_inputerror] {
 }
 [REPLACE_CLASS_toastwarning] [REPLACE_CLASS_toastinner] {
 	color: var(--status-warning-text);
+}
+
+[REPLACE_CLASS__bdmodalcontent] {
+	z-index: 1;
 }
