@@ -25,6 +25,26 @@
 			"sendOriginalMessage": false,
 			"showOriginalMessage": false,
 			"useSpoilerInOriginal": false
+		},
+		"prefixes": {
+			"translationPrefixData": [
+				{
+					"prefix": "$fr",
+					"language": "fr"
+				},
+				{
+					"prefix": "$de",
+					"language": "de"
+				},
+				{
+					"prefix": "$es",
+					"language": "es"
+				},
+				{
+					"prefix": "$jp",
+					"language": "ja"
+				}
+			]
 		}
 	}
 }

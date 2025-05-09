@@ -4,7 +4,7 @@
  * @authorLink https://github.com/arg0NNY/DiscordPlugins
  * @invite M8DBtcZjXD
  * @donate https://donationalerts.com/r/arg0nny
- * @version 1.2.1
+ * @version 1.2.3
  * @description Improves your whole Discord experience. Adds highly customizable switching animations between guilds, channels, etc. Introduces smooth new message reveal animations, along with popout animations, and more.
  * @website https://github.com/arg0NNY/DiscordPlugins/tree/master/BetterAnimations
  * @source https://github.com/arg0NNY/DiscordPlugins/blob/master/BetterAnimations/BetterAnimations.plugin.js
@@ -15,17 +15,16 @@
 const config = {
   info: {
     name: 'BetterAnimations',
-    version: '1.2.1',
+    version: '1.2.3',
     description: 'Improves your whole Discord experience. Adds highly customizable switching animations between guilds, channels, etc. Introduces smooth new message reveal animations, along with popout animations, and more.'
   },
   changelog: [
     {
-      type: 'fixed',
-      title: 'Fixes',
+      type: 'improved',
+      title: 'Improvements',
       items: [
-        'Fixed popouts not being animated when closed.',
-        'Fixed user popout occasionally not being animated when opened.',
-        'Updated to work in the latest release of Discord.'
+        'A couple of adjustments for animations to work smoothly with Discord\'s visual refresh.',
+        'Server animations are now fullscreen.'
       ]
     },
     {
@@ -99,6 +98,7 @@ function buildSelectors (selectors) {
 const Selectors = buildSelectors({
   Chat: () => Webpack.getByKeys('chat', 'chatContent'),
   Layout: () => Webpack.getByKeys('base', 'content'),
+  Layers: () => Webpack.getByKeys('layer', 'baseLayer'),
   ChannelsList: () => Webpack.getByKeys('scroller', 'unreadTop'),
   PeopleTab: () => Webpack.getByKeys('container', 'peopleColumn'),
   ApplicationStore: () => Webpack.getByKeys('applicationStore', 'marketingHeader'),
@@ -218,7 +218,7 @@ class Route {
 
 const Routes = [
   new Route('Chat', [
-    '/channels/:guildId(@me|@favorites|@guilds-empty-nux|\\d+)/:channelId(role-subscriptions|shop|member-applications|@home|channel-browser|onboarding|customize-community|member-safety|\\d+)/threads/:threadId/:messageId?',
+    '/channels/:guildId(@me|@favorites|@guilds-empty-nux|\\d+)/:channelId(role-subscriptions|shop|member-applications|@home|channel-browser|onboarding|customize-community|member-safety|boosts|\\d+)/threads/:threadId/:messageId?',
     '/channels/@me/:channelId(role-subscriptions|shop|member-applications|@home|channel-browser|onboarding|customize-community|member-safety|\\d+)',
     '/channels/:guildId(@me|@favorites|@guilds-empty-nux|\\d+)/:channelId(role-subscriptions|shop|member-applications|@home|channel-browser|onboarding|customize-community|member-safety|\\d+)?/:messageId?'
   ], {
@@ -1033,7 +1033,12 @@ module.exports = class BetterAnimations {
       if (guildSwitched && !this.settings.guild.enabled) return
       if (!guildSwitched && !this.settings.channel.enabled) return
 
-      this.setMainAnimator(new ContainerAnimator(guildSwitched ? this.settings.guild.type : this.settings.channel.type, guildSwitched ? `.${Selectors.Layout.base}` : previous.element, previous.scrollers, { elementToAppear: guildSwitched ? `.${Selectors.Layout.base}` : current.element }))
+      this.setMainAnimator(new ContainerAnimator(
+        guildSwitched ? this.settings.guild.type : this.settings.channel.type,
+        guildSwitched ? `.${Selectors.Layout.base}` : previous.element,
+        [...previous.scrollers, Selectors.Content.scrollerBase],
+        { elementToAppear: guildSwitched ? `.${Selectors.Layout.base}` : current.element }
+      ))
     })
     Patcher.after(RouteWithImpression.prototype, 'render', (self, _, value) => {
       if (self.props.path === undefined || (typeof self.props.path === 'object' && self.props.path.length > 5)) return
@@ -1292,20 +1297,16 @@ module.exports = class BetterAnimations {
         .${PARENT_NODE_CLASSNAME} {
             position: relative !important;
         }
-
-        /* Settings View Fix */
-        /* .${Selectors.Sidebar.standardSidebarView}, .${Selectors.Sidebar.contentRegionScroller} {
-            background: var(--background-tertiary) !important;
+        
+        .${Selectors.Layout.page} {
+            overflow: visible !important;
+            min-width: 0;
+            min-height: 0;
+            z-index: 10;
         }
-
-        .${Selectors.Settings.contentContainer}, .${Selectors.SettingsSidebar.sidebar} {
-            background: var(--background-primary) !important;
-        } */
-
-        .${CLONED_NODE_CLASSNAME}.${Selectors.Sidebar.contentRegion} *, .${CLONED_NODE_CLASSNAME}.${Selectors.Settings.contentContainer} * {
-            box-sizing: border-box !important;
+        .${Selectors.Layers.layer} {
+            overflow: clip !important;
         }
-
 
         /* Disable Default Discord Animations */
         ${RevealAnimator.getDiscordAnimationsSelector()} {
@@ -1864,8 +1865,8 @@ module.exports = class BetterAnimations {
       settings: [
         buildSection(
           'guild',
-          'Guild Animations',
-          { enableText: 'Enable guild switching animation' }
+          'Server Animations',
+          { enableText: 'Enable server switching animation' }
         ),
         buildSection(
           'channel',

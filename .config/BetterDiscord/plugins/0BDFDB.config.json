@@ -1,14 +1,14 @@
 {
 	"all": {
 		"changeLogs": {
-			"BDFDB": "3.9.3",
+			"BDFDB": "4.0.6",
 			"GameActivityToggle": "1.2.6",
-			"ImageUtilities": "5.5.3",
+			"ImageUtilities": "5.5.8",
 			"PluginRepo": "2.5.8",
-			"SpellCheck": "1.6.9",
-			"SplitLargeMessages": "1.8.5",
+			"SpellCheck": "1.7.0",
+			"SplitLargeMessages": "1.8.7",
 			"ThemeRepo": "2.5.8",
-			"Translator": "2.6.6"
+			"Translator": "2.7.1"
 		},
 		"choices": {
 			"toastPosition": "right"
@@ -21,8 +21,8 @@
 			"useChromium": false
 		},
 		"hashes": {
-			"0BDFDB.data.json": "ae915249aa0bc6babc2ae6fca4db9ba7478f8bae",
-			"0BDFDB.raw.css": "498113a3e8ad38c97fabe36388f244f17b55223d"
+			"0BDFDB.data.json": "40638dbadc9b035f9a73534a61012f25e350ca9f",
+			"0BDFDB.raw.css": "9ab6cb0fa47abdb8ae30e5d0ba122d4474736640"
 		}
 	}
 }

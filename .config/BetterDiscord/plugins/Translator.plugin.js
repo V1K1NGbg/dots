@@ -2,7 +2,7 @@
  * @name Translator
  * @author DevilBro
  * @authorId 278543574059057154
- * @version 2.6.6
+ * @version 2.7.1
  * @description Allows you to translate incoming and your outgoing Messages within Discord
  * @invite Jx3TjNS
  * @donate https://www.paypal.me/MircoWittrien
@@ -14,6 +14,7 @@
 
 module.exports = (_ => {
 	const changeLog = {
+		
 	};
 	
 	return !window.BDFDB_Global || (!window.BDFDB_Global.loaded && !window.BDFDB_Global.started) ? class {
@@ -29,9 +30,9 @@ module.exports = (_ => {
 				else return r.text();
 			}).then(b => {
 				if (!b) throw new Error();
-				else return require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0BDFDB.plugin.js"), b, _ => BdApi.showToast("Finished downloading BDFDB Library", {type: "success"}));
+				else return require("fs").writeFile(require("path").join(BdApi.Plugins.folder, "0BDFDB.plugin.js"), b, _ => BdApi.UI.showToast("Finished downloading BDFDB Library", {type: "success"}));
 			}).catch(error => {
-				BdApi.alert("Error", "Could not download BDFDB Library Plugin. Try again later or download it manually from GitHub: https://mwittrien.github.io/downloader/?library");
+				BdApi.UI.alert("Error", "Could not download BDFDB Library Plugin. Try again later or download it manually from GitHub: https://mwittrien.github.io/downloader/?library");
 			});
 		}
 		
@@ -39,7 +40,7 @@ module.exports = (_ => {
 			if (!window.BDFDB_Global || !Array.isArray(window.BDFDB_Global.pluginQueue)) window.BDFDB_Global = Object.assign({}, window.BDFDB_Global, {pluginQueue: []});
 			if (!window.BDFDB_Global.downloadModal) {
 				window.BDFDB_Global.downloadModal = true;
-				BdApi.showConfirmationModal("Library Missing", `The Library Plugin needed for ${this.name} is missing. Please click "Download Now" to install it.`, {
+				BdApi.UI.showConfirmationModal("Library Missing", `The Library Plugin needed for ${this.name} is missing. Please click "Download Now" to install it.`, {
 					confirmText: "Download Now",
 					cancelText: "Cancel",
 					onCancel: _ => {delete window.BDFDB_Global.downloadModal;},
@@ -394,7 +395,15 @@ module.exports = (_ => {
 					},
 					choices: {},
 					exceptions: {
-						wordStart:			{value: ["!"],	max: 1}
+						wordStart:			{value: ["!"],	max: 3}
+					},
+					prefixes: {
+						translationPrefixData: 		{value: [
+							{prefix: "$fr", language: "fr"},
+							{prefix: "$de", language: "de"},
+							{prefix: "$es", language: "es"},
+							{prefix: "$jp", language: "ja"}
+						]}
 					},
 					engines: {
 						translator:			{value: "googleapi"},
@@ -576,21 +585,116 @@ module.exports = (_ => {
 							className: BDFDB.disCNS.dividerdefault + BDFDB.disCN.marginbottom8
 						}));
 						
-						for (let key in this.defaults.exceptions) settingsItems.push(BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.FormItem, {
-							title: this.labels.exception_text.replace("{{var0}}", "").split(" ").filter(n => n).join(" "),
+						settingsItems.push(BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.FormItem, {
+							title: this.labels.prefixes_disable_text,
 							className: BDFDB.disCN.marginbottom8,
 							children: BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.ListInput, {
-								placeholder: "New Exception",
-								maxLength: this.defaults.exceptions[key].max,
-								items: this.settings.exceptions[key],
+								placeholder: "New Exception Prefix (e.g. !)",
+								maxLength: this.defaults.exceptions.wordStart.max,
+								items: this.settings.exceptions.wordStart,
 								onChange: value => {
 									this.SettingsUpdated = true;
-									BDFDB.DataUtils.save(value, this, "exceptions", key);
+									BDFDB.DataUtils.save(value, this, "exceptions", "wordStart");
 								}
 							})
 						}));
 						
-						return settingsItems.flat(10);
+						settingsItems.push(BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.FormItem, {
+							title: this.labels.prefixes_enable_text,
+							className: BDFDB.disCN.marginbottom8,
+							children: [								
+								// Create a table-like layout for prefixes and language selection
+								...(this.settings.prefixes.translationPrefixData || []).map((entry, index) => {
+									return BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.Flex, {
+										className: BDFDB.disCN.marginbottom8,
+										align: BDFDB.LibraryComponents.Flex.Align.CENTER,
+										children: [
+											// Prefix input
+											BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.Flex.Child, {
+												grow: 0,
+												shrink: 0,
+												basis: "30%",
+												children: BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.TextInput, {
+													placeholder: "Prefix (e.g. $fr)",
+													value: entry.prefix,
+													onChange: value => {
+														this.settings.prefixes.translationPrefixData[index].prefix = value;
+														BDFDB.DataUtils.save(this.settings.prefixes.translationPrefixData, this, "prefixes", "translationPrefixData");
+														this.SettingsUpdated = true;
+													}
+												})
+											}),
+											
+											// Language selection dropdown
+											BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.Flex.Child, {
+												grow: 1,
+												shrink: 0,
+												basis: "60%",
+												children: BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.Select, {
+													value: entry.language,
+													options: Object.keys(languages)
+														.filter(key => !languages[key].auto && !languages[key].special)
+														.map(key => ({
+															value: key,
+															label: BDFDB.LanguageUtils.getName(languages[key])
+														}))
+														.sort((a, b) => a.label.localeCompare(b.label)),
+													onChange: value => {
+														this.settings.prefixes.translationPrefixData[index].language = value;
+														BDFDB.DataUtils.save(this.settings.prefixes.translationPrefixData, this, "prefixes", "translationPrefixData");
+														this.SettingsUpdated = true;
+													}
+												})
+											}),
+											
+											// Delete button
+											BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.Flex.Child, {
+												grow: 0,
+												shrink: 0,
+												basis: "10%",
+												children: BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.Button, {
+													color: BDFDB.LibraryComponents.Button.Colors.RED,
+													size: BDFDB.LibraryComponents.Button.Sizes.TINY,
+													onClick: _ => {
+														this.settings.prefixes.translationPrefixData.splice(index, 1);
+														BDFDB.DataUtils.save(this.settings.prefixes.translationPrefixData, this, "prefixes", "translationPrefixData");
+														this.SettingsUpdated = true;
+														BDFDB.ReactUtils.forceUpdate(this);
+													},
+													children: BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.SvgIcon, {
+														name: BDFDB.LibraryComponents.SvgIcon.Names.TRASH,
+														width: 16,
+														height: 16
+													})
+												})
+											})
+										]
+									});
+								}),
+
+								BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.SettingsItem, {
+									type: "Button",
+									color: BDFDB.LibraryComponents.Button.Colors.GREEN,
+									onClick: _ => {
+										// Initialize if not exists
+										if (!this.settings.prefixes.translationPrefixData) this.settings.prefixes.translationPrefixData = [];
+										
+										// Add new entry with default values
+										this.settings.prefixes.translationPrefixData.push({
+											prefix: "$en",
+											language: "en"
+										});
+										
+										BDFDB.DataUtils.save(this.settings.prefixes.translationPrefixData, this, "prefixes", "translationPrefixData");
+										this.SettingsUpdated = true;
+										BDFDB.ReactUtils.forceUpdate(this);
+									},
+									children: "+ Add new prefix"
+								})
+							]
+						}));
+						
+						return settingsItems.flat(10).filter(n => n);
 					}
 				});
 			}
@@ -707,16 +811,58 @@ module.exports = (_ => {
 			processChannelTextAreaContainer (e) {
 				if (e.instance.props.type != BDFDB.DiscordConstants.ChannelTextAreaTypes.NORMAL && e.instance.props.type != BDFDB.DiscordConstants.ChannelTextAreaTypes.SIDEBAR) return;
 				BDFDB.PatchUtils.patch(this, e.instance.props, "onSubmit", {instead: e2 => {
-					if (this.isTranslationEnabled(e.instance.props.channel.id) && e2.methodArguments[0].value) {
-						e2.stopOriginalMethodCall();
-						this.translateText(e2.methodArguments[0].value, messageTypes.SENT, (translation, input, output) => {
-							translation = !translation ? e2.methodArguments[0].value : (this.settings.general.sendOriginalMessage ? (translation + (!this.settings.general.useSpoilerInOriginal ? ("\n\n> *" + e2.methodArguments[0].value.split("\n").join("*\n> *") + "*").replace(/> \*\*\n/g, "> \n") : `\n\n||${e2.methodArguments[0].value}||`)) : translation);
-							e2.originalMethod(Object.assign({}, e2.methodArguments[0], {value: translation}));
-						});
-						return Promise.resolve({
-							shouldClear: true,
-							shouldRefocus: true
-						});
+					if (e2.methodArguments[0].value) {
+						const text = e2.methodArguments[0].value;
+						
+						// Check for translation prefixes
+						const prefixMap = {};
+						const prefixData = this.settings.prefixes && this.settings.prefixes.translationPrefixData || [];
+						for (const entry of prefixData) {
+							prefixMap[entry.prefix] = entry.language;
+						}
+						
+						let foundPrefix = null;
+						let targetLanguage = null;
+						
+						// Check for prefixes more efficiently
+						for (const prefix in prefixMap) {
+							if (text.trim().startsWith(prefix)) {
+								foundPrefix = prefix;
+								targetLanguage = prefixMap[prefix];
+								break;
+							}
+						}
+						
+						if (foundPrefix) {
+							e2.stopOriginalMethodCall();
+							// Remove the prefix from the message
+							const cleanText = text.trim().substring(foundPrefix.length).trim();
+							
+							// Translate with the specific target language
+							this.translateText(cleanText, messageTypes.SENT, (translation, input, output) => {
+								// Override the output language with the one from the prefix
+								output = {id: targetLanguage, name: languages[targetLanguage] ? languages[targetLanguage].name : targetLanguage};
+								
+								translation = !translation ? cleanText : (this.settings.general.sendOriginalMessage ? (translation + (!this.settings.general.useSpoilerInOriginal ? ("\n\n> *" + cleanText.split("\n").join("*\n> *") + "*").replace(/> \*\*\n/g, "> \n") : `\n\n||${cleanText}||`)) : translation);
+								e2.originalMethod(Object.assign({}, e2.methodArguments[0], {value: translation}));
+							}, targetLanguage);
+							
+							return Promise.resolve({
+								shouldClear: true,
+								shouldRefocus: true
+							});
+						}
+						else if (this.isTranslationEnabled(e.instance.props.channel.id)) {
+							e2.stopOriginalMethodCall();
+							this.translateText(e2.methodArguments[0].value, messageTypes.SENT, (translation, input, output) => {
+								translation = !translation ? e2.methodArguments[0].value : (this.settings.general.sendOriginalMessage ? (translation + (!this.settings.general.useSpoilerInOriginal ? ("\n\n> *" + e2.methodArguments[0].value.split("\n").join("*\n> *") + "*").replace(/> \*\*\n/g, "> \n") : `\n\n||${e2.methodArguments[0].value}||`)) : translation);
+								e2.originalMethod(Object.assign({}, e2.methodArguments[0], {value: translation}));
+							});
+							return Promise.resolve({
+								shouldClear: true,
+								shouldRefocus: true
+							});
+						}
 					}
 					return e2.callOriginalMethodAfterwards();
 				}}, {noCache: true});
@@ -785,27 +931,53 @@ module.exports = (_ => {
 				let translation = translatedMessages[e.instance.props.embed.message_id];
 				if (translation && Object.keys(translation.embeds).length) {
 					if (!e.returnvalue) e.instance.props.embed = Object.assign({}, e.instance.props.embed, {
-						rawDescription: translation.embeds[e.instance.props.embed.id],
-						originalDescription: e.instance.props.embed.originalDescription || e.instance.props.embed.rawDescription
+						rawDescription: translation.embeds[e.instance.props.embed.id].description,
+						rawTitle: translation.embeds[e.instance.props.embed.id].title,
+						footer: Object.assign({}, e.instance.props.embed.footer || {}, {
+							text: translation.embeds[e.instance.props.embed.id].footerText || ""
+						}),
+						fields: translation.embeds[e.instance.props.embed.id].fields.map(n => ({ rawName: n.name, rawValue: n.value })),
+						originalDescription: e.instance.props.embed.originalDescription || e.instance.props.embed.rawDescription,
+						originalTitle: e.instance.props.embed.originalTitle || e.instance.props.embed.rawTitle,
+						originalFields: e.instance.props.embed.originalFields || e.instance.props.embed.fields,
+						originalFooter: e.instance.props.embed.originalFooter || Object.assign({}, e.instance.props.embed.footer)
 					});
 					else {
-						let [children, index] = BDFDB.ReactUtils.findParent(e.returnvalue, {props: [["className", BDFDB.disCN.embeddescription]]});
-						if (index > -1) children[index].props.children.push(BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.TooltipContainer, {
-							text: `${BDFDB.LanguageUtils.getName(translation.input)} ➝ ${BDFDB.LanguageUtils.getName(translation.output)}`,
-							tooltipConfig: {style: "max-width: 400px"},
-							children: BDFDB.ReactUtils.createElement("span", {
-								className: BDFDB.DOMUtils.formatClassName(BDFDB.disCN.messagetimestamp, BDFDB.disCN.messagetimestampinline, BDFDB.disCN._translatortranslated),
-								children: BDFDB.ReactUtils.createElement("span", {
-									className: BDFDB.disCN.messageedited,
-									children: `(${this.labels.translated_watermark})`
+						let [children, index] = BDFDB.ReactUtils.findParent(e.returnvalue, { props: [["className", BDFDB.disCN.embeddescription]] });
+						if (index > -1) {
+							// Ensure children[index].props.children is an array before attempting to push
+							// Fix for errors on multiple embeds in single messages
+							if (!Array.isArray(children[index].props.children)) {
+								children[index].props.children = [children[index].props.children];
+							}
+
+							children[index].props.children.push(
+								BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.TooltipContainer, {
+									text: `${BDFDB.LanguageUtils.getName(translation.input)} ➝ ${BDFDB.LanguageUtils.getName(translation.output)}`,
+									tooltipConfig: { style: "max-width: 400px" },
+									children: BDFDB.ReactUtils.createElement("span", {
+										className: BDFDB.DOMUtils.formatClassName(BDFDB.disCN.messagetimestamp, BDFDB.disCN.messagetimestampinline, BDFDB.disCN._translatortranslated),
+										children: BDFDB.ReactUtils.createElement("span", {
+											className: BDFDB.disCN.messageedited,
+											children: `(${this.labels.translated_watermark})`
+										})
+									})
 								})
-							})
-						}));
+							);
+						}
 					}
 				}
 				else if (!e.returnvalue && e.instance.props.embed.originalDescription) {
-					e.instance.props.embed = Object.assign({}, e.instance.props.embed, {rawDescription: e.instance.props.embed.originalDescription});
+					e.instance.props.embed = Object.assign({}, e.instance.props.embed, {
+						rawDescription: e.instance.props.embed.originalDescription,
+						rawTitle: e.instance.props.embed.originalTitle,
+						fields: e.instance.props.embed.originalFields,
+						footer: e.instance.props.embed.originalFooter
+					});
 					delete e.instance.props.embed.originalDescription;
+					delete e.instance.props.embed.originalTitle;
+					delete e.instance.props.embed.originalFields;
+					delete e.instance.props.embed.originalFooter;
 				}
 			}
 			
@@ -897,22 +1069,55 @@ module.exports = (_ => {
 						callback(false);
 					}
 					else {
-						let orignalContent = message.content || "";
-						for (let embed of message.embeds) orignalContent += ("\n__________________ __________________ __________________\n" + embed.rawDescription);
-						this.translateText(orignalContent, messageTypes.RECEIVED, (translation, input, output) => {
+						let originalContentData = {
+							content: message.content || "",
+							embeds: message.embeds.map(embed => ({
+								description: embed.rawDescription || "",
+								title: embed.rawTitle || "",
+								footerText: embed.footer ? embed.footer.text : "",
+								fields: embed.fields ? embed.fields.map(field => ({name: field.rawName, value: field.rawValue})) : []
+							}))
+						};
+						let allTextsToTranslate = originalContentData.content;
+						originalContentData.embeds.forEach(embed => {
+							allTextsToTranslate += `\n__________________ __________________ __________________\n`;
+							allTextsToTranslate += embed.title + "\n" + embed.description;
+							embed.fields.forEach(field => {
+								allTextsToTranslate += "\n\n" + field.name + "__________________" + field.value;
+							});
+							if (embed.footerText) allTextsToTranslate += "\n" + embed.footerText;
+						});
+						message.embeds.forEach(embed => embed.message_id = message.id);
+						let embedIds = message.embeds.map(embed => embed.id);
+						this.translateText(allTextsToTranslate, messageTypes.RECEIVED, (translation, input, output) => {
 							if (translation) {
-								oldMessages[message.id] = new BDFDB.DiscordObjects.Message(message);
-								let oldStrings = orignalContent.split(/\n{0,1}__________________ __________________ __________________\n{0,1}/);
+								let oldStrings = originalContentData.content.split(/\n{0,1}__________________ __________________ __________________\n{0,1}/);
 								let strings = translation.split(/\n{0,1}__________________ __________________ __________________\n{0,1}/);
 								let oldContent = this.settings.general.showOriginalMessage && (oldStrings.shift() || "").trim();
 								let content = (strings.shift() || "").trim() + (oldContent ? (!this.settings.general.useSpoilerInOriginal ? ("\n\n> *" + oldContent.split("\n").join("*\n> *") + "*").replace(/> \*\*\n/g, "> \n") : `\n\n||${oldContent}||`) : "");
-								let embeds = {};
-								for (let i in message.embeds) {
-									message.embeds[i].message_id = message.id;
-									let oldEmbedString = this.settings.general.showOriginalMessage && (oldStrings.shift() || "").trim();
-									embeds[message.embeds[i].id] = (strings.shift() || message.embeds[i].rawDescription).trim() + (oldEmbedString ? (!this.settings.general.useSpoilerInOriginal ? ("\n\n> *" + oldEmbedString.split("\n").join("*\n> *") + "*").replace(/> \*\*\n/g, "> \n") : `\n\n||${oldEmbedString}||`) : "");
-								}
-								translatedMessages[message.id] = {content, embeds, input, output};
+								let embeds = strings.reduce((dict, segment, index) => {
+									let embedId = embedIds[index];
+									let segmentLines = segment.split("\n");
+									let title = segmentLines.shift();
+									let description = segmentLines.shift();
+									let footerText = segmentLines.pop();
+									let fieldsSegment = segmentLines.join("\n").split("\n\n");
+									let fields = fieldsSegment.map(line => {
+										let [name, value] = line.split("__________________");
+										return {name, value};
+									});
+
+									dict[embedId] = {title, description, fields, footerText};
+									return dict;
+								}, {});
+								oldMessages[message.id] = new BDFDB.DiscordObjects.Message(message);
+								oldMessages[message.id].originalContentData = originalContentData;
+								translatedMessages[message.id] = {
+									content: content,
+									embeds: embeds,
+									input,
+									output
+								};
 								BDFDB.MessageUtils.rerenderAll(true);
 							}
 							callback(true);
@@ -921,7 +1126,7 @@ module.exports = (_ => {
 				});
 			}
 
-			translateText (text, place, callback) {
+			translateText (text, place, callback, forcedOutputLanguage = null) {
 				let toast = null, toastInterval, finished = false, finishTranslation = translation => {
 					isTranslating = false;
 					if (toast) toast.close();
@@ -934,7 +1139,10 @@ module.exports = (_ => {
 				let [newText, excepts, translate] = this.removeExceptions(text.trim(), place);
 				let channelId = BDFDB.LibraryStores.SelectedChannelStore.getChannelId();
 				let input = Object.assign({}, languages[this.getLanguageChoice(languageTypes.INPUT, place, channelId)]);
-				let output = Object.assign({}, languages[this.getLanguageChoice(languageTypes.OUTPUT, place, channelId)]);
+				let output = forcedOutputLanguage ? 
+					Object.assign({}, languages[forcedOutputLanguage] || {id: forcedOutputLanguage, name: forcedOutputLanguage}) : 
+					Object.assign({}, languages[this.getLanguageChoice(languageTypes.OUTPUT, place, channelId)]);
+				
 				if (translate && input.id != output.id) {
 					let specialCase = this.checkForSpecialCase(newText, input);
 					if (specialCase) {
@@ -1532,6 +1740,8 @@ module.exports = (_ => {
 							language_selection_server:				"Изборът на език ще бъде променен специално за този сървър",
 							popout_translateoption:					"Превод",
 							popout_untranslateoption:				"Непревод",
+							prefixes_disable_text:					"Префикси, които деактивират превода на съобщението",
+							prefixes_enable_text:					"Префикси, които активират превод със специфичен език (напр. $fr, $de, $jp)",
 							toast_translating:					"Превод",
 							toast_translating_failed:				"Преводът не бе успешен",
 							toast_translating_tryanother:				"Опитайте друг преводач",
@@ -1566,6 +1776,8 @@ module.exports = (_ => {
 							language_selection_server:				"Výběr jazyka bude změněn speciálně pro tento server",
 							popout_translateoption:					"Přeložit",
 							popout_untranslateoption:				"Nepřeložit",
+							prefixes_disable_text:					"Předpony, které deaktivují překlad zprávy",
+							prefixes_enable_text:					"Předpony, které aktivují překlad s konkrétním jazykem (např. $fr, $de, $jp)",
 							toast_translating:					"Překládání",
 							toast_translating_failed:				"Překlad se nezdařil",
 							toast_translating_tryanother:				"Zkuste jiný překladač",
@@ -1600,6 +1812,8 @@ module.exports = (_ => {
 							language_selection_server:				"Sprogvalg vil blive ændret specifikt for denne server",
 							popout_translateoption:					"Oversætte",
 							popout_untranslateoption:				"Untranslate",
+							prefixes_disable_text:					"Præfikser, der deaktiverer oversættelse af meddelelse",
+							prefixes_enable_text:					"Præfikser, der aktiverer oversættelse med specifikt sprog (f.eks. $fr, $de, $jp)",
 							toast_translating:					"Oversætter",
 							toast_translating_failed:				"Kunne ikke oversætte",
 							toast_translating_tryanother:				"Prøv en anden oversætter",
@@ -1634,6 +1848,8 @@ module.exports = (_ => {
 							language_selection_server:				"Die Sprachauswahl wird speziell für diesen Server geändert",
 							popout_translateoption:					"Übersetzen",
 							popout_untranslateoption:				"Unübersetzen",
+							prefixes_disable_text:					"Präfixe, die die Übersetzung der Nachricht deaktivieren",
+							prefixes_enable_text:					"Präfixe, die die Übersetzung mit einer bestimmten Sprache aktivieren (z.B. $fr, $de, $jp)",
 							toast_translating:					"Übersetzen",
 							toast_translating_failed:				"Übersetzung fehlgeschlagen",
 							toast_translating_tryanother:				"Versuch einen anderen Übersetzer",
@@ -1668,6 +1884,8 @@ module.exports = (_ => {
 							language_selection_server:				"Η επιλογή γλώσσας θα αλλάξει ειδικά για αυτόν τον διακομιστή",
 							popout_translateoption:					"Μετάφραση",
 							popout_untranslateoption:				"Αναίρεση μετάφρασης",
+							prefixes_disable_text:					"Προθέσεις που απενεργοποιούν την μετάφραση του μηνύματος",
+							prefixes_enable_text:					"Προθέσεις που ενεργοποιούν την μετάφραση με συγκεκριμένη γλώσσα (π.χ. $fr, $de, $jp)",
 							toast_translating:					"Μετάφραση",
 							toast_translating_failed:				"Αποτυχία μετάφρασης",
 							toast_translating_tryanother:				"Δοκιμάστε έναν άλλο Μεταφραστή",
@@ -1702,10 +1920,48 @@ module.exports = (_ => {
 							language_selection_server:				"La selección de idioma se cambiará específicamente para este servidor",
 							popout_translateoption:					"Traducir",
 							popout_untranslateoption:				"No traducir",
+							prefixes_disable_text:					"Prefijos que desactivan la traducción del mensaje",
+							prefixes_enable_text:					"Prefijos que activan la traducción con un idioma específico (por ejemplo, $fr, $de, $jp)",
 							toast_translating:					"Traductorio",
 							toast_translating_failed:				"No se pudo traducir",
 							toast_translating_tryanother:				"Prueba con otro traductor",
 							translate_your_message:					"Traduce tus mensajes antes de enviarlos",
+							translated_watermark:					"traducido",
+							translator_engine:					"Traductor"
+						};
+					case "es-419":		// Spanish (Latin America)
+						return {
+							backup_engine:						"Traspaso de respaldo",
+							backup_engine_warning:					"Utilizará el traductor de respaldo",
+							context_messagetranslateoption:				"Mensaje de traducir",
+							context_messageuntranslateoption:			"Mensaje no traducido",
+							context_translator:					"Traducción de búsqueda",
+							detect_language:					"Detectar lenguaje",
+							error_dailylimit:					"Límite de solicitud diaria alcanzado.",
+							error_hourlylimit:					"Límite de solicitud por hora alcanzado.",
+							error_keyoutdated:					"Api-key anticuado.",
+							error_monthlylimit:					"Límite de solicitud mensual alcanzado.",
+							error_serverdown:					"El servidor de traducción puede estar fuera de línea.",
+							exception_text:						"Las palabras que comienzan con {{var0}} se ignorarán",
+							general_addTranslateButton:				"Agrega un botón de traducción al canal TextAREA",
+							general_sendOriginalMessage:				"También envía el mensaje original al traducir su mensaje enviado",
+							general_showOriginalMessage:				"También muestra el mensaje original al traducir un mensaje recibido",
+							general_usePerChatTranslation:				"Habilita/deshabilita el estado del botón de traductor por canal y no a nivel mundial",
+							language_choice_input_received:				"Idioma de entrada en mensajes recibidos",
+							language_choice_input_sent:				"Idioma de entrada en sus mensajes enviados",
+							language_choice_output_received:			"Lenguaje de salida en mensajes recibidos",
+							language_choice_output_sent:				"Lenguaje de salida en sus mensajes enviados",
+							language_selection_channel:				"La selección del idioma se cambiará específicamente para este canal",
+							language_selection_global:				"La selección del idioma se cambiará para todos los servidores",
+							language_selection_server:				"La selección del idioma se cambiará específicamente para este servidor",
+							popout_translateoption:					"Traducir",
+							popout_untranslateoption:				"No traducido",
+							prefixes_disable_text:					"Prefijos que deshabilitan la traducción del mensaje",
+							prefixes_enable_text:					"Prefijos que habilitan la traducción con un lenguaje específico (por ejemplo, $fr, $de, $jp)",
+							toast_translating:					"Traductorio",
+							toast_translating_failed:				"No se pudo traducir",
+							toast_translating_tryanother:				"Prueba otro traductor",
+							translate_your_message:					"Traducir sus mensajes antes de enviar",
 							translated_watermark:					"traducido",
 							translator_engine:					"Traductor"
 						};
@@ -1736,6 +1992,8 @@ module.exports = (_ => {
 							language_selection_server:				"Kielen valintaa muutetaan erityisesti tätä palvelinta varten",
 							popout_translateoption:					"Kääntää",
 							popout_untranslateoption:				"Käännä",
+							prefixes_disable_text:					"Etuliitteet, jotka poistavat viestin käännöksen käytöstä",
+							prefixes_enable_text:					"Etuliitteet, jotka mahdollistavat käännöksen tietyllä kielellä (esim. $fr, $de, $jp)",
 							toast_translating:					"Kääntäminen",
 							toast_translating_failed:				"Käännös epäonnistui",
 							toast_translating_tryanother:				"Kokeile toista kääntäjää",
@@ -1770,6 +2028,8 @@ module.exports = (_ => {
 							language_selection_server:				"La sélection de la langue sera modifiée spécifiquement pour ce serveur",
 							popout_translateoption:					"Traduire",
 							popout_untranslateoption:				"Non traduit",
+							prefixes_disable_text:					"Préfixes qui désactivent la traduction du message",
+							prefixes_enable_text:					"Préfixes qui activent la traduction avec un langage spécifique (par exemple, $fr, $de, $jp)",
 							toast_translating:					"Traduction en cours",
 							toast_translating_failed:				"Échec de la traduction",
 							toast_translating_tryanother:				"Essayez un autre traducteur",
@@ -1804,6 +2064,8 @@ module.exports = (_ => {
 							language_selection_server:				"इस सर्वर के लिए भाषा चयन विशेष रूप से बदल दिया जाएगा",
 							popout_translateoption:					"अनुवाद करना",
 							popout_untranslateoption:				"अनुवाद न करें",
+							prefixes_disable_text:					"उपसर्ग जो संदेश के अनुवाद को अक्षम करते हैं",
+							prefixes_enable_text:					"उपसर्ग जो विशिष्ट भाषा के साथ अनुवाद को सक्षम करते हैं (जैसे $fr, $de, $jp)",
 							toast_translating:					"अनुवाद",
 							toast_translating_failed:				"अनुवाद करने में विफल",
 							toast_translating_tryanother:				"दूसरे अनुवादक का प्रयास करें",
@@ -1838,6 +2100,8 @@ module.exports = (_ => {
 							language_selection_server:				"Odabir jezika bit će promijenjen posebno za ovaj poslužitelj",
 							popout_translateoption:					"Prevedi",
 							popout_untranslateoption:				"Neprevedi",
+							prefixes_disable_text:					"Prefiksi koji onemogućuju prijevod poruke",
+							prefixes_enable_text:					"Prefiksi koji omogućuju prijevod određenim jezikom (npr. $fr, $de, $jp)",
 							toast_translating:					"Prevođenje",
 							toast_translating_failed:				"Prijevod nije uspio",
 							toast_translating_tryanother:				"Pokušajte s drugim prevoditeljem",
@@ -1872,6 +2136,8 @@ module.exports = (_ => {
 							language_selection_server:				"A nyelvválasztás kifejezetten ehhez a szerverhez módosul",
 							popout_translateoption:					"fordít",
 							popout_untranslateoption:				"Fordítás le",
+							prefixes_disable_text:					"Az üzenet fordítását letiltó előtagok",
+							prefixes_enable_text:					"Előtagok, amelyek lehetővé teszik a fordítás meghatározott nyelvvel (például $fr, $de, $jp)",
 							toast_translating:					"Fordítás",
 							toast_translating_failed:				"Nem sikerült lefordítani",
 							toast_translating_tryanother:				"Próbálkozzon másik fordítóval",
@@ -1906,6 +2172,8 @@ module.exports = (_ => {
 							language_selection_server:				"La selezione della lingua verrà modificata in modo specifico per questo server",
 							popout_translateoption:					"Tradurre",
 							popout_untranslateoption:				"Non tradurre",
+							prefixes_disable_text:					"Parole che iniziano con {{var0}} verranno ignorate",
+							prefixes_enable_text:					"Parole che attivano la traduzione con un linguaggio specifico (ad esempio, $fr, $de, $jp)",
 							toast_translating:					"Tradurre",
 							toast_translating_failed:				"Impossibile tradurre",
 							toast_translating_tryanother:				"Prova un altro traduttore",
@@ -1940,6 +2208,8 @@ module.exports = (_ => {
 							language_selection_server:				"言語の選択は、このサーバー専用に変更されます",
 							popout_translateoption:					"翻訳する",
 							popout_untranslateoption:				"翻訳しない",
+							prefixes_disable_text:					"メッセージの翻訳を無効にするプレフィックス",
+							prefixes_enable_text:					"特定の言語で翻訳を可能にするプレフィックス（例：$fr, $de, $jp）",
 							toast_translating:					"翻訳",
 							toast_translating_failed:				"翻訳に失敗しました",
 							toast_translating_tryanother:				"別の翻訳者を試す",
@@ -1974,6 +2244,8 @@ module.exports = (_ => {
 							language_selection_server:				"이 서버에 대해 특별히 언어 선택이 변경됩니다.",
 							popout_translateoption:					"옮기다",
 							popout_untranslateoption:				"번역 취소",
+							prefixes_disable_text:					"메시지 변환을 비활성화하는 접두사",
+							prefixes_enable_text:					"특정 언어로 변환을 가능하게하는 접두사 (예: $fr, $de, $jp)",
 							toast_translating:					"번역 중",
 							toast_translating_failed:				"번역하지 못했습니다.",
 							toast_translating_tryanother:				"다른 번역기 시도",
@@ -2008,6 +2280,8 @@ module.exports = (_ => {
 							language_selection_server:				"Kalbos pasirinkimas bus pakeistas specialiai šiam serveriui",
 							popout_translateoption:					"Išversti",
 							popout_untranslateoption:				"Neišversti",
+							prefixes_disable_text:					"Priešdėliai, kurie išjungia pranešimo vertimą",
+							prefixes_enable_text:					"Priešdėliai, įgalinantys vertimą su konkrečia kalba (pvz., $fr, $de, $jp)",
 							toast_translating:					"Vertimas",
 							toast_translating_failed:				"Nepavyko išversti",
 							toast_translating_tryanother:				"Išbandykite kitą vertėją",
@@ -2042,6 +2316,8 @@ module.exports = (_ => {
 							language_selection_server:				"Taalselectie wordt specifiek voor deze server gewijzigd",
 							popout_translateoption:					"Vertalen",
 							popout_untranslateoption:				"Onvertalen",
+							prefixes_disable_text:					"Voorvoegsels die de vertaling van het bericht uitschakelen",
+							prefixes_enable_text:					"Voorvoegsels die vertaling mogelijk maken met specifieke taal (bijv. $fr, $de, $jp)",
 							toast_translating:					"Vertalen",
 							toast_translating_failed:				"Kan niet vertalen",
 							toast_translating_tryanother:				"Probeer een andere vertaler",
@@ -2076,6 +2352,8 @@ module.exports = (_ => {
 							language_selection_server:				"Språkvalg vil bli endret spesifikt for denne serveren",
 							popout_translateoption:					"Oversette",
 							popout_untranslateoption:				"Ikke oversett",
+							prefixes_disable_text:					"Prefikser som deaktiverer oversettelse av meldingen",
+							prefixes_enable_text:					"Prefikser som muliggjør oversettelse med spesifikt språk (f.eks. $fr, $de, $jp)",
 							toast_translating:					"Oversetter",
 							toast_translating_failed:				"Kunne ikke oversette",
 							toast_translating_tryanother:				"Prøv en annen oversetter",
@@ -2110,6 +2388,8 @@ module.exports = (_ => {
 							language_selection_server:				"Wybór języka zostanie zmieniony specjalnie dla tego serwera",
 							popout_translateoption:					"Tłumaczyć",
 							popout_untranslateoption:				"Nie przetłumacz",
+							prefixes_disable_text:					"Słowa zaczynające się od {{var0}} będą ignorowane",
+							prefixes_enable_text:					"Słowa, które aktywują tłumaczenie na określony język (np. $fr, $de, $jp)",
 							toast_translating:					"Tłumaczenie",
 							toast_translating_failed:				"Nie udało się przetłumaczyć",
 							toast_translating_tryanother:				"Wypróbuj innego tłumacza",
@@ -2117,7 +2397,7 @@ module.exports = (_ => {
 							translated_watermark:					"przetłumaczony",
 							translator_engine:					"Tłumacz"
 						};
-					case "pt-BR":	// Portuguese (Brazil)
+					case "pt-BR":		// Portuguese (Brazil)
 						return {
 							backup_engine:						"Backup-Tradutor",
 							backup_engine_warning:					"Usará o Backup-Tradutor",
@@ -2144,6 +2424,8 @@ module.exports = (_ => {
 							language_selection_server:				"A seleção de idioma será alterada especificamente para este servidor",
 							popout_translateoption:					"Traduzir",
 							popout_untranslateoption:				"Não traduzido",
+							prefixes_disable_text:					"Prefixos que desativam a tradução da mensagem",
+							prefixes_enable_text:					"Prefixos que permitem a tradução com linguagem específica (por exemplo, $fr, $de, $jp)",
 							toast_translating:					"Traduzindo",
 							toast_translating_failed:				"Falha ao traduzir",
 							toast_translating_tryanother:				"Tente outro tradutor",
@@ -2178,6 +2460,8 @@ module.exports = (_ => {
 							language_selection_server:				"Selectarea limbii va fi modificată special pentru acest Server",
 							popout_translateoption:					"Traduceți",
 							popout_untranslateoption:				"Netradus",
+							prefixes_disable_text:					"Prefixele care dezactivează traducerea mesajului",
+							prefixes_enable_text:					"Prefixele care permit traducerea cu un limbaj specific (de exemplu, $fr, $de, $jp)",
 							toast_translating:					"Traducere",
 							toast_translating_failed:				"Nu s-a putut traduce",
 							toast_translating_tryanother:				"Încercați un alt traducător",
@@ -2212,6 +2496,8 @@ module.exports = (_ => {
 							language_selection_server:				"Выбор языка будет изменен специально для этого сервера",
 							popout_translateoption:					"Переведите",
 							popout_untranslateoption:				"Неперевести",
+							prefixes_disable_text:					"Префиксы, которые отключают перевод сообщения",
+							prefixes_enable_text:					"Префиксы, которые обеспечивают перевод с конкретным языком (например, $fr, $de, $jp)",
 							toast_translating:					"Идет перевод",
 							toast_translating_failed:				"Не удалось перевести",
 							toast_translating_tryanother:				"Попробуйте другой переводчик",
@@ -2246,6 +2532,8 @@ module.exports = (_ => {
 							language_selection_server:				"Språkval kommer att ändras specifikt för denna server",
 							popout_translateoption:					"Översätt",
 							popout_untranslateoption:				"Untranslate",
+							prefixes_disable_text:					"Prefix som inaktiverar översättning av meddelandet",
+							prefixes_enable_text:					"Prefix som möjliggör översättning med specifikt språk (t.ex. $fr, $de, $jp)",
 							toast_translating:					"Översätter",
 							toast_translating_failed:				"Det gick inte att översätta",
 							toast_translating_tryanother:				"Prova en annan översättare",
@@ -2280,6 +2568,8 @@ module.exports = (_ => {
 							language_selection_server:				"การเลือกภาษาจะมีการเปลี่ยนแปลงโดยเฉพาะสำหรับเซิร์ฟเวอร์นี้",
 							popout_translateoption:					"แปลภาษา",
 							popout_untranslateoption:				"ไม่แปล",
+							prefixes_disable_text:					"คำนำหน้าการปิดใช้งานการแปลข้อความ",
+							prefixes_enable_text:					"คำนำหน้าที่เปิดใช้งานการแปลด้วยภาษาที่เฉพาะเจาะจง (เช่น $fr, $de, $jp)",
 							toast_translating:					"กำลังแปล",
 							toast_translating_failed:				"แปลไม่สำเร็จ",
 							toast_translating_tryanother:				"ลองใช้นักแปลคนอื่น",
@@ -2314,6 +2604,8 @@ module.exports = (_ => {
 							language_selection_server:				"Dil Seçimi bu Sunucuya özel olarak değiştirilecektir.",
 							popout_translateoption:					"Çevirmek",
 							popout_untranslateoption:				"Çevirmeyi kaldır",
+							prefixes_disable_text:					"Mesajın çevirisini devre dışı bırakan önekler",
+							prefixes_enable_text:					"Belirli bir dille çeviriyi etkinleştiren önekler (örn. $fr, $de, $jp)",
 							toast_translating:					"Çeviri",
 							toast_translating_failed:				"Tercüme edilemedi",
 							toast_translating_tryanother:				"Başka bir Çevirmen deneyin",
@@ -2348,6 +2640,8 @@ module.exports = (_ => {
 							language_selection_server:				"Вибір мови буде змінено спеціально для цього сервера",
 							popout_translateoption:					"Перекласти",
 							popout_untranslateoption:				"Неперекласти",
+							prefixes_disable_text:					"Префікси, що відключають переклад повідомлення",
+							prefixes_enable_text:					"Префікси, що дозволяють перекладати з конкретною мовою (наприклад, $fr, $de, $jp)",
 							toast_translating:					"Переклад",
 							toast_translating_failed:				"Не вдалося перекласти",
 							toast_translating_tryanother:				"Спробуйте іншого перекладача",
@@ -2382,6 +2676,8 @@ module.exports = (_ => {
 							language_selection_server:				"Lựa chọn ngôn ngữ sẽ được thay đổi cụ thể cho Máy chủ này",
 							popout_translateoption:					"Phiên dịch",
 							popout_untranslateoption:				"Chưa dịch",
+							prefixes_disable_text:					"Tiền tố vô hiệu hóa dịch tin nhắn",
+							prefixes_enable_text:					"Tiền tố cho phép dịch với ngôn ngữ cụ thể (ví dụ: $fr, $de, $jp)",
 							toast_translating:					"Phiên dịch",
 							toast_translating_failed:				"Không dịch được",
 							toast_translating_tryanother:				"Thử một Trình dịch khác",
@@ -2389,7 +2685,7 @@ module.exports = (_ => {
 							translated_watermark:					"đã dịch",
 							translator_engine:					"Người phiên dịch"
 						};
-					case "zh-CN":	// Chinese (China)
+					case "zh-CN":		// Chinese (China)
 						return {
 							backup_engine:						"备份翻译器",
 							backup_engine_warning:					"将使用备份翻译器",
@@ -2416,6 +2712,8 @@ module.exports = (_ => {
 							language_selection_server:				"语言选择将专门为此服务器更改",
 							popout_translateoption:					"翻译",
 							popout_untranslateoption:				"取消翻译",
+							prefixes_disable_text:					"禁用消息翻译的前缀",
+							prefixes_enable_text:					"用特定语言启用翻译的前缀（例如 $fr, $de, $jp）",
 							toast_translating:					"正在翻译",
 							toast_translating_failed:				"翻译失败",
 							toast_translating_tryanother:				"尝试其它翻译器",
@@ -2423,7 +2721,7 @@ module.exports = (_ => {
 							translated_watermark:					"已翻译",
 							translator_engine:					"译者"
 						};
-					case "zh-TW":	// Chinese (Taiwan)
+					case "zh-TW":		// Chinese (Taiwan)
 						return {
 							backup_engine:						"備份翻譯器",
 							backup_engine_warning:					"將使用備份翻譯器",
@@ -2450,6 +2748,8 @@ module.exports = (_ => {
 							language_selection_server:				"語言選擇將專門為此服務器更改",
 							popout_translateoption:					"翻譯",
 							popout_untranslateoption:				"取消翻譯",
+							prefixes_disable_text:					"禁用消息翻译的前缀",
+							prefixes_enable_text:					"用特定语言启用翻译的前缀（例如 $fr, $de, $jp）",
 							toast_translating:					"正在翻譯",
 							toast_translating_failed:				"無法翻譯",
 							toast_translating_tryanother:				"嘗試其它翻譯器",
@@ -2484,6 +2784,8 @@ module.exports = (_ => {
 							language_selection_server:				"Language Selection will be changed specifically for this Server",
 							popout_translateoption:					"Translate",
 							popout_untranslateoption:				"Untranslate",
+							prefixes_disable_text:					"Prefixes that disable translation of message",
+							prefixes_enable_text:					"Prefixes that enable translation with specific language (e.g. $fr, $de, $jp)",
 							toast_translating:					"Translating",
 							toast_translating_failed:				"Failed to translate",
 							toast_translating_tryanother:				"Try another Translator",
