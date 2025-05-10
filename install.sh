@@ -39,6 +39,7 @@ paru -S acpi alacritty alsa-utils ani-cli arandr autorandr bash-completion bluem
 
 # auto login
 
+# OLD WAY - DOESN'T WORK
 # sudo vim /etc/systemd/system/getty.target.wants/getty\@tty1.service
 #from
 #ExecStart=-/sbin/agetty -o '-p -- \\u' --noclear - $TERM
