@@ -16,7 +16,7 @@ git clone https://github.com/V1K1NGbg/dots.git
 sudo vim /etc/pacman.conf
 # and add the following
 #[multilib]
-#include = /etc/pacman.d/mirrorlist
+#Include = /etc/pacman.d/mirrorlist
 
 # update
 sudo pacman -Syu
