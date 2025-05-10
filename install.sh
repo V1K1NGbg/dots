@@ -48,6 +48,8 @@ paru -S acpi alacritty alsa-utils ani-cli arandr autorandr bash-completion bluem
 
 sudo systemctl edit getty@tty1.service --drop-in=autologin
 
+# Between the coments!
+
 #[Service]
 #ExecStart=
 #ExecStart=-/sbin/agetty -o '-p -f -- \\u' --noclear --autologin victor %I %TERM
