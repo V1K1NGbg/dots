@@ -4,6 +4,8 @@
 
 # extra packages: git vim firefox
 
+# --------------------
+
 git clone https://github.com/V1K1NGbg/dots.git
 
 # vim install.sh
