@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# gpg --keyserver-options auto-key-retrieve --verify archlinux.iso.sig
+
 # sudo usbimager
 
 # extra packages: git vim firefox
