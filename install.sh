@@ -107,7 +107,7 @@ source ~/.bashrc
 nvm install node
 
 # vtop
-npm install -g vtop
+sudo npm install -g vtop
 
 # install oh-my-bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)"
