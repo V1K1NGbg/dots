@@ -302,6 +302,7 @@ mkdir ~/docker_data/portainer
 # sign in
 # import VIMIUM and Bonjourr
 # bookmarks fix layout
+# duck duck go
 # cookies exceptions (uni,google,github)
 
 # steam
