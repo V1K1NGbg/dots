@@ -4,7 +4,7 @@
 
 # sudo usbimager
 
-# extra packages: git vim firefox
+# extra packages: git vim firefox less
 
 # --------------------
 
