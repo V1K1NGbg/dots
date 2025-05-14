@@ -568,6 +568,11 @@ awful.rules.rules = {
         rule = { class = "KeePassXC" },
         properties = { screen = 1, tag = "  " }
     },
+
+    {
+        rule = { class = "Steam" },
+        properties = { screen = 1, tag = "  " }
+    },
 }
 
 -- }}}
