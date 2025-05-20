@@ -570,7 +570,7 @@ awful.rules.rules = {
     },
 
     {
-        rule = { class = "Steam" },
+        rule = { class = "steam" },
         properties = { screen = 1, tag = "  " }
     },
 }
