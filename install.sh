@@ -327,3 +327,7 @@ xrandr --output eDP-1 --brightness 0.5
 
 # verify signature
 gpg --keyserver-options auto-key-retrieve --verify archlinux.iso.sig
+
+# redshift
+redshift -P -O 4500
+redshift -x
