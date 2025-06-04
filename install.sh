@@ -82,7 +82,7 @@ sudo plymouth-set-default-theme -R hexagon_hud
 # git
 git config --global user.name "V1K1NGbg"
 git config --global user.email "victor@ilchev.com"
-git config --global pull.rebase true
+# git config --global pull.rebase true
 gh auth login
 
 mkdir -p ~/Documents/GitHub
