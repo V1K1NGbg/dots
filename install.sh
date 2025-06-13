@@ -112,7 +112,7 @@ sudo npm install -g vtop
 # install oh-my-bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)"
 
-# !!! carefull new fzf setup
+# !!! carefull make new fzf setup
 # install fzf-completion
 git clone https://github.com/lincheney/fzf-tab-completion
 
