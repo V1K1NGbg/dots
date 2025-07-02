@@ -318,14 +318,14 @@ globalkeys = mytable.join(
             os.execute(string.format("amixer -q set %s 5%%+", beautiful.volume.channel))
             beautiful.volume.update()
         end,
-        { description = "volume up", group = "hotkeys" }),
+        { description = "volume up", group = "client" }),
 
     awful.key({}, "XF86AudioLowerVolume",
         function()
             os.execute(string.format("amixer -q set %s 5%%-", beautiful.volume.channel))
             beautiful.volume.update()
         end,
-        { description = "volume down", group = "hotkeys" }),
+        { description = "volume down", group = "client" }),
 
     awful.key({}, "XF86AudioMute",
         function()
@@ -333,7 +333,7 @@ globalkeys = mytable.join(
                 beautiful.volume.togglechannel or beautiful.volume.channel))
             beautiful.volume.update()
         end,
-        { description = "toggle mute", group = "hotkeys" }),
+        { description = "toggle mute", group = "client" }),
 
     -- Prompt
     awful.key({ modkey }, "r", function() os.execute("rofi -terminal " .. terminal .. " -show run") end,
@@ -377,11 +377,25 @@ globalkeys = mytable.join(
 )
 
 clientkeys = mytable.join(
--- Floating
+    -- Floating
     awful.key({ modkey, "Shift" }, "f",
         awful.client.floating.toggle,
         { description = "toggle floating", group = "client", }
     ),
+    --Sticky
+    awful.key({ modkey, "Shift" }, "s",
+        function(c)
+            c.sticky = not c.sticky
+            c:raise()
+        end,
+        { description = "toggle sticky", group = "client" }),
+    -- On top
+    awful.key({ modkey, "Shift" }, "t",
+        function(c)
+            c.ontop = not c.ontop
+            c:raise()
+        end,
+        { description = "toggle keep on top", group = "client" }),
     -- Magnify
     awful.key({ altkey, }, "m", magnify_client,
         { description = "magnify client", group = "client" }),
