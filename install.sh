@@ -100,7 +100,7 @@ systemctl enable bluetooth.service
 systemctl start bluetooth.service
 
 # install nvm (link from: https://github.com/nvm-sh/nvm/)
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 # source
 source ~/.bashrc
 # install node and npm
