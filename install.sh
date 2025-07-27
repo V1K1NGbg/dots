@@ -17,15 +17,12 @@ cd ~
 
 # vim install.sh
 
-echo "Step 1/25: Enabling multilib for Steam..."
 # enable multilib for steam
 sudo sed -i '/^#\[multilib\]/,/^#Include = \/etc\/pacman.d\/mirrorlist/ s/^#//' /etc/pacman.conf
 
-echo "Step 2/25: Updating system..."
 # update system
 sudo pacman -Syu
 
-echo "Step 3/25: Installing paru..."
 # install paru
 sudo pacman -S --needed base-devel
 git clone https://aur.archlinux.org/paru-git.git
@@ -34,16 +31,13 @@ makepkg -si
 cd ..
 sudo rm -r paru-git
 
-echo "Step 4/25: Updating awesome..."
 # update awesome
 sudo pacman -Rs awesome
 paru -S awesome-git
 
-echo "Step 5/25: Installing packages..."
 # install packages
 paru -S acpi alacritty alsa-utils ani-cli arandr autorandr bash-completion blueman bluez bluez-utils baobab bulky capitaine-cursors cowsay cpupower-gui-git curl dangerzone-bin discord docker dracut fd firefox flameshot fzf gimp git github-cli glava gnome-disk-utility highlight htop i3lock-color jdk21-openjdk jdk8-openjdk keepassxc lazygit less libconfig lobster-git lolcat man-db man-pages meld moonlight-qt nano nemo nemo-compare nemo-fileroller nemo-preview neofetch network-manager-applet noto-fonts noto-fonts-cjk noto-fonts-emoji noto-fonts-extra parcellite pasystray pavucontrol pcloud-drive plymouth plymouth-theme-hexagon-hud-git prismlauncher qt6-svg ranger redshift rofi rofi-calc ruby-fusuma sof-firmware spotify-launcher steam sunshine tmux tree unclutter unzip usbimager uthash vim visual-studio-code-bin vlc wget xdotool xorg-xinput xss-lock zip
 
-echo "Step 6/25: Setting up auto login..."
 # auto login - create systemd drop-in file
 sudo systemctl edit getty@tty1.service --drop-in=autologin --stdin <<EOF
 [Service]
@@ -51,13 +45,6 @@ ExecStart=
 ExecStart=-/sbin/agetty -o '-p -f -- \\u' --noclear --autologin victor %I %TERM
 EOF
 
-echo "Step 7/25: Setting up auto start awesome..."
-# auto start awesome
-echo 'if [[ -z $DISPLAY ]] && [[ $(tty) = /dev/tty1 ]]; then
-        exec startx
-fi' >> ~/.bash_profile
-
-echo "Step 8/25: Installing picom..."
 # picom
 git clone https://github.com/pijulius/picom.git
 cd picom
@@ -67,14 +54,12 @@ ninja -C build install
 cd ..
 sudo rm -r picom/
 
-echo "Step 9/25: Setting up plymouth..."
 # plymouth
 sudo sed -i 's/^options .*/& quiet splash/' /boot/loader/entries/$(ls /boot/loader/entries/ | head -1)
 sudo sed -i 's/HOOKS=(\([^)]*\)encrypt\([^)]*\))/HOOKS=(\1plymouth encrypt\2)/' /etc/mkinitcpio.conf
 sudo dracut
 sudo plymouth-set-default-theme -R hexagon_hud
 
-echo "Step 10/25: Configuring git..."
 # git
 mkdir -p ~/Documents/GitHub
 git config --global user.name "V1K1NGbg"
@@ -82,22 +67,18 @@ git config --global user.email "victor@ilchev.com"
 # git config --global pull.rebase true
 gh auth login
 
-echo "Step 11/25: Enabling bluetooth..."
 # enable bluetooth
 systemctl enable bluetooth.service
 systemctl start bluetooth.service
 
-echo "Step 12/25: Installing nvm and node..."
 # install nvm (link from: https://github.com/nvm-sh/nvm/)
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 source ~/.bashrc
 nvm install node
 
-echo "Step 13/25: Installing vtop..."
 # vtop
 sudo npm install -g vtop
 
-echo "Step 14/25: Installing oh-my-bash..."
 # install oh-my-bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)"
 exit
@@ -114,7 +95,6 @@ exit
 # # change to integrated
 # sudo envycontrol -s integrated
 
-echo "Step 15/25: Configuring touchpad..."
 # enable tap clicking, natural scrolling and double tap
 sudo sed -i '/Section "InputClass"/,/EndSection/ {
         /Identifier.*touchpad/,/EndSection/ {
@@ -125,7 +105,6 @@ sudo sed -i '/Section "InputClass"/,/EndSection/ {
         }
 }' /usr/share/X11/xorg.conf.d/40-libinput.conf
 
-echo "Step 16/25: Configuring keyboard layout..."
 # enable bg layout
 sudo sed -i '/Section "InputClass"/,/EndSection/ {
         /Identifier.*system-keyboard/,/EndSection/ {
@@ -135,7 +114,6 @@ sudo sed -i '/Section "InputClass"/,/EndSection/ {
         }
 }' /etc/X11/xorg.conf.d/00-keyboard.conf
 
-echo "Step 17/25: Installing Monocraft font..."
 # Monocraft (https://github.com/IdreesInc/Monocraft/releases/download/v4.1/Monocraft-nerd-fonts-patched.ttc)
 mkdir -p ~/.local/share/fonts
 curl -L -o ~/.local/share/fonts/Monocraft-nerd-fonts-patched.ttc https://github.com/IdreesInc/Monocraft/releases/download/v4.1/Monocraft-nerd-fonts-patched.ttc
@@ -152,13 +130,11 @@ fc-list | grep Monocraft
 # vim ~/.config/gtk-3.0/settings.ini
 # #gtk-application-prefer-dark-theme=1
 
-echo "Step 18/25: Configuring fusuma..."
 # fusuma
 sudo gpasswd -a $USER input
 newgrp input
 mkdir -p ~/.config/fusuma
 
-echo "Step 19/25: Setting up static DNS..."
 # static dns
 sudo tee /etc/NetworkManager/conf.d/dns-servers.conf > /dev/null <<EOF
 [global-dns-domain-*]
@@ -185,7 +161,6 @@ EOF
 
 cd dots
 
-echo "Step 20/25: Configuring applications..."
 # copy nemo
 # # export
 # dconf dump /org/nemo/ > nemo_config
@@ -216,14 +191,12 @@ mkdir -p ~/Documents/BackUp/screenshots
 mkdir -p ~/Documents/BackUp
 mkdir -p ~/Documents/PC
 
-echo "Step 21/25: Setting up Docker..."
 # docker
 sudo systemctl enable docker.service
 sudo systemctl start docker.service
 sudo usermod -aG docker $USER
 newgrp docker
 
-echo "Step 22/25: Setting up WireGuard..."
 # wireguard
 read -e -p "Enter path to WireGuard config file: " wg_config_path
 wg_config_name=$(basename "$wg_config_path" .conf)
@@ -236,7 +209,6 @@ nmcli connection modify "$wg_config_name" connection.autoconnect no
 # sudo systemctl start warp-svc
 # warp-cli registration new
 
-echo "Step 23/25: Configuring bash and copying config files..."
 # bashrc
 grep -v "source" ~/.bashrc > tmpfile && mv -f tmpfile ~/.bashrc
 cat .bashrc >> ~/.bashrc
@@ -249,14 +221,13 @@ yes | cp -rf .config/ ~
 yes | cp -rf .oh-my-bash/ ~
 yes | cp -rf .vim/ ~
 yes | cp -rf .screenlayout/ ~
-yes | cp -f .tmux.conf .vimrc .Xresources i3lock.sh ~
+yes | cp -f .bash_profile .tmux.conf .vimrc .Xresources i3lock.sh ~
 read -e -p "Awesome const path: " awesome_const_path
 yes | cp -f "$awesome_const_path" ~/.config/awesome/
 
 # i3lock
 chmod +x ~/i3lock.sh
 
-echo "Step 24/25: Setting default applications and configuring user applications..."
 # default applications
 xdg-mime default xdg-open.desktop *
 xdg-mime default code.desktop text/*
@@ -307,7 +278,6 @@ read -p "Log in Steam and press Enter to continue..."
 spotify &
 read -p "Log in Spotify and press Enter to continue..."
 
-echo "Step 25/25: Installation complete! Restarting system..."
 # restart
 read -p "Restart system to apply all changes and press Enter to continue..."
 reboot
