@@ -80,8 +80,7 @@ nvm install node
 sudo npm install -g vtop
 
 # install oh-my-bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh)"
-exit
+curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh | bash
 
 # # !!! carefull make new fzf setup
 # # install fzf-completion
@@ -132,7 +131,7 @@ fc-list | grep Monocraft
 
 # fusuma
 sudo gpasswd -a $USER input
-newgrp input
+# newgrp input
 mkdir -p ~/.config/fusuma
 
 # static dns
@@ -191,11 +190,16 @@ mkdir -p ~/Documents/BackUp/screenshots
 mkdir -p ~/Documents/BackUp
 mkdir -p ~/Documents/PC
 
+# pcloud
+pcloud &
+read -p "Log in pCloud and press Enter to continue..."
+read -p "Sync ~/Documents/PC <-> pCloudDrive/PC, Backup ~/Documents/BackUp and press Enter to continue..."
+
 # docker
 sudo systemctl enable docker.service
 sudo systemctl start docker.service
 sudo usermod -aG docker $USER
-newgrp docker
+# newgrp docker
 
 # wireguard
 read -e -p "Enter path to WireGuard config file: " wg_config_path
@@ -241,19 +245,13 @@ xdg-mime default nemo.desktop inode/*
 # discord
 discord &
 read -p "Log in Discord and press Enter to continue..."
-read -p "Downloading BetterDiscord installer and then press Enter to continue..."
 xdg-open https://betterdiscord.app/ &
-curl -L -o ~/Downloads/BetterDiscord-Linux.AppImage https://github.com/BetterDiscord/Installer/releases/latest/download/BetterDiscord-Linux.AppImage
+read -p "Downloading BetterDiscord installer and then press Enter to continue..."
 chmod +x ~/Downloads/BetterDiscord-Linux.AppImage
 ~/Downloads/BetterDiscord-Linux.AppImage &
 read -p "Set up BetterDiscord and press Enter to continue..."
 killall Discord
 killall Discord
-
-# pcloud
-pcloud &
-read -p "Log in pCloud and press Enter to continue..."
-read -p "Sync ~/Documents/PC <-> pCloudDrive/PC, Backup ~/Documents/BackUp and press Enter to continue..."
 
 # vscode
 code &
@@ -275,7 +273,7 @@ steam &
 read -p "Log in Steam and press Enter to continue..."
 
 # spotify
-spotify &
+spotify-launcher &
 read -p "Log in Spotify and press Enter to continue..."
 
 # restart
