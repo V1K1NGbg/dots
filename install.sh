@@ -50,7 +50,7 @@ git clone https://github.com/pijulius/picom.git
 cd picom
 meson setup --buildtype=release build
 ninja -C build
-ninja -C build install
+sudo ninja -C build install
 cd ..
 sudo rm -r picom/
 
@@ -82,9 +82,8 @@ sudo npm install -g vtop
 # install oh-my-bash
 curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh | bash
 
-# # !!! carefull make new fzf setup
-# # install fzf-completion
-# git clone https://github.com/lincheney/fzf-tab-completion
+# install fzf-completion
+git clone https://github.com/lincheney/fzf-tab-completion
 
 # !!! ONLY FON NVIDIA GPU'S (NOT SUPPORTED)!!!
 # # install nvidia drivers (https://wiki.archlinux.org/title/NVIDIA)
@@ -113,9 +112,9 @@ sudo sed -i '/Section "InputClass"/,/EndSection/ {
         }
 }' /etc/X11/xorg.conf.d/00-keyboard.conf
 
-# Monocraft (https://github.com/IdreesInc/Monocraft/releases/download/v4.1/Monocraft-nerd-fonts-patched.ttc)
+# Monocraft (https://github.com/IdreesInc/Monocraft/releases/download/v4.0/Monocraft-nerd-fonts-patched.ttc)
 mkdir -p ~/.local/share/fonts
-curl -L -o ~/.local/share/fonts/Monocraft-nerd-fonts-patched.ttc https://github.com/IdreesInc/Monocraft/releases/download/v4.1/Monocraft-nerd-fonts-patched.ttc
+curl -L -o ~/.local/share/fonts/Monocraft-nerd-fonts-patched.ttc https://github.com/IdreesInc/Monocraft/releases/download/v4.0/Monocraft-nerd-fonts-patched.ttc
 fc-cache
 fc-list | grep Monocraft 
 
@@ -191,7 +190,7 @@ mkdir -p ~/Documents/BackUp
 mkdir -p ~/Documents/PC
 
 # pcloud
-pcloud &
+pcloud > /dev/null 2>&1 &
 read -p "Log in pCloud and press Enter to continue..."
 read -p "Sync ~/Documents/PC <-> pCloudDrive/PC, Backup ~/Documents/BackUp and press Enter to continue..."
 
@@ -202,7 +201,7 @@ sudo usermod -aG docker $USER
 # newgrp docker
 
 # wireguard
-read -e -p "Enter path to WireGuard config file: " wg_config_path
+read -e -p "Enter path to WireGuard config file (FULL PATH): " wg_config_path
 wg_config_name=$(basename "$wg_config_path" .conf)
 
 nmcli connection import type wireguard file "$wg_config_path"
@@ -226,7 +225,7 @@ yes | cp -rf .oh-my-bash/ ~
 yes | cp -rf .vim/ ~
 yes | cp -rf .screenlayout/ ~
 yes | cp -f .bash_profile .tmux.conf .vimrc .Xresources i3lock.sh ~
-read -e -p "Awesome const path: " awesome_const_path
+read -e -p "Awesome const path (FULL PATH): " awesome_const_path
 yes | cp -f "$awesome_const_path" ~/.config/awesome/
 
 # i3lock
@@ -243,22 +242,23 @@ xdg-mime default gimp.desktop image/*
 xdg-mime default nemo.desktop inode/*
 
 # discord
-discord &
+discord > /dev/null 2>&1 &
 read -p "Log in Discord and press Enter to continue..."
-xdg-open https://betterdiscord.app/ &
-read -p "Downloading BetterDiscord installer and then press Enter to continue..."
-chmod +x ~/Downloads/BetterDiscord-Linux.AppImage
-~/Downloads/BetterDiscord-Linux.AppImage &
-read -p "Set up BetterDiscord and press Enter to continue..."
+# xdg-open https://betterdiscord.app/ &
+# read -p "Downloading BetterDiscord installer and then press Enter to continue..."
+# chmod +x ~/Downloads/BetterDiscord-Linux.AppImage
+# ~/Downloads/BetterDiscord-Linux.AppImage &
+# read -p "Set up BetterDiscord and press Enter to continue..."
 killall Discord
 killall Discord
 
 # vscode
-code &
+code > /dev/null 2>&1 &
 read -p "Log in VSCode, sync settings and press Enter to continue..."
+killall code
 
 # firefox
-firefox &
+firefox > /dev/null 2>&1 &
 read -p "Log in Firefox
 Sync settings
 Import vimium and bonjourr configs
@@ -266,15 +266,17 @@ Fix bookmarks layout
 Set duck duck go as default search engine
 Add cookies exceptions (google,github,uni...) 
 and finally press Enter to continue..."
-
+killall firefox
 
 # steam
-steam &
+steam > /dev/null 2>&1 &
 read -p "Log in Steam and press Enter to continue..."
+killall steam
 
 # spotify
-spotify-launcher &
-read -p "Log in Spotify and press Enter to continue..."
+spotify-launcher > /dev/null 2>&1 &
+read -p "Log in Spotify, disable change song notification and press Enter to continue..."
+killall spotify-launcher
 
 # restart
 read -p "Restart system to apply all changes and press Enter to continue..."
@@ -289,8 +291,6 @@ reboot
 
 # ./docker_setup.sh
 
-#!!! GO BACK TO FINISH FZF SETUP
-
 #--------------------------------------------
 
 # phone integration
@@ -301,14 +301,14 @@ reboot
 # usefull commands:
 
 # list all installed packages
-paru -Qqen > pkglist.txt
+# paru -Qqen > pkglist.txt
 
 # change brightness
-xrandr --output eDP-1 --brightness 0.5
+# xrandr --output eDP-1 --brightness 0.5
 
 # verify signature
-gpg --keyserver-options auto-key-retrieve --verify archlinux.iso.sig
+# gpg --keyserver-options auto-key-retrieve --verify archlinux.iso.sig
 
 # redshift
-redshift -P -O 4500
-redshift -x
+# redshift -P -O 4500
+# redshift -x
