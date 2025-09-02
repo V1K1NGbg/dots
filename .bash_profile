@@ -11,10 +11,12 @@ if [[ -z $DISPLAY ]] && [[ $(tty) = /dev/tty1 ]]; then
         choice=1
         echo -e "\nDefaulting to option 1..."
     fi
+    
+    [[ -z "$choice" ]] && choice=1
 
     case $choice in
         1)
-            echo "Starting X11..."
+            echo "Starting Awesome..."
             exec startx
             ;;
         2)
