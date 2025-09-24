@@ -228,6 +228,10 @@ yes | cp -f .bash_profile .tmux.conf .vimrc .Xresources i3lock.sh ~
 read -e -p "Awesome const path (FULL PATH): " awesome_const_path
 yes | cp -f "$awesome_const_path" ~/.config/awesome/
 
+# download custom commands
+# lastline
+git clone https://gist.github.com/V1K1NGbg/50f618cf392ad0ea85f398e1ca5fe24f a && sudo chmod +x a/lastline && sudo mv a/* /usr/bin && rm -rf a
+
 # i3lock
 chmod +x ~/i3lock.sh
 
