@@ -21,7 +21,7 @@ if [[ -z $DISPLAY ]] && [[ $(tty) = /dev/tty1 ]]; then
             ;;
         2)
             echo "Starting Hyperland with Wayland..."
-            exec hyperland
+            exec hyprland
             ;;
         3)
             echo "Staying in terminal mode."
