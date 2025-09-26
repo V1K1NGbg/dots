@@ -1,31 +1,30 @@
 swipe:
   3:
     left:
-      command: "xdotool key super+period" # Switch workspace next
+      sendkey: LEFTMETA+DOT # Switch workspace next
     right:
-      command: "xdotool key super+comma" # Switch workspace back
+      sendkey: LEFTMETA+COMMA # Switch workspace back
     up:
-      command: "xdotool key super+shift+n" # Unminimize
+      sendkey: LEFTMETA+LEFTSHIFT+N # Unminimize
     down:
-      command: "xdotool key super+n" # Minimize
+      sendkey: LEFTMETA+N # Minimize
   4:
     left:
-      command: "xdotool key super+shift+Tab" # Switch tab back
+      sendkey: LEFTMETA+LEFTSHIFT+TAB # Switch tab back
     right:
-      command: "xdotool key super+Tab" # Switch tab
+      sendkey: LEFTMETA+TAB # Switch tab
     up:
-      command: "xdotool key alt+m" # Focus
+      sendkey: LEFTALT+M # Focus
     down:
-      command: "xdotool key alt+m" # Focus
+      sendkey: LEFTALT+M # Focus
 #pinch:
 #  in:
-#    command: "xdotool key " # 
+#    sendkey: #
 #  out:
-#    command: "xdotool key" # 
+#    sendkey: #
 hold:
   4:
-    command: "xdotool key super+l" # Lock
+    sendkey: LEFTMETA+L # Lock
 interval:
   swipe: 0.75
-  pinch: 0.5
   hold: 1.5
