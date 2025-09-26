@@ -19,6 +19,7 @@ $$ | \$$ |$$$$$$$$\ \$$$$$$  |   $$ |   $$ |  $$ | $$$$$$  |$$ | \$$ |
 @import url("https://xcruxiex.github.io/themes/themes-cores/neutron8.css");
 @import url("https://xcruxiex.github.io/themes/core/badges.css");
 @import url("https://xcruxiex.github.io/themes/core/custom-font.css");
+@import url("https://xcruxiex.github.io/themes/core/settings-icons.css");
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap'); /* Custom font import link (see fonts.google.com) */
 /*##########################################################################
 
@@ -34,7 +35,7 @@ $$ | \$$ |$$$$$$$$\ \$$$$$$  |   $$ |   $$ |  $$ | $$$$$$  |$$ | \$$ |
   --customFont: 'Monocraft Nerd Font', 'Open sans', sans-serif; /* Custom font, change the name in 'font name here', you must import the font first */
 
   /* HOME BUTTON */
-  --homeImage: url('https://i.redd.it/made-myself-a-custom-discord-icon-v0-t9j9padwfdqb1.png?width=1280&format=png&auto=webp&s=371514ea86a6d79c037ae1b3a93ba57e3021c0ac');/*Home button image, must be a direct link | You can also set it to a gradient, google "css gradient" */
+  --homeImage: url('https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.gameleap.com%2Fassets%2Fimages%2Fhalo%2Fhaloinfinitelogo_small.png');/* Home button image, must be a direct link | You can also set it to a gradient, google "css gradient"*/
   --homeImageSize: cover;/* To cover the button, set to "cover". You can also set it to "100% 100%" but the image will be stretched. Set to "contain" to see the entire image */
 
   /* BACKGROUND */

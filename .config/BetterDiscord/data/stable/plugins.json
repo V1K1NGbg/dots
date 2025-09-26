@@ -15,9 +15,9 @@
     "BetterAnimations": true,
     "WhoReacted": false,
     "FileViewer": true,
-    "Hide Channels": true,
+    "Hide Channels": false,
     "SpellCheck": true,
-    "HideStreamPreview": true,
+    "HideStreamPreview": false,
     "BetterMediaPlayer": false,
     "AutoIdleOnAFK": false,
     "ActivityIcons": false

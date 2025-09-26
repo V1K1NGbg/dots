@@ -21,6 +21,7 @@
 		},
 		"general": {
 			"addTranslateButton": true,
+			"addQuickTranslateButton": true,
 			"usePerChatTranslation": true,
 			"sendOriginalMessage": false,
 			"showOriginalMessage": false,
