@@ -22,11 +22,11 @@ start xss-lock -l --session=${XDG_SESSION_ID} ~/i3lock.sh
 redshift -P -O 4500
 
 # start discord --start-minimized
+start spotify-launcher
 start firefox
 start discord
 start alacritty
 start nemo
-start spotify-launcher
 # start keepassxc
 start code
 

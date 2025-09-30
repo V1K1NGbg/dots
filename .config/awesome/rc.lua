@@ -335,6 +335,10 @@ globalkeys = mytable.join(
         end,
         { description = "toggle mute", group = "client" }),
 
+    awful.key({ }, "XF86AudioPlay", function () awful.util.spawn("playerctl play-pause") end),
+    awful.key({ }, "XF86AudioNext", function () awful.util.spawn("playerctl next") end),
+    awful.key({ }, "XF86AudioPrev", function () awful.util.spawn("playerctl previous") end),
+
     -- Prompt
     awful.key({ modkey }, "r", function() os.execute("rofi -terminal " .. terminal .. " -show run") end,
         { description = "run prompt, calc, apps, files...", group = "launcher" }),
