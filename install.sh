@@ -200,6 +200,14 @@ sudo systemctl start docker.service
 sudo usermod -aG docker $USER
 # newgrp docker
 
+# spotify pt.1
+curl -fsSL https://raw.githubusercontent.com/spicetify/cli/main/install.sh | sh
+cd spicetify-themes
+cp -r * ~/.config/spicetify/Themes
+cd ..
+sudo rm -r spicetify-themes
+spicetify config current_theme Ziro
+
 # wireguard
 read -e -p "Enter path to WireGuard config file (FULL PATH): " wg_config_path
 wg_config_name=$(basename "$wg_config_path" .conf)
@@ -248,13 +256,17 @@ xdg-mime default nemo.desktop inode/*
 # discord
 discord > /dev/null 2>&1 &
 read -p "Log in Discord and press Enter to continue..."
-# xdg-open https://betterdiscord.app/ &
-# read -p "Downloading BetterDiscord installer and then press Enter to continue..."
-# chmod +x ~/Downloads/BetterDiscord-Linux.AppImage
-# ~/Downloads/BetterDiscord-Linux.AppImage &
-# read -p "Set up BetterDiscord and press Enter to continue..."
+xdg-open https://betterdiscord.app/ &
+read -p "Downloading BetterDiscord installer and then press Enter to continue..."
+chmod +x ~/Downloads/BetterDiscord-Linux.AppImage
+~/Downloads/BetterDiscord-Linux.AppImage &
+read -p "Set up BetterDiscord and press Enter to continue..."
 killall Discord
 killall Discord
+
+# spotify pt.2
+read -p "Import Spicetify backup and press Enter to continue..."
+spicetify apply
 
 # vscode
 code > /dev/null 2>&1 &
