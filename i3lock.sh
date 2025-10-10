@@ -64,4 +64,4 @@ i3lock \
   --verif-size="$size" \
   --wrong-size="$size"
 
-source .bashrc
+source ~/.bashrc
