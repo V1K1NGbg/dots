@@ -36,7 +36,7 @@ sudo pacman -Rs awesome
 paru -S awesome-git
 
 # install packages
-paru -S acpi alacritty alsa-utils ani-cli arandr autorandr bash-completion blueman bluez bluez-utils baobab bulky capitaine-cursors copyq cowsay cpupower-gui-git curl dangerzone-bin discord docker dracut fd firefox flameshot fzf gimp git github-cli glava gnome-disk-utility highlight htop i3lock-color jdk21-openjdk jdk8-openjdk keepassxc lazygit less libconfig lobster-git lolcat man-db man-pages meld moonlight-qt nano nemo nemo-compare nemo-fileroller nemo-preview neofetch network-manager-applet nmap noto-fonts noto-fonts-cjk noto-fonts-emoji noto-fonts-extra pasystray pavucontrol pcloud-drive playerctl plymouth plymouth-theme-hexagon-hud-git prismlauncher qt6-svg ranger redshift rofi rofi-calc ruby-fusuma sof-firmware spotify-launcher steam sunshine tmux tree unclutter unzip usbimager uthash vim visual-studio-code-bin vlc wget xdotool xorg-xinput xss-lock zip
+paru -S acpi alacritty alsa-utils ani-cli arandr autorandr bash-completion blueman bluez bluez-utils baobab bulky capitaine-cursors copyq cowsay cpupower-gui-git curl dangerzone-bin discord docker dracut fd firefox flameshot fzf gimp git github-cli glava gnome-disk-utility highlight htop i3lock-color jdk21-openjdk jdk8-openjdk keepassxc lazygit less libconfig lobster-git localsend lolcat man-db man-pages meld moonlight-qt nano nemo nemo-compare nemo-fileroller nemo-preview neofetch network-manager-applet nmap noto-fonts noto-fonts-cjk noto-fonts-emoji noto-fonts-extra pasystray pavucontrol pcloud-drive playerctl plymouth plymouth-theme-hexagon-hud-git prismlauncher qt6-svg ranger redshift rofi rofi-calc ruby-fusuma sof-firmware spotify-launcher steam sunshine tmux tree unclutter unzip usbimager uthash vim visual-studio-code-bin vlc wget xdotool xorg-xinput xss-lock zip
 
 # auto login - create systemd drop-in file
 sudo systemctl edit getty@tty1.service --drop-in=autologin --stdin <<EOF
@@ -303,7 +303,10 @@ killall spotify-launcher
 read -p "Restart system to apply all changes and press Enter to continue..."
 reboot
 
-# # docker containers !OLD!
+# docker containers
+docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
+
+# !OLD!
 # cd dots
 
 # mkdir ~/docker_data/pihole/etc-pihole
@@ -311,11 +314,6 @@ reboot
 # mkdir ~/docker_data/portainer
 
 # ./docker_setup.sh
-
-#--------------------------------------------
-
-# phone integration
-# villager sounds
 
 #--------------------------------------------
 
