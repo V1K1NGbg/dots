@@ -1,14 +1,18 @@
 configuration {
-	modi:                       "run,calc,drun,filebrowser,ssh,window";
+	modi:                       "run,calc,ai:~/.config/rofi/ai.sh,media:~/.config/rofi/media.sh,wifi:~/.config/rofi/wifi.sh,bluetooth:~/.config/rofi/bluetooth.sh,power:~/.config/rofi/power.sh";
     show-icons:                 false;
-    display-run:                " Run";
-	display-calc:               " Calc";
-    display-drun:               " Apps";
-    display-filebrowser:        " Files";
-	display-ssh:                " SSH";
-    display-window:             " Windows";
+    display-run:                "🚀 Run";
+    display-calc:               "🧮 Calc";
+    display-ai:                 "🤖 AVA";
+    display-media:              "🎵 Media";
+    display-wifi:               "📶 Wifi";
+    display-bluetooth:          "🔵 Bluetooth";
+    display-power:              "🔌 Power";
 	drun-display-format:        "{name}";
 	window-format:              "{w} · {c} · {t}";
+    calc {
+        no-persist-history: true;
+    }
 }
 
 * {
