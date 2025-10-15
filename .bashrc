@@ -28,6 +28,10 @@ alias shutdown="shutdown now"
 alias lgit="lazygit"
 alias mov-cli="lobster"
 
+hgrep() {
+  history | grep $1 --color=always -B "${2:-0}" -A "${3:-0}" | awk '{$1=$2=$3=""; sub(/^[ \t]+/, ""); print}'
+}
+
 # fix double type
 xset r rate 220 40
 
