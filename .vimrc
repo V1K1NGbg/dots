@@ -83,12 +83,12 @@ nnoremap <C-u> <C-r>
 nnoremap <silent> <C-_> :set hlsearch!<CR>
 
 "Brackets and quotes"
-inoremap ( ()<Left>
-inoremap [ []<Left>
-inoremap { {}<Left>
-inoremap ' ''<Left>
-inoremap " ""<Left>
-inoremap ` ``<Left>
+"inoremap ( ()<Left>"
+"inoremap [ []<Left>"
+"inoremap { {}<Left>"
+"inoremap ' ''<Left>"
+"inoremap " ""<Left>"
+"inoremap ` ``<Left>"
 
 "Space to start typing"
 nnoremap <Space> a
