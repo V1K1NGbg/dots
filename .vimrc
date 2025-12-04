@@ -29,7 +29,7 @@ set whichwrap+=<,>,h,l,[,]
 set visualbell
 
 "APPEARENCE"
-"GET monokai.vim and " PUT INTO .vim/colors/monokai.vim""
+"GET monokai.vim and PUT INTO .vim/colors/monokai.vim"
 colorscheme monokai
 
 " Use a line cursor within insert mode and a block cursor everywhere else.
@@ -87,7 +87,8 @@ nnoremap <silent> <C-_> :set hlsearch!<CR>
 "inoremap [ []<Left>"
 "inoremap { {}<Left>"
 "inoremap ' ''<Left>"
-"inoremap " ""<Left>"
+"IF UNCOMMENT REPLACE X WITH QUOTES->"
+"inoremap X XX<Left>'
 "inoremap ` ``<Left>"
 
 "Space to start typing"
@@ -99,3 +100,6 @@ noremap! <C-h> <C-w>
 
 "Insert and expand curly braces on pressing enter
 inoremap {<CR> {<CR>}<Esc>d0O
+
+"Hide sidebar"
+nnoremap <C-h> :set number! relativenumber!<CR>
