@@ -37,7 +37,7 @@ sudo pacman -Rs awesome
 paru -S awesome-git
 
 # install packages
-paru -S acpi alacritty alsa-utils ani-cli arandr aspell aspell-en autorandr bash-completion blueman bluez bluez-utils baobab bulky capitaine-cursors copyq cowsay cpupower-gui-git curl dangerzone-bin discord docker dracut fd firefox flameshot gimp git github-cli glava gnome-disk-utility highlight htop i3lock-color jdk21-openjdk jdk8-openjdk keepassxc lazygit less libconfig lobster-git localsend lolcat man-db man-pages meld moonlight-qt nano nemo nemo-compare nemo-fileroller nemo-preview neofetch network-manager-applet nmap noto-fonts noto-fonts-cjk noto-fonts-emoji noto-fonts-extra pasystray pavucontrol pcloud-drive playerctl plymouth plymouth-theme-hexagon-hud-git prismlauncher qt6-svg ranger redshift rofi rofi-calc ruby-fusuma sof-firmware spotify-launcher steam sunshine tmux tree unclutter unzip usbimager uthash vim visual-studio-code-bin vlc wget xdotool xorg-xinput xss-lock zip
+paru -S acpi alacritty alsa-utils ani-cli arandr aspell aspell-en autorandr bash-completion blueman bluez bluez-utils baobab bulky capitaine-cursors copyq cowsay cpupower-gui-git curl dangerzone-bin discord docker dracut fd firefox flameshot gimp git github-cli glava gnome-disk-utility highlight htop i3lock-color jdk21-openjdk jdk8-openjdk keepassxc lazygit less libconfig lobster-git localsend lolcat man-db man-pages meld moonlight-qt nano nemo nemo-compare nemo-fileroller nemo-preview neofetch network-manager-applet nmap noto-fonts noto-fonts-cjk noto-fonts-emoji noto-fonts-extra pasystray pavucontrol pcloud-drive playerctl plymouth plymouth-theme-hexagon-hud-git prismlauncher qt6-svg ranger redshift rofi rofi-calc ruby-fusuma sof-firmware spotify-launcher steam sunshine tmux tree unclutter unzip usbimager uthash vim visual-studio-code-bin vlc wget xdotool xorg-xinput xorg-xset xss-lock zip
 
 # auto login - create systemd drop-in file
 sudo systemctl edit getty@tty1.service --drop-in=autologin --stdin <<EOF
@@ -201,14 +201,6 @@ sudo systemctl start docker.service
 sudo usermod -aG docker $USER
 # newgrp docker
 
-# spotify pt.1
-curl -fsSL https://raw.githubusercontent.com/spicetify/cli/main/install.sh | sh
-cd spicetify-themes
-cp -r * ~/.config/spicetify/Themes
-cd ..
-sudo rm -r spicetify-themes
-spicetify config current_theme Ziro
-
 # wireguard
 read -e -p "Enter path to WireGuard config file (FULL PATH): " wg_config_path
 wg_config_name=$(basename "$wg_config_path" .conf)
@@ -276,7 +268,7 @@ killall code
 
 # copyq
 copyq &
-read -p "Import CopyQ config and press Enter to continue..."
+read -p "Import CopyQ config, set shortcut for WINDOW UNDER MOUSE and press Enter to continue..."
 killall copyq
 
 # firefox
@@ -292,7 +284,7 @@ killall firefox
 
 # steam
 steam > /dev/null 2>&1 &
-read -p "Log in Steam and press Enter to continue..."
+read -p "Log in Steam and press Enter to continue... !WARNING - TAKES A WHILE!"
 killall steam
 
 # spotify
@@ -300,8 +292,13 @@ spotify-launcher > /dev/null 2>&1 &
 read -p "Log in Spotify, disable change song notification and press Enter to continue..."
 killall spotify-launcher
 
+# spicetify
+spicetify backup apply
+spicetify config current_theme Ziro
+spicetify apply
+
 # restart
-read -p "Restart system to apply all changes and press Enter to continue..."
+read -p "Restart system to apply all changes and press Enter to continue... !AFTER REBOOT, RUN OLLAMA DOCKER CONTAINER!"
 reboot
 
 # docker containers
