@@ -29,7 +29,7 @@ alias lgit="lazygit"
 alias mov-cli="lobster"
 
 hgrep() {
-  history | grep $1 --color=always -B "${2:-0}" -A "${3:-0}" | awk '{$1=$2=$3=""; sub(/^[ \t]+/, ""); print}'
+  history | awk '{$1=""; sub(/^[ \t]+/, ""); print}' | grep "$1" --color=always -B "${2:-0}" -A "${3:-0}"
 }
 
 # fix double type
