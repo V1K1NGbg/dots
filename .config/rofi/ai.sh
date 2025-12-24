@@ -53,7 +53,7 @@ call_ollama() {
 	response_text=${response_text//$'\r'/}
 	store_response "$response_text"
 
-	printf '%s\n' "$response_text" | fold -w 35 -s | sed 's/^/🤖: /'
+	printf '%s\n' "$response_text" | fold -w 30 -s | sed 's/^/🤖: /'
 }
 if [[ $# -eq 0 ]]; then
 	echo "$(ollama_status_line)"
