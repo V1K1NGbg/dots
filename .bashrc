@@ -36,10 +36,10 @@ hgrep() {
 xset r rate 220 40
 
 #Fzf
-eval "$(fzf --bash)"
+# eval "$(fzf --bash)"
 # source /usr/share/fzf/completion.bash
 
-export FZF_COMPLETION_TRIGGER=''
+# export FZF_COMPLETION_TRIGGER=''
 
 # _fzf_compgen_path() {
 #    fd --hidden --follow --exclude ".git" . "$1"
@@ -49,8 +49,8 @@ export FZF_COMPLETION_TRIGGER=''
 #    fd --type d --hidden --follow --exclude ".git" . "$1"
 # }
 
-source $HOME/fzf-tab-completion/bash/fzf-bash-completion.sh
-bind -x '"\t": fzf_bash_completion'
+# source $HOME/fzf-tab-completion/bash/fzf-bash-completion.sh
+# bind -x '"\t": fzf_bash_completion'
 
 # _fzf_bash_completion_loading_msg() { echo "${PS1@P}${READLINE_LINE}"; }
 
