@@ -41,19 +41,28 @@ copy_response() {
 
 call_ollama() {
 	local prompt="$1"
+	
+	# Properly escape the prompt for JSON
+	local escaped_prompt=$(printf '%s' "$prompt" | sed 's/\\/\\\\/g; s/"/\\"/g; s/	/\\t/g' | awk '{printf "%s\\n", $0}' | sed '$ s/\\n$//')
+	
 	local response=$(curl -s http://localhost:11434/api/generate -d '{
 		"model": "'"$OLLAMA_MODEL"'",
-		"prompt": "'"$prompt"'",
+		"prompt": "'"$escaped_prompt"'",
 		"stream": false
 	}')
 
 	local response_text
-	response_text=$(printf '%s' "$response" | sed -n 's/.*"response":"\([^"\]*\)".*/\1/p' | sed 's/\\n/\n/g; s/\\"/"/g')
+	# Use jq if available, otherwise fall back to Python for proper JSON parsing
+	if command -v jq &>/dev/null; then
+		response_text=$(printf '%s' "$response" | jq -r '.response // empty')
+	else
+		response_text=$(printf '%s' "$response" | python3 -c "import sys, json; print(json.load(sys.stdin).get('response', ''), end='')" 2>/dev/null)
+	fi
 
 	response_text=${response_text//$'\r'/}
 	store_response "$response_text"
 
-	printf '%s\n' "$response_text" | fold -w 30 -s | sed 's/^/🤖: /'
+	printf '%s\n' "$response_text" | fold -w 33 -s | sed 's/^/🤖: /'
 }
 if [[ $# -eq 0 ]]; then
 	echo "$(ollama_status_line)"
