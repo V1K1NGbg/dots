@@ -1,0 +1,7 @@
+model: ollama:mistral:latest
+clients:
+- type: openai-compatible
+  name: ollama
+  api_base: http://localhost:11434/v1
+  models:
+  - name: mistral:latest
