@@ -1,7 +1,19 @@
-model: ollama:mistral:latest
+# see https://github.com/sigoden/aichat/blob/main/config.example.yaml
+
+model: ollama:qwen3:8b
+# cmd_prelude: "role:short"
+# repl_prelude: "role:short"
 clients:
-- type: openai-compatible
-  name: ollama
-  api_base: http://localhost:11434/v1
-  models:
-  - name: mistral:latest
+    - type: openai-compatible
+      name: ollama
+      api_base: http://localhost:11434/v1
+      models:
+          - name: qwen3:32b
+            patch:
+                    body:
+                        reasoning_effort: none
+          - name: qwen3:8b
+            patch:
+                body:
+                    reasoning_effort: none
+          - name: mistral:latest
