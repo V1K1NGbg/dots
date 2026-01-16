@@ -1,6 +1,6 @@
 #!/bin/bash
 
-OLLAMA_MODEL="mistral"
+OLLAMA_MODEL="qwen3:8b"
 CACHE_FILE="${XDG_CACHE_HOME:-$HOME/.cache}/rofi/ai_last_response.txt"
 
 ollama_status_line() {

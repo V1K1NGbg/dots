@@ -4,7 +4,7 @@ configuration {
     display-run:                "🚀 Run";
     display-calc:               "🧮 Calculator";
     display-autocorrector:      "✍️ Autocorrector";
-    display-ai:                 "🤖 AVA";
+    display-ai:                 "🤖 AI";
     display-media:              "🎵 Media";
     display-wifi:               "📶 Wifi";
     display-bluetooth:          " Bluetooth";
