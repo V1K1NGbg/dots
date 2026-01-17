@@ -303,7 +303,7 @@ read -p "Restart system to apply all changes and press Enter to continue... !AFT
 reboot
 
 # docker containers
-docker run -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
+docker run --restart always -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
 curl http://localhost:11434/api/pull -d '{"model": "qwen3:8b"}'
 
 # !OLD!
