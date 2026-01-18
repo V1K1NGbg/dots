@@ -1,8 +1,8 @@
 # see https://github.com/sigoden/aichat/blob/main/config.example.yaml
 
 model: ollama:qwen3:8b
-# cmd_prelude: "role:short"
-# repl_prelude: "role:short"
+cmd_prelude: "any:any"
+repl_prelude: "any:any"
 clients:
     - type: openai-compatible
       name: ollama

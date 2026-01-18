@@ -28,6 +28,8 @@ alias shutdown="shutdown now"
 alias lgit="lazygit"
 alias mov-cli="lobster"
 
+alias aichat-clear="rm -r ~/.config/aichat/sessions/any.yaml"
+
 hgrep() {
   history | awk '{$1=""; sub(/^[ \t]+/, ""); print}' | grep "$1" --color=always -B "${2:-0}" -A "${3:-0}"
 }

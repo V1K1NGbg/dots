@@ -37,7 +37,7 @@ sudo pacman -Rs awesome
 paru -S awesome-git
 
 # install packages
-paru -S acpi aichat alacritty alsa-utils ani-cli arandr aspell aspell-en autorandr bash-completion blueman bluez bluez-utils baobab bulky capitaine-cursors copyq cowsay cpupower-gui-git curl dangerzone-bin discord docker dracut fd firefox flameshot gimp git github-cli glava gnome-disk-utility highlight htop i3lock-color imgcat jdk21-openjdk jdk8-openjdk keepassxc lazygit less libconfig lobster-git localsend lolcat man-db man-pages meld nano nemo nemo-compare nemo-fileroller nemo-preview neofetch network-manager-applet nmap noto-fonts noto-fonts-cjk noto-fonts-emoji noto-fonts-extra pasystray pavucontrol pcloud-drive playerctl plymouth plymouth-theme-hexagon-hud-git prismlauncher qt6-svg ranger redshift rofi rofi-calc ruby-fusuma sof-firmware spotify-launcher steam tmux tree unclutter unzip usbimager uthash vim visual-studio-code-bin vlc wget xdotool xorg-xev xorg-xinput xorg-xset xss-lock zip
+paru -S acpi aichat alacritty alsa-utils ani-cli arandr aspell aspell-en autorandr bash-completion blueman bluez bluez-utils baobab bulky capitaine-cursors copyq cowsay cpupower-gui-git curl dangerzone-bin discord docker docker-compose dracut fd firefox flameshot gimp git github-cli glava gnome-disk-utility highlight htop i3lock-color imgcat jdk21-openjdk jdk8-openjdk keepassxc lazygit less libconfig lobster-git localsend lolcat man-db man-pages meld nano nemo nemo-compare nemo-fileroller nemo-preview neofetch network-manager-applet nmap noto-fonts noto-fonts-cjk noto-fonts-emoji noto-fonts-extra pasystray pavucontrol pcloud-drive playerctl plymouth plymouth-theme-hexagon-hud-git prismlauncher qt6-svg ranger redshift rofi rofi-calc ruby-fusuma sof-firmware spotify-launcher steam tmux tree unclutter unzip usbimager uthash vim visual-studio-code-bin vlc wget xdotool xorg-xev xorg-xinput xorg-xset xss-lock zip
 # paru -S sunshine moonlight-qt
 
 # auto login - create systemd drop-in file
@@ -303,7 +303,8 @@ read -p "Restart system to apply all changes and press Enter to continue... !AFT
 reboot
 
 # docker containers
-docker run --restart always -d -v ollama:/root/.ollama -p 11434:11434 --name ollama ollama/ollama
+cd ~/dots
+docker-compose up -d
 curl http://localhost:11434/api/pull -d '{"model": "qwen3:8b"}'
 
 # !OLD!
