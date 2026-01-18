@@ -3,6 +3,8 @@
 model: ollama:qwen3:8b
 cmd_prelude: "any:any"
 repl_prelude: "any:any"
+save_session: true
+save: true
 clients:
     - type: openai-compatible
       name: ollama
