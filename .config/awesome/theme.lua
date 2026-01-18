@@ -250,11 +250,11 @@ weather = lain.widget.weather({
         units = math.floor(weather_now["main"]["temp"])
         widget:set_markup(markup.fontfg(theme.font, white, units .. "°C with " .. descr))
     end,
-    notification_text_fun = function (wn)
+    notification_text_fun = function(wn)
         local day = string.format("%16s ", os.date('%A, %I %p', wn['dt']))
         local temp = math.floor(wn["main"]["temp"])
         local desc = wn["weather"][1]["description"]
-        return string.format("<b>%s</b>: %d°C with %s", day, temp, desc )
+        return string.format("<b>%s</b>: %d°C with %s", day, temp, desc)
     end
 })
 
@@ -369,7 +369,8 @@ function theme.at_screen_connect(s)
         height = dpi(19),
         bg = theme.bg_normal .. "00",
         fg = theme
-            .fg_normal
+            .fg_normal,
+        visible = false
     })
 
     -- Add widgets to the wibox

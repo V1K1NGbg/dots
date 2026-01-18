@@ -79,6 +79,7 @@ local browser               = "firefox"
 local files                 = "nemo"
 
 local vi_focus              = false -- vi-like client focus https://github.com/lcpz/awesome-copycats/issues/275
+local wibar_state           = {} -- Store wibar visibility state per screen
 
 awful.util.terminal         = terminal
 awful.util.tagnames         = { "1", "2", "3", "4", "5", "6", "7", "8", "9" }
@@ -334,10 +335,9 @@ globalkeys = mytable.join(
             beautiful.volume.update()
         end,
         { description = "toggle mute", group = "client" }),
-
-    awful.key({ }, "XF86AudioPlay", function () awful.util.spawn("playerctl --player=spotify,%any play-pause") end),
-    awful.key({ }, "XF86AudioNext", function () awful.util.spawn("playerctl --player=spotify,%any next") end),
-    awful.key({ }, "XF86AudioPrev", function () awful.util.spawn("playerctl --player=spotify,%any previous") end),
+    awful.key({}, "XF86AudioPlay", function() awful.util.spawn("playerctl --player=spotify,%any play-pause") end),
+    awful.key({}, "XF86AudioNext", function() awful.util.spawn("playerctl --player=spotify,%any next") end),
+    awful.key({}, "XF86AudioPrev", function() awful.util.spawn("playerctl --player=spotify,%any previous") end),
 
     -- Prompt
     awful.key({ modkey }, "r", function() os.execute("rofi -terminal " .. terminal .. " -show run") end,
@@ -381,7 +381,7 @@ globalkeys = mytable.join(
 )
 
 clientkeys = mytable.join(
-    -- Floating
+-- Floating
     awful.key({ modkey, "Shift" }, "f",
         awful.client.floating.toggle,
         { description = "toggle floating", group = "client", }
@@ -400,6 +400,17 @@ clientkeys = mytable.join(
             c:raise()
         end,
         { description = "toggle keep on top", group = "client" }),
+    -- Toggle topbar visibility
+    awful.key({ modkey }, "t", function()
+            local s = awful.screen.focused()
+            local new_visibility = not s.mywibox.visible
+            -- Apply to all screens
+            for scr in screen do
+                scr.mywibox.visible = new_visibility
+                wibar_state[scr] = new_visibility
+            end
+        end,
+        { description = "toggle topbar", group = "awesome" }),
     -- Magnify
     awful.key({ altkey, }, "m", magnify_client,
         { description = "magnify client", group = "client" }),
@@ -409,6 +420,7 @@ clientkeys = mytable.join(
             c:raise()
         end,
         { description = "toggle fullscreen", group = "client" }),
+
     awful.key({ modkey, }, "q", function(c) c:kill() end,
         { description = "close", group = "client" }),
     awful.key({ modkey, }, "n",
@@ -492,7 +504,7 @@ root.keys(globalkeys)
 
 -- Rules to apply to new clients (through the "manage" signal).
 awful.rules.rules = {
-    
+
     -- Notification rules
     {
         rule = { type = "normal" },
@@ -506,7 +518,7 @@ awful.rules.rules = {
             naughty.config.defaults.bg = beautiful.bg_normal
             naughty.config.defaults.border_width = beautiful.border_width
             naughty.config.defaults.border_color = beautiful.border_focus
-            
+
             -- Set minimum and maximum notification sizes
             naughty.config.defaults.max_width = 800
             naughty.config.defaults.max_height = 500
@@ -515,7 +527,6 @@ awful.rules.rules = {
             c:connect_signal("button::press", function()
                 c:emit_signal("request::destroy")
             end)
-            
         end,
         properties = {}
     },
@@ -704,13 +715,26 @@ client.connect_signal("property::urgent", function(c) c:jump_to() end)
 -- Remove wibar on full screen
 local function remove_wibar(c)
     if c.fullscreen or c.maximized then
-        c.screen.mywibox.visible = false
+        -- Store the current visibility state before hiding
+        wibar_state[c.screen] = c.screen.mywibox.visible
+        -- Apply to all screens
+        for scr in screen do
+            scr.mywibox.visible = false
+        end
     else
-        c.screen.mywibox.visible = true
+        -- Restore the previous visibility state to all screens
+        local restore_state = wibar_state[c.screen]
+        if restore_state == nil then
+            restore_state = true
+        end
+        for scr in screen do
+            scr.mywibox.visible = restore_state
+            wibar_state[scr] = restore_state
+        end
     end
 end
 
--- Remove wibar on full screen
+-- Add wibar on full screen
 local function add_wibar(c)
     if c.fullscreen or c.maximized then
         c.screen.mywibox.visible = true
