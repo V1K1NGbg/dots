@@ -14,9 +14,9 @@ swipe:
     right:
       sendkey: LEFTMETA+TAB # Switch tab
     up:
-      sendkey: LEFTALT+M # Focus
+      sendkey: LEFTMETA+LEFTSHIFT+M # Focus
     down:
-      sendkey: LEFTALT+M # Focus
+      sendkey: LEFTMETA+LEFTSHIFT+M # Focus
 #pinch:
 #  in:
 #    sendkey: #

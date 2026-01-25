@@ -26,6 +26,7 @@ blue           = "#35ddff"
 purple         = "#9359ff"
 cyan           = "#67ffeb"
 
+fontsmall      = "Monocraft Nerd Font 11"
 font           = "Monocraft Nerd Font 12"
 fontbig        = "Monocraft Nerd Font 13"
 
@@ -38,8 +39,8 @@ theme.confdir                                   = os.getenv("HOME") .. "/.config
 theme.wallpaper                                 = theme.confdir .. "/wall.jpg"
 
 theme.font                                      = font
-theme.hotkeys_font                              = fontbig
-theme.hotkeys_description_font                  = font
+theme.hotkeys_font                              = font
+theme.hotkeys_description_font                  = fontsmall
 
 theme.menu_bg_normal                            = black
 theme.menu_bg_focus                             = black
