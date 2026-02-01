@@ -37,7 +37,7 @@ sudo pacman -Rs awesome
 paru -S awesome-git
 
 # install packages
-paru -S acpi aichat alacritty alsa-utils ani-cli arandr aspell aspell-en autorandr bash-completion blueman bluez bluez-utils baobab bulky capitaine-cursors copyq cowsay cpupower-gui-git curl dangerzone-bin discord docker docker-compose dracut fd firefox flameshot gimp git github-cli glava gnome-disk-utility highlight htop i3lock-color imgcat jdk21-openjdk jdk8-openjdk keepassxc lazygit less libconfig lobster-git localsend lolcat man-db man-pages meld nano nemo nemo-compare nemo-fileroller neofetch network-manager-applet nmap noto-fonts noto-fonts-cjk noto-fonts-emoji noto-fonts-extra pasystray pavucontrol pcloud-drive playerctl plymouth plymouth-theme-hexagon-hud-git prismlauncher qt6-svg ranger redshift rofi rofi-calc ruby-fusuma ruby-fusuma-plugin-sendkey sof-firmware spotify-launcher steam tmux tree unclutter unzip usbimager uthash vim visual-studio-code-bin vlc wget xdotool xorg-xev xorg-xinput xorg-xset xss-lock zip
+paru -S acpi aichat alacritty alsa-utils ani-cli arandr aspell aspell-en autorandr bash-completion blueman bluez bluez-utils baobab bulky capitaine-cursors copyq cowsay cpupower-gui-git curl dangerzone-bin discord docker docker-compose dracut fd firefox flameshot gimp git github-cli glava gnome-disk-utility highlight htop i3lock-color imgcat jdk21-openjdk jdk8-openjdk keepassxc lazygit less libconfig lobster-git localsend lolcat man-db man-pages meld nano nemo nemo-compare nemo-fileroller neofetch network-manager-applet nmap noto-fonts noto-fonts-cjk noto-fonts-emoji noto-fonts-extra pasystray pavucontrol pcloud-drive playerctl plymouth plymouth-theme-hexagon-hud-git prismlauncher qt6-svg ranger redshift rofi rofi-calc ruby-fusuma ruby-fusuma-plugin-sendkey sof-firmware spicetify-cli spotify-launcher steam tmux tree unclutter unzip usbimager uthash vim visual-studio-code-bin vlc wget xdotool xorg-xev xorg-xinput xorg-xset xss-lock zip
 # paru -S sunshine moonlight-qt
 
 # auto login - create systemd drop-in file
@@ -58,7 +58,6 @@ sudo rm -r picom/
 
 # framework (amd gpu)
 sudo sed -i 's/^options .*/& amdgpu.dcdebugmask=0x10/' /boot/loader/entries/$(ls /boot/loader/entries/ | head -1)
-
 
 # plymouth
 sudo sed -i 's/^options .*/& quiet splash/' /boot/loader/entries/$(ls /boot/loader/entries/ | head -1)
@@ -83,7 +82,7 @@ source ~/.bashrc
 nvm install node
 
 # vtop
-sudo npm install -g vtop
+npm install -g vtop
 
 # install oh-my-bash
 curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh | bash
@@ -212,6 +211,7 @@ wg_config_name=$(basename "$wg_config_path" .conf)
 
 nmcli connection import type wireguard file "$wg_config_path"
 nmcli connection modify "$wg_config_name" connection.autoconnect no
+nmcli connection down "$wg_config_path"
 
 # # cloudflare-warp !OLD!
 # sudo systemctl enable warp-svc
@@ -234,9 +234,9 @@ yes | cp -f .bash_profile .tmux.conf .vimrc .Xresources i3lock.sh ~
 read -e -p "Awesome const path (FULL PATH): " awesome_const_path
 yes | cp -f "$awesome_const_path" ~/.config/awesome/
 
-# download custom commands
+# download custom commands !OLD!
 # lastline
-git clone https://gist.github.com/V1K1NGbg/50f618cf392ad0ea85f398e1ca5fe24f a && sudo chmod +x a/lastline && sudo mv a/* /usr/bin && rm -rf a
+# git clone https://gist.github.com/V1K1NGbg/50f618cf392ad0ea85f398e1ca5fe24f a && sudo chmod +x a/lastline && sudo mv a/* /usr/bin && rm -rf a
 
 # i3lock
 chmod +x ~/i3lock.sh
@@ -262,8 +262,14 @@ read -p "Set up BetterDiscord and press Enter to continue..."
 killall Discord
 killall Discord
 
-# spotify pt.2
-read -p "Import Spicetify backup and press Enter to continue..."
+# spotify
+spotify-launcher > /dev/null 2>&1 &
+read -p "Log in Spotify, disable change song notification and press Enter to continue..."
+killall spotify-launcher
+
+# spicetify
+spicetify backup apply
+spicetify config current_theme Ziro
 spicetify apply
 
 # vscode
@@ -291,16 +297,6 @@ killall firefox
 steam > /dev/null 2>&1 &
 read -p "Log in Steam and press Enter to continue... !WARNING - TAKES A WHILE!"
 killall steam
-
-# spotify
-spotify-launcher > /dev/null 2>&1 &
-read -p "Log in Spotify, disable change song notification and press Enter to continue..."
-killall spotify-launcher
-
-# spicetify
-spicetify backup apply
-spicetify config current_theme Ziro
-spicetify apply
 
 # restart
 read -p "Restart system to apply all changes and press Enter to continue... !AFTER REBOOT, RUN OLLAMA DOCKER CONTAINER!"
