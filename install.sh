@@ -56,6 +56,10 @@ sudo ninja -C build install
 cd ..
 sudo rm -r picom/
 
+# framework (amd gpu)
+sudo sed -i 's/^options .*/& amdgpu.dcdebugmask=0x10/' /boot/loader/entries/$(ls /boot/loader/entries/ | head -1)
+
+
 # plymouth
 sudo sed -i 's/^options .*/& quiet splash/' /boot/loader/entries/$(ls /boot/loader/entries/ | head -1)
 sudo sed -i 's/HOOKS=(\([^)]*\)encrypt\([^)]*\))/HOOKS=(\1plymouth encrypt\2)/' /etc/mkinitcpio.conf
