@@ -144,6 +144,11 @@ sudo tee /etc/NetworkManager/conf.d/dns-servers.conf > /dev/null <<EOF
 servers=1.1.1.1,1.0.0.1
 EOF
 
+# fingerprint
+sudo fprintd-enroll $USER
+sudo sed -i '/#%PAM-1.0/a auth            sufficient      pam_fprintd.so' /etc/pam.d/sudo
+sudo sed -i '/auth include system-local-login/i auth sufficient pam_unix.so try_first_pass likeauth nullok\nauth sufficient pam_fprintd.so timeout=10' /etc/pam.d/i3lock
+
 # # feh !OLD!
 # feh --bg-scale ${imageurl}
 
