@@ -37,7 +37,7 @@ sudo pacman -Rs awesome
 paru -S awesome-git
 
 # install packages
-paru -S acpi aichat alacritty alsa-utils ani-cli arandr aspell aspell-en autorandr bash-completion blueman bluez bluez-utils baobab bulky capitaine-cursors copyq cowsay cpupower-gui-git curl dangerzone-bin discord docker docker-compose dracut fd firefox flameshot gimp git github-cli glava gnome-disk-utility highlight htop i3lock-color imgcat jdk21-openjdk jdk8-openjdk keepassxc lazygit less libconfig lobster-git localsend lolcat man-db man-pages meld nano nemo nemo-compare nemo-fileroller neofetch network-manager-applet nmap noto-fonts noto-fonts-cjk noto-fonts-emoji noto-fonts-extra pasystray pavucontrol pcloud-drive playerctl plymouth plymouth-theme-hexagon-hud-git prismlauncher qt6-svg ranger redshift rofi rofi-calc ruby-fusuma ruby-fusuma-plugin-sendkey sof-firmware spicetify-cli spotify-launcher steam tmux tree unclutter unzip usbimager uthash vim visual-studio-code-bin vlc wget xdotool xorg-xev xorg-xinput xorg-xset xss-lock zip
+paru -S acpi aichat alacritty alsa-utils ani-cli arandr aspell aspell-en autorandr bash-completion blueman bluez bluez-utils baobab bulky capitaine-cursors copyq cowsay cpupower-gui-git curl dangerzone-bin discord docker docker-compose dracut fastfetch fd firefox flameshot gimp git github-cli glava gnome-disk-utility highlight htop i3lock-color imgcat jdk21-openjdk jdk8-openjdk keepassxc lazygit less libconfig lobster-git localsend lolcat man-db man-pages meld nano nemo nemo-compare nemo-fileroller network-manager-applet nmap noto-fonts noto-fonts-cjk noto-fonts-emoji noto-fonts-extra pasystray pavucontrol pcloud-drive playerctl plymouth plymouth-theme-hexagon-hud-git prismlauncher qt6-svg ranger redshift rofi rofi-calc ruby-fusuma ruby-fusuma-plugin-sendkey sof-firmware spicetify-cli spotify-launcher steam tmux tree unclutter unzip usbimager uthash vim visual-studio-code-bin vlc wget xdotool xorg-xev xorg-xinput xorg-xset xss-lock zip
 # paru -S sunshine moonlight-qt
 
 # auto login - create systemd drop-in file
@@ -274,7 +274,7 @@ spicetify apply
 
 # vscode
 code > /dev/null 2>&1 &
-read -p "Log in VSCode, sync settings and press Enter to continue..."
+read -p "Log in VSCode, sync settings, WAIT FOR THE SYNC TO FINISH, and then press Enter to continue..."
 killall code
 
 # copyq
@@ -287,6 +287,7 @@ firefox > /dev/null 2>&1 &
 read -p "Log in Firefox
 Sync settings
 Import vimium and bonjourr configs
+Fix persistant tabs
 Fix bookmarks layout
 Set duck duck go as default search engine
 Add cookies exceptions (google,github,uni, netflix) 
@@ -325,6 +326,7 @@ curl http://localhost:11434/api/pull -d '{"model": "qwen3:8b"}'
 
 # change brightness
 # xrandr --output eDP-1 --brightness 0.5
+# xrandr --output eDP -2-brightness 0.5
 
 # verify signature
 # gpg --keyserver-options auto-key-retrieve --verify archlinux.iso.sig
