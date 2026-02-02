@@ -42,7 +42,7 @@ $$ | \$$ |$$$$$$$$\ \$$$$$$  |   $$ |   $$ |  $$ | $$$$$$  |$$ | \$$ |      $$ |
   --backgroundColor: #191919; /* Background color */
   --backgroundImage: url('https://raw.githubusercontent.com/V1K1NGbg/dots/refs/heads/master/.config/awesome/wall.jpg'); /* Backround image, must be a direct link | You can also set it to a gradient, google "css gradient"*/
   --backgroundPosition: center; /* Image position | center, left, right, bottom, top */
-  --backgroundSize: cover; /* To cover the entire app, set to "cover". You can also set it to "100% 100%" but the image will be stretched. Set to "contain" to see the entire image */
+  --backgroundSize: contain; /* To cover the entire app, set to "cover". You can also set it to "100% 100%" but the image will be stretched. Set to "contain" to see the entire image */
   --backgroundRepeat: no-repeat; /* if you want the image to repeat | Google "css background repeat" */
   --backgroundBlur: 10px; /* Set to 0 to remove blur | Set to 10px for average blur */
   --backgroundOpacity: .30; /* 0 is transparent */
