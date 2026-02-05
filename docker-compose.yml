@@ -1,14 +1,40 @@
-version: "3.8"
-
 services:
-  ollama:
-    image: ollama/ollama
-    container_name: ollama
-    restart: always
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama:/root/.ollama
+    ollama:
+        image: ollama/ollama
+        container_name: ollama
+        restart: always
+        mem_limit: 48g
+        cpus: "24"
+        devices:
+            - "/dev/dri:/dev/dri"
+            - "/dev/kfd:/dev/kfd"
+        ports:
+            - "11434:11434"
+        volumes:
+            - ollama:/root/.ollama
+        environment:
+            - OLLAMA_NUM_PARALLEL=2
+            - OLLAMA_MAX_LOADED_MODELS=1
+            - OLLAMA_HOST=0.0.0.0
+            - OLLAMA_KEEP_ALIVE=0
+            - OLLAMA_MAX_QUEUE=2
+            - OLLAMA_VULKAN=1
+            - GPU_DEVICE_ORDINAL=0
+            - GGML_VK_VISIBLE_DEVICES=0
+            - ROC_ENABLE_PRE_VEGA=1
+            - HIP_VISIBLE_DEVICES=0
+            - OMP_NUM_THREADS=12
+            - GOMP_CPU_AFFINITY=0-11
+            - OLLAMA_FLASH_ATTENTION=1
+            - GGML_USE_MLOCK=0
+        ulimits:
+            memlock:
+                soft: -1
+                hard: -1
+            stack:
+                soft: 67108864
+                hard: 67108864
+
 
 volumes:
-  ollama:
+    ollama:

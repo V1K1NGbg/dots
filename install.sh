@@ -37,7 +37,7 @@ sudo pacman -Rs awesome
 paru -S awesome-git
 
 # install packages
-paru -S acpi aichat alacritty alsa-utils ani-cli arandr aspell aspell-en autorandr bash-completion blueman bluez bluez-utils baobab bulky capitaine-cursors copyq cowsay cpupower-gui-git curl dangerzone-bin discord docker docker-compose dracut fastfetch fd firefox flameshot gimp git github-cli glava gnome-disk-utility highlight htop i3lock-color imgcat jdk21-openjdk jdk8-openjdk keepassxc lazygit less libconfig lobster-git localsend lolcat man-db man-pages meld nano nemo nemo-compare nemo-fileroller network-manager-applet nmap noto-fonts noto-fonts-cjk noto-fonts-emoji noto-fonts-extra pasystray pavucontrol pcloud-drive playerctl plymouth plymouth-theme-hexagon-hud-git prismlauncher qt6-svg ranger redshift rofi rofi-calc ruby-fusuma ruby-fusuma-plugin-sendkey sof-firmware spicetify-cli spotify-launcher steam tmux tree unclutter unzip usbimager uthash vim visual-studio-code-bin vlc wget xdotool xorg-xev xorg-xinput xorg-xset xss-lock zip
+paru -S acpi aichat alacritty alsa-utils ani-cli arandr aspell aspell-en autorandr baobab bash-completion blueman bluez bluez-utils bulky capitaine-cursors copyq cowsay cpupower-gui-git curl dangerzone-bin discord docker docker-compose dracut fastfetch fd firefox flameshot gimp git github-cli glava gnome-disk-utility highlight htop i3lock-color imgcat jdk21-openjdk jdk8-openjdk keepassxc lazygit less libconfig lobster-git localsend lolcat man-db man-pages meld nano nemo nemo-compare nemo-fileroller network-manager-applet nmap noto-fonts noto-fonts-cjk noto-fonts-emoji noto-fonts-extra nvtop pasystray pavucontrol pcloud-drive playerctl plymouth plymouth-theme-hexagon-hud-git prismlauncher qt6-svg ranger redshift rofi rofi-calc ruby-fusuma ruby-fusuma-plugin-sendkey sof-firmware spicetify-cli spotify-launcher steam tmux tree unclutter unzip usbimager uthash vim visual-studio-code-bin vlc vulkan-radeon vulkan-tools wget xdotool xorg-xev xorg-xinput xorg-xset xss-lock zip
 # paru -S sunshine moonlight-qt
 
 # auto login - create systemd drop-in file
@@ -75,14 +75,6 @@ gh auth login
 # enable bluetooth
 systemctl enable bluetooth.service
 systemctl start bluetooth.service
-
-# install nvm (link from: https://github.com/nvm-sh/nvm/)
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
-source ~/.bashrc
-nvm install node
-
-# vtop
-npm install -g vtop
 
 # install oh-my-bash
 curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh | bash
@@ -256,6 +248,14 @@ xdg-mime default vlc.desktop audio/*
 xdg-mime default gimp.desktop image/*
 xdg-mime default nemo.desktop inode/*
 
+# install nvm (link from: https://github.com/nvm-sh/nvm/)
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+source ~/.bashrc
+nvm install node
+
+# vtop
+npm install -g vtop
+
 # discord
 discord > /dev/null 2>&1 &
 read -p "Log in Discord and press Enter to continue..."
@@ -312,6 +312,9 @@ reboot
 cd ~/dots
 docker-compose up -d
 curl http://localhost:11434/api/pull -d '{"model": "qwen3:8b"}'
+curl http://localhost:11434/api/pull -d '{"model": "qwen3:14b"}'
+curl http://localhost:11434/api/pull -d '{"model": "qwen3:32b"}'
+curl http://localhost:11434/api/pull -d '{"model": "qwen3-coder-next:q4_K_M"}'
 
 # !OLD!
 # cd dots
@@ -331,7 +334,7 @@ curl http://localhost:11434/api/pull -d '{"model": "qwen3:8b"}'
 
 # change brightness
 # xrandr --output eDP-1 --brightness 0.5
-# xrandr --output eDP -2-brightness 0.5
+# xrandr --output eDP --brightness 0.5
 
 # verify signature
 # gpg --keyserver-options auto-key-retrieve --verify archlinux.iso.sig
