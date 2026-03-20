@@ -109,6 +109,9 @@ sudo sed -i '/Section "InputClass"/,/EndSection/ {
         }
 }' /etc/X11/xorg.conf.d/00-keyboard.conf
 
+# Power button
+sudo sed -i 's/#HandlePowerKey=poweroff/HandlePowerKey=ignore/' /etc/systemd/logind.conf
+
 # Monocraft (https://github.com/IdreesInc/Monocraft/releases/download/v4.0/Monocraft-nerd-fonts-patched.ttc)
 mkdir -p ~/.local/share/fonts
 curl -L -o ~/.local/share/fonts/Monocraft-nerd-fonts-patched.ttc https://github.com/IdreesInc/Monocraft/releases/download/v4.0/Monocraft-nerd-fonts-patched.ttc
