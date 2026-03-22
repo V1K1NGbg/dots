@@ -1,0 +1,195 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  "provider": {
+    "ollama": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Ollama",
+      "options": {
+        "baseURL": "http://localhost:11434/v1"
+      },
+      "models": {
+        "qwen3:8b": {
+          "options": {
+            "noThinking": true
+          }
+        },
+        "qwen3.5:9b": {
+          "options": {
+            "noThinking": true
+          }
+        }
+      }
+    }
+  },
+
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 16000
+  },
+
+  "share": "manual",
+  "autoupdate": true,
+  "snapshot": true,
+  "default_agent": "plan",
+
+  "watcher": {
+    "ignore": [
+      "node_modules/**",
+      ".git/**",
+      "dist/**",
+      "build/**",
+      "target/**",
+      ".next/**",
+      ".nuxt/**",
+      "__pycache__/**",
+      "*.pyc",
+      ".venv/**",
+      "venv/**",
+      ".tox/**",
+      "coverage/**",
+      ".nyc_output/**",
+      ".cache/**",
+      "*.lock",
+      "*.log",
+      ".DS_Store",
+      "Thumbs.db"
+    ]
+  },
+
+  "formatter": {
+    "prettier": {
+      "command": ["npx", "prettier", "--write", "$FILE"],
+      "extensions": [
+        ".js",
+        ".ts",
+        ".jsx",
+        ".tsx",
+        ".css",
+        ".scss",
+        ".json",
+        ".md",
+        ".yaml",
+        ".yml",
+        ".html",
+        ".vue",
+        ".svelte"
+      ]
+    },
+    "black": {
+      "command": ["python3", "-m", "black", "$FILE"],
+      "extensions": [".py"]
+    },
+    "clang-format": {
+      "command": ["clang-format", "-i", "$FILE"],
+      "extensions": [".c", ".cpp", ".h", ".hpp", ".cc"]
+    },
+    "shfmt": {
+      "command": ["shfmt", "-w", "-i", "2", "-ci", "$FILE"],
+      "extensions": [".sh", ".bash", ".zsh"]
+    }
+  },
+
+  "permission": {
+    "*": "allow",
+    "bash": {
+      "*": "allow",
+      "rm -rf /*": "deny",
+      "rm -rf /": "deny",
+      "rm *": "ask",
+      "sudo *": "ask",
+      "chmod *": "ask",
+      "chown *": "ask",
+      "kill *": "ask",
+      "pkill *": "ask",
+      "dd *": "ask",
+      "mkfs *": "ask",
+      "mv /*": "ask",
+      "git push *": "ask",
+      "git push --force*": "ask",
+      "git reset --hard*": "ask",
+      "git clean *": "ask",
+      "docker rm *": "ask",
+      "docker rmi *": "ask",
+      "docker system prune*": "ask",
+      "curl * | bash": "ask",
+      "curl * | sh": "ask",
+      "wget * | bash": "ask",
+      "wget * | sh": "ask",
+      "shutdown*": "deny",
+      "reboot*": "deny",
+      "systemctl stop*": "ask",
+      "systemctl disable*": "ask"
+    },
+    "external_directory": "ask",
+    "doom_loop": "ask"
+  },
+
+  "mcp": {
+    "filesystem": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/"
+      ],
+      "enabled": true
+    },
+    "memory": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-memory"],
+      "enabled": true
+    }
+  },
+
+  "agent": {
+    "plan": {
+      "color": "primary"
+    },
+    "build": {
+      "color": "secondary"
+    }
+  },
+
+  "command": {
+    "refactor": {
+      "description": "Refactor code for clarity and performance",
+      "template": "Refactor the selected code to be cleaner, more efficient, and follow best practices. Explain what changes you made and why. Focus on:\n- Reducing complexity\n- Improving naming\n- Extracting reusable functions\n- Removing dead code\n- Applying SOLID principles\n$ARGUMENTS"
+    },
+    "explain": {
+      "description": "Explain code in depth",
+      "template": "Explain the selected code in detail. Include:\n- What it does at a high level\n- How each section works\n- Data flow and control flow\n- Design patterns used\n- Potential edge cases or gotchas\n- Time/space complexity if applicable\n$ARGUMENTS"
+    },
+    "deps": {
+      "description": "Audit and update dependencies",
+      "template": "Analyze project dependencies:\n1. Check for outdated packages\n2. Identify known security vulnerabilities\n3. Find unused dependencies\n4. Detect duplicate dependencies\n5. Suggest version updates with migration notes\n6. Check license compatibility\n$ARGUMENTS"
+    },
+    "clean": {
+      "description": "Clean up project artifacts",
+      "template": "Clean up the project:\n1. Remove build artifacts (dist/, build/, target/)\n2. Clear caches (.cache, __pycache__, .pytest_cache)\n3. Remove node_modules if requested\n4. Clean git ignored files that are still present\n5. Report disk space recovered\nAsk before each destructive operation.\n$ARGUMENTS",
+      "agent": "build"
+    },
+    "scaffold": {
+      "description": "Scaffold a new component/module/feature",
+      "template": "Create a new $ARGUMENTS following the project's existing patterns and conventions:\n1. Analyze similar existing files to understand the project's conventions\n2. Create the new file(s) with proper structure\n3. Add exports to index files if needed\n4. Create corresponding test file(s)\n5. Update any relevant configuration\nFollow the project's naming conventions and file organization.",
+      "agent": "build"
+    },
+    "learn": {
+      "description": "Explain a concept or technology",
+      "template": "Explain the following concept/technology in depth, tailored for someone with systems programming experience:\n$ARGUMENTS\n\nInclude:\n- Core concepts and mental models\n- How it works under the hood\n- Real-world use cases\n- Common pitfalls\n- Code examples\n- Resources for deeper learning",
+      "agent": "plan"
+    },
+    "write": {
+      "description": "Write text in your personal style",
+      "template": "Write the following using a professional yet personable tone. Be direct, technically precise, and concise. Avoid corporate jargon and filler words:\n$ARGUMENTS",
+      "agent": "style"
+    },
+    "diagram": {
+      "description": "Generate architecture/flow diagrams",
+      "template": "Generate a diagram for the following using Mermaid syntax:\n$ARGUMENTS\n\nIf no specific type is requested, analyze the context and choose the most appropriate diagram type:\n- flowchart: for processes and workflows\n- sequenceDiagram: for API calls and interactions between services\n- classDiagram: for OOP structures and relationships\n- erDiagram: for database schemas\n- stateDiagram-v2: for state machines\n- graph TD: for dependency trees and architecture\n- gantt: for project timelines\n- gitGraph: for branching strategies\n\nWrap the output in a ```mermaid code block. Include a brief text description of the diagram above it. If analyzing the codebase, read the relevant files first to ensure accuracy.",
+      "agent": "plan"
+    }
+  }
+}

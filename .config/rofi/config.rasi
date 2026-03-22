@@ -1,10 +1,9 @@
 configuration {
-	modi:                       "run,calc,autocorrector:~/.config/rofi/autocorrect.sh,ai:~/.config/rofi/ai.sh,media:~/.config/rofi/media.sh,wifi:~/.config/rofi/wifi.sh,bluetooth:~/.config/rofi/bluetooth.sh,power:~/.config/rofi/power.sh";
+	modi:                       "run,calc,autocorrector:~/.config/rofi/autocorrect.sh,media:~/.config/rofi/media.sh,wifi:~/.config/rofi/wifi.sh,bluetooth:~/.config/rofi/bluetooth.sh,power:~/.config/rofi/power.sh";
     show-icons:                 false;
     display-run:                "🚀 Run";
     display-calc:               "🧮 Calculator";
     display-autocorrector:      "✍️ Autocorrector";
-    display-ai:                 "🤖 AI";
     display-media:              "🎵 Media";
     display-wifi:               "📶 Wifi";
     display-bluetooth:          " Bluetooth";

@@ -37,7 +37,7 @@ sudo pacman -Rs awesome
 paru -S awesome-git
 
 # install packages
-paru -S acpi aichat alacritty alsa-utils ani-cli arandr aspell aspell-en autorandr baobab bash-completion blueman bluez bluez-utils bulky capitaine-cursors copyq cowsay cpupower-gui-git curl dangerzone-bin discord docker docker-compose dracut fastfetch fd firefox flameshot gimp git github-cli glava gnome-disk-utility highlight htop i3lock-color imgcat jdk21-openjdk jdk8-openjdk keepassxc lazygit less libconfig lobster-git localsend lolcat man-db man-pages meld nano nemo nemo-compare nemo-fileroller network-manager-applet nmap noto-fonts noto-fonts-cjk noto-fonts-emoji noto-fonts-extra nvtop pasystray pavucontrol pcloud-drive playerctl plymouth plymouth-theme-hexagon-hud-git prismlauncher qt6-svg ranger redshift rofi rofi-calc ruby-fusuma ruby-fusuma-plugin-sendkey sof-firmware spicetify-cli spotify-launcher steam tmux tree unclutter unzip usbimager uthash vim visual-studio-code-bin vlc vulkan-radeon vulkan-tools wget xdotool xorg-xev xorg-xinput xorg-xset xss-lock zip
+paru -S acpi alacritty alsa-utils ani-cli arandr aspell aspell-en autorandr baobab bash-completion blueman bluez bluez-utils bulky capitaine-cursors copyq cowsay cpupower-gui-git curl dangerzone-bin discord docker docker-compose dracut fastfetch fd firefox flameshot gimp git github-cli glava gnome-disk-utility highlight htop i3lock-color imgcat jdk21-openjdk jdk8-openjdk keepassxc lazygit less libconfig lobster-git localsend lolcat man-db man-pages meld nano nemo nemo-compare nemo-fileroller network-manager-applet nmap noto-fonts noto-fonts-cjk noto-fonts-emoji noto-fonts-extra nvtop pasystray pavucontrol pcloud-drive playerctl plymouth plymouth-theme-hexagon-hud-git prismlauncher qt6-svg ranger redshift rofi rofi-calc ruby-fusuma ruby-fusuma-plugin-sendkey sof-firmware spicetify-cli spotify-launcher steam tmux tree unclutter unzip usbimager uthash vim visual-studio-code-bin vlc vulkan-radeon vulkan-tools wget xdotool xorg-xev xorg-xinput xorg-xset xss-lock zip
 # paru -S sunshine moonlight-qt
 
 # auto login - create systemd drop-in file
@@ -280,6 +280,9 @@ spicetify backup apply
 spicetify config current_theme Ziro
 spicetify apply
 
+# opencode
+curl -fsSseL https://opencode.ai/install | bash
+
 # vscode
 code > /dev/null 2>&1 &
 read -p "Log in VSCode, sync settings, WAIT FOR THE SYNC TO FINISH, and then press Enter to continue..."
@@ -314,10 +317,10 @@ reboot
 # docker containers
 cd ~/dots
 docker-compose up -d
-curl http://localhost:11434/api/pull -d '{"model": "qwen3:8b"}'
-curl http://localhost:11434/api/pull -d '{"model": "qwen3:14b"}'
-curl http://localhost:11434/api/pull -d '{"model": "qwen3:32b"}'
-curl http://localhost:11434/api/pull -d '{"model": "qwen3-coder-next:q4_K_M"}'
+# curl http://localhost:11434/api/pull -d '{"model": "qwen3:8b"}'
+# curl http://localhost:11434/api/pull -d '{"model": "qwen3.5:9b"}'
+# curl http://localhost:11434/api/pull -d '{"model": "qwen3:14b"}'
+# curl http://localhost:11434/api/pull -d '{"model": "qwen3:32b"}'
 
 # !OLD!
 # cd dots
