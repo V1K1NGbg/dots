@@ -39,6 +39,7 @@ paru -S awesome-git
 # install packages
 paru -S acpi alacritty alsa-utils ani-cli arandr aspell aspell-en autorandr baobab bash-completion blueman bluez bluez-utils bulky capitaine-cursors copyq cowsay cpupower-gui-git curl dangerzone-bin discord docker docker-compose dracut fastfetch fd firefox flameshot gimp git github-cli glava gnome-disk-utility highlight htop i3lock-color imgcat jdk21-openjdk jdk8-openjdk keepassxc lazygit less libconfig lobster-git localsend lolcat man-db man-pages meld nano nemo nemo-compare nemo-fileroller network-manager-applet nmap noto-fonts noto-fonts-cjk noto-fonts-emoji noto-fonts-extra nvtop pasystray pavucontrol pcloud-drive playerctl plymouth plymouth-theme-hexagon-hud-git prismlauncher qt6-svg ranger redshift rofi rofi-calc ruby-fusuma ruby-fusuma-plugin-sendkey sof-firmware spicetify-cli spotify-launcher steam tmux tree unclutter unzip usbimager uthash vim visual-studio-code-bin vlc vulkan-radeon vulkan-tools wget xdotool xorg-xev xorg-xinput xorg-xset xss-lock zip
 # paru -S sunshine moonlight-qt
+# maybe this: lua54-lgi
 
 # auto login - create systemd drop-in file
 sudo systemctl edit getty@tty1.service --drop-in=autologin --stdin <<EOF
