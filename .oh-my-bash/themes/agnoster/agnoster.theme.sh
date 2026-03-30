@@ -183,6 +183,7 @@ function fg_color {
   cyan)       echo 36;;
   white)      echo 37;;
   orange)     echo 38\;5\;166;;
+  timecolor)  echo 38\;2\;147\;89\;255;;
   esac
 }
 
@@ -197,6 +198,7 @@ function bg_color {
   cyan)       echo 46;;
   white)      echo 47;;
   orange)     echo 48\;5\;166;;
+  timecolor)  echo 48\;2\;147\;89\;255;;
   esac;
 }
 
@@ -349,6 +351,10 @@ function prompt_context {
 # we did previously
 function prompt_histdt {
   prompt_segment black default "\! [\A]"
+}
+
+function prompt_time {
+  prompt_segment timecolor black "\A"
 }
 
 
@@ -557,6 +563,7 @@ function build_prompt {
   prompt_status
   #[[ -z ${AG_NO_HIST+x} ]] && prompt_histdt
   [[ -z ${AG_NO_CONTEXT+x} ]] && prompt_context
+  prompt_time
   #if [[ ${OMB_PROMPT_SHOW_PYTHON_VENV-} ]]; then
   #  prompt_virtualenv
   #  prompt_pyenv
