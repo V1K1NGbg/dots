@@ -2,7 +2,7 @@
  * @name ImageUtilities
  * @author DevilBro
  * @authorId 278543574059057154
- * @version 5.6.3
+ * @version 5.6.5
  * @description Adds several Utilities for Images/Videos (Gallery, Download, Reverse Search, Zoom, Copy, etc.)
  * @invite Jx3TjNS
  * @donate https://www.paypal.me/MircoWittrien
@@ -56,7 +56,7 @@ module.exports = (_ => {
 		stop () {}
 		getSettingsPanel () {
 			let template = document.createElement("template");
-			template.innerHTML = `<div style="color: var(--text-primary); font-size: 16px; font-weight: 300; white-space: pre; line-height: 22px;">The Library Plugin needed for ${this.name} is missing.\nPlease click <a style="font-weight: 500;">Download Now</a> to install it.</div>`;
+			template.innerHTML = `<div style="color: var(--text-strong); font-size: 16px; font-weight: 300; white-space: pre; line-height: 22px;">The Library Plugin needed for ${this.name} is missing.\nPlease click <a style="font-weight: 500;">Download Now</a> to install it.</div>`;
 			template.content.firstElementChild.querySelector("a").addEventListener("click", this.downloadLibrary);
 			return template.content.firstElementChild;
 		}
@@ -223,7 +223,7 @@ module.exports = (_ => {
 						pixelMode: 				{value: false,	label: "Uses Pixel Lens instead of a Blur Lens"},
 						clickMode: 				{value: false,	label: "Click Image to zoom instead of holding the Mouse Button"},
 						lensSize:				{value: 200,	digits: 0,	minValue: 50,	maxValue: 5000,	unit: "px",		label: "context_lenssize"},
-						zoomLevel:				{value: 2,	digits: 1,	minValue: 1,	maxValue: 20,	unit: "x",		label: "ACCESSIBILITY_ZOOM_LEVEL_LABEL"},
+						zoomLevel:				{value: 2,	digits: 1,	minValue: 1,	maxValue: 20,	unit: "x",		label: "ZOOM_LEVEL"},
 						zoomSpeed: 				{value: 0.1,	digits: 2,	minValue: 0.01,	maxValue: 1,	unit: "",		label: "context_zoomspeed"}
 					},
 					rescaleSettings: {
@@ -244,7 +244,7 @@ module.exports = (_ => {
 						emojis: 				{value: true, 	description: "Custom Emojis/Emotes"}
 					},
 					engines: {
-						_all: 		{value: true, 	name: BDFDB.LanguageUtils.LanguageStrings.FORM_LABEL_ALL, 	url: null},
+						_all: 		{value: true, 	name: BDFDB.LanguageUtils.LanguageStrings.ALL, 		url: null},
 						Baidu: 		{value: true, 	name: "Baidu", 						url: "http://image.baidu.com/pcdutu?queryImageUrl="},
 						Bing: 		{value: true, 	name: "Bing", 						url: "https://www.bing.com/images/search?view=detailv2&iss=sbi&FORM=IRSBIQ&q=imgurl:"},
 						Google:		{value: true, 	name: "Google", 					url: "https://www.google.com/searchbyimage?sbisrc=cr_1&image_url="},
@@ -361,7 +361,7 @@ module.exports = (_ => {
 						align-items: center;
 						min-width: 500px;
 					}
-					${BDFDB.dotCN.imagemodal + BDFDB.dotCNS.modalcarouselmodalmodern + BDFDB.notCN._imageutilitiessibling} > ${BDFDB.dotCN.imagewrapper} {
+					${BDFDB.dotCN.imagemodal + BDFDB.dotCNS.modalcarouselmodal + BDFDB.notCN._imageutilitiessibling} > ${BDFDB.dotCN.imagewrapper} {
 						min-width: unset;
 					}
 					${BDFDB.dotCNS.imagemodal + BDFDB.notCN._imageutilitiessibling} > ${BDFDB.dotCN.imagewrapper} img {
@@ -447,30 +447,7 @@ module.exports = (_ => {
 					${BDFDB.dotCN._imageutilitiesoperations} {
 						position: absolute;
 						display: flex;
-					}
-					${BDFDB.dotCNS._imageutilitiesoperations + BDFDB.dotCN.imagemodalimageoptionscontainer} {
-						position: static !important;
-						display: flex !important;
-						flex-wrap: unset !important;
-					}
-					${BDFDB.dotCNS._imageutilitiesoperations + BDFDB.dotCN.imagemodalimagedownloadlink} {
-						position: relative !important;
-						white-space: nowrap !important;
-					}
-					${BDFDB.dotCNS._imageutilitiesoperations + BDFDB.dotCN.anchor + BDFDB.dotCN.imagemodalimagedownloadlink} {
-						margin: 0 !important;
-					}
-					${BDFDB.dotCNS._imageutilitiesoperations + BDFDB.dotCN.imagemodalimageforward} {
-						display: flex;
-					}
-					${BDFDB.dotCNS._imageutilitiesoperations + BDFDB.dotCN.imagemodalimageforward}::before {
-						content: "|";
-						margin-right: 6px;
-						transition: opacity .15s ease
-					}
-					${BDFDB.dotCNS._imageutilitiesoperations + BDFDB.dotCN.imagemodalimageforward}:hover::before {
-						opacity: .5;
-					}
+					5
 				`;
 			}
 			
@@ -866,7 +843,7 @@ module.exports = (_ => {
 			
 			createSubMenus (data) {
 				return data.urls.length == 1 ? this.createUrlMenu(data.instance, data.urls[0], data.target) : data.urls.map((urlData, i) => BDFDB.ContextMenuUtils.createItem(BDFDB.LibraryComponents.MenuItems.MenuItem, {
-					label: [urlData.isGuildSpecific && BDFDB.LanguageUtils.LanguageStrings.CHANGE_IDENTITY_SERVER_PROFILE, data.prefix, urlData.fileType.toUpperCase()].filter(n => n).join(" "),
+					label: [urlData.isGuildSpecific && BDFDB.LanguageUtils.LanguageStrings.SERVER_PROFILE, data.prefix, urlData.fileType.toUpperCase()].filter(n => n).join(" "),
 					id: BDFDB.ContextMenuUtils.createItemId(this.name, "subitem", i),
 					children: this.createUrlMenu(data.instance, urlData, data.target)
 				}));
@@ -1023,9 +1000,6 @@ module.exports = (_ => {
 				}
 				else if (e.returnvalue) {
 					let url = this.getImageSrc(viewedImage && viewedImage.proxy_url || e.instance.props.items[0].src || e.instance.props.items[0].original);
-					
-					let zoomedFitWrapper = BDFDB.ReactUtils.findChild(e.returnvalue, {props: [["className", BDFDB.disCN.imagemodalimagezoomedfit]]});
-					if (zoomedFitWrapper) zoomedFitWrapper.props.className = BDFDB.ArrayUtils.remove(zoomedFitWrapper.props.className.split(" "), BDFDB.disCN.imagemodalimagezoomedfit, true).join(" ");
 					
 					if (this.settings.viewerSettings.details) {
 						e.returnvalue.props.children.push(BDFDB.ReactUtils.createElement("div", {
@@ -1218,7 +1192,7 @@ module.exports = (_ => {
 							BDFDB.ReactUtils.forceUpdate(e.instance);
 						}
 					}
-					if (e.methodname == "componentWillUnmount" && BDFDB.DOMUtils.getParent(BDFDB.dotCNC.imagemodal + BDFDB.dotCNC.modalcarouselmodal + BDFDB.dotCN.modalcarouselmodalmodern, e.node)) {
+					if (e.methodname == "componentWillUnmount" && BDFDB.DOMUtils.getParent(BDFDB.dotCNC.imagemodal + BDFDB.dotCN.modalcarouselmodal, e.node)) {
 						BDFDB.TimeUtils.clear(viewedImageTimeout);
 						viewedImageTimeout = BDFDB.TimeUtils.timeout(_ => {
 							firstViewedImage = null;
@@ -1226,7 +1200,7 @@ module.exports = (_ => {
 							this.cleanupListeners("Gallery");
 						}, 1000);
 					}
-					if (e.methodname == "componentDidMount" && BDFDB.DOMUtils.getParent(BDFDB.dotCNC.imagemodal + BDFDB.dotCNC.modalcarouselmodal + BDFDB.dotCN.modalcarouselmodalmodern, e.node)) {
+					if (e.methodname == "componentDidMount" && BDFDB.DOMUtils.getParent(BDFDB.dotCNC.imagemodal + BDFDB.dotCN.modalcarouselmodal, e.node)) {
 						BDFDB.TimeUtils.clear(viewedImageTimeout);
 						let modal = BDFDB.DOMUtils.getParent(BDFDB.dotCN.modal, e.node);
 						if (modal) {
@@ -1455,14 +1429,14 @@ module.exports = (_ => {
 						children: validUrls.length == 1 ? this.createSubMenus({
 							instance: {},
 							urls: validUrls,
-							prefix: BDFDB.LanguageUtils.LanguageStrings.USER_SETTINGS_PROFILE_BANNER
+							prefix: BDFDB.LanguageUtils.LanguageStrings.PROFILE_BANNER
 						}) : BDFDB.ContextMenuUtils.createItem(BDFDB.LibraryComponents.MenuItems.MenuItem, {
 							label: this.labels.context_imageactions,
 							id: BDFDB.ContextMenuUtils.createItemId(this.name, "main-subitem"),
 							children: this.createSubMenus({
 								instance: {},
 								urls: validUrls,
-								prefix: BDFDB.LanguageUtils.LanguageStrings.USER_SETTINGS_PROFILE_BANNER
+								prefix: BDFDB.LanguageUtils.LanguageStrings.PROFILE_BANNER
 							})
 						})
 					}));

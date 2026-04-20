@@ -7,14 +7,14 @@
  * @donate https://boosty.to/arg0nny/donate
  * @website https://docs.betteranimations.net
  * @source https://github.com/arg0NNY/BetterAnimations
- * @version 2.0.4
+ * @version 2.1.6
  */
 
 /* ### CONFIG START ### */
 const config = {
   "info": {
     "name": "BetterAnimations",
-    "version": "2.0.4",
+    "version": "2.1.6",
     "description": "🌊 Discord Animations Client Mod & Framework"
   },
   "changelog": [
@@ -29,7 +29,7 @@ const config = {
 }
 /* ### CONFIG END ### */
 
-var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path, reactDom) {
+var BetterAnimations = (function(require$$0$1, EventEmitter, classNames, fs, path, electron, reactDom) {
   "use strict";
   const name$1 = "BetterAnimations";
   const author = "arg0NNY";
@@ -44,9 +44,11 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     Patcher: BDPatcher,
     Webpack,
     Utils,
+    ReactUtils,
     DOM,
     Data: BDData,
     Plugins,
+    Hooks,
     UI,
     Net,
     ContextMenu: ContextMenu$1,
@@ -151,25 +153,20 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     ModalScrimModule,
     Clickable,
     Switch$1,
+    SwitchIndicator,
     CheckboxModule,
-    FormTitleModule,
-    FormTextModule,
-    FormSection,
+    FieldSet,
     Breadcrumbs,
     RadioGroupModule,
-    FormSwitch,
-    FormItem,
     Slider$1,
     ReferencePositionLayer,
-    SearchableSelect,
-    TextBadge,
+    BadgeModule,
     SearchBar,
     Paginator,
     Spinner,
     Popout,
     Routes,
     StaticChannelRoute,
-    useStateFromStores,
     BasePopout,
     SpringTransitionPhases,
     Button$1,
@@ -183,8 +180,6 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     ChannelTextArea,
     ExpressionPicker,
     ChannelTextAreaButtons,
-    ChannelAppLauncher,
-    AppLauncherPopup,
     GuildIcon,
     Timestamp,
     getThemeClass,
@@ -202,7 +197,7 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     Transition,
     Flux,
     App,
-    Flex$1,
+    Stack$1,
     { defaultRules: Parser } = {},
     InviteEmbed,
     InviteActions,
@@ -221,7 +216,6 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     GuildStore,
     ModalActionsModule,
     TooltipModule,
-    ListRawModule,
     ToastStoreModule,
     ToastModule,
     AppViewModule,
@@ -241,7 +235,7 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     SelectModule,
     LayerActionsModule,
     AlertModule,
-    UserSettingsModal,
+    UserSettings,
     ModalModule,
     MenuItemModule,
     ChannelItemModule,
@@ -259,7 +253,12 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     BasePopoverModule,
     ChannelThreadList,
     matchSorter,
-    CopiableField
+    CopiableField,
+    SidebarActions,
+    SidebarType,
+    ManaTooltipLayer,
+    ManaUseTooltipTransitionModule,
+    ManaLayerModalModule
   ] = Webpack.getBulk(
     // Text
     {
@@ -282,24 +281,20 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     },
     // Switch
     {
-      filter: Filters.byStrings("checkbox", "animated.rect"),
+      filter: Filters.byStrings("checked", ".controlId")
+    },
+    // SwitchIndicator
+    {
+      filter: Filters.byStrings("checked", "SWITCH_BACKGROUND_DEFAULT"),
       searchExports: true
     },
     // CheckboxModule
     {
       filter: Filters.bySource("Checkbox:", "is not a valid hex color")
     },
-    // FormTitleModule
+    // FieldSet
     {
-      filter: Filters.bySource("defaultMargin", "errorMessage", "H4")
-    },
-    // FormTextModule
-    {
-      filter: Filters.bySource('"description"', '"modeDefault"')
-    },
-    // FormSection
-    {
-      filter: (m) => Filters.byStrings("titleId", "sectionTitle")(m?.render),
+      filter: Filters.byStrings('"fieldset"', '"legend"'),
       searchExports: true
     },
     // Breadcrumbs
@@ -311,16 +306,6 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     {
       filter: Filters.bySource('"radiogroup"', "getFocusableElements")
     },
-    // FormSwitch
-    {
-      filter: Filters.byStrings("labelRow", "checked"),
-      searchExports: true
-    },
-    // FormItem
-    {
-      filter: (m) => Filters.byStrings("titleId", "errorId", "setIsFocused")(m?.render),
-      searchExports: true
-    },
     // Slider
     {
       filter: (m) => Filters.byKeys("stickToMarkers", "initialValue")(m?.defaultProps),
@@ -331,15 +316,9 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
       filter: Filters.byPrototypeKeys("getHorizontalAlignmentStyle", "nudgeLeftAlignment"),
       searchExports: true
     },
-    // SearchableSelect
+    // BadgeModule
     {
-      filter: (m) => Filters.byStrings("searchable", "select")(m?.render),
-      searchExports: true
-    },
-    // TextBadge
-    {
-      filter: Filters.byStrings("textBadge", "STATUS_DANGER"),
-      searchExports: true
+      filter: Filters.bySource('"eyebrow"', "EARLY_ACCESS")
     },
     // SearchBar
     {
@@ -348,7 +327,7 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     },
     // Paginator
     {
-      filter: Filters.byStrings("pageControlContainer", "endButtonInner"),
+      filter: Filters.byStrings("disablePaginationGap", "hasMultiplePages"),
       searchExports: true
     },
     // Spinner
@@ -369,11 +348,6 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     // StaticChannelRoute
     {
       filter: Filters.byKeys("ROLE_SUBSCRIPTIONS", "CHANNEL_BROWSER"),
-      searchExports: true
-    },
-    // useStateFromStores
-    {
-      filter: Filters.byStrings("useStateFromStores"),
       searchExports: true
     },
     // BasePopout
@@ -408,7 +382,7 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     },
     // TextInput
     {
-      filter: Filters.byStrings("inputWrapper", "prefixElement"),
+      filter: Filters.byStrings('"input"', "prefixElement"),
       searchExports: true
     },
     // AppPanels
@@ -428,7 +402,7 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     },
     // ChannelTextArea
     {
-      filter: (m) => Filters.byStrings("channelTextArea", "markdown")(m?.type?.render)
+      filter: (m) => Filters.byStrings("CHANNEL_TEXT_AREA", "markdown")(m?.type?.render)
     },
     // ExpressionPicker
     {
@@ -437,17 +411,7 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     },
     // ChannelTextAreaButtons
     {
-      filter: (m) => Filters.byStrings("buttons", "sticker", "gif")(m?.type),
-      searchExports: true
-    },
-    // ChannelAppLauncher
-    {
-      filter: (m) => Filters.byStrings("channelAppLauncher")(m?.type),
-      searchExports: true
-    },
-    // AppLauncherPopup
-    {
-      filter: (m) => Filters.byStrings("positionLayer", '"positionTargetRef"')(m?.type),
+      filter: (m) => Filters.byStrings("appLauncher", "sticker", "gif")(m?.type),
       searchExports: true
     },
     // GuildIcon
@@ -457,7 +421,7 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     },
     // Timestamp
     {
-      filter: (m) => Filters.byStrings("timestamp", "timestampTooltip")(m?.type),
+      filter: (m) => Filters.byStrings("timestampFormat", '"LLLL"')(m?.type),
       searchExports: true
     },
     // getThemeClass
@@ -484,11 +448,11 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     },
     // MessageDivider
     {
-      filter: (m) => Filters.byStrings("divider", "unreadPill")(m?.render)
+      filter: (m) => Filters.byStrings('"span"', "isUnread")(m?.render)
     },
     // GuildChannelRouteParams
     {
-      filter: (m) => Filters.byStrings("escapeRegExp")(m?.guildId),
+      filter: (m) => Filters.byStrings('"|\\\\d+"')(m?.guildId),
       searchExports: true
     },
     // handleClick
@@ -512,7 +476,8 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     },
     // Dispatcher
     {
-      filter: Filters.byKeys("dispatch", "subscribe")
+      filter: Filters.byKeys("dispatch", "subscribe"),
+      searchExports: true
     },
     // Transition
     {
@@ -526,9 +491,10 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     {
       filter: Filters.byKeys("setEnableHardwareAcceleration", "releaseChannel")
     },
-    // Flex
+    // Stack
     {
-      filter: Filters.byKeys("Direction", "Justify", "Child")
+      filter: (m) => Filters.byStrings("data-direction", "data-justify")(m?.render),
+      searchExports: true
     },
     // Parser
     {
@@ -596,16 +562,11 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     },
     // ModalActionsModule
     {
-      filter: Filters.bySource("POPOUT", "OVERLAY", "modalKey")
+      filter: Filters.bySource(".modalKey?")
     },
     // TooltipModule
     {
       filter: Filters.bySource("renderTooltip", "tooltipPointer")
-    },
-    // ListRawModule
-    {
-      filter: Filters.bySource("thin", "none", "fade", "ResizeObserver"),
-      raw: true
     },
     // ToastStoreModule
     {
@@ -613,7 +574,7 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     },
     // ToastModule
     {
-      filter: Filters.bySource("toast", "position", "STATUS_DANGER")
+      filter: Filters.bySource("message", "position", "STATUS_POSITIVE")
     },
     // AppViewModule
     {
@@ -637,7 +598,7 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     },
     // PopoutCSSAnimatorModule
     {
-      filter: Filters.bySource("animatorTop", "TRANSLATE")
+      filter: Filters.bySource("data-popout-animating", "TRANSLATE")
     },
     // AppLayerModule
     {
@@ -681,15 +642,15 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     },
     // AlertModule
     {
-      filter: Filters.bySource("messageType", "iconDiv")
+      filter: Filters.bySource("messageType", '"warn"')
     },
-    // UserSettingsModal
+    // UserSettings
     {
-      filter: Filters.byKeys("open", "setSection", "updateAccount")
+      filter: Filters.byKeys("openUserSettings", "openUserSettingsFromParsedUrl")
     },
     // ModalModule
     {
-      filter: Filters.bySource("MODAL", "rootWithShadow")
+      filter: Filters.bySource("MODAL_ROOT_LEGACY", "headerId")
     },
     // MenuItemModule
     {
@@ -725,7 +686,7 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     },
     // UseIsVisibleModule
     {
-      filter: Filters.bySource("isIntersecting", "threshold:1")
+      filter: Filters.bySource("isIntersecting", "new Map([[1,{threshold:1}]])")
     },
     // RootElementContextModule
     {
@@ -737,7 +698,7 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     },
     // FocusLockModule
     {
-      filter: Filters.bySource("disableReturnRef", '"app-mount"')
+      filter: Filters.bySource("disableReturnRef", "containerRef")
     },
     // ManaModalRootModule
     {
@@ -749,7 +710,7 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     },
     // ChannelThreadList
     {
-      filter: (m) => Filters.byStrings("sortedThreadIds", "spineBorder")(m?.type),
+      filter: (m) => Filters.byStrings("sortedThreadIds", '"group"')(m?.type),
       searchExports: true
     },
     // matchSorter
@@ -761,22 +722,39 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     {
       filter: Filters.byStrings("copyValue", "TEXT_COPIED"),
       searchExports: true
+    },
+    // SidebarActions
+    {
+      filter: Filters.byKeys("setSelectedSearchContext")
+    },
+    // SidebarType
+    {
+      filter: Filters.byKeys("VIEW_THREAD", "VIEW_MOD_REPORT"),
+      searchExports: true
+    },
+    // ManaTooltipLayer
+    {
+      filter: Filters.byStrings('"tooltip"', "isRichTooltip"),
+      searchExports: true
+    },
+    // ManaUseTooltipTransitionModule
+    {
+      filter: Filters.bySource("onExitComplete", '"tooltip"')
+    },
+    // ManaLayerModalModule
+    {
+      filter: Filters.bySource("MODAL", "headingId", "theme")
     }
   );
-  const { FormTitle, FormTitleTags } = mangled(FormTitleModule, {
-    FormTitle: Filters.byStrings("errorMessage"),
-    FormTitleTags: Filters.byKeys("H1", "H2")
-  });
-  const { FormText, FormTextTypes } = mangled(FormTextModule, {
-    FormText: Filters.byStrings("variant", "text"),
-    FormTextTypes: Filters.byKeys("DESCRIPTION")
-  });
   const { RadioGroup } = mangled(RadioGroupModule, {
     RadioGroup: Filters.byStrings("label", "description")
   });
-  const ModalScrim = Object.values(ModalScrimModule ?? {}).find((m) => m?.render);
+  const { Badge } = mangled(BadgeModule, {
+    Badge: Filters.byStrings('"eyebrow"')
+  });
+  const ModalScrimKeyed = keyed(ModalScrimModule, Filters.byStrings("scrim", "isVisible"));
   const { Checkbox, CheckboxTypes } = mangled(CheckboxModule, {
-    Checkbox: Filters.byStrings("checkboxWrapper"),
+    Checkbox: Filters.byStrings("innerClassName"),
     CheckboxTypes: Filters.byKeys("INVERTED")
   });
   const { useModalsStore, useIsModalAtTop, ...ModalActions } = mangled(ModalActionsModule, {
@@ -786,15 +764,14 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     useModalsStore: Filters.byKeys("setState"),
     useIsModalAtTop: Filters.byStrings("popout:", ".at(-1)")
   });
-  const { Tooltip: Tooltip$1, TooltipLayer } = mangled(TooltipModule, {
-    Tooltip: Filters.byPrototypeKeys("renderTooltip"),
-    TooltipLayer: Filters.byStrings("tooltipPointer")
+  const { Tooltip: Tooltip$1 } = mangled(TooltipModule, {
+    Tooltip: Filters.byPrototypeKeys("renderTooltip")
   });
   const ListThin = (() => {
-    if (!ListRawModule) return;
-    const { id, exports: exports2 } = ListRawModule;
+    const id = 475825;
+    const exports$1 = Webpack.getById(id);
     const source = Webpack.modules[id].toString();
-    return exports2[source.match(new RegExp(`(\\w+):\\(\\)=>${source.match(/let (\w+)=/)[1]}`))[1]];
+    return exports$1[source.match(new RegExp(`(\\w+):\\(\\)=>${source.match(/let (\w+)=/)[1]}`))[1]];
   })();
   const { showToast, useToastStore } = mangled(ToastStoreModule, {
     showToast: Filters.byStrings("currentToastMap.has"),
@@ -827,28 +804,27 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
   const ModalsKeyed = keyed(ModalsModule, Filters.byStrings("modalKey", '"layer-"'));
   const LayersKeyed = keyed(LayersModule, Filters.byStrings("hasFullScreenLayer"));
   const GuildChannelListKeyed = keyed(GuildChannelListModule, Filters.byStrings("getGuild", "guildId"));
-  const ChatSidebarKeyed = keyed(ChatSidebarModule, Filters.byStrings("chatLayerWrapper"));
+  const ChatSidebarKeyed = keyed(ChatSidebarModule, Filters.byStrings("postSidebarWidth"));
   const VoiceChannelViewKeyed = keyed(VoiceChannelViewModule, Filters.byStrings("shouldUseVoiceEffectsActionBar"));
   const CallChatSidebarKeyed = keyed(CallChatSidebarModule, Filters.byStrings("CallChatSidebar", "chatInputType"));
-  const SelectKeyed = keyed(SelectModule, Filters.byStrings("listbox", "renderPopout", "closeOnSelect"));
-  const SingleSelectKeyed = keyed(SelectModule, (m) => Filters.byStrings("value", "onChange")(m) && !Filters.byStrings("isSelected")(m));
-  const SingleSelect = unkeyedFn(SingleSelectKeyed);
+  const { SingleSelect } = mangled(SelectModule, {
+    SingleSelect: (m) => Filters.byStrings("value", "onChange")(m) && !Filters.byStrings("isSelected")(m)
+  });
   const LayerActions = mangled(LayerActionsModule, {
     pushLayer: Filters.byStrings('"LAYER_PUSH"'),
     popLayer: Filters.byStrings('"LAYER_POP"'),
     popAllLayers: Filters.byStrings('"LAYER_POP_ALL"')
   });
   const { Alert, AlertTypes } = mangled(AlertModule, {
-    Alert: Filters.byStrings("messageType", "iconDiv"),
+    Alert: Filters.byStrings("messageType"),
     AlertTypes: Filters.byKeys("WARNING", "ERROR")
   });
-  const { ModalRoot, ModalSize, ModalHeader, ModalFooter, ModalContent, ModalCloseButton } = mangled(ModalModule, {
-    ModalRoot: Filters.byStrings("MODAL", "rootWithShadow"),
+  const { ModalRoot, ModalSize, ModalHeader, ModalFooter, ModalContent } = mangled(ModalModule, {
+    ModalRoot: Filters.byStrings("MODAL_ROOT_LEGACY"),
     ModalSize: Filters.byKeys("MEDIUM", "LARGE"),
     ModalHeader: Filters.byStrings("headerIdIsManaged", "HORIZONTAL"),
-    ModalFooter: Filters.byStrings("footerSeparator"),
-    ModalContent: Filters.byStrings("content", "scrollbarType"),
-    ModalCloseButton: Filters.byStrings("closeIcon")
+    ModalFooter: Filters.byStrings("separator", "HORIZONTAL_REVERSE"),
+    ModalContent: Filters.byStrings("scrollbarType")
   });
   const MenuItemKeyed = keyed(MenuItemModule, Filters.byStrings("dontCloseOnActionIfHoldingShiftKey", "data-menu-item"));
   const ChannelItemKeyed = keyed(ChannelItemModule, Filters.byStrings("shouldIndicateNewChannel", "MANAGE_CHANNELS"));
@@ -875,32 +851,41 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     ModalRootKeyed: keyed(ManaModalRootModule, Filters.byStrings("MODAL", '"padding-size-"')),
     get ModalRoot() {
       return unkeyed(this.ModalRootKeyed);
-    }
+    },
+    TooltipLayer: ManaTooltipLayer,
+    useTooltipTransitionKeyed: keyed(ManaUseTooltipTransitionModule, Filters.byStrings("onExitComplete", '"tooltip"')),
+    LayerModalKeyed: keyed(ManaLayerModalModule, Filters.byStrings("MODAL", "headingId", "theme"))
   };
   const BasePopoverKeyed = keyed(BasePopoverModule, Filters.byStrings("popoverGradientWrapper", "spacing"));
+  const useStateFromStores = Hooks.useStateFromStores;
   const StandardSidebarViewWrapper = Webpack.waitForModule(Filters.byPrototypeKeys("getPredicateSections", "renderSidebar"));
   const StandardSidebarViewModule = Webpack.waitForModule(Filters.bySource("standardSidebarView", "section"));
   const StandardSidebarViewKeyed = lazyKeyed(StandardSidebarViewModule, Filters.byStrings("standardSidebarView", "section"));
-  const SettingsNotice = Webpack.waitForModule(Filters.byStrings("resetButton", "EMPHASIZE_NOTICE"));
+  const SettingsNotice = Webpack.waitForModule(Filters.byStrings("onSaveText", "EMPHASIZE_NOTICE"));
   const MembersModViewSidebarModule = Webpack.waitForModule(Filters.bySource("MEMBER_SAFETY_PAGE", "closeGuildSidebar"));
   const MembersModViewSidebarKeyed = lazyKeyed(MembersModViewSidebarModule, Filters.byStrings("MEMBER_SAFETY_PAGE", "closeGuildSidebar"));
   const GenerateUserSettingsSectionsModule = Webpack.waitForModule(Filters.bySource("ACCOUNT_PROFILE", "CUSTOM", '"logout"'));
   const generateUserSettingsSectionsKeyed = lazyKeyed(GenerateUserSettingsSectionsModule, Filters.byStrings("ACCOUNT_PROFILE", "CUSTOM", '"logout"'));
+  const SettingsContent = Webpack.waitForModule((m) => Filters.byStrings("useTitle", '"showNavigationMobile"')(m?.type));
+  const SettingsNodeType = { ROOT: 0, SECTION: 1, SIDEBAR_ITEM: 2, PANEL: 3, PANE: 4 };
   const DiscordModules = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
     __proto__: null,
     Alert,
     AlertModule,
     AlertTypes,
-    Anchor,
+    get Anchor() {
+      return Anchor;
+    },
     App,
     AppContext,
     AppContextModule,
-    AppLauncherPopup,
     AppLayer,
     AppLayerModule,
     AppPanels,
     AppViewKeyed,
     AppViewModule,
+    Badge,
+    BadgeModule,
     BasePopout,
     BasePopoverKeyed,
     BasePopoverModule,
@@ -910,7 +895,6 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     CSSTransition,
     CallChatSidebarKeyed,
     CallChatSidebarModule,
-    ChannelAppLauncher,
     ChannelItemKeyed,
     ChannelItemModule,
     ChannelMessageList,
@@ -934,19 +918,10 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     EmojiModule,
     ExpressionPicker,
     ExpressionPickerStoreModule,
-    Flex: Flex$1,
+    FieldSet,
     Flux,
     FocusLock,
     FocusLockModule,
-    FormItem,
-    FormSection,
-    FormSwitch,
-    FormText,
-    FormTextModule,
-    FormTextTypes,
-    FormTitle,
-    FormTitleModule,
-    FormTitleTags,
     GatewaySocket,
     GenerateUserSettingsSectionsModule,
     GuildActionRow,
@@ -956,7 +931,9 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     GuildIcon,
     GuildStore,
     Heading,
-    ImpressionNames,
+    get ImpressionNames() {
+      return ImpressionNames;
+    },
     InviteActions,
     InviteEmbed,
     InviteStates,
@@ -969,10 +946,12 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     ListNavigatorContainer,
     ListNavigatorModule,
     ListNavigatorProvider,
-    ListRawModule,
     ListThin,
     Mana,
+    ManaLayerModalModule,
     ManaModalRootModule,
+    ManaTooltipLayer,
+    ManaUseTooltipTransitionModule,
     MembersModViewSidebarKeyed,
     MembersModViewSidebarModule,
     MenuItemKeyed,
@@ -985,19 +964,20 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     MessageDivider,
     ModalActions,
     ModalActionsModule,
-    ModalCloseButton,
     ModalContent,
     ModalFooter,
     ModalHeader,
     ModalModule,
     ModalRoot,
-    ModalScrim,
+    ModalScrimKeyed,
     ModalScrimModule,
     ModalSize,
     ModalsKeyed,
     ModalsModule,
     Paginator,
-    Parser,
+    get Parser() {
+      return Parser;
+    },
     Popout,
     PopoutCSSAnimatorKeyed,
     PopoutCSSAnimatorModule,
@@ -1012,18 +992,20 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     RouterModule,
     Routes,
     SearchBar,
-    SearchableSelect,
-    SelectKeyed,
     SelectModule,
     SelectedChannelStore,
     SelectedGuildStore,
+    SettingsContent,
+    SettingsNodeType,
     SettingsNotice,
+    SidebarActions,
+    SidebarType,
     SingleSelect,
-    SingleSelectKeyed,
     Slider: Slider$1,
     SortedGuildStore,
     Spinner,
     SpringTransitionPhases,
+    Stack: Stack$1,
     StageVoiceChannelItemKeyed,
     StageVoiceChannelItemModule,
     StandardSidebarViewKeyed,
@@ -1031,8 +1013,8 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     StandardSidebarViewWrapper,
     StaticChannelRoute,
     Switch: Switch$1,
+    SwitchIndicator,
     Text: Text$1,
-    TextBadge,
     TextButton,
     TextInput,
     ThemeStore,
@@ -1042,19 +1024,20 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
     ToastModule,
     ToastStoreModule,
     Tooltip: Tooltip$1,
-    TooltipLayer,
     TooltipModule,
     Transition,
     TransitionGroup,
     TransitionGroupContext,
     UseIsVisibleModule,
-    UserSettingsModal,
+    UserSettings,
     VoiceChannelItemKeyed,
     VoiceChannelItemModule,
     VoiceChannelViewKeyed,
     VoiceChannelViewModule,
     appLayerContext,
-    colors,
+    get colors() {
+      return colors;
+    },
     createToast,
     generateUserSettingsSectionsKeyed,
     getThemeClass,
@@ -1113,13 +1096,13 @@ var BetterAnimations = function(require$$0$1, EventEmitter, classNames, fs, path
         "path",
         {
           d: "M43.48,153.61c0,.51,0,1,0,1.55a13.16,13.16,0,0,1-.15,1.54,15.3,15.3,0,0,1-.75,3,12,12,0,0,1-.6,1.43,15.12,15.12,0,0,1-.74,1.37c-2.67,4.32-6.48,6.14-11.2,7.35-3.57,0-6.64-.38-9.76-2.24-.43-.26-.84-.53-1.24-.82s-.78-.61-1.14-.94a13,13,0,0,1-1.05-1.05c-.33-.36-.64-.75-.94-1.14s-.57-.81-.82-1.23a13.75,13.75,0,0,1-.7-1.31,15.77,15.77,0,0,1-1-2.79c-.13-.5-.23-1-.31-1.52s-.12-1-.14-1.55a13.36,13.36,0,0,1,0-1.55c0-.52.08-1,.16-1.55s.19-1,.32-1.52a15,15,0,0,1,.47-1.48c.18-.49.39-1,.61-1.43a13.89,13.89,0,0,1,.76-1.36c2.73-4.32,6.61-6.1,11.37-7.22a17.55,17.55,0,0,1,9,1.94,14.46,14.46,0,0,1,1.32.8c.42.29.83.61,1.22.94a14,14,0,0,1,1.13,1c.35.37.69.76,1,1.16a13.79,13.79,0,0,1,.89,1.27c.27.43.52.88.75,1.34a13.73,13.73,0,0,1,.6,1.42,14.74,14.74,0,0,1,.46,1.47,15.17,15.17,0,0,1,.32,1.52C43.39,152.58,43.45,153.09,43.48,153.61ZM149.61,266.66a13.24,13.24,0,0,0,.48,1.51,13.79,13.79,0,0,0,.61,1.42,13.41,13.41,0,0,0,.74,1.34,14.24,14.24,0,0,0,.89,1.26,13.87,13.87,0,0,0,1,1.16,14.16,14.16,0,0,0,1.13,1.06c.39.33.8.64,1.22.93a13.48,13.48,0,0,0,1.31.8,12.58,12.58,0,0,0,1.39.66,16.84,16.84,0,0,0,9.18.9c4.61-1.5,8.28-3.72,10.53-8.2a14.8,14.8,0,0,0,.61-1.42c.18-.49.34-1,.47-1.48a15.17,15.17,0,0,0,.32-1.52c.08-.51.13-1,.16-1.54s0-1,0-1.55-.08-1-.15-1.54-.18-1-.31-1.52a12.63,12.63,0,0,0-.45-1.48c-.17-.48-.37-.95-.59-1.42s-.47-.91-.74-1.34-.56-.86-.87-1.27-.63-.79-1-1.17a12.26,12.26,0,0,0-1.1-1.06,13.51,13.51,0,0,0-1.2-.95c-.42-.3-.85-.57-1.3-.83a13.43,13.43,0,0,0-1.37-.68c-3.15-1.39-6-1.39-9.37-1.16-4.6,1.52-8.28,3.71-10.53,8.21q-.34.72-.63,1.47a15.73,15.73,0,0,0-.47,1.52,13.47,13.47,0,0,0-.32,1.56c-.08.53-.13,1.05-.16,1.59a14.06,14.06,0,0,0,0,1.59c0,.53.09,1.06.17,1.59A14.45,14.45,0,0,0,149.61,266.66ZM139,214c.19-.43.35-.86.5-1.3s.26-.89.36-1.35a12.63,12.63,0,0,0,.23-1.37,13,13,0,0,0,.08-1.39,12.82,12.82,0,0,0,0-1.39c-.05-.47-.11-.93-.2-1.38a12.11,12.11,0,0,0-.34-1.35,11.3,11.3,0,0,0-.47-1.31,12.89,12.89,0,0,0-7.81-7.14c-5.5-1.89-36.88-1.26-44.37-.74-4.16,1.48-7.23,3.46-9.19,7.59-.2.41-.37.83-.53,1.26s-.29.88-.4,1.32-.2.89-.27,1.35-.11.91-.13,1.37,0,.91,0,1.37a12.72,12.72,0,0,0,.14,1.37,10.75,10.75,0,0,0,.27,1.35,12.33,12.33,0,0,0,.4,1.31,12.58,12.58,0,0,0,6.73,7.15,16.52,16.52,0,0,0,5.48,1.35c5.55.48,11.31,0,16.88,0,7.77,0,15.57.28,23.32-.1C133.91,220.35,137.07,218.29,139,214ZM563.65,356.72c16.78-20.29,29.88-50.55,35.31-76.23,6.57-31.05,4.69-64.76-13.18-91.9-15.27-23.2-41-38.35-68-43.69-24.91-4.92-52.95-3.17-78.45-3.24l-115-.19-173.55-.42H95c-8,0-16.15-.47-24.12-.08A16.54,16.54,0,0,0,62,143.7a12.72,12.72,0,0,0-5.18,8.35c-.07.46-.13.92-.16,1.38a12.71,12.71,0,0,0,0,1.38,12.85,12.85,0,0,0,.12,1.38,12.51,12.51,0,0,0,.25,1.36,15.27,15.27,0,0,0,.92,2.62c.2.41.41.82.65,1.22s.5.78.77,1.15a14.22,14.22,0,0,0,7.93,5.3c5.3,1.09,25.27.2,31.65.2H216.36c5.11,0,10.61-.53,15.67.33,3.8.65,7,2.26,9.15,5.58a14.42,14.42,0,0,1,2.08,10.58,12.76,12.76,0,0,1-8.55,9.41c-5.61,2-12.67,1.23-18.58,1.21L180,195c-6,0-12.57-.61-18.46.26a16.73,16.73,0,0,0-6.87,2.48,11.76,11.76,0,0,0-5.34,8c-.61,3.64,0,8,2.32,10.92a13.13,13.13,0,0,0,7.28,4.85c6.46,1.62,14.69.68,21.37.63H225c6.67,0,14.08-.76,20.66.08,3.9.5,7.37,1.88,9.8,5.08A13.56,13.56,0,0,1,258.15,238a12.9,12.9,0,0,1-8.06,9.95c-11.9,4.67-45.6-3.16-55.29,4.25a12.9,12.9,0,0,0-4.7,9,13.34,13.34,0,0,0,3,10.4,13.59,13.59,0,0,0,9.09,4.59c5.95.7,12.57.14,18.59.14H259.7l133.11,0h41.63c8.22,0,16.67-.38,24.87.3,4.67,1.68,8.62,3.88,10.93,8.54,2.12,4.27,1.83,8.63,1,13.15a31.48,31.48,0,0,1-15.81,19.08,27.83,27.83,0,0,1-8.06,2.78c-8,.59-16.21.28-24.27.28-16.27,0-32.58-.27-48.84,0-8.59,34.28-18.2,68.38-26.38,102.75l48.68,0c8.09,0,16.86-.72,24.85.32,4.41,1.41,8.4,3.74,10.7,7.92,2.52,4.6,2.36,10.29.78,15.16a31.67,31.67,0,0,1-16.36,18.2,26.42,26.42,0,0,1-9.23,2.4c-5.45.47-11.08.12-16.55.09H365.42c-24.21,0-48.52.48-72.72,0,.6-5.14,2.44-10.51,3.75-15.55l7.94-30.55,26-100.7-134.54-.06C183,369.2,171.12,418.36,157.91,467.14c-7.7,32.21-16.48,64.25-24.75,96.32l-6.87,26.72c-.67,2.69-1.77,5.32-2.32,8a6.12,6.12,0,0,0,0,3.26,3.9,3.9,0,0,0,2.58.35c17.41.72,35.11.09,52.54.09l100.92,0h74.11c26.67,0,53.31.31,79.73-3.91,24.91-4,49.55-11.66,70.65-25.8,39.71-26.61,56.91-68.87,65.69-113.91,6.18-31.69,7-66.64-11.74-94.45l0-.22C560.3,361.35,562,359.06,563.65,356.72Z",
-          fill: typeof color === "string" ? color : color.css
+          fill: typeof color === "string" ? color : color?.css
         }
       ) : /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
           d: "M43.31,152.07c3.1,19.82-27.18,24.62-30.21,4.75C10.21,137.17,40.17,132.39,43.31,152.07ZM179.2,258.93c-5-19.44-34.75-11.8-29.59,7.73C154.63,285.85,184.07,278.1,179.2,258.93ZM139,214c3.22-6.85-.36-15.74-7.7-18-5.5-1.89-36.88-1.26-44.37-.74-4.16,1.48-7.23,3.46-9.19,7.59-7.19,19.7,15,20.55,28.57,19.18C117.26,221,133.2,226.53,139,214Zm378.79-69.07c-48.37-7.35-143.33-1.56-193.47-3.44-40.76,0-191.42-.58-229.28-.43-14.25-.07-45-4.59-37.09,19.13,6,13.42,29,6.67,41,7.87H216.36c8.35.15,19.39-2.15,24.82,5.91,4.85,7,1.86,17.43-6.47,20-12.21,2.88-41.89.43-54.75,1.08-10.58.07-27.67-3-30.67,10.7-2.87,18.25,18.51,17.41,31,16.4H225c12.53-.53,35.47-3.1,33.17,15.85-5.8,23.24-50.14,3.38-63.35,14.19-9.11,7.13-4.39,23.43,7.42,23.94,60.92.54,171-.11,232.22.12,12.09.86,28.84-4.21,35.8,8.84,5.45,12.49-3.57,26.5-14.79,32.23-9.88,5.14-21.61,2.52-32.33,3.06-16.27,0-32.58-.27-48.84,0-7.06,28.18-14.8,56.23-21.87,84.41,52.36-73.63,148.44-111.33,236.94-93.06C619.67,244.72,597.55,158.81,517.78,144.91ZM195.83,320.31C172.48,414,146.4,507.87,124,601.46c52.8,1.61,137.31-.22,190.54.41a237.65,237.65,0,0,1,5.37-134.46c-9.08,0-18.16-.05-27.22-.24,7.23-31.13,29.69-114.61,37.67-146.8Z",
-          fill: typeof color === "string" ? color : color.css
+          fill: typeof color === "string" ? color : color?.css
         }
       ),
       type === IconBrandTypes.SUCCESS && /* @__PURE__ */ BdApi.React.createElement(
@@ -1390,11 +1373,15 @@ ${style2}
 .BA__modalButtonGroup {
     width: auto;
 }``Modal`;
-  function Divider$2({ className, ...props }) {
+  function Divider$2({ className, gap, ...props }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "div",
       {
         className: classNames("BA__divider", className),
+        style: {
+          marginTop: gap,
+          marginBottom: gap
+        },
         ...props
       }
     );
@@ -1404,34 +1391,6 @@ ${style2}
     height: 1px;
     width: 100%;
 }``Divider`;
-  const _Classes = {
-    ChatSidebar: Webpack.getByKeys("chatLayerWrapper", "chatTarget"),
-    StandardSidebarView: () => Webpack.getByKeys("standardSidebarView", "contentRegion"),
-    Modal: Webpack.getByKeys("root", "rootWithShadow"),
-    ModalBackdrop: Webpack.getByKeys("backdrop", "withLayer"),
-    Layers: Webpack.getByKeys("layer", "baseLayer"),
-    Margins: Webpack.getByKeys("marginTop20", "marginLeft8"),
-    AppMount: Webpack.getByKeys("appMount"),
-    AppView: Webpack.getByKeys("base", "content"),
-    ChannelView: Webpack.getByKeys("chat", "chatContent"),
-    VoiceChannelView: Webpack.getByKeys("channelChatWrapper", "noChat"),
-    ChannelItem: Webpack.getByKeys("containerDefault", "channelInfo"),
-    MessageList: Webpack.getByKeys("message", "groupStart"),
-    Layer: Webpack.getByKeys("layer", "layerContainer"),
-    Toast: Webpack.getByKeys("toast", "icon"),
-    Scroller: Webpack.getByKeys("thin", "disableScrollAnchor"),
-    Select: Webpack.getByKeys("select", "measurement"),
-    ManaModal: Webpack.getByKeys("actionBar", "headerTrailing")
-  };
-  const DiscordClasses = new Proxy(_Classes, {
-    get(obj, prop) {
-      const value = obj[prop];
-      if (typeof value !== "function") return value;
-      const resolved = value();
-      if (!resolved) return void 0;
-      return obj[prop] = resolved;
-    }
-  });
   function buildIndent(level) {
     return " ".repeat(level * 2);
   }
@@ -1449,7 +1408,7 @@ ${indent2}`);
       ""
     ).replace(/\s+/g, " ").trim();
   }
-  const version$1 = "2.0.4";
+  const version$1 = "2.1.6";
   class BaseError extends Error {
     constructor(message, options = {}, additionalMeta = []) {
       const { module: module2, pack } = options;
@@ -1468,6 +1427,35 @@ ${indent2}`);
       this.pack = pack;
     }
   }
+  const _Classes = {
+    ChatSidebar: Webpack.getByKeys("chatLayerWrapper", "chatTarget"),
+    StandardSidebarView: () => Webpack.getByKeys("standardSidebarView", "contentRegion"),
+    SettingsSidebar: () => Webpack.getByKeys("sidebar", "section", "nav"),
+    Modal: Webpack.getByKeys("root", "rootWithShadow"),
+    ModalBackdrop: Webpack.getByKeys("backdrop", "withLayer"),
+    Layers: Webpack.getByKeys("layer", "baseLayer"),
+    AppMount: Webpack.getByKeys("appMount"),
+    AppView: Webpack.getByKeys("base", "content"),
+    ChannelView: Webpack.getByKeys("chat", "chatContent"),
+    VoiceChannelView: Webpack.getByKeys("channelChatWrapper", "noChat"),
+    ChannelItem: Webpack.getByKeys("containerDefault", "channelInfo"),
+    MessageList: Webpack.getByKeys("message", "groupStart"),
+    Layer: Webpack.getByKeys("layer", "layerContainer"),
+    Toast: Webpack.getByKeys("toast", "icon"),
+    Scroller: Webpack.getByKeys("thin", "disableScrollAnchor"),
+    Select: Webpack.getByKeys("select", "measurement"),
+    ManaModal: Webpack.getByKeys("actionBar", "headerTrailing"),
+    Modals: Webpack.getByKeys("layer", "inactive")
+  };
+  const DiscordClasses = new Proxy(_Classes, {
+    get(obj, prop) {
+      const value = obj[prop];
+      if (typeof value !== "function") return value;
+      const resolved = value();
+      if (!resolved) return void 0;
+      return obj[prop] = resolved;
+    }
+  });
   class Validator {
     get name() {
       return "Validator";
@@ -2260,10 +2248,10 @@ ${indent2}`);
     return tag == funcTag$2 || tag == genTag$1 || tag == asyncTag || tag == proxyTag;
   }
   var coreJsData = root$2["__core-js_shared__"];
-  var maskSrcKey = function() {
+  var maskSrcKey = (function() {
     var uid = /[^.]+$/.exec(coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO || "");
     return uid ? "Symbol(src)_1." + uid : "";
-  }();
+  })();
   function isMasked(func) {
     return !!maskSrcKey && maskSrcKey in func;
   }
@@ -2432,14 +2420,14 @@ ${indent2}`);
     }
     return array;
   }
-  var defineProperty = function() {
+  var defineProperty = (function() {
     try {
       var func = getNative(Object, "defineProperty");
       func({}, "", {});
       return func;
     } catch (e) {
     }
-  }();
+  })();
   function baseAssignValue(object, key2, value) {
     if (key2 == "__proto__" && defineProperty) {
       defineProperty(object, key2, {
@@ -2477,9 +2465,9 @@ ${indent2}`);
   var objectProto$8 = Object.prototype;
   var hasOwnProperty$6 = objectProto$8.hasOwnProperty;
   var propertyIsEnumerable$1 = objectProto$8.propertyIsEnumerable;
-  var isArguments = baseIsArguments(/* @__PURE__ */ function() {
+  var isArguments = baseIsArguments(/* @__PURE__ */ (function() {
     return arguments;
-  }()) ? baseIsArguments : function(value) {
+  })()) ? baseIsArguments : function(value) {
     return isObjectLike(value) && hasOwnProperty$6.call(value, "callee") && !propertyIsEnumerable$1.call(value, "callee");
   };
   var isArray = Array.isArray;
@@ -2520,7 +2508,7 @@ ${indent2}`);
   var freeModule$1 = freeExports$1 && typeof module == "object" && module && !module.nodeType && module;
   var moduleExports$1 = freeModule$1 && freeModule$1.exports === freeExports$1;
   var freeProcess = moduleExports$1 && freeGlobal.process;
-  var nodeUtil = function() {
+  var nodeUtil = (function() {
     try {
       var types2 = freeModule$1 && freeModule$1.require && freeModule$1.require("util").types;
       if (types2) {
@@ -2529,7 +2517,7 @@ ${indent2}`);
       return freeProcess && freeProcess.binding && freeProcess.binding("util");
     } catch (e) {
     }
-  }();
+  })();
   var nodeIsTypedArray = nodeUtil && nodeUtil.isTypedArray;
   var isTypedArray = nodeIsTypedArray ? baseUnary(nodeIsTypedArray) : baseIsTypedArray;
   var objectProto$7 = Object.prototype;
@@ -2726,7 +2714,7 @@ ${indent2}`);
     }
   }
   var objectCreate = Object.create;
-  var baseCreate = /* @__PURE__ */ function() {
+  var baseCreate = /* @__PURE__ */ (function() {
     function object() {
     }
     return function(proto) {
@@ -2741,7 +2729,7 @@ ${indent2}`);
       object.prototype = void 0;
       return result;
     };
-  }();
+  })();
   function initCloneObject(object) {
     return typeof object.constructor == "function" && !isPrototype(object) ? baseCreate(getPrototype(object)) : {};
   }
@@ -6965,14 +6953,6 @@ ${buildStyles(styles)}}
     boundary[zodErrorBoundarySymbol] = name2;
     return trust(boundary);
   }
-  /**
-   * anime.js - ESM
-   * @version v4.1.3
-   * @author Julian Garnier
-   * @license MIT
-   * @copyright (c) 2025 Julian Garnier
-   * @see https://animejs.com
-   */
   const isBrowser = typeof window !== "undefined";
   const doc = isBrowser ? document : null;
   const tweenTypes = {
@@ -7130,7 +7110,7 @@ ${buildStyles(styles)}}
     if (!p) p = powCache[decimalLength] = 10 ** decimalLength;
     return _round(v * p) / p;
   };
-  const snap = (v, increment2) => isArr(increment2) ? increment2.reduce((closest, cv) => abs(cv - v) < abs(closest - v) ? cv : closest) : increment2 ? _round(v / increment2) * increment2 : v;
+  const snap = (v, increment2) => isArr(increment2) ? increment2.reduce((closest2, cv) => abs(cv - v) < abs(closest2 - v) ? cv : closest2) : increment2 ? _round(v / increment2) * increment2 : v;
   const interpolate = (start, end, progress) => start + (end - start) * progress;
   const random = (min, max2, decimalLength) => {
     const m = 10 ** (decimalLength || 0);
@@ -7146,7 +7126,7 @@ ${buildStyles(styles)}}
     }
     return items2;
   };
-  const clampInfinity = (v) => v === Infinity ? maxValue : v === -Infinity ? -1e12 : v;
+  const clampInfinity = (v) => v === Infinity ? maxValue : v === -Infinity ? -maxValue : v;
   const normalizeTime = (v) => v <= minValue ? minValue : clampInfinity(round(v, 11));
   const cloneArray = (a) => isArr(a) ? [...a] : a;
   const mergeObjects = (o1, o2) => {
@@ -7935,7 +7915,7 @@ ${buildStyles(styles)}}
               const v1 = +values[0];
               const v2 = +values[1];
               const scaleFactor = getScaleFactor($scalled);
-              const os = v1 * -1e3 * scaleFactor;
+              const os = v1 * -pathLength * scaleFactor;
               const d1 = v2 * pathLength * scaleFactor + os;
               const d2 = pathLength * scaleFactor + (v1 === 0 && v2 === 1 || v1 === 1 && v2 === 0 ? 0 : 10 * scaleFactor) - d1;
               if (strokeLineCap !== "butt") {
@@ -16253,7 +16233,7 @@ ${buildStyles(styles)}}
     IMPLEMENTED_BY_ANIMATION: (animationName) => `Implemented by selected animation: ${animationName}`,
     SHOULD_BE_VALID_URL: "Should be a valid URL",
     PRIORITIZE_ANIMATION_SMOOTHNESS: "Prioritize Animation Smoothness",
-    CACHE_USER_SETTINGS_SECTIONS: "Cache User Settings Sections",
+    CACHE_USER_SETTINGS_SECTIONS: "Cache Legacy User Settings Sections",
     CATALOG_OUT_OF_DATE: "The last attempt to load the Catalog was unsuccessful. The information below may be out of date.",
     SETTINGS_MIGRATOR: "Settings Migrator"
   };
@@ -16757,7 +16737,7 @@ ${buildStyles(styles)}}
     ), text2 && /* @__PURE__ */ BdApi.React.createElement(
       Text$1,
       {
-        color: "header-primary",
+        color: "text-strong",
         variant: "text-md/normal"
       },
       text2
@@ -17249,7 +17229,7 @@ ${buildStyles(styles)}}
     return jsonSourceMap;
   }
   var jsonSourceMapExports = requireJsonSourceMap();
-  function VerifiedCheckIcon({ size, width, height, color = "var(--green-360)", secondaryColor = "var(--white-400)", ...props }) {
+  function VerifiedCheckIcon({ size, width, height, color = "var(--green-360)", secondaryColor = "#FFFFFF", ...props }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -17262,20 +17242,20 @@ ${buildStyles(styles)}}
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           d: "M9.592 3.2a6 6 0 0 1-.495.399c-.298.2-.633.338-.985.408c-.153.03-.313.043-.632.068c-.801.064-1.202.096-1.536.214a2.71 2.71 0 0 0-1.655 1.655c-.118.334-.15.735-.214 1.536a6 6 0 0 1-.068.632c-.07.352-.208.687-.408.985c-.087.13-.191.252-.399.495c-.521.612-.782.918-.935 1.238c-.353.74-.353 1.6 0 2.34c.153.32.414.626.935 1.238c.208.243.312.365.399.495c.2.298.338.633.408.985c.03.153.043.313.068.632c.064.801.096 1.202.214 1.536a2.71 2.71 0 0 0 1.655 1.655c.334.118.735.15 1.536.214c.319.025.479.038.632.068c.352.07.687.209.985.408c.13.087.252.191.495.399c.612.521.918.782 1.238.935c.74.353 1.6.353 2.34 0c.32-.153.626-.414 1.238-.935c.243-.208.365-.312.495-.399c.298-.2.633-.338.985-.408c.153-.03.313-.043.632-.068c.801-.064 1.202-.096 1.536-.214a2.71 2.71 0 0 0 1.655-1.655c.118-.334.15-.735.214-1.536c.025-.319.038-.479.068-.632c.07-.352.209-.687.408-.985c.087-.13.191-.252.399-.495c.521-.612.782-.918.935-1.238c.353-.74.353-1.6 0-2.34c-.153-.32-.414-.626-.935-1.238a6 6 0 0 1-.399-.495a2.7 2.7 0 0 1-.408-.985a6 6 0 0 1-.068-.632c-.064-.801-.096-1.202-.214-1.536a2.71 2.71 0 0 0-1.655-1.655c-.334-.118-.735-.15-1.536-.214a6 6 0 0 1-.632-.068a2.7 2.7 0 0 1-.985-.408a6 6 0 0 1-.495-.399c-.612-.521-.918-.782-1.238-.935a2.71 2.71 0 0 0-2.34 0c-.32.153-.626.414-1.238.935"
         }
       ),
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof secondaryColor === "string" ? secondaryColor : secondaryColor.css,
+          fill: typeof secondaryColor === "string" ? secondaryColor : secondaryColor?.css,
           d: "M16.374 9.863a.814.814 0 0 0-1.151-1.151l-4.85 4.85l-1.595-1.595a.814.814 0 0 0-1.151 1.151l2.17 2.17a.814.814 0 0 0 1.15 0z"
         }
       )
     );
   }
-  function DangerIcon({ size, width, height, color = colors.STATUS_DANGER, secondaryColor = "var(--white-400)", ...props }) {
+  function DangerIcon({ size, width, height, color = colors.STATUS_DANGER, secondaryColor = "#FFFFFF", ...props }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -17288,20 +17268,20 @@ ${buildStyles(styles)}}
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           d: "m16.157 3.802l.686.406c2.029 1.202 3.043 1.803 3.6 2.792c.557.99.557 2.19.557 4.594v.812c0 2.403 0 3.605-.557 4.594s-1.571 1.59-3.6 2.791l-.686.407C14.128 21.399 13.114 22 12 22s-2.128-.6-4.157-1.802l-.686-.407c-2.029-1.2-3.043-1.802-3.6-2.791C3 16.01 3 14.81 3 12.406v-.812C3 9.19 3 7.989 3.557 7s1.571-1.59 3.6-2.792l.686-.406C9.872 2.601 10.886 2 12 2s2.128.6 4.157 1.802"
         }
       ),
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof secondaryColor === "string" ? secondaryColor : secondaryColor.css,
+          fill: typeof secondaryColor === "string" ? secondaryColor : secondaryColor?.css,
           d: "M12 6.25a.75.75 0 0 1 .75.75v6a.75.75 0 0 1-1.5 0V7a.75.75 0 0 1 .75-.75M12 17a1 1 0 1 0 0-2a1 1 0 0 0 0 2"
         }
       )
     );
   }
-  function TrashIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function TrashIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -17313,14 +17293,14 @@ ${buildStyles(styles)}}
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           d: "M14.25 1c.41 0 .75.34.75.75V3h5.25c.41 0 .75.34.75.75v.5c0 .41-.34.75-.75.75H3.75A.75.75 0 0 1 3 4.25v-.5c0-.41.34-.75.75-.75H9V1.75c0-.41.34-.75.75-.75h4.5Z"
         }
       ),
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           fillRule: "evenodd",
           d: "M5.06 7a1 1 0 0 0-1 1.06l.76 12.13a3 3 0 0 0 3 2.81h8.36a3 3 0 0 0 3-2.81l.75-12.13a1 1 0 0 0-1-1.06H5.07ZM11 12a1 1 0 1 0-2 0v6a1 1 0 1 0 2 0v-6Zm3-1a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1Z",
           clipRule: "evenodd"
@@ -17328,7 +17308,7 @@ ${buildStyles(styles)}}
       )
     );
   }
-  function DownloadIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function DownloadIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -17340,7 +17320,7 @@ ${buildStyles(styles)}}
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           d: "M12 2a1 1 0 0 1 1 1v10.59l3.3-3.3a1 1 0 1 1 1.4 1.42l-5 5a1 1 0 0 1-1.4 0l-5-5a1 1 0 1 1 1.4-1.42l3.3 3.3V3a1 1 0 0 1 1-1ZM3 20a1 1 0 1 0 0 2h18a1 1 0 1 0 0-2H3Z"
         }
       )
@@ -18604,15 +18584,7 @@ ${buildStyles(styles)}}
         ...props,
         messageType: AlertTypes.WARNING
       },
-      message,
-      /* @__PURE__ */ BdApi.React.createElement(
-        ButtonGroup$1,
-        {
-          className: DiscordClasses.Margins.marginTop8,
-          size: "sm"
-        },
-        actions.map((props2) => /* @__PURE__ */ BdApi.React.createElement(Button$1, { ...props2, size: "sm" }))
-      )
+      /* @__PURE__ */ BdApi.React.createElement(Stack$1, { gap: 8 }, message, /* @__PURE__ */ BdApi.React.createElement(ButtonGroup$1, { size: "sm" }, actions.map((props2) => /* @__PURE__ */ BdApi.React.createElement(Button$1, { ...props2, size: "sm" }))))
     );
   }
   function MigratorContainer({ migrator, children: children2, className, contentClassName }) {
@@ -18878,18 +18850,18 @@ ${buildStyles(styles)}}
   }
   css`.BA__iconButton {
     display: block;
-    color: var(--interactive-normal);
+    color: var(--interactive-icon-default);
     background: none;
     border: none;
     padding: 0;
     cursor: pointer;
 }
 .BA__iconButton:hover {
-    color: var(--interactive-hover);
+    color: var(--interactive-icon-hover);
 }
 .BA__iconButton:active,
 .BA__iconButton--active {
-    color: var(--interactive-active);
+    color: var(--interactive-icon-active);
 }
 .BA__iconButton:disabled {
     color: var(--interactive-muted);
@@ -18900,7 +18872,7 @@ ${buildStyles(styles)}}
     display: block;
     fill: currentColor;
 }``IconButton`;
-  function CheckIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function CheckIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -18912,7 +18884,7 @@ ${buildStyles(styles)}}
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           fillRule: "evenodd",
           d: "M18.7 7.3a1 1 0 0 1 0 1.4l-8 8a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.4l3.3 3.29 7.3-7.3a1 1 0 0 1 1.4 0Z",
           clipRule: "evenodd"
@@ -18920,7 +18892,7 @@ ${buildStyles(styles)}}
       )
     );
   }
-  function CircleQuestionIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL, secondaryColor = "transparent" }) {
+  function CircleQuestionIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT, secondaryColor = "transparent" }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -18935,13 +18907,13 @@ ${buildStyles(styles)}}
           cx: "12",
           cy: "12",
           r: "10",
-          fill: typeof secondaryColor === "string" ? secondaryColor : secondaryColor.css
+          fill: typeof secondaryColor === "string" ? secondaryColor : secondaryColor?.css
         }
       ),
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           fillRule: "evenodd",
           d: "M12 23a11 11 0 1 0 0-22 11 11 0 0 0 0 22Zm-.28-16c-.98 0-1.81.47-2.27 1.14A1 1 0 1 1 7.8 7.01 4.73 4.73 0 0 1 11.72 5c2.5 0 4.65 1.88 4.65 4.38 0 2.1-1.54 3.77-3.52 4.24l.14 1a1 1 0 0 1-1.98.27l-.28-2a1 1 0 0 1 .99-1.14c1.54 0 2.65-1.14 2.65-2.38 0-1.23-1.1-2.37-2.65-2.37ZM13 17.88a1.13 1.13 0 1 1-2.25 0 1.13 1.13 0 0 1 2.25 0Z",
           clipRule: "evenodd"
@@ -18949,7 +18921,7 @@ ${buildStyles(styles)}}
       )
     );
   }
-  function CircleDollarSignIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function CircleDollarSignIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -18961,7 +18933,7 @@ ${buildStyles(styles)}}
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           fillRule: "evenodd",
           d: "M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2S2 6.477 2 12s4.477 10 10 10m.75-16a.75.75 0 0 0-1.5 0v.317c-1.63.292-3 1.517-3 3.183c0 1.917 1.813 3.25 3.75 3.25c1.377 0 2.25.906 2.25 1.75s-.873 1.75-2.25 1.75c-1.376 0-2.25-.906-2.25-1.75a.75.75 0 0 0-1.5 0c0 1.666 1.37 2.891 3 3.183V18a.75.75 0 0 0 1.5 0v-.317c1.63-.292 3-1.517 3-3.183c0-1.917-1.813-3.25-3.75-3.25c-1.376 0-2.25-.906-2.25-1.75s.874-1.75 2.25-1.75c1.377 0 2.25.906 2.25 1.75a.75.75 0 0 0 1.5 0c0-1.666-1.37-2.891-3-3.183z",
           clipRule: "evenodd"
@@ -18992,7 +18964,7 @@ ${buildStyles(styles)}}
       )
     );
   }
-  function LinkIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function LinkIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -19004,20 +18976,20 @@ ${buildStyles(styles)}}
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           d: "M16.32 14.72a1 1 0 0 1 0-1.41l2.51-2.51a3.98 3.98 0 0 0-5.62-5.63l-2.52 2.51a1 1 0 0 1-1.41-1.41l2.52-2.52a5.98 5.98 0 0 1 8.45 8.46l-2.52 2.51a1 1 0 0 1-1.41 0ZM7.68 9.29a1 1 0 0 1 0 1.41l-2.52 2.51a3.98 3.98 0 1 0 5.63 5.63l2.51-2.52a1 1 0 0 1 1.42 1.42l-2.52 2.51a5.98 5.98 0 0 1-8.45-8.45l2.51-2.51a1 1 0 0 1 1.42 0Z"
         }
       ),
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           d: "M14.7 10.7a1 1 0 0 0-1.4-1.4l-4 4a1 1 0 1 0 1.4 1.4l4-4Z"
         }
       )
     );
   }
-  function ArrowSmallRightIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function ArrowSmallRightIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -19029,13 +19001,13 @@ ${buildStyles(styles)}}
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           d: "M20.7 12.7a1 1 0 0 0 0-1.4l-5-5a1 1 0 1 0-1.4 1.4l3.29 3.3H4a1 1 0 1 0 0 2h13.59l-3.3 3.3a1 1 0 0 0 1.42 1.4l5-5Z"
         }
       )
     );
   }
-  function CircleWarningIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL, secondaryColor = "transparent", ...props }) {
+  function CircleWarningIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT, secondaryColor = "transparent", ...props }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -19051,13 +19023,13 @@ ${buildStyles(styles)}}
           cx: "12",
           cy: "12",
           r: "10",
-          fill: typeof secondaryColor === "string" ? secondaryColor : secondaryColor.css
+          fill: typeof secondaryColor === "string" ? secondaryColor : secondaryColor?.css
         }
       ),
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           fillRule: "evenodd",
           d: "M12 23a11 11 0 1 0 0-22 11 11 0 0 0 0 22Zm1.44-15.94L13.06 14a1.06 1.06 0 0 1-2.12 0l-.38-6.94a1 1 0 0 1 1-1.06h.88a1 1 0 0 1 1 1.06Zm-.19 10.69a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0Z",
           clipRule: "evenodd"
@@ -19086,7 +19058,7 @@ ${buildStyles(styles)}}
       callback?.(event);
     };
   }
-  function JSONIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function JSONIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -19098,7 +19070,7 @@ ${buildStyles(styles)}}
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           d: "M284.096 382.755c126.41-96.067 39.609-294.896-69.513-277.86C9.315 136.94 60.658 422.223 129.047 475.258C22.042 422.39-22.426 291.217 10.82 179.74C37.161 91.427 119.287 3.962 243.708.61c196.367-17.91 254.873 364.165 40.388 382.145M219.247 130.2c-112.3 5.728-136.522 119.158-127.29 201.114c13.467 119.577 89.242 197.216 207.553 177.684c181.777-30.01 331.904-318.726 76.441-480.015c94.11 109.624 94.983 331.713-59.624 371.13c-142.981 43.102-208.076-187.725-97.08-269.913"
         }
       )
@@ -19172,7 +19144,7 @@ ${buildStyles(styles)}}
       }
     );
   }
-  function MoreIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function MoreIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -19184,7 +19156,7 @@ ${buildStyles(styles)}}
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           fillRule: "evenodd",
           d: "M4 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm10-2a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm8 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z",
           clipRule: "evenodd"
@@ -19306,7 +19278,7 @@ ${buildStyles(styles)}}
       )
     );
   }
-  function RedoIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function RedoIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -19319,7 +19291,7 @@ ${buildStyles(styles)}}
         "g",
         {
           fill: "none",
-          stroke: typeof color === "string" ? color : color.css,
+          stroke: typeof color === "string" ? color : color?.css,
           strokeLinecap: "round",
           strokeLinejoin: "round",
           strokeWidth: "2"
@@ -19514,7 +19486,7 @@ ${buildStyles(styles)}}
       {
         tag: "h2",
         variant: size === "md" ? "heading-lg/bold" : "heading-md/bold",
-        color: "header-primary",
+        color: "text-strong",
         lineClamp: 2
       },
       pack.name
@@ -19711,21 +19683,8 @@ ${buildStyles(styles)}}
   function PackBadge({ pack, location }) {
     const registry = usePackRegistry();
     const isUnknown = require$$0$1.useMemo(() => registry.isUnknown(pack), []);
-    if (pack.installed && registry.hasUpdate(pack.installed)) return /* @__PURE__ */ BdApi.React.createElement(
-      TextBadge,
-      {
-        className: "BA__packBadge",
-        text: "Update available",
-        color: "var(--bg-brand)"
-      }
-    );
-    if (location === PackContentLocation.CATALOG && isUnknown) return /* @__PURE__ */ BdApi.React.createElement(
-      TextBadge,
-      {
-        className: "BA__packBadge",
-        text: "New"
-      }
-    );
+    if (pack.installed && registry.hasUpdate(pack.installed)) return /* @__PURE__ */ BdApi.React.createElement("div", { className: "BA__packBadge" }, /* @__PURE__ */ BdApi.React.createElement(Badge, { type: { text: "Update available" } }));
+    if (location === PackContentLocation.CATALOG && isUnknown) return /* @__PURE__ */ BdApi.React.createElement("div", { className: "BA__packBadge" }, /* @__PURE__ */ BdApi.React.createElement(Badge, { type: "new" }));
     return null;
   }
   function PackMeta$1({ pack, onShowSource = () => PackManager.showInFolder(pack.filename) }) {
@@ -19766,8 +19725,7 @@ ${buildStyles(styles)}}
           cancelText: "Cancel",
           onConfirm: () => registry.delete(pack.filename)
         },
-        /* @__PURE__ */ BdApi.React.createElement(Text$1, { variant: "text-md/normal" }, "Are you sure you want to delete pack ", /* @__PURE__ */ BdApi.React.createElement("b", null, pack.name), "?", isPublished ? " It can always be reinstalled from the Catalog." : " It is not published in the Catalog, so it cannot be reinstalled."),
-        affectedModules.length > 0 && /* @__PURE__ */ BdApi.React.createElement(Text$1, { variant: "text-md/normal", className: DiscordClasses.Margins.marginTop8 }, "Animations of this pack are currently applied for: ", affectedModules.map((module2, i, { length }) => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, /* @__PURE__ */ BdApi.React.createElement("b", null, module2.name), i < length - 1 ? ", " : ".")), " They will be automatically deselected.")
+        /* @__PURE__ */ BdApi.React.createElement(Stack$1, { gap: 8 }, /* @__PURE__ */ BdApi.React.createElement(Text$1, { variant: "text-md/normal" }, "Are you sure you want to delete pack ", /* @__PURE__ */ BdApi.React.createElement("b", null, pack.name), "?", isPublished ? " It can always be reinstalled from the Catalog." : " It is not published in the Catalog, so it cannot be reinstalled."), affectedModules.length > 0 && /* @__PURE__ */ BdApi.React.createElement(Text$1, { variant: "text-md/normal" }, "Animations of this pack are currently applied for: ", affectedModules.map((module2, i, { length }) => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, /* @__PURE__ */ BdApi.React.createElement("b", null, module2.name), i < length - 1 ? ", " : ".")), " They will be automatically deselected."))
       ));
     }, [pack]);
     return /* @__PURE__ */ BdApi.React.createElement(
@@ -19868,7 +19826,7 @@ ${buildStyles(styles)}}
           {
             size: "md",
             color: colors.STATUS_DANGER,
-            secondaryColor: "var(--white-400)"
+            secondaryColor: "#FFFFFF"
           }
         )
       ), /* @__PURE__ */ BdApi.React.createElement(
@@ -22465,19 +22423,22 @@ img.BAP__viewport {
     align-items: center;
     justify-content: center;
     gap: 4px;
-    background-color: var(--input-background);
+    background-color: var(--input-background-default);
     border-style: solid;
-    border-color: var(--input-border);
+    border-color: var(--input-border-default);
     border-top-width: 1px;
     border-bottom-width: 1px;
-    color: var(--interactive-normal);
+    color: var(--text-subtle);
     flex: 1;
+    transition: background-color .1s, border-color .1s, color .1s;
 }
 .BA__buttonGroupItem:hover {
-    background-color: var(--background-modifier-hover);
+    background-color: var(--background-mod-subtle);
+    border-color: var(--input-border-hover);
+    color: var(--text-strong);
 }
 .BA__buttonGroupItem.BA__buttonGroupItem--disabled {
-    color: var(--interactive-muted);
+    color: var(--text-muted);
     cursor: not-allowed;
 }    
 
@@ -22514,12 +22475,12 @@ img.BAP__viewport {
 .BA__buttonGroupItem.BA__buttonGroupItem--selected {
     background-color: var(--brand-500);
     border-color: var(--brand-500);
-    color: var(--white-500);
+    color: #FFFFFF;
 }
 .BA__buttonGroup.BA__buttonGroup--single .BA__buttonGroupItem.BA__buttonGroupItem--selected {
     cursor: default;
 }``ButtonGroup`;
-  function DoorEnterIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function DoorEnterIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -22531,14 +22492,14 @@ img.BAP__viewport {
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           d: "M9 12a1 1 0 0 1 1 1v2a1 1 0 1 1-2 0v-2a1 1 0 0 1 1-1Z"
         }
       ),
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           fillRule: "evenodd",
           d: "M2.75 3.02A3 3 0 0 1 5 2h10a3 3 0 0 1 3 3v7.5a.5.5 0 0 1-.5.5H16a3 3 0 0 0-3 3v3.5a2.5 2.5 0 0 1-3.68 2.2l-5.8-3.09A3 3 0 0 1 2 16V5a3 3 0 0 1 .76-1.98Zm1.3 1.95A.04.04 0 0 0 4 5v11c0 .36.2.68.49.86l5.77 3.08a.5.5 0 0 0 .74-.44V8.02a.5.5 0 0 0-.32-.46l-6.63-2.6Z",
           clipRule: "evenodd"
@@ -22547,13 +22508,13 @@ img.BAP__viewport {
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           d: "M15 18.5V22a1 1 0 1 0 2 0v-3.59l4.3 4.3a1 1 0 0 0 1.4-1.42L18.42 17H22a1 1 0 1 0 0-2h-6a1 1 0 0 0-1 1v2.5Z"
         }
       )
     );
   }
-  function DoorExitIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function DoorExitIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -22565,14 +22526,14 @@ img.BAP__viewport {
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           d: "M9 12a1 1 0 0 1 1 1v2a1 1 0 1 1-2 0v-2a1 1 0 0 1 1-1Z"
         }
       ),
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           fillRule: "evenodd",
           d: "M2.75 3.02A3 3 0 0 1 5 2h10a3 3 0 0 1 3 3v7.64c0 .44-.55.7-.95.55a3 3 0 0 0-3.17 4.93l.02.03a.5.5 0 0 1-.35.85h-.05a.5.5 0 0 0-.5.5 2.5 2.5 0 0 1-3.68 2.2l-5.8-3.09A3 3 0 0 1 2 16V5a3 3 0 0 1 .76-1.98Zm1.3 1.95A.04.04 0 0 0 4 5v11c0 .36.2.68.49.86l5.77 3.08a.5.5 0 0 0 .74-.44V8.02a.5.5 0 0 0-.32-.46l-6.63-2.6Z",
           clipRule: "evenodd"
@@ -22581,7 +22542,7 @@ img.BAP__viewport {
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           d: "M15.3 16.7a1 1 0 0 1 1.4-1.4l4.3 4.29V16a1 1 0 1 1 2 0v6a1 1 0 0 1-1 1h-6a1 1 0 1 1 0-2h3.59l-4.3-4.3Z"
         }
       )
@@ -22688,7 +22649,7 @@ img.BAP__viewport {
 .BA__animationToggleGroupItem:last-of-type {
     border-bottom-right-radius: 8px !important;
 }``AnimationToggleControl`;
-  function SettingsIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function SettingsIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -22700,7 +22661,7 @@ img.BAP__viewport {
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           fillRule: "evenodd",
           d: "M10.56 1.1c-.46.05-.7.53-.64.98.18 1.16-.19 2.2-.98 2.53-.8.33-1.79-.15-2.49-1.1-.27-.36-.78-.52-1.14-.24-.77.59-1.45 1.27-2.04 2.04-.28.36-.12.87.24 1.14.96.7 1.43 1.7 1.1 2.49-.33.8-1.37 1.16-2.53.98-.45-.07-.93.18-.99.64a11.1 11.1 0 0 0 0 2.88c.06.46.54.7.99.64 1.16-.18 2.2.19 2.53.98.33.8-.14 1.79-1.1 2.49-.36.27-.52.78-.24 1.14.59.77 1.27 1.45 2.04 2.04.36.28.87.12 1.14-.24.7-.95 1.7-1.43 2.49-1.1.8.33 1.16 1.37.98 2.53-.07.45.18.93.64.99a11.1 11.1 0 0 0 2.88 0c.46-.06.7-.54.64-.99-.18-1.16.19-2.2.98-2.53.8-.33 1.79.14 2.49 1.1.27.36.78.52 1.14.24.77-.59 1.45-1.27 2.04-2.04.28-.36.12-.87-.24-1.14-.96-.7-1.43-1.7-1.1-2.49.33-.8 1.37-1.16 2.53-.98.45.07.93-.18.99-.64a11.1 11.1 0 0 0 0-2.88c-.06-.46-.54-.7-.99-.64-1.16.18-2.2-.19-2.53-.98-.33-.8.14-1.79 1.1-2.49.36-.27.52-.78.24-1.14a11.07 11.07 0 0 0-2.04-2.04c-.36-.28-.87-.12-1.14.24-.7.96-1.7 1.43-2.49 1.1-.8-.33-1.16-1.37-.98-2.53.07-.45-.18-.93-.64-.99a11.1 11.1 0 0 0-2.88 0ZM16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z",
           clipRule: "evenodd"
@@ -22708,7 +22669,7 @@ img.BAP__viewport {
       )
     );
   }
-  function CollapseListIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function CollapseListIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -22720,7 +22681,7 @@ img.BAP__viewport {
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           fillRule: "evenodd",
           d: "M7.3 2.3a1 1 0 0 1 1.4 0L12 5.58l3.3-3.3a1 1 0 1 1 1.4 1.42l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 0-1.42ZM2 12a1 1 0 0 1 1-1h18a1 1 0 1 1 0 2H3a1 1 0 0 1-1-1ZM8.7 21.7a1 1 0 0 1-1.4-1.4l4-4a1 1 0 0 1 1.4 0l4 4a1 1 0 0 1-1.4 1.4L12 18.42l-3.3 3.3Z",
           clipRule: "evenodd"
@@ -22852,15 +22813,6 @@ img.BAP__viewport {
   }
   var shim = { exports: {} };
   var useSyncExternalStoreShim_production = {};
-  /**
-   * @license React
-   * use-sync-external-store-shim.production.js
-   *
-   * Copyright (c) Meta Platforms, Inc. and affiliates.
-   *
-   * This source code is licensed under the MIT license found in the
-   * LICENSE file in the root directory of this source tree.
-   */
   var hasRequiredUseSyncExternalStoreShim_production;
   function requireUseSyncExternalStoreShim_production() {
     if (hasRequiredUseSyncExternalStoreShim_production) return useSyncExternalStoreShim_production;
@@ -22910,20 +22862,11 @@ img.BAP__viewport {
     return useSyncExternalStoreShim_production;
   }
   var useSyncExternalStoreShim_development = {};
-  /**
-   * @license React
-   * use-sync-external-store-shim.development.js
-   *
-   * Copyright (c) Meta Platforms, Inc. and affiliates.
-   *
-   * This source code is licensed under the MIT license found in the
-   * LICENSE file in the root directory of this source tree.
-   */
   var hasRequiredUseSyncExternalStoreShim_development;
   function requireUseSyncExternalStoreShim_development() {
     if (hasRequiredUseSyncExternalStoreShim_development) return useSyncExternalStoreShim_development;
     hasRequiredUseSyncExternalStoreShim_development = 1;
-    "production" !== process.env.NODE_ENV && function() {
+    "production" !== process.env.NODE_ENV && (function() {
       function is(x, y) {
         return x === y && (0 !== x || 1 / x === 1 / y) || x !== x && y !== y;
       }
@@ -22979,7 +22922,7 @@ img.BAP__viewport {
       var React = require$$0$1, objectIs = "function" === typeof Object.is ? Object.is : is, useState = React.useState, useEffect = React.useEffect, useLayoutEffect = React.useLayoutEffect, useDebugValue = React.useDebugValue, didWarnOld18Alpha = false, didWarnUncachedGetSnapshot = false, shim2 = "undefined" === typeof window || "undefined" === typeof window.document || "undefined" === typeof window.document.createElement ? useSyncExternalStore$1 : useSyncExternalStore$2;
       useSyncExternalStoreShim_development.useSyncExternalStore = void 0 !== React.useSyncExternalStore ? React.useSyncExternalStore : shim2;
       "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
-    }();
+    })();
     return useSyncExternalStoreShim_development;
   }
   var hasRequiredShim;
@@ -23067,17 +23010,32 @@ img.BAP__viewport {
     );
   }
   function SettingControl({ label, doc: doc2, onReset, children: children2 }) {
-    return /* @__PURE__ */ BdApi.React.createElement(FormItem, { className: "BA__settingControl" }, /* @__PURE__ */ BdApi.React.createElement(FormTitle, { tag: "h5", className: "BA__settingControlHeader" }, /* @__PURE__ */ BdApi.React.createElement("span", null, label), doc2 && /* @__PURE__ */ BdApi.React.createElement(Hint, { href: Documentation.getSettingUrl(doc2) }), onReset && /* @__PURE__ */ BdApi.React.createElement(
-      IconButton,
+    return /* @__PURE__ */ BdApi.React.createElement("div", { className: "BA__settingControl" }, /* @__PURE__ */ BdApi.React.createElement(
+      Text$1,
       {
-        className: "BA__settingControlReset",
-        tooltip: "Reset",
-        onClick: onReset
+        className: "BA__settingControlHeader",
+        variant: "text-md/semibold",
+        color: "text-strong"
       },
-      /* @__PURE__ */ BdApi.React.createElement(RedoIcon, { size: "xs", color: "currentColor" })
-    )), children2);
+      /* @__PURE__ */ BdApi.React.createElement("span", null, label),
+      doc2 && /* @__PURE__ */ BdApi.React.createElement(Hint, { href: Documentation.getSettingUrl(doc2) }),
+      onReset && /* @__PURE__ */ BdApi.React.createElement(
+        IconButton,
+        {
+          className: "BA__settingControlReset",
+          tooltip: "Reset",
+          onClick: onReset
+        },
+        /* @__PURE__ */ BdApi.React.createElement(RedoIcon, { size: "xs", color: "currentColor" })
+      )
+    ), children2);
   }
-  css`.BA__settingControlHeader {
+  css`.BA__settingControl {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.BA__settingControlHeader {
     display: flex;
     align-items: center;
     gap: 4px;
@@ -23105,9 +23063,11 @@ img.BAP__viewport {
       const value = super.render();
       if (forceShowBubble) {
         TinyPatcher.after(value.props, "children", (self2, args, value2) => {
-          const tooltip = findInReactTree(value2, (m) => m?.type === Tooltip$1);
-          if (!tooltip) return;
-          tooltip.props.text = onValueRender(this.state.value);
+          TinyPatcher.after(value2.props, "children", (self22, args2, value3) => {
+            const tooltip = findInReactTree(value3, (m) => m?.type === Tooltip$1);
+            if (!tooltip) return;
+            tooltip.props.text = onValueRender(this.state.value);
+          });
         });
       }
       return value;
@@ -23194,7 +23154,7 @@ img.BAP__viewport {
         onValueRender: (value2) => value2.toFixed(fractionDigits),
         value,
         initialValue: value,
-        onValueChange: (value2) => onChange(Number(value2.toFixed(fractionDigits))),
+        asValueChanges: (value2) => onChange(Number(value2.toFixed(fractionDigits))),
         ...props
       }
     ), /* @__PURE__ */ BdApi.React.createElement(
@@ -23311,7 +23271,6 @@ img.BAP__viewport {
     display: flex;
     align-items: center;
     gap: 16px;
-    margin-top: 8px;
 }
 .BA__easingFieldLabel {
     text-transform: uppercase;
@@ -23362,7 +23321,6 @@ img.BAP__viewport {
     return /* @__PURE__ */ BdApi.React.createElement(
       Checkbox,
       {
-        className: DiscordClasses.Margins.marginTop8,
         value,
         onChange: (_, value2) => onChange(value2),
         type: CheckboxTypes.INVERTED
@@ -23413,7 +23371,7 @@ img.BAP__viewport {
     { value: false, name: "Away", desc: "Move away from the anchor" },
     { value: true, name: "Towards", desc: "Move towards the anchor" }
   ];
-  function HorizontalIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function HorizontalIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -23426,7 +23384,7 @@ img.BAP__viewport {
         "path",
         {
           fill: "none",
-          stroke: typeof color === "string" ? color : color.css,
+          stroke: typeof color === "string" ? color : color?.css,
           strokeLinecap: "round",
           strokeLinejoin: "round",
           strokeWidth: "2",
@@ -23435,7 +23393,7 @@ img.BAP__viewport {
       )
     );
   }
-  function VerticalIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function VerticalIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -23448,7 +23406,7 @@ img.BAP__viewport {
         "path",
         {
           fill: "none",
-          stroke: typeof color === "string" ? color : color.css,
+          stroke: typeof color === "string" ? color : color?.css,
           strokeLinecap: "round",
           strokeLinejoin: "round",
           strokeWidth: "2",
@@ -23457,7 +23415,7 @@ img.BAP__viewport {
       )
     );
   }
-  function DepthIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function DepthIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -23469,14 +23427,14 @@ img.BAP__viewport {
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           strokeWidth: "2",
-          d: "M12,22C12,22,12,22,12,22L12,22c-0.5,0-0.9-0.1-1.2-0.2c-0.4-0.2-0.7-0.4-1-0.7l-6.6-6.9c-0.6-0.7-0.2-1.6,0.9-2.2\r\n	c1-0.5,2.4-0.5,3,0l2.5,2l1.2-10.7L9.3,3.7C8.7,3.9,8,3.9,7.6,3.7C7.2,3.5,7.3,3.3,7.8,3.1l3.5-1c0.1,0,0.2-0.1,0.3-0.1\r\n	c0.1,0,0.2,0,0.4,0l0,0c0,0,0,0,0,0l0,0c0.1,0,0.3,0,0.4,0c0.1,0,0.2,0,0.3,0.1l3.5,1c0.5,0.2,0.6,0.4,0.2,0.6\r\n	c-0.4,0.2-1.2,0.2-1.7,0l-1.6-0.5l1.2,10.7l2.5-2c0.7-0.5,2-0.5,3,0c1.1,0.6,1.6,1.5,0.9,2.2l-6.6,6.9c-0.3,0.3-0.6,0.5-1,0.7\r\n	C12.9,21.9,12.5,22,12,22L12,22C12,22,12,22,12,22z"
+          d: "M12,22C12,22,12,22,12,22L12,22c-0.5,0-0.9-0.1-1.2-0.2c-0.4-0.2-0.7-0.4-1-0.7l-6.6-6.9c-0.6-0.7-0.2-1.6,0.9-2.2\n	c1-0.5,2.4-0.5,3,0l2.5,2l1.2-10.7L9.3,3.7C8.7,3.9,8,3.9,7.6,3.7C7.2,3.5,7.3,3.3,7.8,3.1l3.5-1c0.1,0,0.2-0.1,0.3-0.1\n	c0.1,0,0.2,0,0.4,0l0,0c0,0,0,0,0,0l0,0c0.1,0,0.3,0,0.4,0c0.1,0,0.2,0,0.3,0.1l3.5,1c0.5,0.2,0.6,0.4,0.2,0.6\n	c-0.4,0.2-1.2,0.2-1.7,0l-1.6-0.5l1.2,10.7l2.5-2c0.7-0.5,2-0.5,3,0c1.1,0.6,1.6,1.5,0.9,2.2l-6.6,6.9c-0.3,0.3-0.6,0.5-1,0.7\n	C12.9,21.9,12.5,22,12,22L12,22C12,22,12,22,12,22z"
         }
       )
     );
   }
-  function RepeatIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function RepeatIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -23489,7 +23447,7 @@ img.BAP__viewport {
         "g",
         {
           fill: "none",
-          stroke: typeof color === "string" ? color : color.css,
+          stroke: typeof color === "string" ? color : color?.css,
           strokeLinecap: "round",
           strokeLinejoin: "round",
           strokeWidth: "2"
@@ -23500,7 +23458,7 @@ img.BAP__viewport {
       )
     );
   }
-  function ArrowLeftToLineIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function ArrowLeftToLineIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -23513,7 +23471,7 @@ img.BAP__viewport {
         "path",
         {
           fill: "none",
-          stroke: typeof color === "string" ? color : color.css,
+          stroke: typeof color === "string" ? color : color?.css,
           strokeLinecap: "round",
           strokeLinejoin: "round",
           strokeWidth: "2",
@@ -23522,7 +23480,7 @@ img.BAP__viewport {
       )
     );
   }
-  function ArrowRightFromLineIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function ArrowRightFromLineIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -23535,7 +23493,7 @@ img.BAP__viewport {
         "path",
         {
           fill: "none",
-          stroke: typeof color === "string" ? color : color.css,
+          stroke: typeof color === "string" ? color : color?.css,
           strokeLinecap: "round",
           strokeLinejoin: "round",
           strokeWidth: "2",
@@ -23597,7 +23555,6 @@ img.BAP__viewport {
     return /* @__PURE__ */ BdApi.React.createElement(
       ButtonGroup,
       {
-        className: DiscordClasses.Margins.marginTop8,
         size: "lg",
         options,
         selected: value,
@@ -23642,7 +23599,6 @@ img.BAP__viewport {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-top: 8px;
 }
 .BA__directionAxisControlSelect {
     flex-grow: 1;
@@ -23709,10 +23665,17 @@ img.BAP__viewport {
       {
         tag: "span",
         variant: "heading-md/normal",
-        color: "header-muted"
+        color: "text-muted"
       },
       subtitle
-    ), headerAfter), /* @__PURE__ */ BdApi.React.createElement("div", { className: "BA__animationSettingsHeaderControls" }, onReset && /* @__PURE__ */ BdApi.React.createElement(IconButton, { tooltip: "Reset all", onClick: onReset }, /* @__PURE__ */ BdApi.React.createElement(RedoIcon, { size: "sm", color: "currentColor" })), typeof enabled === "boolean" && /* @__PURE__ */ BdApi.React.createElement(Tooltip$1, { text: switchTooltip, hideOnClick: false }, (props) => /* @__PURE__ */ BdApi.React.createElement("div", { ...props }, /* @__PURE__ */ BdApi.React.createElement(Switch$1, { checked: enabled, disabled: !setEnabled, onChange: setEnabled })))))));
+    ), headerAfter), /* @__PURE__ */ BdApi.React.createElement("div", { className: "BA__animationSettingsHeaderControls" }, onReset && /* @__PURE__ */ BdApi.React.createElement(IconButton, { tooltip: "Reset all", onClick: onReset }, /* @__PURE__ */ BdApi.React.createElement(RedoIcon, { size: "sm", color: "currentColor" })), typeof enabled === "boolean" && /* @__PURE__ */ BdApi.React.createElement(Tooltip$1, { text: switchTooltip, hideOnClick: false }, (props) => /* @__PURE__ */ BdApi.React.createElement("div", { ...props }, /* @__PURE__ */ BdApi.React.createElement(
+      SwitchIndicator,
+      {
+        checked: enabled,
+        disabled: !setEnabled,
+        onChange: setEnabled
+      }
+    )))))));
   }
   function AnimationSettings({ headers, settings }) {
     return /* @__PURE__ */ BdApi.React.createElement("div", { className: "BA__animationSettings" }, /* @__PURE__ */ BdApi.React.createElement(AnimationSettingsHeader, { headers }), settings.map(Setting));
@@ -23841,7 +23804,7 @@ img.BAP__viewport {
       update
     };
   }
-  function CircleInfoIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL, secondaryColor = "transparent" }) {
+  function CircleInfoIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT, secondaryColor = "transparent" }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -23856,13 +23819,13 @@ img.BAP__viewport {
           cx: "12",
           cy: "12",
           r: "10",
-          fill: typeof secondaryColor === "string" ? secondaryColor : secondaryColor.css
+          fill: typeof secondaryColor === "string" ? secondaryColor : secondaryColor?.css
         }
       ),
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           fillRule: "evenodd",
           d: "M23 12a11 11 0 1 1-22 0 11 11 0 0 1 22 0Zm-9.5-4.75a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0Zm-.77 3.96a1 1 0 1 0-1.96-.42l-1.04 4.86a2.77 2.77 0 0 0 4.31 2.83l.24-.17a1 1 0 1 0-1.16-1.62l-.24.17a.77.77 0 0 1-1.2-.79l1.05-4.86Z",
           clipRule: "evenodd"
@@ -24356,7 +24319,7 @@ img.BAP__viewport {
 :is(.BA__fade-enter-active, .BA__fade-exit-active) > * {
     transition: scale .4s;
 }``AnimationCard`;
-  function EyeIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function EyeIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -24368,14 +24331,14 @@ img.BAP__viewport {
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           d: "M15.56 11.77c.2-.1.44.02.44.23a4 4 0 1 1-4-4c.21 0 .33.25.23.44a2.5 2.5 0 0 0 3.32 3.32Z"
         }
       ),
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           fillRule: "evenodd",
           d: "M22.89 11.7c.07.2.07.4 0 .6C22.27 13.9 19.1 21 12 21c-7.11 0-10.27-7.11-10.89-8.7a.83.83 0 0 1 0-.6C1.73 10.1 4.9 3 12 3c7.11 0 10.27 7.11 10.89 8.7Zm-4.5-3.62A15.11 15.11 0 0 1 20.85 12c-.38.88-1.18 2.47-2.46 3.92C16.87 17.62 14.8 19 12 19c-2.8 0-4.87-1.38-6.39-3.08A15.11 15.11 0 0 1 3.15 12c.38-.88 1.18-2.47 2.46-3.92C7.13 6.38 9.2 5 12 5c2.8 0 4.87 1.38 6.39 3.08Z",
           clipRule: "evenodd"
@@ -24383,7 +24346,7 @@ img.BAP__viewport {
       )
     );
   }
-  function RefreshIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function RefreshIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -24395,7 +24358,7 @@ img.BAP__viewport {
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           fillRule: "evenodd",
           d: "M21 2a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-6a1 1 0 1 1 0-2h3.93A8 8 0 0 0 6.97 5.78a1 1 0 0 1-1.26-1.56A9.98 9.98 0 0 1 20 6V3a1 1 0 0 1 1-1ZM3 22a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H5.07a8 8 0 0 0 11.96 2.22 1 1 0 1 1 1.26 1.56A9.99 9.99 0 0 1 4 18v3a1 1 0 0 1-1 1Z",
           clipRule: "evenodd"
@@ -24541,7 +24504,7 @@ img.BAP__viewport {
     gap: 8px;
     margin-top: 4px;
 }``AnimationPreview`;
-  function XIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function XIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -24553,13 +24516,13 @@ img.BAP__viewport {
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           d: "M17.3 18.7a1 1 0 0 0 1.4-1.4L13.42 12l5.3-5.3a1 1 0 0 0-1.42-1.4L12 10.58l-5.3-5.3a1 1 0 0 0-1.4 1.42L10.58 12l-5.3 5.3a1 1 0 1 0 1.42 1.4L12 13.42l5.3 5.3Z"
         }
       )
     );
   }
-  function ChevronSmallLeftIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function ChevronSmallLeftIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -24571,13 +24534,13 @@ img.BAP__viewport {
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           d: "M14.7 5.3a1 1 0 0 1 0 1.4L9.42 12l5.3 5.3a1 1 0 0 1-1.42 1.4l-6-6a1 1 0 0 1 0-1.4l6-6a1 1 0 0 1 1.42 0Z"
         }
       )
     );
   }
-  function ChevronSmallRightIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function ChevronSmallRightIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -24589,7 +24552,7 @@ img.BAP__viewport {
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           d: "M9.3 5.3a1 1 0 0 0 0 1.4l5.29 5.3-5.3 5.3a1 1 0 1 0 1.42 1.4l6-6a1 1 0 0 0 0-1.4l-6-6a1 1 0 0 0-1.42 0Z"
         }
       )
@@ -24834,7 +24797,7 @@ img.BAP__viewport {
           module: module2,
           pack: loadedPack
         }
-      )), /* @__PURE__ */ BdApi.React.createElement("div", { className: "BA__packModalPreviewFooter" }, /* @__PURE__ */ BdApi.React.createElement(PackMeta, { pack })))))
+      )), /* @__PURE__ */ BdApi.React.createElement("div", { className: "BA__packModalPreviewFooter" }, /* @__PURE__ */ BdApi.React.createElement(ErrorBoundary, { noop: true }, /* @__PURE__ */ BdApi.React.createElement(PackMeta, { pack }))))))
     );
   }
   css`.BA__packModal {
@@ -25399,7 +25362,6 @@ img.BAP__viewport {
       id: m.id,
       label: m.name
     }));
-    const toggleSwitch = /* @__PURE__ */ BdApi.React.createElement(Switch$1, { checked: enabled, onChange: setEnabled });
     const handleSetSettings = (pack, animation, type) => (value) => Config.pack(pack.slug).setAnimationConfig(animation.key, module2.id, type, value);
     const defaultSettings = (animation, type) => module2.buildDefaultSettings(animation, type);
     const handleResetSettings = (pack, animation, type) => {
@@ -25469,11 +25431,10 @@ img.BAP__viewport {
       selected.exit.error
     ].filter(Boolean);
     const [alertDismissed, setAlertDismissed] = useDismissible(`moduleAlert:${module2.id}`);
-    return /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, module2.alert && !alertDismissed && /* @__PURE__ */ BdApi.React.createElement(
+    return /* @__PURE__ */ BdApi.React.createElement(Stack$1, { gap: 8 }, module2.alert && !alertDismissed && /* @__PURE__ */ BdApi.React.createElement(
       DismissibleAlert,
       {
         messageType: AlertTypes.WARNING,
-        className: DiscordClasses.Margins.marginBottom8,
         onDismiss: () => setAlertDismissed(true)
       },
       module2.alert
@@ -25497,20 +25458,20 @@ img.BAP__viewport {
         breadcrumbs,
         activeId: module2.id,
         renderCustomBreadcrumb: ({ label }, active) => /* @__PURE__ */ BdApi.React.createElement(
-          FormTitle,
+          Text$1,
           {
-            tag: "h1",
+            variant: "heading-lg/semibold",
             className: `BA__moduleSettingsBreadcrumb ${active ? "BA__moduleSettingsBreadcrumb--active" : ""}`
           },
           label
         ),
         onBreadcrumbClick: ({ id }) => setSection2(id)
       }
-    ), /* @__PURE__ */ BdApi.React.createElement(Tooltip$1, { text: `${enabled ? "Disable" : "Enable"} ${module2.name} animations`, hideOnClick: false }, (props2) => /* @__PURE__ */ BdApi.React.createElement("div", { ...props2 }, toggleSwitch))), module2.description && /* @__PURE__ */ BdApi.React.createElement(FormText, { type: FormTextTypes.DESCRIPTION, className: DiscordClasses.Margins.marginTop8 }, typeof module2.description === "function" ? module2.description(setSection2) : module2.description), module2.controls && /* @__PURE__ */ BdApi.React.createElement("div", { className: DiscordClasses.Margins.marginTop8 }, module2.controls({ module: module2 })), childModules.map((m) => /* @__PURE__ */ BdApi.React.createElement(Clickable, { tag: "div", onClick: () => setSection2(m.id) }, /* @__PURE__ */ BdApi.React.createElement(
-      FormTitle,
+    ), /* @__PURE__ */ BdApi.React.createElement(Tooltip$1, { text: `${enabled ? "Disable" : "Enable"} ${module2.name} animations`, hideOnClick: false }, (props2) => /* @__PURE__ */ BdApi.React.createElement("div", { ...props2 }, /* @__PURE__ */ BdApi.React.createElement(SwitchIndicator, { checked: enabled, onChange: setEnabled })))), module2.description && /* @__PURE__ */ BdApi.React.createElement(Text$1, { variant: "text-sm/normal" }, typeof module2.description === "function" ? module2.description(setSection2) : module2.description), module2.controls && /* @__PURE__ */ BdApi.React.createElement("div", null, module2.controls({ module: module2 })), childModules.map((m) => /* @__PURE__ */ BdApi.React.createElement(Clickable, { tag: "div", onClick: () => setSection2(m.id) }, /* @__PURE__ */ BdApi.React.createElement(
+      Text$1,
       {
         key: m.id,
-        tag: "label",
+        variant: "text-md/normal",
         className: "BA__moduleSettingsLink"
       },
       m.name,
@@ -25519,7 +25480,6 @@ img.BAP__viewport {
     ))))));
   }
   css`.BA__moduleSettingsHeader {
-    margin-bottom: 32px;
     display: flex;
     gap: 20px;
 }
@@ -25529,6 +25489,9 @@ img.BAP__viewport {
 }
 
 .BA__moduleSettingsHeading {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     padding: 12px 0;
     flex-grow: 1;
 }
@@ -25540,23 +25503,22 @@ img.BAP__viewport {
 }
 
 .BA__moduleSettingsBreadcrumb {
-    margin-bottom: 0;
-    color: var(--header-muted);
+    color: var(--text-muted);
 }
 .BA__moduleSettingsBreadcrumb:not(.BA__moduleSettingsBreadcrumb--active) {
     cursor: pointer;
 }
 .BA__moduleSettingsBreadcrumb:hover,
 .BA__moduleSettingsBreadcrumb.BA__moduleSettingsBreadcrumb--active {
-    color: var(--header-primary);
+    color: var(--text-strong);
 }
 
 .BA__moduleSettingsLink {
     display: flex;
     align-items: center;
     gap: 2px;
-    color: var(--header-secondary);
-    margin-top: 16px;
+    color: var(--text-subtle);
+    margin-top: 8px;
     cursor: pointer;
 }
 .BA__moduleSettingsLink:hover {
@@ -25636,7 +25598,7 @@ img.BAP__viewport {
   function PackPicture(props) {
     return /* @__PURE__ */ BdApi.React.createElement("svg", { ...props, width: "160", height: "192", viewBox: "0 0 160 192", fill: "none", xmlns: "http://www.w3.org/2000/svg" }, /* @__PURE__ */ BdApi.React.createElement("g", { "clip-path": "url(#clip0_364_497)" }, /* @__PURE__ */ BdApi.React.createElement("path", { d: "M0.12699 43.8989C-0.863275 37.1255 4.04575 30.863 11.0915 29.911L113.152 16.1221C120.197 15.1702 126.712 19.8893 127.702 26.6627L147.873 164.635C148.863 171.409 143.954 177.671 136.908 178.623L39.1006 191.837C29.7063 193.107 21.0203 186.814 19.7001 177.784L0.12699 43.8989Z", fill: "url(#paint0_linear_364_497)" }), /* @__PURE__ */ BdApi.React.createElement("path", { d: "M10.1376 30.5728C9.06483 22.8787 14.3827 15.7647 22.0152 14.6834L124.678 0.138664C132.31 -0.942678 139.367 4.41806 140.44 12.1122L159.862 151.427C160.935 159.121 155.617 166.235 147.985 167.317L45.3224 181.861C37.6899 182.943 30.6329 177.582 29.5602 169.888L10.1376 30.5728Z", fill: "url(#paint1_linear_364_497)" }), /* @__PURE__ */ BdApi.React.createElement("path", { d: "M19.0979 33.7417C18.3346 28.2753 22.1183 23.221 27.5489 22.4527L121.946 9.09852C127.376 8.33025 132.397 12.1389 133.161 17.6054L151.402 148.258C152.165 153.725 148.382 158.779 142.951 159.547L48.5544 172.901C43.1238 173.67 38.1027 169.861 37.3394 164.395L19.0979 33.7417Z", fill: "white" }), /* @__PURE__ */ BdApi.React.createElement("path", { "fill-rule": "evenodd", "clip-rule": "evenodd", d: "M91.6298 136.767C104.339 149.771 112.123 129.724 110.522 118.561C108.63 105.362 94.2015 99.8837 86.5377 100.972C74.237 102.719 63.9659 114.548 65.9411 128.458C68.1366 143.918 82.7808 150.575 93.3682 149.072C90.9234 149.067 82.6965 148.49 79.9777 130.116C78.1393 117.689 81.5632 112.133 88.286 113.408C88.4372 113.441 95.755 115.191 97.0231 124.121C98.2858 133.013 91.6298 136.767 91.6298 136.767Z", fill: "url(#paint2_linear_364_497)" }), /* @__PURE__ */ BdApi.React.createElement("path", { "fill-rule": "evenodd", "clip-rule": "evenodd", d: "M88.2981 113.397C80.9178 111.971 73.1222 118.994 74.7716 130.609C77.4648 149.574 91.7633 149.3 93.4668 149.058C105.768 147.311 116.039 135.481 114.063 121.572C111.868 106.111 97.2237 99.4545 86.6364 100.958C89.5111 100.135 102.892 101.887 105.39 119.481C107.02 130.954 98.2947 138.565 91.6643 136.784C91.5131 136.751 84.1953 135.001 82.9272 126.071C81.6645 117.179 88.2981 113.397 88.2981 113.397Z", fill: "url(#paint3_linear_364_497)" }), /* @__PURE__ */ BdApi.React.createElement("path", { d: "M47.8507 42.0276C47.8349 41.9761 47.8165 41.9254 47.7955 41.8757C47.775 41.8263 47.752 41.778 47.7266 41.731C47.7016 41.6837 47.6741 41.6378 47.644 41.5935C47.6135 41.5495 47.5812 41.5068 47.5471 41.4665C47.5126 41.4252 47.4757 41.3858 47.4368 41.3487C47.399 41.312 47.3583 41.2768 47.3168 41.2438C47.2747 41.2126 47.231 41.1838 47.1858 41.1573C47.1407 41.129 47.0938 41.1021 47.0463 41.0783C46.9982 41.0547 46.9489 41.0336 46.8986 41.0152C46.5918 40.9079 46.262 40.8844 45.943 40.9471C45.4691 41.1322 45.0954 41.3724 44.8774 41.8574C44.8551 41.9067 44.8356 41.9571 44.819 42.0086C44.8031 42.0592 44.7885 42.1117 44.7771 42.1649C44.7655 42.2175 44.7565 42.2707 44.7504 42.3242C44.7443 42.3776 44.7413 42.4306 44.7396 42.4855C44.738 42.5404 44.7409 42.5904 44.7459 42.6475C44.7503 42.7011 44.7579 42.7544 44.7685 42.8072C44.7762 42.8608 44.7904 42.9092 44.8057 42.9648C44.8209 43.0204 44.8388 43.0652 44.8598 43.1169C44.9176 43.2604 44.9965 43.3944 45.094 43.5145C45.1259 43.5541 45.1607 43.5922 45.1964 43.6292C45.2322 43.6662 45.2707 43.7006 45.31 43.7329C45.3494 43.7662 45.3906 43.7971 45.4335 43.8257C45.4754 43.8544 45.5201 43.8806 45.5647 43.9058C45.6093 43.931 45.6564 43.9517 45.7045 43.9722C46.0531 44.1181 46.3754 44.1154 46.7427 44.0601C47.2113 43.8663 47.5776 43.6261 47.7889 43.1389C47.8103 43.0892 47.829 43.0385 47.8451 42.9869C47.8621 42.9358 47.8758 42.8837 47.886 42.8308C47.9183 42.6723 47.9271 42.51 47.9121 42.3489C47.9045 42.2954 47.8975 42.2459 47.8894 42.1892C47.8814 42.1326 47.8664 42.079 47.8507 42.0276Z", fill: "url(#paint4_linear_364_497)" }), /* @__PURE__ */ BdApi.React.createElement("path", { d: "M60.4791 52.2765C60.5 52.3274 60.5239 52.377 60.5507 52.425C60.576 52.4723 60.6039 52.5182 60.6343 52.5624C60.6638 52.6066 60.6958 52.649 60.7301 52.6896C60.7647 52.7305 60.8015 52.7694 60.8403 52.8064C60.8783 52.8435 60.9184 52.8785 60.9603 52.9112C61.0025 52.9445 61.0466 52.9754 61.0922 53.0039C61.1372 53.0322 61.184 53.0581 61.2315 53.0818C61.2792 53.1057 61.3281 53.1268 61.3782 53.1451C61.4281 53.164 61.4792 53.18 61.531 53.1927C61.8483 53.2683 62.1804 53.2539 62.4899 53.151C62.9429 52.929 63.2885 52.6466 63.4547 52.1521C63.4714 52.1012 63.4854 52.0493 63.4967 51.9969C63.5081 51.9438 63.5171 51.8889 63.5235 51.8376C63.5298 51.784 63.5334 51.7302 63.5342 51.6763C63.535 51.6226 63.5329 51.5714 63.5281 51.5153C63.5233 51.4592 63.5135 51.4123 63.5054 51.3556C63.4974 51.299 63.4826 51.2538 63.4674 51.1992C63.4523 51.1446 63.4343 51.0988 63.4133 51.0471C63.3936 50.9971 63.3709 50.9484 63.3452 50.9012C63.3207 50.8543 63.2932 50.8088 63.2637 50.7636C63.2341 50.7184 63.2019 50.6767 63.1678 50.6364C63.1337 50.596 63.0975 50.556 63.0596 50.5183C63.0217 50.4806 62.9831 50.4461 62.9394 50.4124C62.8985 50.3787 62.8555 50.3476 62.8106 50.3193C62.7663 50.2899 62.7204 50.2631 62.6731 50.239C62.6254 50.2142 62.5772 50.1927 62.527 50.1725C62.4776 50.153 62.4272 50.1363 62.3759 50.1225C62.0311 50.0254 61.7375 50.0671 61.3936 50.1402C60.942 50.3641 60.595 50.6436 60.429 51.1401C60.4127 51.1929 60.3983 51.2464 60.3857 51.3008C60.3742 51.3548 60.3654 51.4093 60.3595 51.4642C60.3529 51.5191 60.3495 51.5743 60.3494 51.6296C60.3489 51.6854 60.3513 51.7397 60.3562 51.7958C60.3608 51.8508 60.3686 51.9055 60.3794 51.9596C60.3872 52.0142 60.4042 52.0675 60.4202 52.1209C60.437 52.1738 60.4566 52.2257 60.4791 52.2765Z", fill: "url(#paint5_linear_364_497)" }), /* @__PURE__ */ BdApi.React.createElement("path", { d: "M58.6152 47.0068C58.6285 46.9597 58.6387 46.9131 58.6477 46.8656C58.6567 46.818 58.6614 46.7701 58.665 46.7212C58.6689 46.6732 58.6701 46.6249 58.6686 46.5767C58.6672 46.5284 58.6631 46.4802 58.6565 46.4323C58.6523 46.3843 58.6455 46.3365 58.6362 46.2891C58.6241 46.2415 58.6112 46.1949 58.5954 46.1499C58.5797 46.1042 58.5614 46.0594 58.5406 46.0158C58.5207 45.9718 58.4981 45.929 58.473 45.8877C58.374 45.7258 58.2418 45.5866 58.0851 45.4795C57.9284 45.3724 57.7507 45.2998 57.5639 45.2665C56.9696 45.1523 53.7461 45.6766 52.9821 45.8398C52.5752 46.0532 52.2879 46.3021 52.1465 46.7563C52.1318 46.8014 52.1205 46.8472 52.1103 46.8938C52.1001 46.9405 52.0933 46.9887 52.0884 47.0357C52.0835 47.0826 52.0808 47.1303 52.0804 47.1787C52.0799 47.2271 52.0823 47.274 52.087 47.3217C52.0917 47.3694 52.1003 47.4155 52.1071 47.4629C52.1161 47.5098 52.1276 47.5562 52.1416 47.602C52.1545 47.648 52.1704 47.6931 52.1891 47.7371C52.2069 47.7812 52.227 47.8243 52.2495 47.8662C52.333 48.0206 52.4466 48.1567 52.5837 48.2663C52.7208 48.3759 52.8785 48.4568 53.0475 48.5042C53.2375 48.5572 53.4351 48.5771 53.6318 48.5631C54.2106 48.5313 54.797 48.3975 55.3708 48.316C56.1712 48.2022 56.9789 48.1169 57.7717 47.9643C58.1838 47.7355 58.4792 47.477 58.6152 47.0068Z", fill: "url(#paint6_linear_364_497)" }), /* @__PURE__ */ BdApi.React.createElement("path", { d: "M104.452 55.4932C105.883 53.1573 106.79 49.8482 106.973 47.1232C107.196 43.8283 106.508 40.383 104.27 37.8487C102.357 35.6822 99.4849 34.4981 96.6252 34.3432C93.987 34.201 91.124 34.7918 88.4959 35.1579L58.7608 39.3191L53.0144 40.1357C52.1903 40.2528 51.3438 40.3237 50.5284 40.4805C50.2035 40.5312 49.8999 40.6739 49.6536 40.8918C49.5264 41.0127 49.4245 41.1578 49.3539 41.3185C49.2832 41.4792 49.2453 41.6523 49.2422 41.8278C49.2417 41.8762 49.2423 41.9245 49.2459 41.9723C49.2501 42.02 49.2568 42.0675 49.2661 42.1145C49.2744 42.1618 49.2853 42.2087 49.2987 42.2549C49.3114 42.3012 49.3266 42.3467 49.3443 42.3913C49.3808 42.4807 49.4254 42.5665 49.4775 42.6478C49.5041 42.6871 49.5317 42.7262 49.5623 42.7639C49.5929 42.8016 49.6252 42.837 49.6584 42.8711C49.8982 43.1132 50.2142 43.265 50.553 43.3011C51.1149 43.3358 53.1592 42.9517 53.8165 42.8583L65.9119 41.1396C66.4384 41.0648 66.9972 40.9296 67.5311 40.9442C67.9321 40.9555 68.2853 41.0745 68.5554 41.3851C68.8108 41.6772 68.9431 42.057 68.9246 42.4446C68.9072 42.676 68.8294 42.8989 68.6991 43.091C68.5687 43.2831 68.3902 43.4376 68.1815 43.5391C67.6328 43.8273 66.8942 43.8513 66.2851 43.9358L62.5608 44.4492C61.9427 44.5371 61.2569 44.5704 60.6629 44.7463C60.4156 44.814 60.1863 44.9356 59.9915 45.1023C59.8598 45.2137 59.7531 45.3517 59.6785 45.5072C59.6039 45.6627 59.563 45.8322 59.5585 46.0046C59.5489 46.3886 59.6756 46.8288 59.9573 47.0957C60.178 47.3167 60.4678 47.4554 60.7783 47.4887C61.4675 47.561 62.3016 47.3437 62.989 47.2408L67.594 46.5864C68.2811 46.4888 69.0334 46.302 69.7235 46.2922C70.1326 46.2866 70.5103 46.378 70.8075 46.6721C70.9503 46.809 71.0626 46.9743 71.1374 47.1575C71.2121 47.3406 71.2475 47.5374 71.2413 47.735C71.2365 47.9687 71.1708 48.197 71.0508 48.3975C70.9307 48.598 70.7603 48.7636 70.5566 48.8781C69.399 49.5334 65.8126 49.2201 64.9229 50.1253C64.7998 50.2588 64.7051 50.4159 64.6445 50.5871C64.584 50.7583 64.5587 50.94 64.5704 51.1213C64.5713 51.3152 64.6127 51.5069 64.6922 51.6839C64.7716 51.8609 64.8873 52.0192 65.0317 52.1487C65.3096 52.3878 65.6694 52.5096 66.0354 52.4885C66.6586 52.4735 67.3324 52.3189 67.9525 52.2308L89.9636 49.103C90.8104 48.9827 91.6754 48.8199 92.5301 48.7699C93.0358 48.8746 93.4749 49.0434 93.7811 49.4897C94.062 49.8985 94.096 50.3519 94.0766 50.8297C94.012 51.2682 93.8591 51.689 93.6272 52.0666C93.3952 52.4442 93.0891 52.7709 92.7272 53.0268C92.4863 53.2013 92.22 53.3377 91.9376 53.4311C91.1221 53.609 90.2717 53.6973 89.4414 53.8153C87.7653 54.0535 86.0811 54.2644 84.4099 54.5303C84.0268 58.1875 83.536 61.8411 83.1965 65.5016L88.2114 64.789C89.0449 64.6706 89.9378 64.468 90.7761 64.4582C91.2511 64.5389 91.6963 64.7205 91.9944 65.1175C92.3213 65.5545 92.3882 66.143 92.2967 66.6678C92.2122 67.0968 92.0433 67.5046 91.7997 67.8677C91.5561 68.2307 91.2427 68.5416 90.8777 68.7823C90.5982 68.9642 90.2879 69.0938 89.962 69.1646C89.4074 69.2928 88.8223 69.3392 88.2583 69.4162L85.6488 69.787C83.1548 70.1414 80.6574 70.5467 78.1573 70.8515C78.1439 70.3132 78.2548 69.7331 78.316 69.1947L78.6867 65.9312L79.8911 55.1766L66.03 57.1399C65.42 62.3513 64.9158 67.5896 64.269 72.8083C63.9473 76.2392 63.5118 79.6685 63.1293 83.0934L62.8127 85.9466C62.7831 86.2336 62.7083 86.5206 62.6908 86.8047C62.6761 86.9189 62.6926 87.035 62.7386 87.1406C62.8264 87.1711 62.922 87.1705 63.0095 87.1389C64.8136 86.9582 66.6278 86.6342 68.4234 86.379L86.4549 83.8167C89.2024 83.4263 91.9513 83.0683 94.6113 82.2468C97.119 81.47 99.5452 80.3202 101.512 78.5546C105.213 75.232 106.367 70.6266 106.612 65.8581C106.784 62.5029 106.357 58.8904 104.02 56.2998L104.016 56.2771C104.174 56.0193 104.316 55.7585 104.452 55.4932Z", fill: "url(#paint7_linear_364_497)" })), /* @__PURE__ */ BdApi.React.createElement("defs", null, /* @__PURE__ */ BdApi.React.createElement("linearGradient", { id: "paint0_linear_364_497", x1: "0.447603", y1: "16.413", x2: "148.448", y2: "191.541", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ BdApi.React.createElement("stop", { "stop-color": "#508AB7" }), /* @__PURE__ */ BdApi.React.createElement("stop", { offset: "1", "stop-color": "#1F2569" })), /* @__PURE__ */ BdApi.React.createElement("linearGradient", { id: "paint1_linear_364_497", x1: "11.1858", y1: "19.1536", x2: "158.875", y2: "162.67", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ BdApi.React.createElement("stop", { "stop-color": "#41D1FF" }), /* @__PURE__ */ BdApi.React.createElement("stop", { offset: "1", "stop-color": "#5865F2" })), /* @__PURE__ */ BdApi.React.createElement("linearGradient", { id: "paint2_linear_364_497", x1: "73.3725", y1: "107.902", x2: "107.5", y2: "144.392", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ BdApi.React.createElement("stop", { "stop-color": "#5865F2" }), /* @__PURE__ */ BdApi.React.createElement("stop", { offset: "1", "stop-color": "#41D1FF" })), /* @__PURE__ */ BdApi.React.createElement("linearGradient", { id: "paint3_linear_364_497", x1: "109.369", y1: "139.553", x2: "70.6513", y2: "110.457", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ BdApi.React.createElement("stop", { "stop-color": "#5865F2" }), /* @__PURE__ */ BdApi.React.createElement("stop", { offset: "1", "stop-color": "#41D1FF" })), /* @__PURE__ */ BdApi.React.createElement("linearGradient", { id: "paint4_linear_364_497", x1: "44.7007", y1: "44.5189", x2: "111.604", y2: "78.0676", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ BdApi.React.createElement("stop", { "stop-color": "#41D1FF" }), /* @__PURE__ */ BdApi.React.createElement("stop", { offset: "1", "stop-color": "#5865F2" })), /* @__PURE__ */ BdApi.React.createElement("linearGradient", { id: "paint5_linear_364_497", x1: "44.7007", y1: "44.5189", x2: "111.604", y2: "78.0676", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ BdApi.React.createElement("stop", { "stop-color": "#41D1FF" }), /* @__PURE__ */ BdApi.React.createElement("stop", { offset: "1", "stop-color": "#5865F2" })), /* @__PURE__ */ BdApi.React.createElement("linearGradient", { id: "paint6_linear_364_497", x1: "44.7007", y1: "44.5189", x2: "111.604", y2: "78.0676", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ BdApi.React.createElement("stop", { "stop-color": "#41D1FF" }), /* @__PURE__ */ BdApi.React.createElement("stop", { offset: "1", "stop-color": "#5865F2" })), /* @__PURE__ */ BdApi.React.createElement("linearGradient", { id: "paint7_linear_364_497", x1: "44.7007", y1: "44.5189", x2: "111.604", y2: "78.0676", gradientUnits: "userSpaceOnUse" }, /* @__PURE__ */ BdApi.React.createElement("stop", { "stop-color": "#41D1FF" }), /* @__PURE__ */ BdApi.React.createElement("stop", { offset: "1", "stop-color": "#5865F2" })), /* @__PURE__ */ BdApi.React.createElement("clipPath", { id: "clip0_364_497" }, /* @__PURE__ */ BdApi.React.createElement("rect", { width: "160", height: "192", fill: "white" }))));
   }
-  function ShopIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function ShopIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -25648,20 +25610,20 @@ img.BAP__viewport {
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           d: "M2.63 4.19A3 3 0 0 1 5.53 2H7a1 1 0 0 1 1 1v3.98a3.07 3.07 0 0 1-.3 1.35A2.97 2.97 0 0 1 4.98 10c-2 0-3.44-1.9-2.9-3.83l.55-1.98ZM10 2a1 1 0 0 0-1 1v4a3 3 0 0 0 3 3 3 3 0 0 0 3-2.97V3a1 1 0 0 0-1-1h-4ZM17 2a1 1 0 0 0-1 1v3.98a3.65 3.65 0 0 0 0 .05A2.95 2.95 0 0 0 19.02 10c2 0 3.44-1.9 2.9-3.83l-.55-1.98A3 3 0 0 0 18.47 2H17Z"
         }
       ),
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           d: "M21 11.42V19a3 3 0 0 1-3 3h-2.75a.25.25 0 0 1-.25-.25V16a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v5.75c0 .14-.11.25-.25.25H6a3 3 0 0 1-3-3v-7.58c0-.18.2-.3.37-.24a4.46 4.46 0 0 0 4.94-1.1c.1-.12.3-.12.4 0a4.49 4.49 0 0 0 6.58 0c.1-.12.3-.12.4 0a4.45 4.45 0 0 0 4.94 1.1c.17-.07.37.06.37.24Z"
         }
       )
     );
   }
-  function LibraryIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function LibraryIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -25673,7 +25635,7 @@ img.BAP__viewport {
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           d: "M5.5 3A1.5 1.5 0 0 1 7 4.5v15A1.5 1.5 0 0 1 5.5 21h-2A1.5 1.5 0 0 1 2 19.5v-15A1.5 1.5 0 0 1 3.5 3zm6 0A1.5 1.5 0 0 1 13 4.5v15a1.5 1.5 0 0 1-1.5 1.5h-2A1.5 1.5 0 0 1 8 19.5v-15A1.5 1.5 0 0 1 9.5 3zm7.281 3.124l3.214 12.519a1.5 1.5 0 0 1-1.08 1.826l-1.876.48a1.5 1.5 0 0 1-1.826-1.08L13.999 7.354a1.5 1.5 0 0 1 1.08-1.826l1.876-.483a1.5 1.5 0 0 1 1.826 1.08"
         }
       )
@@ -25766,7 +25728,7 @@ img.BAP__viewport {
       items: items2
     };
   }
-  function ChevronSmallDownIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function ChevronSmallDownIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -25778,13 +25740,13 @@ img.BAP__viewport {
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           d: "M5.3 9.3a1 1 0 0 1 1.4 0l5.3 5.29 5.3-5.3a1 1 0 1 1 1.4 1.42l-6 6a1 1 0 0 1-1.4 0l-6-6a1 1 0 0 1 0-1.42Z"
         }
       )
     );
   }
-  function ChevronSmallUpIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function ChevronSmallUpIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -25796,7 +25758,7 @@ img.BAP__viewport {
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           d: "M5.3 14.7a1 1 0 0 0 1.4 0L12 9.42l5.3 5.3a1 1 0 0 0 1.4-1.42l-6-6a1 1 0 0 0-1.4 0l-6 6a1 1 0 0 0 0 1.42Z"
         }
       )
@@ -25842,7 +25804,7 @@ img.BAP__viewport {
     }, [initiallyActive, result]);
     return result;
   }
-  function ArrowSmallUpDownIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function ArrowSmallUpDownIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -25854,7 +25816,7 @@ img.BAP__viewport {
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           d: "M16.3 21.7a1 1 0 0 0 1.4 0l4-4a1 1 0 0 0-1.4-1.4L18 18.58V3a1 1 0 1 0-2 0v15.59l-2.3-2.3a1 1 0 0 0-1.4 1.42l4 4ZM6.3 2.3a1 1 0 0 1 1.4 0l4 4a1 1 0 0 1-1.4 1.4L8 5.42V21a1 1 0 1 1-2 0V5.41l-2.3 2.3a1 1 0 0 1-1.4-1.42l4-4Z"
         }
       )
@@ -26029,7 +25991,7 @@ img.BAP__viewport {
       Text$1,
       {
         variant: "heading-xl/semibold",
-        color: "header-primary"
+        color: "text-strong"
       },
       title
     ), /* @__PURE__ */ BdApi.React.createElement(ErrorBoundary, { noop: true }, /* @__PURE__ */ BdApi.React.createElement("div", { className: "BA__packListViewSearchBar" }, /* @__PURE__ */ BdApi.React.createElement(
@@ -26135,7 +26097,7 @@ img.BAP__viewport {
 .BA__packListViewSpinner {
     padding: 40px;
 }``PackListView`;
-  function FolderIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function FolderIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -26147,7 +26109,7 @@ img.BAP__viewport {
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           d: "M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"
         }
       )
@@ -26206,9 +26168,7 @@ img.BAP__viewport {
             ...props,
             variant: "icon-only",
             icon: FolderIcon,
-            onClick: () => DiscordNative.fileManager.showItemInFolder(
-              path.resolve(PackManager.addonFolder, PackManager.addonList[0]?.filename ?? "./")
-            )
+            onClick: () => electron.shell.openPath(PackManager.addonFolder)
           }
         )), /* @__PURE__ */ BdApi.React.createElement(Tooltip$1, { text: "Check for updates" }, (props) => /* @__PURE__ */ BdApi.React.createElement(
           Button$1,
@@ -26424,13 +26384,13 @@ img.BAP__viewport {
           ChevronSmallUpIcon,
           {
             size: "md",
-            color: colors.INTERACTIVE_NORMAL
+            color: colors.INTERACTIVE_ICON_DEFAULT
           }
         ) : /* @__PURE__ */ BdApi.React.createElement(
           ChevronSmallDownIcon,
           {
             size: "md",
-            color: colors.INTERACTIVE_NORMAL
+            color: colors.INTERACTIVE_ICON_DEFAULT
           }
         ))
       )
@@ -26634,7 +26594,7 @@ img.BAP__viewport {
 .BA__moduleSettingsSectionTitle {
     margin-top: 32px;
     margin-bottom: 16px;
-    color: var(--header-secondary);
+    color: var(--text-subtle);
     text-align: center;
     position: relative;
 }
@@ -26683,7 +26643,7 @@ img.BAP__viewport {
     position: absolute;
     top: 26px;
     left: 41px;
-    color: var(--header-primary);
+    color: var(--text-strong);
 }
 
 .BA__settingsSidebarHeader--hidden {
@@ -26692,7 +26652,7 @@ img.BAP__viewport {
 }``SettingsSidebarHeader`;
   function ModeSwitch() {
     const [mode, setMode] = useMode();
-    return /* @__PURE__ */ BdApi.React.createElement("div", { className: `BA__modeSwitch ${DiscordClasses.Margins.marginBottom8}` }, /* @__PURE__ */ BdApi.React.createElement(
+    return /* @__PURE__ */ BdApi.React.createElement("div", { className: "BA__modeSwitch" }, /* @__PURE__ */ BdApi.React.createElement(
       ButtonGroup,
       {
         options: [
@@ -26704,6 +26664,9 @@ img.BAP__viewport {
       }
     ));
   }
+  css`.BA__modeSwitch {
+  margin-bottom: 8px;
+}``ModeSwitch`;
   const SettingsNoticeComponent = require$$0$1.lazy(async () => ({ default: await SettingsNotice }));
   function FormNotice() {
     const onSave = require$$0$1.useCallback(() => Config.save(), []);
@@ -26730,7 +26693,7 @@ img.BAP__viewport {
       }
     ));
   }
-  function HomeIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function HomeIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -26742,13 +26705,13 @@ img.BAP__viewport {
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           d: "m2.4 8.4 8.38-6.46a2 2 0 0 1 2.44 0l8.39 6.45a2 2 0 0 1-.79 3.54l-.32.07-.82 8.2a2 2 0 0 1-1.99 1.8H16a1 1 0 0 1-1-1v-5a3 3 0 0 0-6 0v5a1 1 0 0 1-1 1H6.31a2 2 0 0 1-1.99-1.8L3.5 12l-.32-.07a2 2 0 0 1-.79-3.54Z"
         }
       )
     );
   }
-  function ExternalLinkIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function ExternalLinkIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -26761,7 +26724,7 @@ img.BAP__viewport {
         "path",
         {
           fill: "none",
-          stroke: typeof color === "string" ? color : color.css,
+          stroke: typeof color === "string" ? color : color?.css,
           strokeLinecap: "round",
           strokeLinejoin: "round",
           strokeWidth: "2",
@@ -26896,7 +26859,7 @@ img.BAP__viewport {
         opacity: 1;
     }
 }``SpotlightAnimation`;
-  function BookIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function BookIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -26908,7 +26871,7 @@ img.BAP__viewport {
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           d: "M6.5 2A2.5 2.5 0 0 0 4 4.5v15A2.5 2.5 0 0 0 6.5 22h13.25a.75.75 0 0 0 0-1.5H6.5a1 1 0 0 1-1-1h14.25a.75.75 0 0 0 .75-.75V4.5A2.5 2.5 0 0 0 18 2zM8 5h8a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1"
         }
       )
@@ -26970,7 +26933,7 @@ img.BAP__viewport {
         className: "BA__homeTitle",
         variant: "heading-xxl/bold",
         tag: "h3",
-        color: "header-primary"
+        color: "text-strong"
       },
       meta$1.name
     ), /* @__PURE__ */ BdApi.React.createElement(
@@ -26978,7 +26941,7 @@ img.BAP__viewport {
       {
         className: "BA__homeDescription",
         variant: "text-md/normal",
-        color: "header-primary"
+        color: "text-strong"
       },
       sanitize$1(meta$1.description)
     ), /* @__PURE__ */ BdApi.React.createElement("div", { className: "BA__homeHeadingActions" }, /* @__PURE__ */ BdApi.React.createElement(CatalogPromoTooltip, { packs: unknownPacks }, (props) => /* @__PURE__ */ BdApi.React.createElement(
@@ -27155,7 +27118,7 @@ img.BAP__viewport {
 }
 
 .BA__mainColumn {
-    color: var(--white-100);
+    color: #FFFFFF;
     flex: 1;
     flex-direction: column;
     margin: auto 0;
@@ -27192,7 +27155,7 @@ img.BAP__viewport {
     pointer-events: none;
     position: absolute;
 }``CreateUpsellBanner`;
-  function GitHubIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  function GitHubIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -27204,7 +27167,7 @@ img.BAP__viewport {
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           d: "m12 .5c-6.63 0-12 5.28-12 11.792 0 5.211 3.438 9.63 8.205 11.188.6.111.82-.254.82-.567 0-.28-.01-1.022-.015-2.005-3.338.711-4.042-1.582-4.042-1.582-.546-1.361-1.335-1.725-1.335-1.725-1.087-.731.084-.716.084-.716 1.205.082 1.838 1.215 1.838 1.215 1.07 1.803 2.809 1.282 3.495.981.108-.763.417-1.282.76-1.577-2.665-.295-5.466-1.309-5.466-5.827 0-1.287.465-2.339 1.235-3.164-.135-.298-.54-1.497.105-3.121 0 0 1.005-.316 3.3 1.209.96-.262 1.98-.392 3-.398 1.02.006 2.04.136 3 .398 2.28-1.525 3.285-1.209 3.285-1.209.645 1.624.24 2.823.12 3.121.765.825 1.23 1.877 1.23 3.164 0 4.53-2.805 5.527-5.475 5.817.42.354.81 1.077.81 2.182 0 1.578-.015 2.846-.015 3.229 0 .309.21.678.825.56 4.801-1.548 8.236-5.97 8.236-11.173 0-6.512-5.373-11.792-12-11.792z"
         }
       )
@@ -27282,135 +27245,106 @@ img.BAP__viewport {
 }``Catalog`;
   function GeneralSettings() {
     const { config: config2, onChange } = useConfig();
-    return /* @__PURE__ */ BdApi.React.createElement(MigratorContainer, { migrator: Config.migrator }, /* @__PURE__ */ BdApi.React.createElement(
-      FormSection,
+    return /* @__PURE__ */ BdApi.React.createElement(MigratorContainer, { migrator: Config.migrator }, /* @__PURE__ */ BdApi.React.createElement("div", { className: "BA__generalSettings" }, /* @__PURE__ */ BdApi.React.createElement(
+      Text$1,
       {
-        tag: FormTitleTags.H1,
-        title: "General Settings"
+        variant: "heading-xl/semibold",
+        color: "text-strong"
       },
-      /* @__PURE__ */ BdApi.React.createElement(
-        FormSection,
-        {
-          tag: FormTitleTags.H2,
-          title: "Appearance",
-          className: DiscordClasses.Margins.marginTop20,
-          titleClassName: DiscordClasses.Margins.marginBottom8
-        },
-        /* @__PURE__ */ BdApi.React.createElement(
-          FormSwitch,
-          {
-            className: DiscordClasses.Margins.marginBottom20,
-            children: "Quick Preview",
-            note: "Play the animation preview when hovering over an animation card. Disable to play it only when an animation card is expanded.",
-            value: config2.general.quickPreview,
-            onChange: (value) => {
-              config2.general.quickPreview = value;
-              onChange();
-            }
-          }
-        ),
-        /* @__PURE__ */ BdApi.React.createElement(
-          FormSwitch,
-          {
-            className: DiscordClasses.Margins.marginBottom20,
-            children: "Disable Hints",
-            note: `Hide reference links to ${meta$1.name} documentation in the module settings, animation settings, etc.`,
-            value: config2.general.disableHints,
-            onChange: (value) => {
-              config2.general.disableHints = value;
-              onChange();
-            }
-          }
-        ),
-        /* @__PURE__ */ BdApi.React.createElement(FormItem, { className: DiscordClasses.Margins.marginBottom20 }, /* @__PURE__ */ BdApi.React.createElement(FormTitle, { className: DiscordClasses.Margins.marginBottom8 }, "Suppress Errors"), /* @__PURE__ */ BdApi.React.createElement(FormText, { className: DiscordClasses.Margins.marginBottom20 }, "Disable the toast notification for occurring errors. When an error is suppressed, it can only be seen via the Console."), /* @__PURE__ */ BdApi.React.createElement(
-          RadioGroup,
-          {
-            options: [
-              { value: SuppressErrors.All, name: "Suppress all errors" },
-              { value: SuppressErrors.Animation, name: "Suppress animation errors" },
-              { value: SuppressErrors.None, name: "Do not suppress errors" }
-            ],
-            value: config2.general.suppressErrors,
-            onChange: ({ value }) => {
-              config2.general.suppressErrors = value;
-              onChange();
-            }
-          }
-        ), /* @__PURE__ */ BdApi.React.createElement(Divider$2, { className: DiscordClasses.Margins.marginTop20 }))
-      ),
-      /* @__PURE__ */ BdApi.React.createElement(
-        FormSection,
-        {
-          tag: FormTitleTags.H2,
-          title: "Optimizations",
-          className: DiscordClasses.Margins.marginTop20,
-          titleClassName: DiscordClasses.Margins.marginBottom8
-        },
-        /* @__PURE__ */ BdApi.React.createElement(
-          FormSwitch,
-          {
-            className: DiscordClasses.Margins.marginBottom20,
-            children: Messages.PRIORITIZE_ANIMATION_SMOOTHNESS,
-            note: "Delay resource-intensive operations until after animations finish to avoid most of the stuttering that occurs while they are running.",
-            value: config2.general.prioritizeAnimationSmoothness,
-            onChange: (value) => {
-              config2.general.prioritizeAnimationSmoothness = value;
-              onChange();
-            }
-          }
-        ),
-        /* @__PURE__ */ BdApi.React.createElement(
-          FormSwitch,
-          {
-            className: DiscordClasses.Margins.marginBottom20,
-            children: "Preload Layers",
-            note: "Load full-screen pages (User Settings, Server Settings, Channel Settings, etc.) in advance to prevent them from interrupting the animations when opened.",
-            value: config2.general.preloadLayers,
-            onChange: (value) => {
-              config2.general.preloadLayers = value;
-              onChange();
-            }
-          }
-        ),
-        /* @__PURE__ */ BdApi.React.createElement(
-          FormSwitch,
-          {
-            className: DiscordClasses.Margins.marginBottom20,
-            children: Messages.CACHE_USER_SETTINGS_SECTIONS,
-            note: "Significantly improves performance when opening User Settings.",
-            value: config2.general.cacheUserSettingsSections,
-            onChange: (value) => {
-              config2.general.cacheUserSettingsSections = value;
-              onChange();
-            }
-          }
-        )
-      ),
-      /* @__PURE__ */ BdApi.React.createElement(
-        FormSection,
-        {
-          tag: FormTitleTags.H2,
-          title: "Behavior",
-          className: DiscordClasses.Margins.marginTop20,
-          titleClassName: DiscordClasses.Margins.marginBottom8
-        },
-        /* @__PURE__ */ BdApi.React.createElement(FormItem, { className: DiscordClasses.Margins.marginBottom20 }, /* @__PURE__ */ BdApi.React.createElement(FormTitle, { className: DiscordClasses.Margins.marginBottom8 }, "Switch Cooldown Duration"), /* @__PURE__ */ BdApi.React.createElement(FormText, { className: DiscordClasses.Margins.marginBottom20 }, "If switch animations overlap, they cancel each other and trigger a cooldown preventing new switch animations from playing for a period of time."), /* @__PURE__ */ BdApi.React.createElement(
-          DurationSlider,
-          {
-            from: 100,
-            to: 2e3,
-            defaultValue: configDefaults.general.switchCooldownDuration,
-            initialValue: config2.general.switchCooldownDuration,
-            onValueChange: (value) => {
-              config2.general.switchCooldownDuration = value;
-              onChange();
-            }
-          }
-        ))
-      )
-    ));
+      "General Settings"
+    ), /* @__PURE__ */ BdApi.React.createElement(FieldSet, { label: "Appearance" }, /* @__PURE__ */ BdApi.React.createElement(
+      Switch$1,
+      {
+        label: "Quick Preview",
+        description: "Play the animation preview when hovering over an animation card. Disable to play it only when an animation card is expanded.",
+        checked: config2.general.quickPreview,
+        onChange: (value) => {
+          config2.general.quickPreview = value;
+          onChange();
+        }
+      }
+    ), /* @__PURE__ */ BdApi.React.createElement(
+      Switch$1,
+      {
+        label: "Disable Hints",
+        description: `Hide reference links to ${meta$1.name} documentation in the module settings, animation settings, etc.`,
+        checked: config2.general.disableHints,
+        onChange: (value) => {
+          config2.general.disableHints = value;
+          onChange();
+        }
+      }
+    ), /* @__PURE__ */ BdApi.React.createElement(
+      RadioGroup,
+      {
+        label: "Suppress Errors",
+        description: /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "Disable the toast notification for occurring errors. When an error is suppressed, it can only be seen via the Console."),
+        options: [
+          { value: SuppressErrors.All, name: "Suppress all errors" },
+          { value: SuppressErrors.Animation, name: "Suppress animation errors" },
+          { value: SuppressErrors.None, name: "Do not suppress errors" }
+        ],
+        value: config2.general.suppressErrors,
+        onChange: ({ value }) => {
+          config2.general.suppressErrors = value;
+          onChange();
+        }
+      }
+    )), /* @__PURE__ */ BdApi.React.createElement(Divider$2, null), /* @__PURE__ */ BdApi.React.createElement(FieldSet, { label: "Optimizations" }, /* @__PURE__ */ BdApi.React.createElement(
+      Switch$1,
+      {
+        label: Messages.PRIORITIZE_ANIMATION_SMOOTHNESS,
+        description: "Delay resource-intensive operations until after animations finish to avoid most of the stuttering that occurs while they are running.",
+        checked: config2.general.prioritizeAnimationSmoothness,
+        onChange: (value) => {
+          config2.general.prioritizeAnimationSmoothness = value;
+          onChange();
+        }
+      }
+    ), /* @__PURE__ */ BdApi.React.createElement(
+      Switch$1,
+      {
+        label: "Preload Layers",
+        description: "Load full-screen pages (Legacy User Settings, Server Settings, Channel Settings, etc.) in advance to prevent them from interrupting the animations when opened.",
+        checked: config2.general.preloadLayers,
+        onChange: (value) => {
+          config2.general.preloadLayers = value;
+          onChange();
+        }
+      }
+    ), /* @__PURE__ */ BdApi.React.createElement(
+      Switch$1,
+      {
+        label: Messages.CACHE_USER_SETTINGS_SECTIONS,
+        description: "Significantly improves performance when opening Legacy User Settings.",
+        checked: config2.general.cacheUserSettingsSections,
+        onChange: (value) => {
+          config2.general.cacheUserSettingsSections = value;
+          onChange();
+        }
+      }
+    )), /* @__PURE__ */ BdApi.React.createElement(Divider$2, null), /* @__PURE__ */ BdApi.React.createElement(FieldSet, { label: "Behavior" }, /* @__PURE__ */ BdApi.React.createElement(
+      DurationSlider,
+      {
+        label: "Switch Cooldown Duration",
+        description: /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "If switch animations overlap, they cancel each other and trigger a cooldown preventing new switch animations from playing for a period of time."),
+        from: 100,
+        to: 2e3,
+        defaultValue: configDefaults.general.switchCooldownDuration,
+        initialValue: config2.general.switchCooldownDuration,
+        onValueChange: (value) => {
+          config2.general.switchCooldownDuration = value;
+          onChange();
+        }
+      }
+    ))));
   }
-  function BetterDiscordIcon({ size, width, height, color = colors.INTERACTIVE_NORMAL }) {
+  css`.BA__generalSettings {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}``GeneralSettings`;
+  function BetterDiscordIcon({ size, width, height, color = colors.INTERACTIVE_ICON_DEFAULT }) {
     return /* @__PURE__ */ BdApi.React.createElement(
       "svg",
       {
@@ -27422,7 +27356,7 @@ img.BAP__viewport {
       /* @__PURE__ */ BdApi.React.createElement(
         "path",
         {
-          fill: typeof color === "string" ? color : color.css,
+          fill: typeof color === "string" ? color : color?.css,
           d: "M14.393.861q.514.258.964.57a6.6 6.6 0 0 1 2.122 2.387c.513.987.792 2.133.828 3.409v9.556c-.035 1.275-.313 2.422-.828 3.408a6.6 6.6 0 0 1-2.122 2.387a8 8 0 0 1-.933.555h.933c4.46.024 8.643-2.205 8.643-7.315V8.352c.024-5.21-4.16-7.49-8.62-7.49zM0 .867v9.197l5.693 5.127V5.44h3.31c3.537 0 3.537 4.444 0 4.444H6.817v4.244h2.188c3.536 0 3.536 4.441 0 4.441H0v4.57h8.904c4.59 0 8.151-1.836 8.278-6.388c0-2.094-.574-3.66-1.584-4.748c1.01-1.087 1.584-2.652 1.584-4.746c-.125-4.553-3.687-6.39-8.278-6.39z"
         }
       )
@@ -27585,9 +27519,10 @@ img.BAP__viewport {
   }
   const DiscordSelectors = new Proxy(DiscordClasses, {
     get(obj, prop) {
-      return obj[prop] && new Proxy(obj[prop], {
-        get(obj2, prop2) {
-          return obj2[prop2]?.split(" ").filter((i) => !!i).map((c) => "." + c).join("");
+      const module2 = obj[prop];
+      return module2 && new Proxy({}, {
+        get(_, prop2) {
+          return module2[prop2]?.split(" ").filter((i) => !!i).map((c) => "." + c).join("");
         }
       });
     }
@@ -27655,8 +27590,6 @@ ${DiscordSelectors.StandardSidebarView.contentColumnDefault}:has(> .BA__moduleSe
     }
     openSettingsModal(section2 = SettingsSection.Home) {
       if (this.isSettingsModalOpen()) return;
-      if (!LayerStore$1.getLayers().includes("USER_SETTINGS"))
-        UserSettingsModal.open("plugins");
       setSection(section2);
       const component = () => /* @__PURE__ */ BdApi.React.createElement(SettingsModal, null);
       component.__BA_isSettingsModal = true;
@@ -28268,7 +28201,7 @@ ${DiscordSelectors.StandardSidebarView.contentColumnDefault}:has(> .BA__moduleSe
       return this._getPack((p) => p.filename === filename, includeRestricted);
     }
     showInFolder(filename) {
-      DiscordNative.fileManager.showItemInFolder(
+      electron.shell.showItemInFolder(
         path.resolve(this.addonFolder, filename)
       );
     }
@@ -28283,13 +28216,7 @@ ${DiscordSelectors.StandardSidebarView.contentColumnDefault}:has(> .BA__moduleSe
           Emitter.emit(Events.ModuleSettingsChanged, module2.id);
         }
       },
-      /* @__PURE__ */ BdApi.React.createElement(Flex$1, null, /* @__PURE__ */ BdApi.React.createElement(Text$1, { variant: "text-sm/normal" }, "Enhance layout"), /* @__PURE__ */ BdApi.React.createElement(
-        Hint,
-        {
-          className: DiscordClasses.Margins.marginLeft8,
-          href: Documentation.enhanceLayoutUrl
-        }
-      ))
+      /* @__PURE__ */ BdApi.React.createElement(Stack$1, { direction: "horizontal", gap: 8 }, /* @__PURE__ */ BdApi.React.createElement(Text$1, { variant: "text-sm/normal" }, "Enhance layout"), /* @__PURE__ */ BdApi.React.createElement(Hint, { href: Documentation.enhanceLayoutUrl }))
     );
   }
   class Module extends Module$1 {
@@ -28313,44 +28240,44 @@ ${DiscordSelectors.StandardSidebarView.contentColumnDefault}:has(> .BA__moduleSe
   }
   const moduleOptions = {
     [ModuleKey.Servers]: {
-      description: () => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "Animates the transitions when switching between servers and other full-screen pages, such as DMs and Discover. Supports auto-direction for applicable animations determined by the order of elements in the server list."),
+      description: () => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "Animates the transitions when switching between servers and other full-screen pages, such as DMs and Discover."),
       controls: ServerModuleControls
     },
     [ModuleKey.Channels]: {
-      description: () => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "Animates the transitions when switching between channels and other pages sharing the same sidebar. Supports auto-direction for applicable animations determined by the order of elements in the sidebar.")
+      description: () => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "Animates the transitions when switching between channels and other pages sharing the same sidebar.")
     },
     [ModuleKey.Settings]: {
-      description: () => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "Animates the transitions when switching between sections of the settings. Supports auto-direction for applicable animations determined by the order of sections in the navigation sidebar.")
+      description: () => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "Animates the transitions when switching between sections of the settings.")
     },
     [ModuleKey.Layers]: {
-      description: () => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "Animates the transitions when switching between full-screen views of the Discord app, such as User Settings, Server Settings, ", meta$1.name, " Settings, etc. Supports auto-direction for applicable animations determined by the user’s navigation history across layered views.")
+      description: () => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "Animates the transitions when switching between full-screen views of the Discord app, such as Legacy User Settings, Server Settings, ", meta$1.name, " Settings, etc.")
     },
     [ModuleKey.Tooltips]: {
-      description: () => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "Animates the appearance and disappearance of informative floating UI elements application-wide, such as various control descriptions, server titles in the server list and other non-interactive elements that provide clarity to Discord's interfaces. Supports auto-position and auto-direction for applicable animations determined by the location of the anchor element.")
+      description: () => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "Animates the appearance and disappearance of informative floating UI elements application-wide, such as various control descriptions, server titles in the server list and other non-interactive elements that provide clarity to Discord's interfaces.")
     },
     [ModuleKey.Popouts]: {
-      description: () => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "Animates the appearance and disappearance of interactive floating UI elements application-wide, such as User Profiles, Select Inputs, Pinned Messages, etc. Supports auto-position and auto-direction for applicable animations determined by the location of the anchor element. Context Menus that have a strictly defined anchor element are controlled by this module.")
+      description: () => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "Animates the appearance and disappearance of interactive floating UI elements application-wide, such as User Profiles, Select Inputs, Pinned Messages, etc.")
     },
     [ModuleKey.ContextMenu]: {
-      description: (setSection2) => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "Animates the appearance and disappearance of a context menu that is activated by right-clicking on various UI elements. Supports auto-position and auto-direction for applicable animations determined by the location of the pointer. Context Menus that have a strictly defined anchor element, with the exception of context submenus, are controlled by ", /* @__PURE__ */ BdApi.React.createElement(Anchor, { onClick: () => setSection2(ModuleKey.Popouts) }, "Popouts"), ".")
+      description: () => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "Animates the appearance and disappearance of a context menu that is activated by right-clicking on various UI elements.")
     },
     [ModuleKey.Messages]: {
-      description: () => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "Animates the appearance of new messages and the disappearance of deleted messages and other UI elements in the chat. Supports smooth expand and collapse transitions to prevent abrupt layout shifts during dynamic content updates.")
+      description: () => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "Animates the appearance of new messages and the disappearance of deleted messages and other UI elements in the chat.")
     },
     [ModuleKey.ChannelList]: {
-      description: () => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "Animates the appearance and disappearance of channels in the channel list triggered by switching categories, creating or deleting a channel, and other actions that change the contents of the channel list. Supports smooth expand and collapse transitions to prevent abrupt layout shifts during dynamic content updates.")
+      description: () => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "Animates the appearance and disappearance of channels in the channel list triggered by switching categories, creating or deleting a channel, and other actions that change the contents of the channel list.")
     },
     [ModuleKey.Modals]: {
       description: () => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "Animates the appearance and disappearance of full-screen modal windows.")
     },
     [ModuleKey.ModalsBackdrop]: {
-      description: () => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "Animates the appearance and disappearance of a dimming overlay behind modal windows. Backdrop animations can alter the static styles of the backdrop.")
+      description: () => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "Animates the appearance and disappearance of a dimming overlay behind modal windows.")
     },
     [ModuleKey.MembersSidebar]: {
-      description: () => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "Animates the appearance and disappearance of sidebars inside the chat area, such as Member List, Message Search Results, etc. Supports smooth expand and collapse transitions to prevent abrupt layout shifts during the switch.")
+      description: () => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "Animates the appearance and disappearance of sidebars inside the chat area, such as Member List, Message Search Results, etc.")
     },
     [ModuleKey.ThreadSidebar]: {
-      description: () => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "Animates the appearance and disappearance of full-screen sidebars, such as Thread Chat, Forum Post Chat, etc. Supports smooth expand and collapse transitions to prevent abrupt layout shifts during the switch.")
+      description: () => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "Animates the appearance and disappearance of full-screen sidebars, such as Thread Chat, Forum Post Chat, etc.")
     },
     [ModuleKey.ThreadSidebarSwitch]: {
       description: () => /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, "Animates the transitions when switching between full-screen sidebars, such as between threads or forum posts.")
@@ -28486,11 +28413,7 @@ ${DiscordSelectors.StandardSidebarView.contentColumnDefault}:has(> .BA__moduleSe
           {
             size: "sm",
             text: "Check for updates",
-            onClick: () => {
-              UserSettingsModal.open("updates");
-              Settings.closeSettingsModal();
-              ModalActions.closeAllModals();
-            }
+            onClick: () => UserSettings.openUserSettings("betterdiscord_updates_panel")
           }
         )
       );
@@ -28542,7 +28465,14 @@ ${DiscordSelectors.StandardSidebarView.contentColumnDefault}:has(> .BA__moduleSe
   function ErrorDetailsActions({ error: error2, className }) {
     const actions = useActions(error2);
     if (!actions.length) return null;
-    return /* @__PURE__ */ BdApi.React.createElement(BdApi.React.Fragment, null, /* @__PURE__ */ BdApi.React.createElement(FormTitle, null, "Suggested actions"), /* @__PURE__ */ BdApi.React.createElement("div", { className: classNames("BA__errorDetailsActions", className) }, actions));
+    return /* @__PURE__ */ BdApi.React.createElement(Stack$1, { gap: 8 }, /* @__PURE__ */ BdApi.React.createElement(
+      Text$1,
+      {
+        variant: "heading-md/medium",
+        color: "text-strong"
+      },
+      "Suggested Actions"
+    ), /* @__PURE__ */ BdApi.React.createElement("div", { className: classNames("BA__errorDetailsActions", className) }, actions));
   }
   const ErrorDetailsActions$1 = require$$0$1.memo(ErrorDetailsActions);
   css`.BA__errorDetailsActions {
@@ -28555,7 +28485,7 @@ ${DiscordSelectors.StandardSidebarView.contentColumnDefault}:has(> .BA__moduleSe
     const icon = require$$0$1.useMemo(() => {
       if (error2 instanceof AnimationError || error2 instanceof AddonError)
         return /* @__PURE__ */ BdApi.React.createElement(JSONIcon, { size: "md" });
-      return /* @__PURE__ */ BdApi.React.createElement(IconBrand, { size: "lg", color: colors.INTERACTIVE_NORMAL });
+      return /* @__PURE__ */ BdApi.React.createElement(IconBrand, { size: "lg", color: colors.INTERACTIVE_ICON_DEFAULT });
     }, [error2]);
     const title = require$$0$1.useMemo(() => {
       if (error2 instanceof InternalError) return "Internal error";
@@ -28597,33 +28527,26 @@ ${DiscordSelectors.StandardSidebarView.contentColumnDefault}:has(> .BA__moduleSe
       Text$1,
       {
         variant: "text-xs/normal",
-        color: "header-secondary"
+        color: "text-subtle"
       },
       hint
-    ))), /* @__PURE__ */ BdApi.React.createElement("svg", { className: "BA__errorDetailsExpander", width: "24", height: "24", viewBox: "0 0 24 24" }, /* @__PURE__ */ BdApi.React.createElement("path", { fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", d: "M7 10L12 15 17 10", "aria-hidden": "true" }))), /* @__PURE__ */ BdApi.React.createElement("div", { className: "BA__errorDetailsBody" }, /* @__PURE__ */ BdApi.React.createElement(Divider$2, null), /* @__PURE__ */ BdApi.React.createElement(
-      ErrorDetailsActions$1,
+    ))), /* @__PURE__ */ BdApi.React.createElement("svg", { className: "BA__errorDetailsExpander", width: "24", height: "24", viewBox: "0 0 24 24" }, /* @__PURE__ */ BdApi.React.createElement("path", { fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", d: "M7 10L12 15 17 10", "aria-hidden": "true" }))), /* @__PURE__ */ BdApi.React.createElement("div", { className: "BA__errorDetailsBody" }, /* @__PURE__ */ BdApi.React.createElement(Divider$2, null), /* @__PURE__ */ BdApi.React.createElement(Stack$1, { gap: 20 }, /* @__PURE__ */ BdApi.React.createElement(ErrorDetailsActions$1, { error: error2 }), /* @__PURE__ */ BdApi.React.createElement(Stack$1, { gap: 8 }, /* @__PURE__ */ BdApi.React.createElement(
+      Text$1,
       {
-        className: DiscordClasses.Margins.marginBottom20,
-        error: error2
-      }
-    ), /* @__PURE__ */ BdApi.React.createElement(FormTitle, null, "Error"), /* @__PURE__ */ BdApi.React.createElement("div", { className: "BA__errorDetailsStack" }, codeBlock), /* @__PURE__ */ BdApi.React.createElement(ErrorBoundary, { noop: true }, alert ? /* @__PURE__ */ BdApi.React.createElement(
-      Alert,
-      {
-        messageType: AlertTypes.INFO,
-        className: DiscordClasses.Margins.marginTop20
+        variant: "heading-md/medium",
+        color: "text-strong"
       },
-      /* @__PURE__ */ BdApi.React.createElement("div", null, alert),
-      invite2 ? /* @__PURE__ */ BdApi.React.createElement("div", { className: "BA__errorDetailsInvite" }, /* @__PURE__ */ BdApi.React.createElement(
-        InviteEmbed,
-        {
-          code: invite2,
-          message: {
-            author: { username: error2.pack?.author }
-          },
-          getAcceptInviteContext: () => ({})
-        }
-      )) : null
-    ) : null)));
+      "Error"
+    ), /* @__PURE__ */ BdApi.React.createElement("div", { className: "BA__errorDetailsStack" }, codeBlock)), /* @__PURE__ */ BdApi.React.createElement(ErrorBoundary, { noop: true }, alert ? /* @__PURE__ */ BdApi.React.createElement(Alert, { messageType: AlertTypes.INFO }, /* @__PURE__ */ BdApi.React.createElement("div", null, alert), invite2 ? /* @__PURE__ */ BdApi.React.createElement("div", { className: "BA__errorDetailsInvite" }, /* @__PURE__ */ BdApi.React.createElement(
+      InviteEmbed,
+      {
+        code: invite2,
+        message: {
+          author: { username: error2.pack?.author }
+        },
+        getAcceptInviteContext: () => ({})
+      }
+    )) : null) : null))));
   }
   css`.BA__errorDetails {
     position: relative;
@@ -28659,12 +28582,12 @@ ${DiscordSelectors.StandardSidebarView.contentColumnDefault}:has(> .BA__moduleSe
 }
 
 .BA__errorDetailsIcon svg {
-    fill: var(--interactive-normal);
+    fill: var(--interactive-icon-default);
 }
 
 .BA__errorDetailsExpander {
     transform: rotate(-90deg);
-    color: var(--interactive-normal);
+    color: var(--interactive-icon-default);
     transition: transform 0.2s ease;
 }
 
@@ -28700,7 +28623,7 @@ ${DiscordSelectors.StandardSidebarView.contentColumnDefault}:has(> .BA__moduleSe
 
 .BA__errorDetailsHeadingIcon {
     margin-right: 4px;
-    color: var(--interactive-normal);
+    color: var(--interactive-icon-default);
 }
 
 .BA__errorDetailsStack code {
@@ -28718,7 +28641,7 @@ ${DiscordSelectors.StandardSidebarView.contentColumnDefault}:has(> .BA__moduleSe
     position: relative;
 }
 
-.BA__errorDetailsStack pre [class^="codeActions"] {
+.BA__errorDetailsStack pre [class*="codeActions"] {
     position: absolute;
     display: none;
     right: 4px;
@@ -28726,11 +28649,11 @@ ${DiscordSelectors.StandardSidebarView.contentColumnDefault}:has(> .BA__moduleSe
     color: var(--text-default);
 }
 
-.BA__errorDetailsStack pre:hover [class^="codeActions"] {
+.BA__errorDetailsStack pre:hover [class*="codeActions"] {
     display: block;
 }
 
-.BA__errorDetailsStack pre [class^="codeActions"] > div {
+.BA__errorDetailsStack pre [class*="codeActions"] > div {
     cursor: pointer;
 }
 
@@ -28870,6 +28793,9 @@ ${DiscordSelectors.StandardSidebarView.contentColumnDefault}:has(> .BA__moduleSe
       return fallback(...args);
     };
   }
+  function moduleErrorBoundary(moduleId, callback, fallback) {
+    return errorBoundary(callback, fallback, { module: Core.getModule(moduleId) });
+  }
   function attempt(callback, fallback, options) {
     return errorBoundary(callback, fallback, options)();
   }
@@ -28994,8 +28920,19 @@ ${DiscordSelectors.StandardSidebarView.contentColumnDefault}:has(> .BA__moduleSe
   const Patcher = new PatcherWrapper(BDPatcher);
   const TinyPatcher = new PatcherWrapper(BaseTinyPatcher);
   function forceAppUpdate() {
-    Dispatcher.dispatch({ type: "DOMAIN_MIGRATION_START" });
-    requestIdleCallback(() => Dispatcher.dispatch({ type: "DOMAIN_MIGRATION_SKIP" }));
+    const appMount = document.getElementById("app-mount");
+    const reactContainerKey = Object.keys(appMount).find((m) => m.startsWith("__reactContainer$"));
+    let container = appMount[reactContainerKey];
+    while (!container.stateNode?.isReactComponent) {
+      container = container.child;
+    }
+    const { render: render2 } = container.stateNode;
+    if (render2.toString().includes("null")) return;
+    container.stateNode.render = () => null;
+    container.stateNode.forceUpdate(() => {
+      container.stateNode.render = render2;
+      container.stateNode.forceUpdate();
+    });
   }
   function usePrevious(value) {
     const ref = require$$0$1.useRef(value);
@@ -29020,19 +28957,23 @@ ${DiscordSelectors.StandardSidebarView.contentColumnDefault}:has(> .BA__moduleSe
       [GuildActionRow.GUILD_SCHEDULED_EVENTS]: StaticChannelRoute.GUILD_SCHEDULED_EVENTS,
       [GuildActionRow.GUILD_ROLE_SUBSCRIPTIONS]: StaticChannelRoute.ROLE_SUBSCRIPTIONS,
       [GuildActionRow.GUILD_SHOP]: StaticChannelRoute.GUILD_SHOP,
+      [GuildActionRow.GUILD_GAME_SHOP]: StaticChannelRoute.GAME_SHOP,
       [GuildActionRow.CHANNELS_AND_ROLES]: [StaticChannelRoute.CHANNEL_BROWSER, StaticChannelRoute.CUSTOMIZE_COMMUNITY],
       [GuildActionRow.GUILD_MOD_DASH_MEMBER_SAFETY]: StaticChannelRoute.MEMBER_SAFETY,
-      [GuildActionRow.GUILD_BOOSTS]: StaticChannelRoute.GUILD_BOOSTS
+      [GuildActionRow.GUILD_BOOSTS]: StaticChannelRoute.GUILD_BOOSTS,
+      [GuildActionRow.GAME_SERVERS]: StaticChannelRoute.GAME_SERVERS
     }[guildActionRow] ?? guildActionRow;
   }
   function getStaticDMRouteIndex(pathname) {
     return [
+      (p) => p === Routes.ME_ACTIVITY,
       (p) => p === Routes.FRIENDS,
       (p) => p.startsWith(Routes.APPLICATION_LIBRARY),
       (p) => p.startsWith(Routes.MESSAGE_REQUESTS),
       (p) => p.startsWith(Routes.APPLICATION_STORE),
       (p) => p.startsWith(Routes.COLLECTIBLES_SHOP),
-      (p) => p.startsWith(Routes.FAMILY_CENTER)
+      (p) => p.startsWith(Routes.FAMILY_CENTER),
+      (p) => p.startsWith(Routes.QUEST_HOME_V2)
     ].findIndex((c) => c(pathname ?? ""));
   }
   function getSortedGuildTreeIds(node = SortedGuildStore.getGuildsTree().root) {
@@ -29066,8 +29007,11 @@ ${DiscordSelectors.StandardSidebarView.contentColumnDefault}:has(> .BA__moduleSe
   }
   function shouldSwitchContent(next, prev) {
     const [nextChannel, prevChannel] = matchChannelRoutes(next, prev);
-    const nextOrPrev = (fn, n = next, p = prev) => fn(n) + fn(p);
-    if (nextOrPrev((l) => l.pathname.startsWith(Routes.GLOBAL_DISCOVERY)) === 1 || nextOrPrev((l) => l.pathname.startsWith(Routes.GUILD_MEMBER_VERIFICATION(""))) || nextOrPrev((l) => l.pathname.startsWith(Routes.GUILD_MEMBER_VERIFICATION_FOR_HUB(""))) || nextOrPrev((l) => matchExact(l.pathname, Routes.GUILD_BOOSTING_MARKETING(GuildChannelRouteParams.guildId()))) || nextOrPrev((l) => matchExact(l.pathname, Routes.COLLECTIBLES_SHOP_FULLSCREEN)) || nextOrPrev((l) => l?.params?.channelId === StaticChannelRoute.GUILD_ONBOARDING, nextChannel, prevChannel)) return true;
+    const nextOrPrev = errorBoundary(
+      (fn, n = next, p = prev) => fn(n) + fn(p),
+      () => 0
+    );
+    if (nextOrPrev((l) => l.pathname.startsWith(Routes.GLOBAL_DISCOVERY)) === 1 || nextOrPrev((l) => l.pathname.startsWith(Routes.GUILD_MEMBER_VERIFICATION(""))) || nextOrPrev((l) => l.pathname.startsWith(Routes.GUILD_MEMBER_VERIFICATION_FOR_HUB(""))) || nextOrPrev((l) => matchExact(l.pathname, Routes.GUILD_BOOSTING_MARKETING(GuildChannelRouteParams.guildId()))) || nextOrPrev((l) => l?.params?.channelId === StaticChannelRoute.GUILD_ONBOARDING, nextChannel, prevChannel)) return true;
     if (nextChannel && prevChannel)
       return nextChannel.params.guildId !== prevChannel.params.guildId;
     if (nextChannel || prevChannel)
@@ -29294,7 +29238,7 @@ ${DiscordSelectors.StandardSidebarView.contentColumnDefault}:has(> .BA__moduleSe
         page
       ));
       const routes = findInReactTree(page, (m) => m?.type === Router.Switch)?.props.children;
-      const guildChannelRoute = routes?.find((r) => r?.props?.impressionName === ImpressionNames.GUILD_CHANNEL);
+      const guildChannelRoute = routes?.find((r) => r?.props?.impressionName === ImpressionNames.GUILD_CHANNEL && Array.isArray(r.props.path));
       if (guildChannelRoute) guildChannelPath = guildChannelRoute.props.path;
       if (!isEnhancedLayout) return;
       base.props.className = classNames(base.props.className, "BA__baseEnhancedLayout");
@@ -29542,13 +29486,84 @@ ${DiscordSelectors.StandardSidebarView.contentColumnDefault}:has(> .BA__moduleSe
   }
   function useSafeBoolean(value, store = AnimationStore$1) {
     const [safeValue, setSafeValue] = require$$0$1.useState(value);
-    require$$0$1.useEffect(() => {
+    require$$0$1.useLayoutEffect(() => {
       if (store.isSafe) return setSafeValue(value);
       setSafeValue(false);
       return store.onceSafe(() => setSafeValue(value));
     }, [value]);
     return safeValue;
   }
+  function TooltipTransition$1({ module: module2, shouldShow: shouldShow2, onExitComplete, onAnimationRest, ...props }) {
+    const value = Mana.TooltipLayer({
+      ...props,
+      isVisible: true,
+      isRendered: true
+    });
+    const layer = findInReactTree(value, (m) => m?.props?.position);
+    if (!layer) throw new Error("Unable to find ReferencePositionLayer");
+    const layerRef = require$$0$1.useRef();
+    const { autoRef, setPosition } = useAutoPosition(null);
+    const safeShouldShow = useSafeBoolean(shouldShow2);
+    Object.assign(layer.props, {
+      ref: layerRef,
+      onPositionChange: setPosition
+    });
+    const onRest = (isVisible) => () => {
+      if (!isVisible) onExitComplete?.();
+      onAnimationRest?.(
+        { value: {}, finished: true },
+        {
+          ctrl: {},
+          expired: !isVisible,
+          item: isVisible,
+          key: isVisible ? "tooltip" : "empty",
+          phase: isVisible ? SpringTransitionPhases.ENTER : SpringTransitionPhases.LEAVE
+        }
+      );
+    };
+    return /* @__PURE__ */ BdApi.React.createElement(
+      AnimeTransition,
+      {
+        in: safeShouldShow,
+        layerRef,
+        module: module2,
+        autoRef,
+        anchor: layer.props.targetRef,
+        onEntered: onRest(true),
+        onExited: onRest(false)
+      },
+      value
+    );
+  }
+  function patchUseTooltipTransition() {
+    Patcher.instead(ModuleKey.Tooltips, ...Mana.useTooltipTransitionKeyed, (self2, [options], original) => {
+      const { shouldShow: shouldShow2, onExitComplete, onAnimationRest } = options;
+      const { isMainWindow } = useWindow();
+      const module2 = useModule(ModuleKey.Tooltips);
+      if (!isMainWindow || !module2.isEnabled()) return original(options);
+      original({ ...options, shouldShow: false });
+      return moduleErrorBoundary(ModuleKey.Tooltips, (render2) => {
+        const value = render2({}, true);
+        const tooltipLayer = findInReactTree(value, (m) => m?.props?.position);
+        if (!tooltipLayer) throw new Error("Unable to find TooltipLayer");
+        Object.assign(tooltipLayer, /* @__PURE__ */ BdApi.React.createElement(ErrorBoundary, { module: module2, fallback: value }, /* @__PURE__ */ BdApi.React.createElement(
+          TooltipTransition$1,
+          {
+            ...tooltipLayer.props,
+            module: module2,
+            shouldShow: shouldShow2,
+            onExitComplete,
+            onAnimationRest
+          }
+        )));
+        return value;
+      }, (render2) => render2({}, shouldShow2));
+    });
+  }
+  function patchManaTooltip() {
+    patchUseTooltipTransition();
+  }
+  let TooltipLayer = null;
   function TooltipTransition(props) {
     const { module: module2, isVisible, onAnimationRest, ...rest } = props;
     const onRest = (isVisible2) => () => onAnimationRest?.(
@@ -29563,6 +29578,7 @@ ${DiscordSelectors.StandardSidebarView.contentColumnDefault}:has(> .BA__moduleSe
     );
     const layerRef = require$$0$1.useRef();
     const { autoRef, setPosition } = useAutoPosition(props.position, { align: props.align });
+    if (!TooltipLayer) throw new Error("Unable to resolve TooltipLayer");
     const layer = TooltipLayer(rest);
     const safeIsVisible = useSafeBoolean(isVisible);
     return /* @__PURE__ */ BdApi.React.createElement(
@@ -29588,6 +29604,11 @@ ${DiscordSelectors.StandardSidebarView.contentColumnDefault}:has(> .BA__moduleSe
     Patcher.after(ModuleKey.Tooltips, Tooltip$1?.prototype, "renderTooltip", (self2, args, value) => {
       const module2 = Core.getModule(ModuleKey.Tooltips);
       if (!module2.isEnabled()) return;
+      if (!TooltipLayer) {
+        const rendered = ReactUtils.wrapInHooks(value.type)({ ...value.props, isVisible: true });
+        const tooltipLayer = findInReactTree(rendered, (m) => m?.key === "tooltip");
+        TooltipLayer = tooltipLayer?.type;
+      }
       const { text: text2 } = self2.props;
       return /* @__PURE__ */ BdApi.React.createElement(ErrorBoundary, { module: module2, fallback: value }, /* @__PURE__ */ BdApi.React.createElement(MainWindowOnly, { fallback: value }, () => /* @__PURE__ */ BdApi.React.createElement(
         TooltipTransition,
@@ -29598,6 +29619,7 @@ ${DiscordSelectors.StandardSidebarView.contentColumnDefault}:has(> .BA__moduleSe
         }
       )));
     });
+    patchManaTooltip();
   }
   function getMessageKey(message) {
     return message?.nonce ?? message?.id;
@@ -29835,30 +29857,48 @@ ${DiscordSelectors.StandardSidebarView.contentColumnDefault}:has(> .BA__moduleSe
       ));
     });
   }
-  function SwitchSidebarTransition({ state, injectContainerRef: injectContainerRef2 = true, ...props }) {
-    const key2 = JSON.stringify(state);
+  function SwitchSidebarTransition({
+    transitionKey,
+    injectContainerRef: injectContainerRef2 = true,
+    ...props
+  }) {
     return /* @__PURE__ */ BdApi.React.createElement(TransitionGroup, { component: null }, /* @__PURE__ */ BdApi.React.createElement(
       AnimeTransition,
       {
-        key: key2,
+        key: transitionKey,
         injectContainerRef: injectContainerRef2,
         ...props
       }
     ));
   }
-  function SidebarTransition({ module: module2, switchModule, state, injectContainerRef: injectContainerRef2, children: children2 }) {
-    const key2 = state?.type ?? "none";
+  function buildSwitchKey(state) {
+    return JSON.stringify(
+      state?.type === SidebarType.VIEW_MOD_REPORT ? {
+        ...state,
+        details: pick(state.details, ["userId"])
+      } : state
+    );
+  }
+  function SidebarTransition({
+    module: module2,
+    switchModule,
+    state,
+    transitionKey = state?.type ?? "none",
+    switchTransitionKey = buildSwitchKey(state),
+    injectContainerRef: injectContainerRef2,
+    children: children2
+  }) {
     return /* @__PURE__ */ BdApi.React.createElement(SwitchTransition, null, /* @__PURE__ */ BdApi.React.createElement(
       AnimeTransition,
       {
-        key: key2,
+        key: transitionKey,
         container: { className: "BA__sidebar" },
         module: module2
       },
       /* @__PURE__ */ BdApi.React.createElement(
         SwitchSidebarTransition,
         {
-          state,
+          transitionKey: switchTransitionKey,
           module: switchModule,
           injectContainerRef: injectContainerRef2
         },
@@ -29927,6 +29967,13 @@ ${DiscordSelectors.StandardSidebarView.contentColumnDefault}:has(> .BA__moduleSe
     });
     patchCallChatSidebar();
   }
+  function patchSidebarActions() {
+    if (!SidebarActions) return;
+    Patcher.instead(SidebarActions, "setSelectedSearchContext", (self2, [id], original) => {
+      if (id === null) return;
+      original(id);
+    });
+  }
   function patchChannelView() {
     const once = ensureOnce();
     Patcher.after(ChannelView, "type", (self2, args, value) => {
@@ -29974,6 +30021,7 @@ ${DiscordSelectors.StandardSidebarView.contentColumnDefault}:has(> .BA__moduleSe
     patchChatSidebar();
     patchVoiceChannelView();
     patchMembersModViewSidebar();
+    patchSidebarActions();
   }
   css`.BA__sidebar {
     position: relative;
@@ -30084,25 +30132,39 @@ ${DiscordSelectors.StandardSidebarView.contentRegionScroller}:has(.BA__home) {
     }, [props.in]);
     return isShown;
   }
-  function patchManaModalRoot() {
+  function renderContainer(value) {
+    const container = findInReactTree(value, byClassName(DiscordClasses.ManaModal.container));
+    if (!container) return;
+    Object.assign(container, /* @__PURE__ */ BdApi.React.createElement(
+      AnimeContainer,
+      {
+        id: ModuleKey.Modals,
+        container: {
+          className: classNames(
+            "BA__manaModalContainer",
+            container.props.className
+          )
+        }
+      },
+      require$$0$1.cloneElement(container)
+    ));
+  }
+  function patchManaModals() {
     Patcher.after(ModuleKey.Modals, ...Mana.ModalRootKeyed, (self2, args, value) => {
-      const module2 = Core.getModule(ModuleKey.Modals);
-      if (!module2.isEnabled()) return;
-      const container = findInReactTree(value, byClassName(DiscordClasses.ManaModal.container));
-      if (!container) return;
-      Object.assign(container, /* @__PURE__ */ BdApi.React.createElement(
-        AnimeContainer,
-        {
-          id: ModuleKey.Modals,
-          container: {
-            className: classNames(
-              "BA__manaModalContainer",
-              container.props.className
-            )
-          }
-        },
-        require$$0$1.cloneElement(container)
-      ));
+      const { isMainWindow } = useWindow();
+      const module2 = useModule(ModuleKey.Modals);
+      if (!isMainWindow || !module2.isEnabled()) return;
+      renderContainer(value);
+    });
+    Patcher.after(ModuleKey.Modals, ...Mana.LayerModalKeyed, (self2, args, value) => {
+      const { isMainWindow } = useWindow();
+      const module2 = useModule(ModuleKey.Modals);
+      if (!isMainWindow || !module2.isEnabled()) return;
+      const wrapper = findInReactTree(value, (m) => typeof m?.children === "function");
+      if (!wrapper) return;
+      TinyPatcher.after(ModuleKey.Modals, wrapper, "children", (self22, args2, value2) => {
+        renderContainer(value2);
+      });
     });
   }
   css`.BA__manaModalContainer {
@@ -30111,10 +30173,15 @@ ${DiscordSelectors.StandardSidebarView.contentRegionScroller}:has(.BA__home) {
     box-shadow: none !important;
     padding: 0 !important;
     border-radius: 0 !important;
+    overflow: visible;
 }
 
 ${DiscordSelectors.ManaModal.container} {
     min-height: 0;
+}
+${DiscordSelectors.ManaModal.container} > ${DiscordSelectors.ManaModal.container} {
+    width: 100% !important;
+    height: 100% !important;
 }``ManaModalRoot`;
   function ModalBackdrop({ isVisible, onClick, disabled = false, disablePointerEvents = false, ...props }) {
     return /* @__PURE__ */ BdApi.React.createElement(
@@ -30141,7 +30208,7 @@ ${DiscordSelectors.ManaModal.container} {
     );
   }
   function patchModalScrim() {
-    Patcher.after(ModuleKey.ModalsBackdrop, ModalScrim, "render", (self2, [props], value) => {
+    Patcher.after(ModuleKey.ModalsBackdrop, ...ModalScrimKeyed, (self2, [props], value) => {
       const { isMainWindow } = useWindow();
       const module2 = useModule(ModuleKey.ModalsBackdrop);
       if (!isMainWindow || !module2.isEnabled()) return;
@@ -30213,7 +30280,7 @@ ${DiscordSelectors.ManaModal.container} {
       ))));
     });
     patchModalScrim();
-    patchManaModalRoot();
+    patchManaModals();
   }
   css`${DiscordSelectors.Modal.root}, .bd-modal-root {
     isolation: isolate;
@@ -30225,6 +30292,9 @@ ${DiscordSelectors.Modal.focusLock}:has(> [class*="carouselModal"]) {
 .BA__modal--hidden {
     visibility: hidden;
     pointer-events: none;
+}
+${DiscordSelectors.Modals.inactive} {
+    z-index: -1;
 }``Modals`;
   let LayersComponent = null;
   function getWindowCenterAnchor() {
@@ -30544,8 +30614,7 @@ ${DiscordSelectors.ChannelItem.containerUserOver}, ${DiscordSelectors.ChannelIte
               App.setEnableHardwareAcceleration(true);
             }
           },
-          /* @__PURE__ */ BdApi.React.createElement(Heading, { variant: "heading-md/semibold", className: DiscordClasses.Margins.marginBottom8 }, "HARDWARE ACCELERATION IS DISABLED"),
-          /* @__PURE__ */ BdApi.React.createElement(Text$1, { variant: "text-sm/normal" }, "The animations might be choppy, turn the Hardware Acceleration on to drastically improve the performance. Discord will quit and re-launch.")
+          /* @__PURE__ */ BdApi.React.createElement(Stack$1, { gap: 8 }, /* @__PURE__ */ BdApi.React.createElement(Heading, { variant: "heading-md/semibold" }, "HARDWARE ACCELERATION IS DISABLED"), /* @__PURE__ */ BdApi.React.createElement(Text$1, { variant: "text-sm/normal" }, "The animations might be choppy, turn the Hardware Acceleration on to drastically improve the performance. Discord will quit and re-launch."))
         ))
       );
     }
@@ -30566,42 +30635,6 @@ ${DiscordSelectors.Layer.layerContainer} > * {
 ${DiscordSelectors.Layer.clickTrapContainer}:has([data-baa-type="exit"]) {
     pointer-events: none !important;
 }``ReferencePositionLayer`;
-  function createPatcher() {
-    let patchedPopout = null;
-    return (self2, args, value) => {
-      const popout = findInReactTree(value, (m) => m?.renderPopout);
-      if (!popout) return;
-      popout.align = Position.Center;
-      TinyPatcher.after(popout, "renderPopout", (self3, args2, value2) => {
-        if (!patchedPopout) {
-          const { type: original } = value2;
-          patchedPopout = (props) => {
-            const value3 = original(props);
-            const [v, setV] = require$$0$1.useState(0);
-            require$$0$1.useLayoutEffect(() => setV(1), []);
-            require$$0$1.useLayoutEffect(() => {
-              if (v === 1) props.updatePosition();
-            }, [v]);
-            return value3;
-          };
-        }
-        value2.type = patchedPopout;
-      });
-    };
-  }
-  function patchSelect() {
-    const patcher = createPatcher();
-    Patcher.after(...SelectKeyed, patcher);
-    Patcher.after(...SingleSelectKeyed, (...[, , value]) => {
-      TinyPatcher.after(value, "type", patcher);
-    });
-    Patcher.after(SearchableSelect, "render", createPatcher());
-  }
-  css`/* Fixes a bug where the measurement element may interfere with the select inner element positioning */
-${DiscordSelectors.Select.measurement} {
-    top: 0;
-    left: 0;
-}``Select`;
   function patchMenuItem() {
     Patcher.after(...MenuItemKeyed, (self2, [props], value) => {
       if (!value?.props?.onClick) return;
@@ -30659,44 +30692,6 @@ ${DiscordSelectors.Select.measurement} {
   css`.BA__expressionPickerContainer {
     height: 100%;
 }``ExpressionPicker`;
-  function patchAppLauncherPopup() {
-    Patcher.after(ModuleKey.Popouts, AppLauncherPopup, "type", (self2, [props], value) => {
-      const { isMainWindow } = useWindow();
-      const module2 = useModule(ModuleKey.Popouts);
-      if (!isMainWindow || !module2.isEnabled()) return;
-      const positionLayer = findInReactTree(value, byClassName("positionLayer"));
-      if (!positionLayer) return;
-      positionLayer.props.ref = props.layerRef;
-      positionLayer.props.onPositionChange = props.onPositionChange;
-    });
-  }
-  function patchChannelAppLauncher() {
-    Patcher.after(ModuleKey.Popouts, ChannelAppLauncher, "type", (self2, args, value) => {
-      const layerRef = require$$0$1.useRef();
-      const { autoRef, setPosition } = useAutoPosition(Position.Top, { align: Position.Right });
-      const { isMainWindow } = useWindow();
-      const module2 = useModule(ModuleKey.Popouts);
-      if (!isMainWindow || !module2.isEnabled()) return;
-      const wrapper = findInReactTree(value, (m) => Array.isArray(m?.children));
-      if (!wrapper) return;
-      const { children: children2 } = wrapper;
-      const popupIndex = children2.length - 1;
-      children2[popupIndex] = /* @__PURE__ */ BdApi.React.createElement(ErrorBoundary, { module: module2, fallback: children2[popupIndex] }, /* @__PURE__ */ BdApi.React.createElement(TransitionGroup, { component: null }, children2[popupIndex] && /* @__PURE__ */ BdApi.React.createElement(
-        AnimeTransition,
-        {
-          module: module2,
-          layerRef,
-          autoRef,
-          anchor: children2[popupIndex].props?.positionTargetRef
-        },
-        require$$0$1.cloneElement(children2[popupIndex], {
-          layerRef,
-          onPositionChange: setPosition
-        })
-      )));
-    });
-    patchAppLauncherPopup();
-  }
   function patchChannelTextAreaButtons() {
     Patcher.after(ModuleKey.Popouts, ChannelTextAreaButtons, "type", (self2, [{ buttonRefs }], value) => {
       const { isMainWindow } = useWindow();
@@ -30710,42 +30705,84 @@ ${DiscordSelectors.Select.measurement} {
       }
     });
   }
+  function useButtonRefs(value) {
+    const buttonRefs = require$$0$1.useRef({});
+    const { isMainWindow } = useWindow();
+    const module2 = useModule(ModuleKey.Popouts);
+    if (!isMainWindow || !module2.isEnabled()) return buttonRefs;
+    const buttons = findInReactTree(value, (m) => m?.type === ChannelTextAreaButtons);
+    if (buttons) buttons.props.buttonRefs = buttonRefs;
+    return buttonRefs;
+  }
+  function useExpressionPicker(value, buttonRefs) {
+    const { autoRef, setPosition } = useAutoPosition(Position.Top, { align: Position.Right });
+    const anchorRef = require$$0$1.useCallback(() => {
+      const { activeView, lastActiveView } = unkeyed(useExpressionPickerStoreKeyed).getState();
+      return buttonRefs.current[activeView ?? lastActiveView] ?? buttonRefs.current["emoji"];
+    }, [buttonRefs]);
+    const { isMainWindow } = useWindow();
+    const module2 = useModule(ModuleKey.Popouts);
+    if (!isMainWindow || !module2.isEnabled()) return;
+    const wrapper = findInReactTree(value, (m) => Array.isArray(m?.children));
+    if (!wrapper) return;
+    const { children: children2 } = wrapper;
+    const expressionPickerIndex = children2.length - 1;
+    const injectContainerRef2 = (children22, ref) => {
+      if (children22?.props) children22.props.__containerRef = ref;
+    };
+    children2[expressionPickerIndex] = /* @__PURE__ */ BdApi.React.createElement(ErrorBoundary, { module: module2, fallback: children2[expressionPickerIndex] }, /* @__PURE__ */ BdApi.React.createElement(TransitionGroup, { component: null }, children2[expressionPickerIndex] && /* @__PURE__ */ BdApi.React.createElement(
+      AnimeTransition,
+      {
+        module: module2,
+        injectContainerRef: injectContainerRef2,
+        autoRef,
+        anchor: anchorRef
+      },
+      require$$0$1.cloneElement(children2[expressionPickerIndex], {
+        onPositionChange: setPosition
+      })
+    )));
+  }
+  function useAppLauncherPopup(value, buttonRefs) {
+    const layerRef = require$$0$1.useRef();
+    const { autoRef, setPosition } = useAutoPosition(Position.Top, { align: Position.Right });
+    const { isMainWindow } = useWindow();
+    const module2 = useModule(ModuleKey.Popouts);
+    if (!isMainWindow || !module2.isEnabled()) return;
+    const inner = findInReactTree(value, byClassName("inner"));
+    if (!inner) return;
+    const { children: children2 } = inner.props;
+    const popupIndex = 0;
+    if (children2[popupIndex]) {
+      TinyPatcher.after(ModuleKey.Popouts, children2[popupIndex].type, "type", (self2, [props], value2) => {
+        const positionLayer = findInReactTree(value2, byClassName("positionLayer"));
+        if (!positionLayer) return;
+        positionLayer.props.ref = props.layerRef;
+        positionLayer.props.onPositionChange = props.onPositionChange;
+      });
+    }
+    children2[popupIndex] = /* @__PURE__ */ BdApi.React.createElement(ErrorBoundary, { module: module2, fallback: children2[popupIndex] }, /* @__PURE__ */ BdApi.React.createElement(TransitionGroup, { component: null }, children2[popupIndex] && /* @__PURE__ */ BdApi.React.createElement(
+      AnimeTransition,
+      {
+        module: module2,
+        layerRef,
+        autoRef,
+        anchor: () => buttonRefs.current["appLauncher"] ?? children2[popupIndex].props?.positionTargetRef
+      },
+      require$$0$1.cloneElement(children2[popupIndex], {
+        layerRef,
+        onPositionChange: setPosition
+      })
+    )));
+  }
   function patchChannelTextArea() {
     Patcher.after(ModuleKey.Popouts, ChannelTextArea?.type, "render", (self2, args, value) => {
-      const { autoRef, setPosition } = useAutoPosition(Position.Top, { align: Position.Right });
-      const buttonRefs = require$$0$1.useRef({});
-      const anchorRef = require$$0$1.useCallback(() => {
-        const { activeView, lastActiveView } = unkeyed(useExpressionPickerStoreKeyed).getState();
-        return buttonRefs.current[activeView ?? lastActiveView] ?? buttonRefs.current["emoji"];
-      }, [buttonRefs]);
-      const { isMainWindow } = useWindow();
-      const module2 = useModule(ModuleKey.Popouts);
-      if (!isMainWindow || !module2.isEnabled()) return;
-      const buttons = findInReactTree(value, (m) => m?.type === ChannelTextAreaButtons);
-      if (buttons) buttons.props.buttonRefs = buttonRefs;
-      const wrapper = findInReactTree(value, (m) => Array.isArray(m?.children));
-      if (!wrapper) return;
-      const { children: children2 } = wrapper;
-      const expressionPickerIndex = children2.length - 1;
-      const injectContainerRef2 = (children22, ref) => {
-        if (children22?.props) children22.props.__containerRef = ref;
-      };
-      children2[expressionPickerIndex] = /* @__PURE__ */ BdApi.React.createElement(ErrorBoundary, { module: module2, fallback: children2[expressionPickerIndex] }, /* @__PURE__ */ BdApi.React.createElement(TransitionGroup, { component: null }, children2[expressionPickerIndex] && /* @__PURE__ */ BdApi.React.createElement(
-        AnimeTransition,
-        {
-          module: module2,
-          injectContainerRef: injectContainerRef2,
-          autoRef,
-          anchor: anchorRef
-        },
-        require$$0$1.cloneElement(children2[expressionPickerIndex], {
-          onPositionChange: setPosition
-        })
-      )));
+      const buttonRefs = useButtonRefs(value);
+      useExpressionPicker(value, buttonRefs);
+      useAppLauncherPopup(value, buttonRefs);
     });
     patchChannelTextAreaButtons();
     patchExpressionPicker();
-    patchChannelAppLauncher();
   }
   function patchPopToast() {
     Patcher.instead(...popToastKeyed, (self2, [key2, force], original) => {
@@ -31140,7 +31177,21 @@ ${DiscordSelectors.Select.measurement} {
     "2.0.1": { "changes": [{ "type": "added", "title": "What's new", "items": ["Enhance layout: Added alert when conflict with the custom theme is detected."] }, { "type": "fixed", "title": "Fixes", "items": ["General Settings: Updated to work in the latest release of Discord."] }] },
     "2.0.2": { "changes": [{ "type": "fixed", "title": "Fixes", "items": ["Fixed the plugin failing to load."] }] },
     "2.0.3": { "changes": [{ "type": "fixed", "title": "Fixes", "items": ["Updated to work in the latest release of Discord."] }] },
-    "2.0.4": { "changes": [{ "type": "fixed", "title": "Fixes", "items": ["Updated to work in the latest release of Discord."] }] }
+    "2.0.4": { "changes": [{ "type": "fixed", "title": "Fixes", "items": ["Updated to work in the latest release of Discord."] }] },
+    "2.0.5": { "changes": [{ "type": "fixed", "title": "Fixes", "items": ["Channels: Fixed the animation direction being incorrectly determined for the Quests page.", "Updated to work in the latest release of Discord."] }] },
+    "2.0.6": { "changes": [{ "type": "fixed", "title": "Fixes", "items": ["Modals Backdrop: Updated to work in the latest release of Discord."] }] },
+    "2.0.7": { "changes": [{ "type": "fixed", "title": "Fixes", "items": ["Settings: Updated to work in the latest release of Discord."] }] },
+    "2.0.8": { "changes": [{ "type": "fixed", "title": "Fixes", "items": ["Catalog & Library: Updated to work in the latest release of Discord."] }] },
+    "2.0.9": { "changes": [{ "type": "fixed", "title": "Fixes", "items": ["Updated to work in the latest release of Discord."] }] },
+    "2.0.10": { "changes": [{ "type": "fixed", "title": "Fixes", "items": ["Servers and Channels: Updated to work in the latest release of Discord.", "Settings: Fixed the tooltip for the Duration slider not being displayed.", "Fixed an issue where the search sidebar sometimes doesn't open when trying to search messages with Servers or Channels animations enabled."] }] },
+    "2.0.11": { "changes": [{ "type": "fixed", "title": "Fixes", "items": ["Thread Sidebar: Fixed the animations misfiring while navigating the Mod View.", "Updated to work in the latest release of Discord."] }] },
+    "2.1.0": { "changes": [{ "type": "added", "title": "What's new", "items": ["Tooltips: Integrated the new Mana Discord Tooltips.", "Settings: Integrated the new Discord User Settings Modal.", "Modals: Added support for the Discord Layer Modals.", "Plugin Settings: Optimized for the new Discord User Settings Modal. Legacy User Settings will no longer be opened when accessing the plugin settings."] }, { "type": "fixed", "title": "Fixes", "items": ["Popouts: Updated Apps & Commands integration to work in the latest release of Discord.", "Modals: Inactive modals are now correctly dimmed.", "Tooltips: Fixed the occasional misfiring of exit animation when rapidly hovering over tooltips."] }] },
+    "2.1.1": { "changes": [{ "type": "fixed", "title": "Fixes", "items": ["Updated to work in the latest release of Discord."] }] },
+    "2.1.2": { "changes": [{ "type": "fixed", "title": "Fixes", "items": ["Updated to work in the latest release of Discord."] }] },
+    "2.1.3": { "changes": [{ "type": "fixed", "title": "Fixes", "items": ["Minor style fixes."] }] },
+    "2.1.4": { "changes": [{ "type": "fixed", "title": "Fixes", "items": ["Servers: Updated to work in the latest release of Discord.", "Minor style fixes."] }] },
+    "2.1.5": { "changes": [{ "type": "fixed", "title": "Fixes", "items": ["Tooltips: Updated to work in the latest release of Discord."] }] },
+    "2.1.6": { "changes": [{ "type": "fixed", "title": "Fixes", "items": ["Updated to work in the latest release of Discord."] }] }
   };
   function parseVersion(version2) {
     const data2 = version2.match(regex.semver);
@@ -31284,6 +31335,66 @@ ${DiscordSelectors.Select.measurement} {
     justify-content: space-between;
     width: 100%;
 }``Changelog`;
+  const isNode = (node, type) => typeof type === "function" ? type(node) : node?.type === type;
+  function closest(node, type) {
+    if (isNode(node, type)) return node;
+    if (!node?.parent) return null;
+    return closest(node.parent, type);
+  }
+  function flatten(nodes, type) {
+    return nodes.flatMap((node) => {
+      if (isNode(node, type)) return [node];
+      if (!Array.isArray(node?.layout)) return [];
+      return flatten(node.layout, type);
+    });
+  }
+  async function patchSettingsContent() {
+    Patcher.after(ModuleKey.Settings, await SettingsContent, "type", (self2, [{ setting }], value) => {
+      const root2 = require$$0$1.useMemo(
+        () => setting ? closest(setting, SettingsNodeType.ROOT) : null,
+        [setting]
+      );
+      const panelKeys = require$$0$1.useMemo(
+        () => root2 ? flatten(root2.layout, SettingsNodeType.PANEL).map((node) => node.key) : [],
+        [root2]
+      );
+      const direction = useDirection(panelKeys, setting?.key);
+      const { isMainWindow } = useWindow();
+      const module2 = useModule(ModuleKey.Settings);
+      if (!isMainWindow || !module2.isEnabled()) return;
+      const auto2 = { direction };
+      return /* @__PURE__ */ BdApi.React.createElement(ErrorBoundary, { module: module2, fallback: value }, /* @__PURE__ */ BdApi.React.createElement(
+        TransitionGroup,
+        {
+          className: "BA__settingsContent",
+          childFactory: passAuto(auto2)
+        },
+        /* @__PURE__ */ BdApi.React.createElement(
+          AnimeTransition,
+          {
+            key: setting?.key ?? "none",
+            container: { className: "BA__settingsContent" },
+            module: module2,
+            auto: auto2
+          },
+          value
+        )
+      ));
+    });
+  }
+  SettingsContent.then(
+    () => css`.BA__settingsContent {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+${DiscordSelectors.SettingsSidebar.sidebar} {
+    isolation: isolate;
+}``SettingsContent`
+  );
   function index(meta2) {
     saveMeta(meta2);
     return {
@@ -31313,18 +31424,18 @@ ${DiscordSelectors.Select.measurement} {
         patchChannelMessageList();
         patchChannelView();
         patchStandardSidebarView();
+        patchSettingsContent();
         patchModals();
         patchLayers();
         patchListThin();
         patchGuildChannelList();
         patchReferencePositionLayer();
-        patchSelect();
         patchChannelTextArea();
         patchPopToast();
         patchRootElementContext();
         applyOptimizationPatches();
         Logger.info("Startup", "Forcing app update...");
-        forceAppUpdate();
+        queueMicrotask(() => forceAppUpdate());
         Logger.info("Startup", "Finished.");
       },
       stop() {
@@ -31361,4 +31472,4 @@ ${DiscordSelectors.Select.measurement} {
     overflow: clip;
 }``General`;
   return index;
-}(BdApi.React, require("events"), BdApi.Utils.className, require("fs"), require("path"), BdApi.ReactDOM);
+})(BdApi.React, require("events"), BdApi.Utils.className, require("fs"), require("path"), require("electron"), BdApi.ReactDOM);
