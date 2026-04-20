@@ -1,6 +1,7 @@
 {
   "$schema": "https://opencode.ai/config.json",
-
+  "logLevel": "WARN",
+  "username": "victor",
   "provider": {
     "ollama": {
       "npm": "@ai-sdk/openai-compatible",
@@ -22,18 +23,27 @@
       }
     }
   },
-
-  "compaction": {
-    "auto": true,
-    "prune": true,
-    "reserved": 16000
-  },
-
   "share": "manual",
   "autoupdate": true,
   "snapshot": true,
   "default_agent": "plan",
-
+  "skills": {
+    "urls": ["https://skillsmp.com/", "https://skills.sh/"],
+    "paths": ["~/.skills", "~/.config/opencode/skills"]
+  },
+  "instructions": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "INSTRUCTIONS.md",
+    ".opencode/instructions.md",
+    ".github/copilot-instructions.md"
+  ],
+  "experimental": {
+    "batch_tool": true,
+    "continue_loop_on_deny": true,
+    "mcp_timeout": 30000,
+    "openTelemetry": false
+  },
   "watcher": {
     "ignore": [
       "node_modules/**",
@@ -54,10 +64,21 @@
       "*.lock",
       "*.log",
       ".DS_Store",
-      "Thumbs.db"
+      "Thumbs.db",
+      ".terraform/**",
+      ".cargo/**",
+      ".rustup/**",
+      "*.o",
+      "*.so",
+      "*.dylib",
+      "*.class",
+      "*.jar",
+      ".idea/**",
+      ".vscode/**",
+      "*.swp",
+      "*.swo"
     ]
   },
-
   "formatter": {
     "prettier": {
       "command": ["npx", "prettier", "--write", "$FILE"],
@@ -88,9 +109,38 @@
     "shfmt": {
       "command": ["shfmt", "-w", "-i", "2", "-ci", "$FILE"],
       "extensions": [".sh", ".bash", ".zsh"]
+    },
+    "rustfmt": {
+      "command": ["rustfmt", "$FILE"],
+      "extensions": [".rs"]
+    },
+    "gofmt": {
+      "command": ["gofmt", "-w", "$FILE"],
+      "extensions": [".go"]
     }
   },
-
+  "lsp": {
+    "typescript": {
+      "command": ["typescript-language-server", "--stdio"],
+      "extensions": [".ts", ".tsx", ".js", ".jsx"]
+    },
+    "python": {
+      "command": ["pyright-langserver", "--stdio"],
+      "extensions": [".py"]
+    },
+    "rust": {
+      "command": ["rust-analyzer"],
+      "extensions": [".rs"]
+    },
+    "go": {
+      "command": ["gopls", "serve"],
+      "extensions": [".go"]
+    },
+    "clangd": {
+      "command": ["clangd", "--background-index"],
+      "extensions": [".c", ".cpp", ".h", ".hpp", ".cc"]
+    }
+  },
   "permission": {
     "*": "allow",
     "bash": {
@@ -120,76 +170,198 @@
       "shutdown*": "deny",
       "reboot*": "deny",
       "systemctl stop*": "ask",
-      "systemctl disable*": "ask"
+      "systemctl disable*": "ask",
+      "iptables *": "ask",
+      "ip6tables *": "ask",
+      "mount *": "ask",
+      "umount *": "ask",
+      "fdisk *": "deny",
+      "parted *": "deny",
+      "npm publish*": "ask",
+      "cargo publish*": "ask",
+      "pip install*": "ask",
+      "apt install*": "ask",
+      "apt remove*": "ask",
+      "pacman -R*": "ask",
+      "crontab *": "ask",
+      "ssh *": "ask",
+      "scp *": "ask",
+      "rsync *": "ask"
     },
+    "read": "allow",
+    "write": "allow",
+    "edit": "allow",
+    "glob": "allow",
+    "grep": "allow",
+    "list": "allow",
+    "task": "allow",
+    "todowrite": "allow",
+    "question": "allow",
+    "webfetch": "allow",
+    "websearch": "allow",
+    "codesearch": "allow",
+    "lsp": "allow",
+    "skill": "allow",
     "external_directory": "ask",
     "doom_loop": "ask"
   },
-
-  "mcp": {
-    "filesystem": {
-      "type": "local",
-      "command": [
-        "npx",
-        "-y",
-        "@modelcontextprotocol/server-filesystem",
-        "/"
-      ],
-      "enabled": true
-    },
-    "memory": {
-      "type": "local",
-      "command": ["npx", "-y", "@modelcontextprotocol/server-memory"],
-      "enabled": true
-    }
-  },
-
-  "agent": {
-    "plan": {
-      "color": "primary"
-    },
-    "build": {
-      "color": "secondary"
-    }
-  },
-
   "command": {
     "refactor": {
       "description": "Refactor code for clarity and performance",
-      "template": "Refactor the selected code to be cleaner, more efficient, and follow best practices. Explain what changes you made and why. Focus on:\n- Reducing complexity\n- Improving naming\n- Extracting reusable functions\n- Removing dead code\n- Applying SOLID principles\n$ARGUMENTS"
+      "template": "Refactor the following code. Explain what you changed and why.\n$ARGUMENTS"
     },
     "explain": {
       "description": "Explain code in depth",
-      "template": "Explain the selected code in detail. Include:\n- What it does at a high level\n- How each section works\n- Data flow and control flow\n- Design patterns used\n- Potential edge cases or gotchas\n- Time/space complexity if applicable\n$ARGUMENTS"
+      "template": "Explain the following code in detail -- high-level purpose, data/control flow, design patterns, edge cases, complexity.\n$ARGUMENTS"
     },
     "deps": {
       "description": "Audit and update dependencies",
-      "template": "Analyze project dependencies:\n1. Check for outdated packages\n2. Identify known security vulnerabilities\n3. Find unused dependencies\n4. Detect duplicate dependencies\n5. Suggest version updates with migration notes\n6. Check license compatibility\n$ARGUMENTS"
+      "template": "Audit project dependencies: outdated packages, security vulnerabilities, unused deps, duplicates, license issues.\n$ARGUMENTS"
     },
     "clean": {
       "description": "Clean up project artifacts",
-      "template": "Clean up the project:\n1. Remove build artifacts (dist/, build/, target/)\n2. Clear caches (.cache, __pycache__, .pytest_cache)\n3. Remove node_modules if requested\n4. Clean git ignored files that are still present\n5. Report disk space recovered\nAsk before each destructive operation.\n$ARGUMENTS",
+      "template": "Clean up build artifacts, caches, and ignored files. Ask before each destructive operation.\n$ARGUMENTS",
       "agent": "build"
     },
     "scaffold": {
       "description": "Scaffold a new component/module/feature",
-      "template": "Create a new $ARGUMENTS following the project's existing patterns and conventions:\n1. Analyze similar existing files to understand the project's conventions\n2. Create the new file(s) with proper structure\n3. Add exports to index files if needed\n4. Create corresponding test file(s)\n5. Update any relevant configuration\nFollow the project's naming conventions and file organization.",
+      "template": "Create a new $ARGUMENTS following the project's existing patterns, conventions, and file organization. Include test files.",
       "agent": "build"
     },
     "learn": {
       "description": "Explain a concept or technology",
-      "template": "Explain the following concept/technology in depth, tailored for someone with systems programming experience:\n$ARGUMENTS\n\nInclude:\n- Core concepts and mental models\n- How it works under the hood\n- Real-world use cases\n- Common pitfalls\n- Code examples\n- Resources for deeper learning",
+      "template": "Explain in depth (for someone with systems programming experience): $ARGUMENTS\n\nInclude: core concepts, how it works under the hood, use cases, pitfalls, code examples, resources.",
       "agent": "plan"
-    },
-    "write": {
-      "description": "Write text in your personal style",
-      "template": "Write the following using a professional yet personable tone. Be direct, technically precise, and concise. Avoid corporate jargon and filler words:\n$ARGUMENTS",
-      "agent": "style"
     },
     "diagram": {
       "description": "Generate architecture/flow diagrams",
-      "template": "Generate a diagram for the following using Mermaid syntax:\n$ARGUMENTS\n\nIf no specific type is requested, analyze the context and choose the most appropriate diagram type:\n- flowchart: for processes and workflows\n- sequenceDiagram: for API calls and interactions between services\n- classDiagram: for OOP structures and relationships\n- erDiagram: for database schemas\n- stateDiagram-v2: for state machines\n- graph TD: for dependency trees and architecture\n- gantt: for project timelines\n- gitGraph: for branching strategies\n\nWrap the output in a ```mermaid code block. Include a brief text description of the diagram above it. If analyzing the codebase, read the relevant files first to ensure accuracy.",
+      "template": "Generate a Mermaid diagram for: $ARGUMENTS\n\nChoose the best diagram type (flowchart, sequence, class, ER, state, graph, gantt, gitGraph). Read relevant code first.",
       "agent": "plan"
+    },
+    "test": {
+      "description": "Write or run tests",
+      "template": "Write comprehensive tests (happy path, errors, edge cases) for: $ARGUMENTS\n\nUse the project's existing test framework and patterns. Run and fix failures.",
+      "agent": "build"
+    },
+    "commit": {
+      "description": "Stage changes and craft a commit message",
+      "template": "Review changes, stage files, and craft a conventional commit message. Ask for confirmation before committing.\n$ARGUMENTS",
+      "agent": "git"
+    },
+    "review": {
+      "description": "Review code for bugs, security, and best practices",
+      "template": "Review the following code thoroughly. Follow the review process in your agent instructions.\n$ARGUMENTS",
+      "agent": "code-reviewer"
+    },
+    "perf": {
+      "description": "Profile and optimize performance",
+      "template": "Analyze for performance issues, measure, optimize, and re-measure: $ARGUMENTS",
+      "agent": "optimizer"
+    },
+    "security": {
+      "description": "Run a security audit",
+      "template": "Security audit (OWASP methodology): $ARGUMENTS",
+      "agent": "security"
+    },
+    "docker": {
+      "description": "Create or optimize Docker configuration",
+      "template": "Analyze or create Docker configuration for: $ARGUMENTS\n\nFollow Docker best practices from the devops agent instructions.",
+      "agent": "build"
+    },
+    "migrate": {
+      "description": "Plan and execute a migration",
+      "template": "Plan and execute migration with rollback strategy: $ARGUMENTS",
+      "agent": "plan"
+    },
+    "explore": {
+      "description": "Explore and understand a codebase",
+      "template": "Explore and map: $ARGUMENTS\n\nProvide a concise summary suitable for onboarding.",
+      "agent": "explore"
+    },
+    "verify": {
+      "description": "Verify recent changes work correctly",
+      "template": "Independently verify recent changes: $ARGUMENTS\n\nReport findings honestly with evidence.",
+      "agent": "verifier"
+    },
+    "architect": {
+      "description": "Design system architecture",
+      "template": "Design architecture for: $ARGUMENTS\n\nFollow the output structure in your agent instructions.",
+      "agent": "architect"
+    },
+    "debug": {
+      "description": "Systematically find and fix a bug",
+      "template": "Debug: $ARGUMENTS\n\nFollow the debugging methodology in your agent instructions.",
+      "agent": "debugger"
+    },
+    "docs": {
+      "description": "Write or improve documentation",
+      "template": "Write or improve documentation for: $ARGUMENTS",
+      "agent": "docs-writer"
+    },
+    "cp": {
+      "description": "Solve a competitive programming problem",
+      "template": "Solve: $ARGUMENTS\n\nRead templates from ~/.config/opencode/scripts/cp/templates.md before implementing.",
+      "agent": "competitive-programming"
+    },
+    "devops": {
+      "description": "Infrastructure, CI/CD, and deployment",
+      "template": "Handle: $ARGUMENTS",
+      "agent": "devops"
+    },
+    "write": {
+      "description": "Write text in your personal style",
+      "template": "$ARGUMENTS",
+      "agent": "style"
+    },
+    "pdf": {
+      "description": "Read and analyse PDF files",
+      "template": "Read and analyse: $ARGUMENTS\n\nUse `pdftotext \"<path>\" -` to extract text. Do NOT open .pdf files directly.",
+      "agent": "build"
+    },
+    "fix": {
+      "description": "Fix lint, type, and formatting errors",
+      "template": "Fix all lint, type, and formatting errors: $ARGUMENTS\n\nFix at root cause, don't suppress. Re-run to verify.",
+      "agent": "build"
+    },
+    "plan": {
+      "description": "Think through a problem before implementing",
+      "template": "Think through carefully before acting: $ARGUMENTS\n\nPresent the plan and ask before executing.",
+      "agent": "plan"
+    },
+    "init": {
+      "description": "Initialize a new project",
+      "template": "Initialize a new project: $ARGUMENTS\n\nAsk if language/framework unclear. Set up standard tooling, .gitignore, README. Verify it builds.",
+      "agent": "build"
+    },
+    "pr": {
+      "description": "Create a pull request",
+      "template": "Create a PR for the current branch: $ARGUMENTS\n\nReturn the PR URL.",
+      "agent": "git"
+    },
+    "todo": {
+      "description": "Find TODOs, FIXMEs, HACKs in codebase",
+      "template": "Find all TODO/FIXME/HACK/XXX comments in source files (exclude node_modules, .git, build artifacts). Group by severity.\n$ARGUMENTS",
+      "agent": "explore"
+    },
+    "env": {
+      "description": "Check project environment health",
+      "template": "Check dev environment health: tools, dependencies, configs, build.\n$ARGUMENTS",
+      "agent": "build"
+    },
+    "mtg": {
+      "description": "Build, analyze, or optimize a Commander/EDH deck",
+      "template": "$ARGUMENTS\n\nFollow the deck building workflow in your agent instructions. Use ALL data sources.",
+      "agent": "mtg-deck"
+    },
+    "mtg-card": {
+      "description": "Look up an MTG card",
+      "template": "Look up with full details: $ARGUMENTS",
+      "agent": "mtg-deck"
+    },
+    "mtg-rules": {
+      "description": "Answer an MTG rules question",
+      "template": "Rules question: $ARGUMENTS",
+      "agent": "mtg-rules"
     }
   }
 }

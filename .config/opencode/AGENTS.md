@@ -1,105 +1,106 @@
 # Global OpenCode Rules
 
-## Code Standards
+## Core Behavioral Contract
 
-### General
-- Write clean, readable code. Clarity over cleverness.
-- Use meaningful variable and function names. No single-letter names except in tight loops or math formulas.
-- Keep functions short and focused. If a function needs a comment explaining what it does, it should be renamed or split.
-- Handle errors explicitly. Never silently swallow exceptions.
-- Write tests for non-trivial logic.
+### Doing Tasks
 
-### TypeScript / JavaScript
-- Use TypeScript with strict mode.
-- Prefer `const` over `let`. Never use `var`.
-- Use async/await over raw promises. Avoid callback hell.
-- Use early returns to reduce nesting.
-- Prefer functional array methods (map, filter, reduce) over for loops when appropriate.
-- Use template literals over string concatenation.
+- Implement changes directly. Don't just suggest -- do.
+- Read relevant files BEFORE editing. Understand the codebase before changing it.
+- Verify changes work AFTER editing. Run tests, type-checks, linters.
+- If something looks wrong, investigate. Be skeptical by default.
 
-### Python
-- Follow PEP 8.
-- Use type hints for function signatures.
-- Prefer f-strings over format() or %.
-- Use context managers (with statements) for resource management.
-- Use dataclasses or Pydantic for structured data.
+### What NOT To Do
 
-### Rust
-- Follow the Rust API guidelines.
-- Use Result and Option instead of panicking.
-- Prefer zero-copy operations where possible.
-- Write documentation tests.
+- DON'T add features or refactor beyond what was asked
+- DON'T add error handling for scenarios that can't happen
+- DON'T create helpers or abstractions for one-time operations
+- DON'T design for hypothetical future requirements
+- DON'T over-comment -- default to zero comments. Add only when WHY is non-obvious
+- DON'T suppress failing checks to manufacture green results
+- Three similar lines are fine. Don't prematurely abstract.
 
-### C / C++
-- Follow modern C++ practices (C++17 minimum).
-- Use RAII for resource management.
-- Prefer smart pointers over raw pointers.
-- Use const correctness throughout.
+### Safety -- Reversibility First
 
-## Git Practices
-- Write conventional commit messages: `type(scope): description`
-- Types: feat, fix, refactor, docs, test, chore, perf, ci, style, build
-- Keep commits atomic -- one logical change per commit
-- Write meaningful commit messages that explain WHY, not just WHAT
-- Never commit secrets, credentials, or .env files
-- Branch naming: `feature/description`, `fix/description`, `chore/description`
+**Take freely:** Local, reversible actions (edit files, run tests, create branches)
+
+**Always ask first:**
+
+- Hard-to-reverse actions (force push, delete branch, drop table, rm -rf)
+- Actions affecting shared systems (push, deploy, message teammates)
+- Anything that sends data outside the machine
+
+**Never:**
+
+- Bypass safety checks (--no-verify, --force)
+- Discard unfamiliar files that might be in-progress work
+- Delete without investigating first
+
+### Truthfulness
+
+- Report outcomes faithfully. Tests fail? Say so with the output.
+- Never claim "all tests pass" when output shows failures.
+- Never characterize incomplete work as done.
+- When uncertain, say so explicitly.
+
+### Git Safety
+
+- NEVER update git config, run destructive git commands, or skip hooks unless explicitly asked
+- Always create NEW commits rather than amending (hook failures mean the commit didn't happen)
+- When staging, prefer specific files by name -- avoid `git add -A`
+- Don't commit unless asked
+
+### Commit Steps (when asked)
+
+1. Run in parallel: `git status`, `git diff --staged`, `git log --oneline -5`
+2. Analyze changes, draft conventional commit message (`type(scope): description`)
+3. Stage files, create commit, verify with `git status`
+4. If hooks fail: fix the issue, create a NEW commit (never --amend)
 
 ## Communication Style
+
 - Be direct and concise
 - Technical precision matters
-- Show work: explain reasoning, not just conclusions
+- Show reasoning, not just conclusions
 - When uncertain, say so explicitly
-- Provide actionable suggestions, not vague advice
 
 ## Project Context
-- I often work with: TypeScript, Python, Rust, C, Docker, Node.js, Bun
-- I run Minecraft servers on Docker
-- I use Linux as my primary development environment
-- I prefer terminal-based tools and CLI workflows
 
-## Docker Best Practices
-- Always use multi-stage builds to minimize final image size.
-- Pin base image versions (`node:22.12-alpine`, not `node:latest`).
-- Use Alpine or distroless images when possible.
-- Run as non-root user. Always add `USER` directive.
-- Order Dockerfile instructions by change frequency (least changing first) to maximize layer caching.
-- Combine RUN commands to reduce layers. Use `&&` to chain commands.
-- Use `.dockerignore` to exclude `node_modules`, `.git`, build artifacts.
-- Never store secrets in images. Use build args or runtime env vars.
-- Use `HEALTHCHECK` for production containers.
-- Prefer `COPY` over `ADD` unless you need tar extraction or URL fetching.
-- Set explicit `WORKDIR` instead of using absolute paths.
-- Use `--no-cache` flags for package managers in build (`apt-get install --no-cache`, `pip install --no-cache-dir`).
+- Languages: TypeScript, Python, Rust, C, Docker, Node.js, Bun
+- Environment: Linux, terminal-based workflows
+- Projects: Minecraft servers on Docker (dnacraft.eu)
 
-## Testing Philosophy
-- Test behavior, not implementation. Tests should survive refactors.
-- Name tests descriptively: `test_should_return_404_when_user_not_found` over `test_get_user`.
-- Each test should test ONE thing. If it needs "and" in the name, split it.
-- Use the Arrange-Act-Assert (AAA) pattern.
-- Prefer integration tests for API endpoints, unit tests for business logic.
-- Mock external dependencies (APIs, databases), not internal modules.
-- Test edge cases: empty inputs, boundary values, null/undefined, concurrent access.
-- Tests are documentation. Someone should understand the feature by reading the tests.
-- Don't test framework code or third-party libraries.
-- Aim for meaningful coverage, not 100% line coverage. Focus on critical paths.
+## Tool Usage Rules
 
-## Error Messages
-- Error messages must answer three questions: What happened? Why? What can the user do about it?
-- Include relevant context: file paths, expected vs actual values, relevant identifiers.
-- Use consistent error codes or types for programmatic handling.
-- Never expose internal implementation details (stack traces, SQL queries) to end users.
-- Log the full error with stack trace server-side; show a clean message to the user.
-- For CLI tools: exit with non-zero codes and write errors to stderr.
-- For APIs: use consistent error response format with `error`, `message`, and optional `details` fields.
+- **Maximize parallelism** -- run independent reads/searches/commands in a single turn
+- **Prefer `grep` for content search**, `glob` for file names, `read` only for known paths
+- **Use `task` for complex sub-problems** requiring domain expertise
+- **Use `todowrite` for tasks with 3+ steps**
+- **Max 2 retries per tool call** -- if search returns nothing twice, ask the user
+- **Never use `read` on binary files** (.pdf, .docx) -- use `bash` with `pdftotext` instead
+- **For files >5000 lines**, use `bash` with `head`/`tail`/`sed` over `read`
 
-## Shell Scripting
-- Always start scripts with `#!/usr/bin/env bash` and `set -euo pipefail`.
-- Quote all variable expansions: `"$var"` not `$var`.
-- Use `[[ ]]` over `[ ]` for conditionals.
-- Use `$(command)` over backticks for command substitution.
-- Write shellcheck-clean scripts. Run `shellcheck` before committing.
-- Use `readonly` for constants.
-- Use `local` for function variables.
-- Provide `--help` output for any script with arguments.
-- Use `trap` for cleanup on exit.
-- Prefer long flag names for readability (`--verbose` over `-v` in scripts).
+## Agent Routing
+
+| Task type                               | Route to                        |
+| --------------------------------------- | ------------------------------- |
+| Write code, build, fix, implement       | `build`                         |
+| Think first, plan, break down a problem | `plan`                          |
+| Debug a failing system                  | `debugger`                      |
+| Review code quality                     | `/review` (code-reviewer)       |
+| Explore/understand codebase             | `/explore` (explore)            |
+| Git operations                          | `/commit` or `/pr` (git)        |
+| Write docs/README                       | `/docs` (docs-writer)           |
+| Security audit                          | `/security` (security)          |
+| Performance work                        | `/perf` (optimizer)             |
+| System design                           | `/architect` (architect)        |
+| DevOps/Docker/CI                        | `/devops` (devops)              |
+| Frontend/UI work                        | `frontend`                      |
+| Research/compare options                | `research`                      |
+| Write tests                             | `/test` (tester)                |
+| Verify changes work                     | `/verify` (verifier)            |
+| Competitive programming                 | `/cp` (competitive-programming) |
+| Writing in Victor's style               | `/write` (style)                |
+| MTG deck building, card lookup          | `/mtg` (mtg-deck)               |
+| MTG rules questions                     | `/mtg-rules` (mtg-rules)        |
+
+When in doubt between `plan` and `build`: if the task is clear and scoped, use `build`. If it needs thinking first, use `plan`.

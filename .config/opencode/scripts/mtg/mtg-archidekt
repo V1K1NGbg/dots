@@ -1,0 +1,116 @@
+#!/usr/bin/env python3
+"""Generate an Archidekt sandbox URL pre-populated with cards using Scryfall UUIDs.
+
+Usage: mtg-archidekt <validation-json>
+
+Takes the JSON output of mtg-validate (which includes scryfall_ids and
+commander_scryfall_id) and generates a sandbox URL that opens Archidekt with
+all 100 cards already loaded — no login required.
+
+Example:
+    python3 mtg-validate "Commander Name" <<'DECKLIST'
+    1 Sol Ring
+    ...
+    DECKLIST
+
+    # Then pipe the validate output into archidekt:
+    python3 mtg-archidekt "$(python3 mtg-validate ...)"
+
+    # Or more practically, save validate output and pass it:
+    python3 mtg-archidekt "$VALIDATE_OUTPUT"
+
+On success: prints JSON with {"url": "https://archidekt.com/sandbox?deck=..."}
+"""
+
+import sys
+import json
+import urllib.parse
+
+
+def build_sandbox_url(commander_id: str, scryfall_ids: dict) -> str:
+    """Build an Archidekt sandbox URL with all cards pre-loaded.
+
+    Archidekt sandbox accepts a `deck` query parameter with JSON array:
+    [{"c":"c","f":0,"q":1,"u":"<scryfall-uuid>"}, ...]
+
+    c = category ("c" for commander, "" for main deck)
+    f = foil (0 = no)
+    q = quantity
+    u = Scryfall UUID
+
+    scryfall_ids format: {name: {"id": uuid, "qty": count}} (new format)
+    Also supports legacy format: {name: uuid_string} (for backward compat)
+    """
+    deck_entries = []
+
+    if commander_id:
+        deck_entries.append({
+            "c": "c",
+            "f": 0,
+            "q": 1,
+            "u": commander_id,
+        })
+
+    for name, value in scryfall_ids.items():
+        # Support both new format {"id": ..., "qty": ...} and legacy format (plain string)
+        if isinstance(value, dict):
+            sid = value.get("id", "")
+            qty = value.get("qty", 1)
+        else:
+            sid = value
+            qty = 1
+
+        if sid and sid != commander_id:
+            deck_entries.append({
+                "c": "",
+                "f": 0,
+                "q": qty,
+                "u": sid,
+            })
+
+    deck_json = json.dumps(deck_entries, separators=(",", ":"))
+    return f"https://archidekt.com/sandbox?deck={urllib.parse.quote(deck_json)}"
+
+
+def main():
+    if len(sys.argv) < 2:
+        print(json.dumps({"error": "Usage: mtg-archidekt '<validation-json>'"}))
+        sys.exit(1)
+
+    raw = sys.argv[1]
+    try:
+        validation = json.loads(raw)
+    except json.JSONDecodeError as e:
+        print(json.dumps({"error": f"Invalid JSON input: {e}"}))
+        sys.exit(1)
+
+    commander_id = validation.get("commander_scryfall_id", "")
+    scryfall_ids = validation.get("scryfall_ids", {})
+    commander_name = validation.get("commander", "Unknown")
+
+    if not scryfall_ids:
+        print(json.dumps({
+            "error": "No scryfall_ids in validation output — run mtg-validate first",
+            "fallback_url": "https://archidekt.com/sandbox",
+        }, indent=2))
+        sys.exit(1)
+
+    url = build_sandbox_url(commander_id, scryfall_ids)
+    total_qty = sum(
+        (v.get("qty", 1) if isinstance(v, dict) else 1)
+        for v in scryfall_ids.values()
+    ) + (1 if commander_id else 0)
+
+    print(json.dumps({
+        "url": url,
+        "commander": commander_name,
+        "cards_loaded": total_qty,
+        "instructions": (
+            "Open the URL to view the deck in Archidekt's sandbox. "
+            "All cards are pre-loaded. Log in and click 'Save' to keep it."
+        ),
+    }, indent=2))
+
+
+if __name__ == "__main__":
+    main()

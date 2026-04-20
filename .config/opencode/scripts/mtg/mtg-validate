@@ -1,0 +1,325 @@
+#!/usr/bin/env python3
+"""Validate a Commander decklist: count, duplicates, color identity, mana curve, pip distribution.
+
+Usage: mtg-validate <commander-name> [decklist-file]
+
+Reads a decklist from stdin or file, one card per line:
+  1 Sol Ring
+  1 Lightning Bolt
+  ...
+
+Or just card names (quantity assumed 1):
+  Sol Ring
+  Lightning Bolt
+
+Lines starting with '#', '//', or '===' are ignored (comments/section headers).
+The commander should NOT be in the file -- pass it as a CLI argument.
+"""
+
+import sys
+import json
+import re
+import urllib.request
+import urllib.error
+import urllib.parse
+import time
+import argparse
+
+MAX_RETRIES = 3
+RETRY_DELAYS = [2, 5, 10]
+
+
+def _post_json(url: str, payload: dict, retries: int = MAX_RETRIES) -> dict | None:
+    data = json.dumps(payload).encode()
+    req = urllib.request.Request(url, data=data, headers={
+        "User-Agent": "MTGAgent/1.0",
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+    }, method="POST")
+    for attempt in range(retries):
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                return json.loads(resp.read().decode())
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                return None
+            if e.code == 429 and attempt < retries - 1:
+                time.sleep(RETRY_DELAYS[min(attempt, len(RETRY_DELAYS) - 1)])
+                continue
+            return None
+        except Exception:
+            if attempt < retries - 1:
+                time.sleep(RETRY_DELAYS[min(attempt, len(RETRY_DELAYS) - 1)])
+                continue
+            return None
+    return None
+
+
+def fetch_card_single(name: str) -> dict | None:
+    """Fallback: fetch a single card by name (for commander lookup)."""
+    encoded = urllib.parse.quote(name)
+    url = f"https://api.scryfall.com/cards/named?fuzzy={encoded}"
+    req = urllib.request.Request(url, headers={
+        "User-Agent": "MTGAgent/1.0",
+        "Accept": "application/json",
+    })
+    for attempt in range(MAX_RETRIES):
+        try:
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                return json.loads(resp.read().decode())
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                return None
+            if e.code == 429 and attempt < MAX_RETRIES - 1:
+                time.sleep(RETRY_DELAYS[min(attempt, len(RETRY_DELAYS) - 1)])
+                continue
+            return None
+        except Exception:
+            if attempt < MAX_RETRIES - 1:
+                time.sleep(RETRY_DELAYS[min(attempt, len(RETRY_DELAYS) - 1)])
+                continue
+            return None
+    return None
+
+
+def fetch_collection(names: list[str]) -> tuple[list[dict], list[str]]:
+    """Fetch up to 75 cards at once using POST /cards/collection.
+    
+    Returns (found_cards, not_found_names).
+    Scryfall rate limit for this endpoint: 2 req/s (500ms between).
+    """
+    url = "https://api.scryfall.com/cards/collection"
+    found = []
+    not_found = []
+
+    # Batch into chunks of 75 (Scryfall limit)
+    for i in range(0, len(names), 75):
+        if i > 0:
+            time.sleep(0.6)  # respect 2 req/s rate limit
+
+        batch = names[i:i + 75]
+        identifiers = [{"name": name} for name in batch]
+        result = _post_json(url, {"identifiers": identifiers})
+
+        if result is None:
+            not_found.extend(batch)
+            continue
+
+        found.extend(result.get("data", []))
+        for nf in result.get("not_found", []):
+            nf_name = nf.get("name", "")
+            if nf_name:
+                not_found.append(nf_name)
+
+    return found, not_found
+
+
+def parse_line(line: str) -> tuple[int, str]:
+    line = line.strip()
+    if not line or line.startswith("#") or line.startswith("//") or line.startswith("==="):
+        return 0, ""
+    if line.upper().startswith("TOTAL:") or line.upper().startswith("AVERAGE"):
+        return 0, ""
+    m = re.match(r"^(\d+)\s+(.+)$", line)
+    if m:
+        return int(m.group(1)), m.group(2).strip()
+    return 1, line
+
+
+def count_pips(mana_cost: str) -> dict[str, int]:
+    pips: dict[str, int] = {}
+    symbols = re.findall(r"\{([^}]+)\}", mana_cost)
+    for sym in symbols:
+        sym = sym.upper()
+        if sym in ("W", "U", "B", "R", "G"):
+            pips[sym] = pips.get(sym, 0) + 1
+        elif "/" in sym:
+            for part in sym.split("/"):
+                if part in ("W", "U", "B", "R", "G"):
+                    pips[part] = pips.get(part, 0) + 1
+    return pips
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Validate a Commander decklist")
+    parser.add_argument("commander", nargs="+", help="Commander name")
+    parser.add_argument("--file", "-f", help="Decklist file (default: stdin)")
+    args = parser.parse_args()
+
+    commander_name = " ".join(args.commander)
+
+    if args.file:
+        with open(args.file) as f:
+            lines = f.readlines()
+    else:
+        lines = sys.stdin.readlines()
+
+    commander_data = fetch_card_single(commander_name)
+    if not commander_data:
+        print(json.dumps({"error": f"Commander not found: {commander_name}"}))
+        sys.exit(1)
+
+    commander_identity = set(commander_data.get("color_identity", []))
+
+    cards: list[tuple[int, str]] = []
+    for line in lines:
+        qty, name = parse_line(line)
+        if name:
+            cards.append((qty, name))
+
+    total_count = sum(qty for qty, _ in cards) + 1  # +1 for commander
+    name_counts: dict[str, int] = {}
+    for qty, name in cards:
+        name_counts[name] = name_counts.get(name, 0) + qty
+
+    duplicates = {name: count for name, count in name_counts.items() if count > 1}
+
+    # Build unique name list for batch lookup, preserving order
+    unique_names = list(dict.fromkeys(name for _, name in cards))
+
+    # Batch fetch all cards at once (2 API calls for 99 cards)
+    found_cards, not_found_names = fetch_collection(unique_names)
+
+    # Build lookup by name (lowercase for fuzzy matching)
+    card_lookup: dict[str, dict] = {}
+    for card in found_cards:
+        card_lookup[card.get("name", "").lower()] = card
+        # Also map by each face name for DFCs
+        for face in card.get("card_faces", []):
+            face_name = face.get("name", "").lower()
+            if face_name:
+                card_lookup[face_name] = card
+
+    issues = []
+    warnings = []
+    cmc_curve: dict[int, int] = {}
+    total_pips: dict[str, int] = {"W": 0, "U": 0, "B": 0, "R": 0, "G": 0}
+    type_counts: dict[str, int] = {}
+    land_count = 0
+    nonland_cmc_total = 0.0
+    nonland_count = 0
+    cards_checked = 0
+    cards_resolved = 0
+    actual_not_found = []
+    scryfall_ids: dict[str, dict] = {}  # card name -> {"id": uuid, "qty": total_qty}
+
+    for qty, name in cards:
+        cards_checked += 1
+
+        card = card_lookup.get(name.lower())
+        if not card:
+            # Try matching against full DFC names (e.g. "Agadeem's Awakening" -> "Agadeem's Awakening // Agadeem, the Undercrypt")
+            for full_name, c in card_lookup.items():
+                if full_name.startswith(name.lower()):
+                    card = c
+                    break
+
+        if not card:
+            actual_not_found.append(name)
+            continue
+
+        cards_resolved += 1
+        if name in scryfall_ids:
+            scryfall_ids[name]["qty"] += qty
+        else:
+            scryfall_ids[name] = {"id": card.get("id", ""), "qty": qty}
+
+        legality = card.get("legalities", {}).get("commander", "unknown")
+        if legality == "banned":
+            issues.append(f"BANNED in Commander: {name}")
+        elif legality != "legal":
+            issues.append(f"NOT LEGAL in Commander ({legality}): {name}")
+
+        card_identity = set(card.get("color_identity", []))
+        if not card_identity.issubset(commander_identity):
+            extra = card_identity - commander_identity
+            issues.append(
+                f"COLOR IDENTITY VIOLATION: {name} has {extra} "
+                f"but commander only allows {commander_identity}"
+            )
+
+        type_line = card.get("type_line", "").lower()
+        is_land = "land" in type_line
+        if is_land:
+            land_count += qty
+
+        for t in ["creature", "instant", "sorcery", "artifact", "enchantment", "planeswalker", "land", "battle"]:
+            if t in type_line:
+                type_counts[t] = type_counts.get(t, 0) + qty
+
+        cmc = int(card.get("cmc", 0))
+        bucket = min(cmc, 7)
+        cmc_curve[bucket] = cmc_curve.get(bucket, 0) + qty
+
+        if not is_land:
+            nonland_cmc_total += card.get("cmc", 0) * qty
+            nonland_count += qty
+
+        mana_cost = card.get("mana_cost", "")
+        pips = count_pips(mana_cost)
+        for color, count in pips.items():
+            total_pips[color] = total_pips.get(color, 0) + count * qty
+
+    if total_count != 100:
+        issues.append(
+            f"CARD COUNT: {total_count}/100 (need exactly 100). "
+            f"Decklist has {total_count - 1} cards + 1 commander = {total_count}. "
+            f"{'Add ' + str(100 - total_count) + ' more cards to the decklist.' if total_count < 100 else 'Remove ' + str(total_count - 100) + ' cards from the decklist.'}"
+        )
+    if duplicates:
+        for name, count in duplicates.items():
+            basic_types = ["plains", "island", "swamp", "mountain", "forest",
+                           "wastes", "snow-covered"]
+            if not any(bt in name.lower() for bt in basic_types):
+                issues.append(f"DUPLICATE: {name} appears {count} times (singleton format)")
+
+    if actual_not_found:
+        issues.append(f"CARDS NOT FOUND: {len(actual_not_found)} cards could not be verified on Scryfall")
+
+    resolution_pct = round(cards_resolved / max(cards_checked, 1) * 100, 1)
+    if resolution_pct < 95:
+        issues.append(
+            f"INCOMPLETE VALIDATION: only {cards_resolved}/{cards_checked} cards resolved "
+            f"({resolution_pct}%). Results below are unreliable. Wait and re-run."
+        )
+
+    avg_cmc = round(nonland_cmc_total / max(nonland_count, 1), 2)
+    if cards_resolved == cards_checked:
+        if land_count < 30:
+            warnings.append(f"LOW LAND COUNT: {land_count} lands (recommend 33-38)")
+        elif land_count > 40:
+            warnings.append(f"HIGH LAND COUNT: {land_count} lands (typical is 33-38)")
+
+    sorted_curve = {str(k): cmc_curve.get(k, 0) for k in range(8)}
+    sorted_curve["7"] = cmc_curve.get(7, 0)
+
+    active_pips = {k: v for k, v in total_pips.items() if v > 0}
+
+    result = {
+        "commander": commander_name,
+        "commander_identity": sorted(commander_identity),
+        "commander_scryfall_id": commander_data.get("id", ""),
+        "decklist_cards": total_count - 1,
+        "total_cards": total_count,
+        "valid": len(issues) == 0,
+        "cards_verified": cards_checked,
+        "cards_resolved": cards_resolved,
+        "cards_not_found": actual_not_found,
+        "resolution_pct": resolution_pct,
+        "issues": issues,
+        "warnings": warnings,
+        "scryfall_ids": scryfall_ids,
+        "analytics": {
+            "average_cmc": avg_cmc,
+            "mana_curve": sorted_curve,
+            "land_count": land_count,
+            "color_pip_distribution": active_pips,
+            "card_type_distribution": type_counts,
+        },
+    }
+
+    print(json.dumps(result, indent=2))
+
+
+if __name__ == "__main__":
+    main()

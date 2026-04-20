@@ -1,0 +1,103 @@
+#!/usr/bin/env python3
+"""Fetch EDHREC data for a commander and output structured JSON.
+
+Usage: mtg-edhrec <commander-name>
+Example: mtg-edhrec "Krenko, Mob Boss"
+"""
+
+import sys
+import json
+import re
+import time
+import urllib.request
+import urllib.error
+
+MAX_RETRIES = 3
+RETRY_DELAYS = [1, 3, 8]
+
+
+def slugify(name: str) -> str:
+    name = name.lower()
+    name = name.split("//")[0].strip()
+    name = re.sub(r"[',.]", "", name)
+    name = re.sub(r"\s+", "-", name)
+    return name
+
+
+def _fetch_json(url: str, retries: int = MAX_RETRIES) -> dict | None:
+    req = urllib.request.Request(url, headers={
+        "User-Agent": "MTGAgent/1.0",
+        "Accept": "application/json",
+    })
+    for attempt in range(retries):
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                return json.loads(resp.read().decode())
+        except urllib.error.HTTPError as e:
+            if e.code == 429 and attempt < retries - 1:
+                time.sleep(RETRY_DELAYS[min(attempt, len(RETRY_DELAYS) - 1)])
+                continue
+            raise
+    return None
+
+
+def fetch_edhrec(commander_name: str) -> dict:
+    slug = slugify(commander_name)
+    url = f"https://json.edhrec.com/pages/commanders/{slug}.json"
+
+    try:
+        data = _fetch_json(url)
+        if data is None:
+            return {"error": f"No response after retries for slug '{slug}'", "url": url}
+    except urllib.error.HTTPError as e:
+        return {"error": f"EDHREC returned {e.code} for slug '{slug}'", "url": url}
+    except Exception as e:
+        return {"error": str(e), "url": url}
+
+    result = {
+        "commander": commander_name,
+        "slug": slug,
+        "url": f"https://edhrec.com/commanders/{slug}",
+    }
+
+    container = data.get("container", {}).get("json_dict", {})
+    cardlists = container.get("cardlists", [])
+
+    categories = []
+    for cl in cardlists:
+        header = cl.get("header", "Unknown")
+        cards = []
+        for entry in cl.get("cardviews", []):
+            cards.append({
+                "name": entry.get("name", ""),
+                "num_decks": entry.get("num_decks", 0),
+                "potential_decks": entry.get("potential_decks", 0),
+                "inclusion_rate": round(
+                    entry.get("num_decks", 0) / max(entry.get("potential_decks", 1), 1) * 100, 1
+                ),
+                "synergy_score": entry.get("synergy", 0),
+            })
+        cards.sort(key=lambda c: c["synergy_score"], reverse=True)
+        categories.append({"category": header, "cards": cards})
+
+    result["categories"] = categories
+
+    card_count = sum(len(c["cards"]) for c in categories)
+    result["total_cards_listed"] = card_count
+
+    return result
+
+
+def main():
+    if len(sys.argv) < 2:
+        print("Usage: mtg-edhrec <commander-name>", file=sys.stderr)
+        print('Example: mtg-edhrec "Krenko, Mob Boss"', file=sys.stderr)
+        sys.exit(1)
+
+    name = " ".join(sys.argv[1:])
+    result = fetch_edhrec(name)
+    print(json.dumps(result, indent=2))
+
+
+if __name__ == "__main__":
+    main()
