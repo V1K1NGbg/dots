@@ -63,8 +63,8 @@ check_awesome()           { pacman -Qq awesome-git &>/dev/null 2>&1; }
 check_packages()          { pkg_installed alacritty && pkg_installed nemo && pkg_installed rofi && pkg_installed vim; }
 check_autologin()         { [[ -f /etc/systemd/system/getty@tty1.service.d/autologin.conf ]]; }
 check_picom()             { cmd_exists picom; }
-check_amd_gpu()           { grep -ql 'amdgpu.dcdebugmask' /boot/loader/entries/*.conf 2>/dev/null; }
-check_plymouth()          { grep -ql 'splash' /boot/loader/entries/*.conf 2>/dev/null && grep -q 'plymouth' /etc/mkinitcpio.conf; }
+check_amd_gpu()           { grep -q 'amdgpu.dcdebugmask' /etc/kernel/cmdline 2>/dev/null; }
+check_plymouth()          { grep -q 'splash' /etc/kernel/cmdline 2>/dev/null && [[ -f /etc/dracut.conf.d/plymouth.conf ]]; }
 check_power_button()      { grep -q '^HandlePowerKey=ignore' /etc/systemd/logind.conf; }
 check_bluetooth()         { systemctl is-enabled bluetooth.service &>/dev/null; }
 check_touchpad()          { grep -q 'Tapping' /usr/share/X11/xorg.conf.d/40-libinput.conf 2>/dev/null; }
@@ -190,22 +190,21 @@ install_picom() {
 
 install_amd_gpu() {
     print_header "Framework AMD GPU fix"
-    local entry
-    entry=$(ls /boot/loader/entries/ | head -1)
-    sudo sed -i 's/^options .*/& amdgpu.dcdebugmask=0x10/' "/boot/loader/entries/${entry}"
-    print_success "AMD GPU debug mask set in ${entry}"
+    print_step "Adding amdgpu.dcdebugmask=0x10 to kernel cmdline..."
+    echo 'amdgpu.dcdebugmask=0x10' | sudo tee -a /etc/kernel/cmdline > /dev/null
+    print_step "Rebuilding UKI..."
+    sudo dracut --force
+    print_success "AMD GPU debug mask set"
 }
 
 install_plymouth() {
     print_header "Configuring Plymouth"
-    local entry
-    entry=$(ls /boot/loader/entries/ | head -1)
-    print_step "Adding quiet splash to boot entry..."
-    sudo sed -i 's/^options .*/& quiet splash/' "/boot/loader/entries/${entry}"
-    print_step "Adding plymouth to mkinitcpio hooks..."
-    sudo sed -i 's/HOOKS=(\([^)]*\)encrypt\([^)]*\))/HOOKS=(\1plymouth encrypt\2)/' /etc/mkinitcpio.conf
-    print_step "Rebuilding initramfs..."
-    sudo dracut
+    print_step "Adding quiet splash to kernel cmdline..."
+    echo 'quiet splash' | sudo tee -a /etc/kernel/cmdline > /dev/null
+    print_step "Configuring dracut for Plymouth..."
+    echo 'add_dracutmodules+=" plymouth "' | sudo tee /etc/dracut.conf.d/plymouth.conf > /dev/null
+    print_step "Rebuilding UKI..."
+    sudo dracut --force
     print_step "Setting Plymouth theme..."
     sudo plymouth-set-default-theme -R hexagon_hud
     print_success "Plymouth configured"
