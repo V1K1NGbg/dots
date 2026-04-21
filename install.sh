@@ -87,6 +87,7 @@ check_nvm()               { [[ -d "${HOME}/.nvm" ]]; }
 check_vtop()              { cmd_exists vtop; }
 check_docker()            { systemctl is-enabled docker.service &>/dev/null; }
 check_pcloud()            { cmd_exists pcloud; }
+check_awesome_const()     { is_marked "awesome_const"; }
 check_discord()           { [[ -d "${HOME}/.config/BetterDiscord" ]]; }
 check_spotify()           { grep -q 'current_theme.*=.*Ziro' "${HOME}/.config/spicetify/config-xpui.ini" 2>/dev/null; }
 check_opencode()          { cmd_exists opencode; }
@@ -367,10 +368,6 @@ install_dotfiles() {
         "${SCRIPT_DIR}/.Xresources" \
         "${SCRIPT_DIR}/i3lock.sh" ~
 
-    print_step "Copying Awesome const file..."
-    read -e -p "  Awesome const path (FULL PATH): " awesome_const_path
-    yes | cp -f "$awesome_const_path" "${HOME}/.config/awesome/"
-
     mark_done "dotfiles"
     print_success "Dotfiles copied"
 }
@@ -428,6 +425,14 @@ install_pcloud() {
     print_success "pCloud configured"
 }
 
+install_awesome_const() {
+    print_header "Copying Awesome const file"
+    read -e -p "  Awesome const path (FULL PATH): " awesome_const_path
+    yes | cp -f "$awesome_const_path" "${HOME}/.config/awesome/"
+    mark_done "awesome_const"
+    print_success "Awesome const file copied"
+}
+
 install_discord() {
     print_header "Setting up Discord + BetterDiscord"
     discord > /dev/null 2>&1 &
@@ -457,7 +462,7 @@ install_spotify() {
 
 install_opencode() {
     print_header "Installing OpenCode"
-    curl -fsSseL https://opencode.ai/install | bash
+    curl -fsSL https://opencode.ai/install | bash
     print_success "OpenCode installed"
 }
 
@@ -535,7 +540,6 @@ TASK_NAMES=(
     "Fix Ctrl+Backspace in terminal"
     "Install Monocraft font"
     "Set static DNS"
-    "Configure WireGuard VPN"
     "Configure Git"
     "Authenticate GitHub CLI"
     "Set up fingerprint auth"
@@ -549,6 +553,8 @@ TASK_NAMES=(
     "Install vtop"
     "Set up Docker"
     "Set up pCloud"
+    "Configure WireGuard VPN"
+    "Copy awesome const file"
     "Set up Discord + BetterDiscord"
     "Set up Spotify + Spicetify"
     "Install OpenCode"
@@ -577,7 +583,6 @@ TASK_CHECKS=(
     check_ctrl_backspace
     check_monocraft
     check_dns
-    check_wireguard
     check_git_config
     check_gh_auth
     check_fingerprint
@@ -591,6 +596,8 @@ TASK_CHECKS=(
     check_vtop
     check_docker
     check_pcloud
+    check_wireguard
+    check_awesome_const
     check_discord
     check_spotify
     check_opencode
@@ -619,7 +626,6 @@ TASK_INSTALLS=(
     install_ctrl_backspace
     install_monocraft
     install_dns
-    install_wireguard
     install_git_config
     install_gh_auth
     install_fingerprint
@@ -633,6 +639,8 @@ TASK_INSTALLS=(
     install_vtop
     install_docker
     install_pcloud
+    install_wireguard
+    install_awesome_const
     install_discord
     install_spotify
     install_opencode
