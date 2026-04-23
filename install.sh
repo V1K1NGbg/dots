@@ -76,7 +76,7 @@ check_dns()               { grep -q '1.1.1.1' /etc/NetworkManager/conf.d/dns-ser
 check_wireguard()         { nmcli connection show 2>/dev/null | grep -qi wireguard; }
 check_git_config()        { [[ -n "$(git config --global user.name 2>/dev/null)" ]]; }
 check_gh_auth()           { gh auth status &>/dev/null; }
-check_fingerprint()       { grep -q 'pam_fprintd' /etc/pam.d/sudo 2>/dev/null; }
+check_fingerprint()       { grep -q 'pam_fprintd' /etc/pam.d/sudo 2>/dev/null; fprintd-list "$USER" 2>/dev/null | grep -q 'right-index-finger'; }
 check_ohmybash()          { [[ -d "${HOME}/.oh-my-bash" ]]; }
 check_bashrc()            { grep -q 'OSH_THEME="agnoster"' "${HOME}/.bashrc" 2>/dev/null; }
 check_nemo_config()       { dconf read /org/nemo/preferences/bulk-rename-tool 2>/dev/null | grep -q 'bulky'; }
@@ -142,7 +142,7 @@ install_packages() {
         baobab bash-completion blueman bluez bluez-utils bulky \
         capitaine-cursors copyq cowsay cpupower-gui-git curl \
         dangerzone-bin discord docker docker-compose dracut \
-        fastfetch fd firefox flameshot \
+        fastfetch fd firefox flameshot fprintd  \
         gimp git github-cli glava gnome-disk-utility \
         highlight htop i3lock-color imgcat \
         jdk21-openjdk jdk8-openjdk keepassxc \
@@ -159,7 +159,6 @@ install_packages() {
         vim visual-studio-code-bin vlc vulkan-radeon vulkan-tools \
         wget xdotool xorg-xev xorg-xinput xorg-xset xss-lock zip
     # paru -S sunshine moonlight-qt
-    # maybe this: lua54-lgi
     print_success "Packages installed"
 }
 
@@ -514,7 +513,7 @@ install_docker_containers() {
     docker-compose up -d
     print_success "Docker containers started"
     echo -e "  ${DIM}To pull Ollama models:${NC}"
-    echo -e "  ${DIM}  curl http://localhost:11434/api/pull -d '{\"model\": \"qwen3:8b\"}'${NC}"
+    echo -e "  ${DIM}  curl http://localhost:11434/api/pull -d '{\"model\": \"qwen3.5:9b\"}'${NC}"
 }
 
 # ==============================================================================

@@ -10,11 +10,6 @@
         "baseURL": "http://localhost:11434/v1"
       },
       "models": {
-        "qwen3:8b": {
-          "options": {
-            "noThinking": true
-          }
-        },
         "qwen3.5:9b": {
           "options": {
             "noThinking": true
