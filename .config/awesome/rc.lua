@@ -597,7 +597,7 @@ awful.rules.rules = {
     },
 
     {
-        rule = { class = "Firefox" },
+        rule = { class = "firefox" },
         properties = { screen = 1, tag = "  " }
     },
 
