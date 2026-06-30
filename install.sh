@@ -89,8 +89,8 @@ check_docker()            { systemctl is-enabled docker.service &>/dev/null; }
 check_pcloud()            { cmd_exists pcloud; }
 check_awesome_const()     { is_marked "awesome_const"; }
 check_discord()           { [[ -d "${HOME}/.config/BetterDiscord" ]]; }
-check_spotify()           { grep -q 'current_theme.*=.*Ziro' "${HOME}/.config/spicetify/config-xpui.ini" 2>/dev/null; }
-check_opencode()          { cmd_exists opencode; }
+check_spotify()           { is_marked "spotify_setup"; }
+check_opencode()          { is_marked "opencode_setup"; }
 check_vscode()            { is_marked "vscode_setup"; }
 check_copyq()             { [[ -f "${HOME}/.config/copyq/copyq.conf" ]]; }
 check_firefox()           { is_marked "firefox_setup"; }
@@ -154,7 +154,7 @@ install_packages() {
         plymouth plymouth-theme-hexagon-hud-git prismlauncher \
         qt6-svg ranger redshift rofi rofi-calc \
         ruby-fusuma ruby-fusuma-plugin-sendkey sof-firmware \
-        spicetify-cli spotify-launcher steam tmux tree \
+        spotify-launcher steam tmux tree \
         unclutter unzip usbimager uthash \
         vim visual-studio-code-bin vlc vulkan-radeon vulkan-tools \
         wget xdotool xorg-xev xorg-xinput xorg-xset xss-lock zip
@@ -419,7 +419,7 @@ install_pcloud() {
     print_header "Setting up pCloud"
     pcloud > /dev/null 2>&1 &
     read -p "  Log in pCloud and press Enter to continue..."
-    read -p "  Sync ~/Documents/PC <-> pCloudDrive/PC, Backup ~/Documents/BackUp and press Enter to continue..."
+    read -p "  Enable start up minimised, Sync ~/Documents/PC <-> pCloudDrive/PC, Backup ~/Documents/BackUp and press Enter to continue..."
     print_success "pCloud configured"
 }
 
@@ -446,21 +446,18 @@ install_discord() {
 }
 
 install_spotify() {
-    print_header "Setting up Spotify + Spicetify"
+    print_header "Setting up Spotify"
     spotify-launcher > /dev/null 2>&1 &
     read -p "  Log in Spotify, disable change song notification and press Enter to continue..."
     killall spotify-launcher 2>/dev/null || true
-    print_step "Applying Spicetify theme..."
-    spicetify backup apply
-    spicetify config current_theme Ziro
-    spicetify apply
     mark_done "spotify_setup"
-    print_success "Spotify + Spicetify (Ziro theme) configured"
+    print_success "Spotify configured"
 }
 
 install_opencode() {
     print_header "Installing OpenCode"
     curl -fsSL https://opencode.ai/install | bash
+    mark_done "opencode_setup"
     print_success "OpenCode installed"
 }
 
@@ -554,7 +551,7 @@ TASK_NAMES=(
     "Configure WireGuard VPN"
     "Copy awesome const file"
     "Set up Discord + BetterDiscord"
-    "Set up Spotify + Spicetify"
+    "Set up Spotify"
     "Install OpenCode"
     "Set up VSCode"
     "Set up CopyQ"
