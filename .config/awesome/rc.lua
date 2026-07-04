@@ -592,7 +592,7 @@ awful.rules.rules = {
 
     -- Set VS Code to always map on the tag named "1" on screen 1.
     {
-        rule = { class = "Code" },
+        rule = { class = "code" },
         properties = { screen = 1, tag = "  " }
     },
 

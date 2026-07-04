@@ -190,7 +190,10 @@ install_picom() {
 install_amd_gpu() {
     print_header "Framework AMD GPU fix"
     print_step "Adding amdgpu.dcdebugmask=0x10 to kernel cmdline..."
-    echo 'amdgpu.dcdebugmask=0x10' | sudo tee -a /etc/kernel/cmdline > /dev/null
+    grep -q 'amdgpu.dcdebugmask' /etc/kernel/cmdline 2>/dev/null \
+        || sudo sed -i '1s/$/ amdgpu.dcdebugmask=0x10/' /etc/kernel/cmdline
+    [[ -f /etc/kernel/cmdline && $(wc -l < /etc/kernel/cmdline) -gt 1 ]] \
+        && sudo sed -i ':a;N;$!ba;s/\n/ /g' /etc/kernel/cmdline
     print_step "Rebuilding UKI..."
     sudo dracut --force
     print_success "AMD GPU debug mask set"
@@ -199,7 +202,10 @@ install_amd_gpu() {
 install_plymouth() {
     print_header "Configuring Plymouth"
     print_step "Adding quiet splash to kernel cmdline..."
-    echo 'quiet splash' | sudo tee -a /etc/kernel/cmdline > /dev/null
+    grep -q 'quiet splash' /etc/kernel/cmdline 2>/dev/null \
+        || sudo sed -i '1s/$/ quiet splash/' /etc/kernel/cmdline
+    [[ -f /etc/kernel/cmdline && $(wc -l < /etc/kernel/cmdline) -gt 1 ]] \
+        && sudo sed -i ':a;N;$!ba;s/\n/ /g' /etc/kernel/cmdline
     print_step "Configuring dracut for Plymouth..."
     echo 'add_dracutmodules+=" plymouth "' | sudo tee /etc/dracut.conf.d/plymouth.conf > /dev/null
     print_step "Rebuilding UKI..."
