@@ -1,15 +1,15 @@
 services:
     ollama:
-        image: ollama/ollama
+        image: ${OLLAMA_IMAGE:-ollama/ollama:latest}
         container_name: ollama
         restart: always
-        mem_limit: 48g
-        cpus: "24"
+        mem_limit: ${DOCKER_MEMORY:-48g}
+        cpus: "${DOCKER_CPUS:-24}"
         devices:
             - "/dev/dri:/dev/dri"
             - "/dev/kfd:/dev/kfd"
         ports:
-            - "11434:11434"
+            - "127.0.0.1:11434:11434"
         volumes:
             - ollama:/root/.ollama
         environment:
@@ -24,7 +24,7 @@ services:
             - ROC_ENABLE_PRE_VEGA=1
             - HIP_VISIBLE_DEVICES=0
             - OMP_NUM_THREADS=12
-            - GOMP_CPU_AFFINITY=0-11
+            - GOMP_CPU_AFFINITY=${DOCKER_CPU_AFFINITY:-0-11}
             - OLLAMA_FLASH_ATTENTION=1
             - GGML_USE_MLOCK=0
         ulimits:

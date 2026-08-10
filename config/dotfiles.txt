@@ -1,0 +1,22 @@
+# Paths are relative to both the repository and $HOME.
+.bash_profile
+.bashrc
+.tmux.conf
+.vimrc
+.Xresources
+i3lock.sh
+.vim
+.oh-my-bash/themes/agnoster
+.screenlayout
+.config/alacritty
+.config/autorandr
+.config/awesome
+.config/flameshot
+.config/fusuma
+.config/glava
+.config/gtk-3.0
+.config/keepassxc
+.config/opencode
+.config/picom
+.config/rofi
+.config/spicetify

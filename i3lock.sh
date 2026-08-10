@@ -63,5 +63,3 @@ i3lock \
   --layout-size="$size" \
   --verif-size="$size" \
   --wrong-size="$size"
-
-source ~/.bashrc

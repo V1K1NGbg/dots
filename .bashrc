@@ -9,6 +9,13 @@
 #  exec startx
 # fi
 
+# Interactive configuration below. Do not print, invoke X11, or define aliases
+# when a non-interactive process happens to source this file.
+case $- in
+  *i*) ;;
+  *) return ;;
+esac
+
 # ---
 
 OSH_THEME="agnoster"
@@ -16,11 +23,12 @@ DISABLE_AUTO_UPDATE="true"
 #ENABLE_CORRECTION="true"
 COMPLETION_WAITING_DOTS="true"
 
-source "$OSH"/oh-my-bash.sh
+export OSH="${OSH:-$HOME/.oh-my-bash}"
+[[ -r "$OSH/oh-my-bash.sh" ]] && source "$OSH/oh-my-bash.sh"
 
 echo "UwU" | cowsay -f tux | lolcat --spread=0.5
 
-alias clear="clear && source ~/.bashrc"
+alias clear="command clear && source ~/.bashrc"
 alias notes="code -n ~/pCloudDrive/0Notes.md"
 alias config="code -n ~/dots"
 alias shutdown="shutdown now"
@@ -53,7 +61,7 @@ lastline() {
   line_count=0
   first_print=1
   prev_lines=0
-  [ "$#" = 1 ] || { >&2 echo "number needed"; exit 9; }
+  [ "$#" = 1 ] || { >&2 echo "number needed"; return 9; }
   nlines=$1
 
   printf "\033[?25l"
@@ -95,7 +103,9 @@ lastline() {
 }
 
 # fix double type
-xset r rate 220 40
+if [[ -n ${DISPLAY:-} ]]; then
+  xset r rate 220 40
+fi
 
 #Fzf
 # eval "$(fzf --bash)"
@@ -116,7 +126,9 @@ xset r rate 220 40
 
 # _fzf_bash_completion_loading_msg() { echo "${PS1@P}${READLINE_LINE}"; }
 
-setxkbmap -layout us,bg -variant ,bas_phonetic -option 'grp:win_space_toggle'
+if [[ -n ${DISPLAY:-} ]]; then
+  setxkbmap -layout us,bg -variant ,bas_phonetic -option 'grp:win_space_toggle'
+fi
 
 # complete -d cd
 

@@ -1,37 +1,43 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-cd ~/dots
+set -Eeuo pipefail
 
-# nemo
-dconf dump /org/nemo/ > nemo_config
+DOTS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MANIFEST="$DOTS_ROOT/config/dotfiles.txt"
+APPLY=0
 
-# .config
-cp -rf ~/.config/alacritty/ .config/ 2>/dev/null
-cp -rf ~/.config/autorandr/ .config/ 2>/dev/null
-cp -rf ~/.config/awesome/ .config/ 2>/dev/null
-cp -rf ~/.config/flameshot/ .config/ 2>/dev/null
-cp -rf ~/.config/fusuma/ .config/ 2>/dev/null
-cp -rf ~/.config/glava/ .config/ 2>/dev/null
-cp -rf ~/.config/gtk-3.0/ .config/ 2>/dev/null
-cp -rf ~/.config/keepassxc/ .config/ 2>/dev/null
-cp -rf ~/.config/picom/ .config/ 2>/dev/null
-cp -rf ~/.config/rofi/ .config/ 2>/dev/null
-# cp -rf ~/.config/BetterDiscord/ .config/ 2>/dev/null
-# cp -rf ~/.config/spicetify/ .config/ 2>/dev/null
+if [[ ${1:-} == --apply ]]; then
+  APPLY=1
+elif [[ $# -gt 0 ]]; then
+  printf 'Usage: ./backup.sh [--apply]\n' >&2
+  exit 2
+fi
 
-# files
-cp ~/.bash_profile . 2>/dev/null
-cp ~/.bashrc . 2>/dev/null
-cp ~/.tmux.conf . 2>/dev/null
-cp ~/.vimrc . 2>/dev/null
-cp ~/.Xresources . 2>/dev/null
-cp ~/i3lock.sh . 2>/dev/null
+while IFS= read -r path; do
+  [[ -n "$path" && $path != \#* ]] || continue
+  source_path="$HOME/$path"
+  destination_path="$DOTS_ROOT/$path"
+  [[ -e "$source_path" || -L "$source_path" ]] || continue
 
-# vim
-cp -rf ~/.vim/ .
+  if ((APPLY)); then
+    printf 'Updating %s\n' "$path"
+    mkdir -p "$(dirname "$destination_path")"
+    if [[ -d "$source_path" ]]; then
+      mkdir -p "$destination_path"
+      cp -a "$source_path/." "$destination_path/"
+    else
+      cp -a "$source_path" "$destination_path"
+    fi
+  elif [[ -e "$destination_path" ]] && diff -qr "$source_path" "$destination_path" >/dev/null 2>&1; then
+    printf 'unchanged  %s\n' "$path"
+  else
+    printf 'would update %s\n' "$path"
+  fi
+done <"$MANIFEST"
 
-# screen layouts
-cp -rf ~/.screenlayout/ .
-
-# copyq
-copyq eval 'exportData()' > copyq.cpq 2>/dev/null
+if ((APPLY)); then
+  dconf dump /org/nemo/ >"$DOTS_ROOT/nemo_config"
+  printf 'Nemo preferences exported. Private ignored files remain untracked.\n'
+else
+  printf '\nDry run only. Use --apply to copy the listed changes.\n'
+fi

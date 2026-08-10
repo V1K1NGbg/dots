@@ -1,6 +1,22 @@
 # dots
 
-# ***!Disclaimer: the install script is more of a general guideline for installing rather than a concrete script!***
+Dotfiles and installer for my Arch Linux laptop.
 
-### TODO:
-make scripts into segments and the install script modular with vim. also fix clashes between dependencies and ordering of install
+```bash
+./install.sh
+```
+
+Other useful commands:
+
+```bash
+./install.sh --list
+./install.sh --status
+./install.sh --task TASK_ID
+./install.sh --phase PHASE_ID
+./install.sh --dry-run
+./backup.sh          # preview
+./backup.sh --apply  # update this repository
+```
+
+Tasks are in `tasks/`. Add a check function, an install function, and one
+`register_task` line. Packages and copied paths are listed in `config/`.

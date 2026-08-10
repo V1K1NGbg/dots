@@ -120,6 +120,17 @@ awful.util.tasklist_buttons = mytable.join(
 
 beautiful.init(string.format("%s/.config/awesome/theme.lua", os.getenv("HOME")))
 
+naughty.config.defaults.timeout = 5
+naughty.config.defaults.margin = 10
+naughty.config.defaults.position = "top_right"
+naughty.config.defaults.font = beautiful.font
+naughty.config.defaults.fg = beautiful.fg_normal
+naughty.config.defaults.bg = beautiful.bg_normal
+naughty.config.defaults.border_width = beautiful.border_width
+naughty.config.defaults.border_color = beautiful.border_focus
+naughty.config.defaults.max_width = 800
+naughty.config.defaults.max_height = 500
+
 -- }}}
 
 -- {{{ Menu
@@ -505,32 +516,6 @@ root.keys(globalkeys)
 -- Rules to apply to new clients (through the "manage" signal).
 awful.rules.rules = {
 
-    -- Notification rules
-    {
-        rule = { type = "normal" },
-        callback = function(c)
-            -- Configure notifications appearance and behavior
-            naughty.config.defaults.timeout = 5
-            naughty.config.defaults.margin = 10
-            naughty.config.defaults.position = "top_right"
-            naughty.config.defaults.font = beautiful.font
-            naughty.config.defaults.fg = beautiful.fg_normal
-            naughty.config.defaults.bg = beautiful.bg_normal
-            naughty.config.defaults.border_width = beautiful.border_width
-            naughty.config.defaults.border_color = beautiful.border_focus
-
-            -- Set minimum and maximum notification sizes
-            naughty.config.defaults.max_width = 800
-            naughty.config.defaults.max_height = 500
-
-            -- Close notifications on click
-            c:connect_signal("button::press", function()
-                c:emit_signal("request::destroy")
-            end)
-        end,
-        properties = {}
-    },
-
     -- All clients will match this rule.
     {
         rule = {},
@@ -742,6 +727,7 @@ local function add_wibar(c)
 end
 
 client.connect_signal("property::fullscreen", remove_wibar)
+client.connect_signal("property::maximized", remove_wibar)
 
 client.connect_signal("request::unmanage", add_wibar)
 
