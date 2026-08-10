@@ -23,7 +23,7 @@ tui_draw() {
   done
 
   tput clear 2>/dev/null || printf '\033[2J\033[H'
-  printf '%s%sDOTS INSTALLER%s\n' "$BOLD" "$CYAN" "$NC"
+  printf '%s%sDOTS INSTALLER%s  profile: %s\n' "$BOLD" "$CYAN" "$NC" "$DESKTOP_PROFILE"
   printf 'Done %d/%d  Selected %d\n' "$done" "${#TASK_IDS[@]}" "$selected"
   printf '%s────────────────────────────────────────────────────────────────────────%s\n' "$DIM" "$NC"
 

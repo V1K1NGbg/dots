@@ -1,0 +1,10 @@
+# Paths copied only for the Awesome/X11 desktop profile.
+.Xresources
+i3lock.sh
+.screenlayout
+.config/autorandr
+.config/awesome
+.config/flameshot
+.config/fusuma
+.config/glava
+.config/picom

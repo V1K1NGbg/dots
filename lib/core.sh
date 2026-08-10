@@ -12,6 +12,7 @@ STATE_ROOT=${XDG_STATE_HOME:-"$HOME/.local/state"}/dots
 LOG_ROOT="$STATE_ROOT/logs"
 CONFIRM_ROOT="$STATE_ROOT/confirmations"
 BACKUP_ROOT="$STATE_ROOT/backups"
+DESKTOP_PROFILE=${DESKTOP_PROFILE:-}
 
 RED=$'\033[0;31m'
 GREEN=$'\033[0;32m'
@@ -28,6 +29,36 @@ success() { printf '  %s✓%s %s\n' "$GREEN" "$NC" "$*"; }
 warn() { printf '  %s!%s %s\n' "$YELLOW" "$NC" "$*" >&2; }
 command_exists() { command -v "$1" >/dev/null 2>&1; }
 package_installed() { pacman -Qq "$1" >/dev/null 2>&1; }
+
+valid_desktop_profile() { [[ $1 == awesome || $1 == hyprland ]]; }
+desktop_profile_file() { printf '%s/desktop-profile\n' "$STATE_ROOT"; }
+recorded_desktop_profile() {
+  local profile_file profile
+  profile_file=$(desktop_profile_file)
+  [[ -r $profile_file ]] || return 1
+  IFS= read -r profile <"$profile_file"
+  valid_desktop_profile "$profile" || return 1
+  printf '%s\n' "$profile"
+}
+record_desktop_profile() {
+  valid_desktop_profile "$1" || die "invalid desktop profile: $1"
+  if ((DRY_RUN)); then
+    log "record desktop profile: $1"
+  else
+    mkdir -p "$STATE_ROOT"
+    printf '%s\n' "$1" >"$(desktop_profile_file)"
+  fi
+}
+
+read_manifest() {
+  sed -e '/^[[:space:]]*#/d' -e '/^[[:space:]]*$/d' "$1"
+}
+
+profile_manifest() {
+  local kind=$1 profile=${2:-$DESKTOP_PROFILE}
+  valid_desktop_profile "$profile" || die "desktop profile is not selected"
+  printf '%s/config/%s-%s.txt\n' "$DOTS_ROOT" "$kind" "$profile"
+}
 
 register_phase() {
   local id=$1 label=$2

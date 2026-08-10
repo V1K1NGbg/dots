@@ -21,7 +21,12 @@ case "$1" in
         exit 0
         ;;
     "🟢"*)
-        echo -n "$1" | sed "s/🟢 '//" | sed "s/' is correct//" | xsel -b >/dev/null 2>&1
+        word=$(printf '%s' "$1" | sed "s/🟢 '//" | sed "s/' is correct//")
+        if [[ -n ${WAYLAND_DISPLAY:-} ]] && command -v wl-copy >/dev/null 2>&1; then
+            printf '%s' "$word" | wl-copy
+        else
+            printf '%s' "$word" | xsel -b >/dev/null 2>&1
+        fi
         exit 0
         ;;
     "🔴"*)
@@ -34,7 +39,12 @@ case "$1" in
         exit 0
         ;;
     "-"*)
-        echo -n "$1" | sed 's/^- //' | xsel -b >/dev/null 2>&1
+        word=$(printf '%s' "$1" | sed 's/^- //')
+        if [[ -n ${WAYLAND_DISPLAY:-} ]] && command -v wl-copy >/dev/null 2>&1; then
+            printf '%s' "$word" | wl-copy
+        else
+            printf '%s' "$word" | xsel -b >/dev/null 2>&1
+        fi
         exit 0
         ;;
     *)

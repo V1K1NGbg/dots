@@ -47,7 +47,11 @@ case "$1" in
     "🔒 Lock Screen")
         pkill rofi
         sleep 0.1
-        ~/i3lock.sh &
+        if [[ -n ${WAYLAND_DISPLAY:-} ]] && command -v hyprlock >/dev/null 2>&1; then
+            hyprlock &
+        else
+            ~/i3lock.sh &
+        fi
         exit 0
         ;;
     "⏻  Shutdown")

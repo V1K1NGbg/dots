@@ -73,8 +73,9 @@ install_vscode() {
   mark_confirmed vscode
 }
 
-check_copyq() { confirmed copyq; }
+check_copyq() { [[ $DESKTOP_PROFILE != awesome ]] || confirmed copyq; }
 install_copyq() {
+  [[ $DESKTOP_PROFILE == awesome ]] || return 0
   run copyq >/dev/null 2>&1 &
   prompt_continue "Import copyq.cpq and configure the window-under-mouse shortcut"
   killall copyq >/dev/null 2>&1 || true
@@ -122,13 +123,13 @@ install_vtop() {
 register_task git-identity apps "Configure Git identity" check_git_identity install_git_identity "packages" ""
 register_task gh-auth apps "Authenticate GitHub CLI" check_gh_auth install_gh_auth "git-identity" "manual"
 register_task wireguard apps "Import WireGuard profile" check_wireguard install_wireguard "packages" "manual"
-register_task pcloud apps "Configure pCloud" check_pcloud install_pcloud "packages" "manual x11"
-register_task discord apps "Configure Discord" check_discord install_discord "dotfiles" "manual x11"
-register_task spotify apps "Configure Spotify" check_spotify install_spotify "dotfiles" "manual x11"
+register_task pcloud apps "Configure pCloud" check_pcloud install_pcloud "packages" "manual graphical"
+register_task discord apps "Configure Discord" check_discord install_discord "dotfiles" "manual graphical"
+register_task spotify apps "Configure Spotify" check_spotify install_spotify "dotfiles" "manual graphical"
 register_task opencode apps "Install OpenCode" check_opencode install_opencode "dotfiles" ""
-register_task vscode apps "Synchronize VS Code" check_vscode install_vscode "dotfiles" "manual x11"
-register_task copyq apps "Import CopyQ settings" check_copyq install_copyq "dotfiles" "manual x11"
-register_task firefox apps "Configure Firefox" check_firefox install_firefox "dotfiles" "manual x11"
-register_task steam apps "Configure Steam" check_steam install_steam "packages" "manual x11"
+register_task vscode apps "Synchronize VS Code" check_vscode install_vscode "dotfiles" "manual graphical"
+register_task copyq apps "Import CopyQ settings (Awesome)" check_copyq install_copyq "dotfiles" "manual graphical"
+register_task firefox apps "Configure Firefox" check_firefox install_firefox "dotfiles" "manual graphical"
+register_task steam apps "Configure Steam" check_steam install_steam "packages" "manual graphical"
 register_task nvm apps "Install NVM and Node LTS" check_nvm install_nvm "packages" ""
 register_task vtop apps "Install vtop" check_vtop install_vtop "nvm" ""

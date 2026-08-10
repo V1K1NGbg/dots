@@ -3,15 +3,27 @@
 set -Eeuo pipefail
 
 DOTS_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-MANIFEST="$DOTS_ROOT/config/dotfiles.txt"
+PROFILE=""
 APPLY=0
 
-if [[ ${1:-} == --apply ]]; then
-  APPLY=1
-elif [[ $# -gt 0 ]]; then
-  printf 'Usage: ./backup.sh [--apply]\n' >&2
-  exit 2
+while (($#)); do
+  case $1 in
+    --apply) APPLY=1 ;;
+    --desktop)
+      [[ $# -ge 2 ]] || { printf '%s\n' '--desktop requires awesome or hyprland' >&2; exit 2; }
+      PROFILE=$2
+      shift
+      ;;
+    *) printf 'Usage: ./backup.sh [--apply] [--desktop awesome|hyprland]\n' >&2; exit 2 ;;
+  esac
+  shift
+done
+
+if [[ -z $PROFILE && -r ${XDG_STATE_HOME:-"$HOME/.local/state"}/dots/desktop-profile ]]; then
+  IFS= read -r PROFILE <"${XDG_STATE_HOME:-"$HOME/.local/state"}/dots/desktop-profile"
 fi
+PROFILE=${PROFILE:-hyprland}
+[[ $PROFILE == awesome || $PROFILE == hyprland ]] || { printf 'Invalid desktop profile: %s\n' "$PROFILE" >&2; exit 2; }
 
 while IFS= read -r path; do
   [[ -n "$path" && $path != \#* ]] || continue
@@ -33,7 +45,8 @@ while IFS= read -r path; do
   else
     printf 'would update %s\n' "$path"
   fi
-done <"$MANIFEST"
+done < <(sed -e '/^[[:space:]]*#/d' -e '/^[[:space:]]*$/d' \
+  "$DOTS_ROOT/config/dotfiles-common.txt" "$DOTS_ROOT/config/dotfiles-$PROFILE.txt")
 
 if ((APPLY)); then
   dconf dump /org/nemo/ >"$DOTS_ROOT/nemo_config"

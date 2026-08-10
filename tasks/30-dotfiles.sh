@@ -3,7 +3,8 @@
 register_phase dotfiles "Dotfiles & desktop"
 
 manifest_entries() {
-  sed -e '/^[[:space:]]*#/d' -e '/^[[:space:]]*$/d' "$DOTS_ROOT/config/dotfiles.txt"
+  read_manifest "$DOTS_ROOT/config/dotfiles-common.txt"
+  read_manifest "$(profile_manifest dotfiles)"
 }
 
 source_tree_matches() {
@@ -30,6 +31,9 @@ check_dotfiles() {
     entry="$DOTS_ROOT/$path"
     source_tree_matches "$entry" "$HOME/$path" || return 1
   done < <(manifest_entries)
+  if [[ $DESKTOP_PROFILE == hyprland ]]; then
+    cmp -s "$DOTS_ROOT/.config/awesome/wall.jpg" "$HOME/.config/hypr/wall.jpg" || return 1
+  fi
 }
 
 install_dotfiles() {
@@ -54,7 +58,12 @@ install_dotfiles() {
       run cp -a "$source_path" "$destination_path"
     fi
   done < <(manifest_entries)
-  run chmod +x "$HOME/i3lock.sh"
+  if [[ $DESKTOP_PROFILE == awesome ]]; then
+    run chmod +x "$HOME/i3lock.sh" "$HOME/.config/awesome/autostart.sh"
+  else
+    run cp -a "$DOTS_ROOT/.config/awesome/wall.jpg" "$HOME/.config/hypr/wall.jpg"
+    run chmod +x "$HOME/.config/hypr/scripts/"*
+  fi
 }
 
 check_ohmybash() { [[ -r "$HOME/.oh-my-bash/oh-my-bash.sh" ]]; }
@@ -81,11 +90,13 @@ install_default_apps() {
 }
 
 check_awesome_const() {
+  [[ $DESKTOP_PROFILE == awesome ]] || return 0
   [[ -f "$HOME/.config/awesome/const.lua" ]] &&
     ! grep -q '<APPID>' "$HOME/.config/awesome/const.lua"
 }
 install_awesome_const() {
   local source
+  [[ $DESKTOP_PROFILE == awesome ]] || return 0
   ((NONINTERACTIVE == 0)) || return 2
   read -r -e -p '  Path to private Awesome const.lua: ' source
   [[ -f "$source" ]] || { warn "file not found: $source"; return 1; }
@@ -93,8 +104,15 @@ install_awesome_const() {
   run install -D -m 0600 "$source" "$HOME/.config/awesome/const.lua"
 }
 
+check_desktop_profile() {
+  [[ $(recorded_desktop_profile 2>/dev/null) == "$DESKTOP_PROFILE" ]] &&
+    check_packages && check_dotfiles
+}
+install_desktop_profile() { record_desktop_profile "$DESKTOP_PROFILE"; }
+
 register_task ohmybash dotfiles "Install Oh My Bash" check_ohmybash install_ohmybash "packages" ""
 register_task dotfiles dotfiles "Install managed dotfiles" check_dotfiles install_dotfiles "packages monocraft ohmybash" ""
-register_task nemo dotfiles "Import Nemo preferences" check_nemo install_nemo "dotfiles" "x11"
-register_task default-apps dotfiles "Set default applications" check_default_apps install_default_apps "dotfiles" "x11"
-register_task awesome-const dotfiles "Install private weather config" check_awesome_const install_awesome_const "dotfiles" "manual"
+register_task nemo dotfiles "Import Nemo preferences" check_nemo install_nemo "dotfiles" "graphical"
+register_task default-apps dotfiles "Set default applications" check_default_apps install_default_apps "dotfiles" "graphical"
+register_task awesome-const dotfiles "Install Awesome weather config" check_awesome_const install_awesome_const "dotfiles" "manual"
+register_task desktop-profile dotfiles "Activate selected desktop profile" check_desktop_profile install_desktop_profile "dotfiles picom" ""

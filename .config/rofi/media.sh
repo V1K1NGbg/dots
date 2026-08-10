@@ -21,7 +21,12 @@ get_status() {
 }
 
 get_volume() {
-    local volume=$(amixer get Master | grep -o '[0-9]*%' | head -n1)
+    local volume
+    if [[ -n ${WAYLAND_DISPLAY:-} ]] && command -v wpctl >/dev/null 2>&1; then
+        volume=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{printf "%.0f%%", $2 * 100}')
+    else
+        volume=$(amixer get Master | grep -o '[0-9]*%' | head -n1)
+    fi
     if [[ -n "$volume" ]]; then
         echo "🔊 Volume: ${volume}"
     else
@@ -55,13 +60,13 @@ case "$1" in
         playerctl --player=spotify,%any previous
         ;;
     "🔇  Mute/Unmute")
-        amixer -q set Master toggle
+        if command -v wpctl >/dev/null 2>&1; then wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle; else amixer -q set Master toggle; fi
         ;;
     "🔉  Volume Down (-5%)")
-        amixer -q set Master 5%-
+        if command -v wpctl >/dev/null 2>&1; then wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-; else amixer -q set Master 5%-; fi
         ;;
     "🔊  Volume Up (+5%)")
-        amixer -q set Master 5%+
+        if command -v wpctl >/dev/null 2>&1; then wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+; else amixer -q set Master 5%+; fi
         ;;
     *)
         # If it's a status line, just exit

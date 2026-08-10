@@ -33,9 +33,9 @@ check_task() {
     return 0
   fi
 
-  if has_flag "$id" x11 && [[ -z ${DISPLAY:-} ]]; then
+  if has_flag "$id" graphical && [[ -z ${WAYLAND_DISPLAY:-} && -z ${DISPLAY:-} ]]; then
     TASK_STATE[$id]="blocked"
-    TASK_REASON[$id]="requires an X11 session"
+    TASK_REASON[$id]="requires a graphical session"
     return 2
   fi
   if has_flag "$id" manual && ((NONINTERACTIVE)); then
@@ -78,6 +78,7 @@ state_symbol() {
 print_status_table() {
   local phase id deps
   refresh_status
+  printf '\n%sDesktop profile:%s %s\n' "$BOLD" "$NC" "$DESKTOP_PROFILE"
   for phase in "${PHASE_IDS[@]}"; do
     printf '\n%s%s%s\n' "$BOLD" "${PHASE_LABEL[$phase]}" "$NC"
     for id in "${TASK_IDS[@]}"; do
@@ -104,10 +105,10 @@ select_with_dependencies() {
 }
 
 select_task_csv() {
-  local csv=$1 id old_ifs=$IFS
-  IFS=,
-  for id in $csv; do select_with_dependencies "$id"; done
-  IFS=$old_ifs
+  local csv=$1 id
+  local -a ids=()
+  IFS=, read -r -a ids <<<"$csv"
+  for id in "${ids[@]}"; do select_with_dependencies "$id"; done
 }
 
 select_phase() {
@@ -125,8 +126,13 @@ run_task() {
   printf '\n%s[%s] %s%s\n' "$BOLD" "$id" "${TASK_LABEL[$id]}" "$NC"
 
   if ((DRY_RUN)); then
-    "$action"
-    return $?
+    if "$action"; then
+      TASK_STATE[$id]="done"
+      success "would complete: ${TASK_LABEL[$id]}"
+      return 0
+    fi
+    TASK_STATE[$id]="failed"
+    return 1
   fi
 
   (
@@ -179,7 +185,7 @@ run_selection() {
         failed=1
         TASK_SELECTED[$id]=0
       fi
-      refresh_status
+      ((DRY_RUN)) || refresh_status
       progress=1
     done
     ((remaining == 0 || progress == 0)) && break
@@ -192,6 +198,6 @@ run_selection() {
     fi
   done
   ((need_relogin)) && warn "log out and back in before running tasks that need new group membership"
-  ((need_reboot)) && warn "restart the laptop to apply boot and X11 configuration changes"
+  ((need_reboot)) && warn "restart the laptop to apply boot and desktop configuration changes"
   return "$failed"
 }

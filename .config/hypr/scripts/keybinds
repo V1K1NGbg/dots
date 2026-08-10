@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+rofi -dmenu -i -p 'Hyprland keys' <<'EOF'
+Super + Return                 Terminal
+Super + B / E / C              Browser / files / VS Code
+Super + R / W                  Launcher
+Super + S / P / L              Keys / screenshot / lock
+Super + Q                      Close window
+Super + F / M                  Fullscreen / maximize
+Super + Shift + F / S / T      Float / sticky / raise
+Super + Tab / Shift + Tab      Next / previous window
+Super + H J K L                Focus by direction
+Super + Shift + H J K L        Swap by direction
+Super + Ctrl + H J K L         Resize
+Super + arrows                 Move pointer (Shift = precise)
+Super + [ / ]                  Left / right click
+Super + comma / period         Previous / next workspace
+Super + 1..9                   Select workspace
+Super + Shift + 1..9           Move window to workspace
+Super + N / Shift + N          Minimize / restore
+Super + grave / Shift + grave  Show / fill scratchpad
+Super + Shift + Space          Cycle workspace layout
+Super + ; / '                  Focus previous / next monitor
+Super + Shift + ; / '          Move window between monitors
+Super + U                      Urgent or last window
+Super + Shift + R / Q          Reload / end session
+EOF

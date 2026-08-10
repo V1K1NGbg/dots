@@ -1,4 +1,5 @@
 .config/awesome/const.lua
+.config/hypr/wall.jpg
 .config/opencode/style/about.md
 __pycache__/
 *.py[cod]

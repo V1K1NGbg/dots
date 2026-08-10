@@ -32,14 +32,14 @@ install_power_button() {
 check_bluetooth() { systemctl is-enabled bluetooth.service >/dev/null 2>&1; }
 install_bluetooth() { run sudo systemctl enable --now bluetooth.service; }
 
-check_touchpad() { grep -q 'Framework touchpad overrides' /etc/X11/xorg.conf.d/20-touchpad.conf 2>/dev/null; }
-install_touchpad() { render_template "$DOTS_ROOT/templates/20-touchpad.conf" /etc/X11/xorg.conf.d/20-touchpad.conf; }
+check_touchpad() { [[ $DESKTOP_PROFILE != awesome ]] || grep -q 'Framework touchpad overrides' /etc/X11/xorg.conf.d/20-touchpad.conf 2>/dev/null; }
+install_touchpad() { [[ $DESKTOP_PROFILE != awesome ]] || render_template "$DOTS_ROOT/templates/20-touchpad.conf" /etc/X11/xorg.conf.d/20-touchpad.conf; }
 
-check_keyboard() { grep -q 'us,bg' /etc/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null; }
-install_keyboard() { render_template "$DOTS_ROOT/templates/00-keyboard.conf" /etc/X11/xorg.conf.d/00-keyboard.conf; }
+check_keyboard() { [[ $DESKTOP_PROFILE != awesome ]] || grep -q 'us,bg' /etc/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null; }
+install_keyboard() { [[ $DESKTOP_PROFILE != awesome ]] || render_template "$DOTS_ROOT/templates/00-keyboard.conf" /etc/X11/xorg.conf.d/00-keyboard.conf; }
 
-check_fusuma_group() { id -nG "$USER" | tr ' ' '\n' | grep -qx input; }
-install_fusuma_group() { run sudo usermod -aG input "$USER"; }
+check_fusuma_group() { [[ $DESKTOP_PROFILE != awesome ]] || id -nG "$USER" | tr ' ' '\n' | grep -qx input; }
+install_fusuma_group() { [[ $DESKTOP_PROFILE != awesome ]] || run sudo usermod -aG input "$USER"; }
 
 check_ctrl_backspace() { grep -qF '"\C-H":"\C-W"' /etc/inputrc 2>/dev/null; }
 install_ctrl_backspace() {

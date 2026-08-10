@@ -1,0 +1,16 @@
+font=Monocraft Nerd Font 12
+background-color=#191919ee
+text-color=#f8f8f2ff
+border-color=#f8f8f2ff
+border-size=2
+border-radius=0
+padding=12
+margin=10
+width=600
+height=300
+default-timeout=5000
+anchor=top-right
+
+[urgency=critical]
+border-color=#ff025fff
+default-timeout=0
