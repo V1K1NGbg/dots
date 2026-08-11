@@ -1,0 +1,10 @@
+[general]
+corner-roundness = 0
+initial-tool = "brush"
+copy-command = "wl-copy"
+early-exit = true
+output-filename = "~/Pictures/Screenshots/screenshot-%Y%m%d-%H%M%S.png"
+save-after-copy = true
+
+[color-palette]
+palette = ["#ff025f", "#a2f300", "#ffb247", "#35ddff", "#9359ff", "#67ffeb", "#f8f8f2"]

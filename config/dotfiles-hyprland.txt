@@ -1,4 +1,0 @@
-# Paths copied only for the Hyprland/Wayland desktop profile.
-.config/hypr
-.config/mako
-.config/satty

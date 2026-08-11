@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+repo_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+cd "$repo_root"
+
+shell_files=()
+while IFS= read -r file; do
+  shell_files+=("$file")
+done < <(
+  find . \
+    -path './.git' -prune -o \
+    -type f \( -name '*.sh' -o -path './scripts/*' -o -path './packages/scripts/*' \) -print
+)
+
+for file in "${shell_files[@]}"; do
+  bash -n "$file"
+done
+
+hyprland_lua=assets/config/hypr/hyprland.lua
+[[ -f $hyprland_lua ]] || {
+  printf 'error: Hyprland Lua entrypoint is missing: %s\n' "$hyprland_lua" >&2
+  exit 1
+}
+[[ ! -e assets/config/hypr/hyprland.conf ]] || {
+  printf 'error: legacy Hyprland configuration must not coexist with hyprland.lua\n' >&2
+  exit 1
+}
+
+if command -v luac >/dev/null 2>&1; then
+  luac -p "$hyprland_lua"
+else
+  printf 'warning: luac unavailable; Lua syntax checks skipped\n' >&2
+fi
+
+if rg -n 'awesome|picom|xss-lock|i3lock|autorandr|services\.xserver|xorg\.|xsel|amixer' \
+  flake.nix hosts modules packages; then
+  printf 'error: active declarative configuration contains X11/Awesome support\n' >&2
+  exit 1
+fi
+
+if rg -n -uu '/usr/bin/alacritty|curl[^\n]*(install|AUR)|npm install --global|\.nvm/nvm.sh' \
+  --glob '!.git/**' --glob '!*.md' --glob '!scripts/check-static' .; then
+  printf 'error: active configuration contains an imperative/Arch-only install path\n' >&2
+  exit 1
+fi
+
+if rg -n 'builtins\.(readFile|path).*nixfwbtw/private|source = .*nixfwbtw/private' \
+  --glob '*.nix' --glob '!scripts/check-static' .; then
+  printf 'error: a private contract path is being copied into a derivation\n' >&2
+  exit 1
+fi
+
+printf 'Static checks passed.\n'

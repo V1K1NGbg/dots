@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+destination=${XDG_SCREENSHOTS_DIR:-"$HOME/Pictures/Screenshots"}
+geometry=$(slurp -d) || exit 0
+[[ -n $geometry ]] || exit 0
+mkdir -p "$destination"
+grim -g "$geometry" - | satty --filename - \
+  --output-filename "$destination/screenshot-$(date +%Y%m%d-%H%M%S).png"

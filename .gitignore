@@ -1,5 +1,12 @@
-.config/awesome/const.lua
-.config/hypr/wall.jpg
-.config/opencode/style/about.md
+# Build outputs
+/result
+/result-*
+
+# Local tool state
+/.direnv/
+/.envrc.local
 __pycache__/
 *.py[cod]
+
+# Runtime-only secrets must never enter the flake source.
+/.config/nixfwbtw/private/

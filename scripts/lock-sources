@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+repo_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+cd "$repo_root"
+
+command -v nix >/dev/null 2>&1 || {
+  printf 'error: Nix is required to fetch and hash the pinned sources.\n' >&2
+  exit 1
+}
+
+# Bootstrap flakes explicitly because the installer environment may not have
+# them enabled yet. The installed system enables them in its Nix configuration.
+nix_flags=(--extra-experimental-features "nix-command flakes")
+
+# The commits live in flake.nix. This is the only command that downloads the
+# input sources and records their NAR hashes. Review and commit flake.lock.
+nix "${nix_flags[@]}" flake update
+nix "${nix_flags[@]}" flake metadata --json >/dev/null
+
+printf 'Pinned inputs downloaded and flake.lock verified. Review it with git diff.\n'
