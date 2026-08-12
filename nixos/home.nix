@@ -43,6 +43,7 @@ let
     "hypr/hypridle.conf".source = ./hypr/hypridle.conf;
     "hypr/hyprlock.conf".source = ./hypr/hyprlock.conf;
     "hypr/hyprsunset.conf".source = ./hypr/hyprsunset.conf;
+    "mako/config".source = ./hypr/mako.conf;
     "uwsm/env".source = ./hypr/uwsm-env;
     "waybar/config.jsonc".source = ./hypr/waybar.jsonc;
     "waybar/style.css".source = ./hypr/waybar.css;
@@ -86,19 +87,19 @@ in
       // betterDiscordThemes
       // hyprlandFiles
       // {
+        "Code/User/settings.json".source = ../.config/Code/User/settings.json;
         "gtk-3.0/settings.ini".source = ../.config/gtk-3.0/settings.ini;
+        "gtk-4.0/settings.ini".source = ../.config/gtk-3.0/settings.ini;
       };
 
     dataFile = {
       "dots/imports/nemo_config".source = ../nemo_config;
       "dots/imports/copyq.cpq".source = ../copyq.cpq;
       "dots/imports/vimium-options.json".source = ../vimium-options.json;
-      "dots/imports/bonjourr-20.1.2.json".source = ../. + "/bonjourr-20.1.2 2024-11-07 19_41_39.json";
       "dots/imports/bonjourr-20.4.2.json".source = ../. + "/bonjourr-20.4.2 2025-05-09 23_59_13.json";
       "dots/imports/marketplace-settings.json".source =
         ../marketplace-settings-2025-09-29T22_09_50.571Z.json;
       "dots/imports/keepassxc.ini".source = ../.config/keepassxc/keepassxc.ini;
-      "dots/docker-compose.yml".source = ../docker-compose.yml;
     };
 
     mimeApps = {
@@ -139,6 +140,20 @@ in
     extraConfig = ''
       "\C-H": backward-kill-word
     '';
+  };
+
+  systemd.user.services.pcloud = {
+    Unit = {
+      Description = "pCloud Drive desktop client";
+      After = [ "graphical-session.target" ];
+      PartOf = [ "graphical-session.target" ];
+    };
+    Service = {
+      ExecStart = lib.getExe pkgs.pcloud;
+      Restart = "on-failure";
+      RestartSec = 5;
+    };
+    Install.WantedBy = [ "graphical-session.target" ];
   };
 
   # Create writable initial state, but never overwrite changes made by apps.

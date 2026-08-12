@@ -23,9 +23,22 @@ in
       command = lib.concatStringsSep " " [
         (lib.getExe pkgs.tuigreet)
         "--time"
+        "--time-format"
+        ''"%A, %d %B  %H:%M"''
+        "--greeting"
+        ''"Welcome back, Victor"''
         "--asterisks"
         "--remember"
-        "--remember-session"
+        "--remember-user-session"
+        "--user-menu"
+        "--width"
+        "60"
+        "--window-padding"
+        "2"
+        "--container-padding"
+        "2"
+        "--theme"
+        ''"border=blue;text=white;time=cyan;container=black;title=cyan;greet=blue;prompt=cyan;input=white;action=white;button=cyan"''
         "--sessions"
         "${sessionRoot}/wayland-sessions"
       ];
@@ -62,6 +75,7 @@ in
     qt6.qtwayland
     satty
     slurp
+    swaybg
     tuigreet
     waybar
     wev

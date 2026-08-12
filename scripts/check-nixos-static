@@ -12,6 +12,8 @@ bash -n .bashrc
 shellcheck nixos/install-from-minimal.sh nixos/install-blank-disk.sh
 luac -p nixos/hypr/hyprland.lua
 jq --exit-status . nixos/hypr/waybar.jsonc >/dev/null
+rg -q 'modi:.*drun' .config/rofi/config.rasi
+rg -q 'rofi -show drun' nixos/hypr/hyprland.lua
 
 if rg -n 'name = "vtop"|name = "spotify-launcher"' nixos/packages.nix; then
   echo "Removed package/command names reappeared in the NixOS migration." >&2
@@ -37,6 +39,14 @@ if rg -ni 'dangerzone' nixos flake.nix; then
   exit 1
 fi
 
+if rg -ni '\bollama\b' nixos flake.nix; then
+  echo "Ollama reappeared after the llama.cpp migration." >&2
+  exit 1
+fi
+rg -q 'llama-cpp.override { vulkanSupport = true; }' nixos/configuration.nix
+rg -q 'fontconfig.defaultFonts' nixos/configuration.nix
+rg -q 'Monocraft Nerd Font' .config/Code/User/settings.json
+
 if rg -n 'nixos-unstable|github:nix-community/home-manager"' flake.nix; then
   echo "An unpinned flake input reappeared." >&2
   exit 1
@@ -59,3 +69,4 @@ fi
 
 test -f nixos/COMPATIBILITY.md
 test -f nixos/MIGRATION.md
+test -f nixos/POST_INSTALL.md

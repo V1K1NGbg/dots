@@ -9,7 +9,6 @@ until the checks below pass.
 ```sh
 nix flake check --no-build
 nix build .#checks.x86_64-linux.hyprland-system
-nix build .#checks.x86_64-linux.native-ollama-system
 nix build .#checks.x86_64-linux.fusuma-sendkey-config
 ```
 
@@ -22,23 +21,23 @@ sudo reboot
 
 ## Acceptance checks
 
-- The internal panel and known external display use the intended resolution,
-  refresh rate, scale, and placement; hotplug and suspend/resume work.
-- The Bulgarian layout toggles with Super+Space and key repeat feels correct.
-- Touchpad tapping, natural scrolling, clickfinger, and workspace gestures work.
-- Waybar, notifications, locking, idle handling, and the application launcher
-  work after both login and resume.
+- Displays select their preferred mode and automatic placement; hotplug and
+  suspend/resume work.
+- The US keyboard layout and touchpad natural scrolling work.
+- `Super+R` opens Rofi and `Super+Enter` opens Alacritty after login and resume.
+- The solid wallpaper, tiling, borders, and animations appear as configured.
 - Firefox, VS Code, Nemo, Discord, Spotify, KeePassXC, CopyQ, pCloud, Steam,
   screen sharing, file pickers, and clipboard access work.
-- Audio controls, Bluetooth, fingerprint authentication, Docker, Ollama, and
-  Fusuma work without failed system or user services.
+- Audio controls, Bluetooth, fingerprint authentication, Docker, and Fusuma
+  work without failed system or user services; `llama-cli` launches and detects
+  the Vulkan backend.
 
 Inspect failures with:
 
 ```sh
 systemctl --failed
 systemctl --user --failed
-journalctl --user -b -u waybar -u hypridle -u hyprpolkitagent
+journalctl --user -b -u pcloud
 ```
 
 If a new generation is unusable, select an older NixOS generation from the

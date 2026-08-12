@@ -1,0 +1,8 @@
+{
+  "chat.editor.fontFamily": "Monocraft Nerd Font",
+  "debug.console.fontFamily": "Monocraft Nerd Font",
+  "editor.fontFamily": "'Monocraft Nerd Font', monospace",
+  "editor.inlayHints.fontFamily": "Monocraft Nerd Font",
+  "scm.inputFontFamily": "editor",
+  "terminal.integrated.fontFamily": "Monocraft Nerd Font"
+}

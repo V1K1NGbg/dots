@@ -1,21 +1,26 @@
-# Hyprland compatibility decisions
+# Desktop compatibility decisions
 
-| Goal/tool | Hyprland implementation | Status |
+| Goal/tool | Current implementation | Status |
 | --- | --- | --- |
-| Window management | Native Hyprland Lua configuration | Primary desktop |
-| Status bar | Waybar | Declarative |
-| Lock and idle | Hyprlock + Hypridle | Declarative, fingerprint-enabled |
-| Notifications | Mako | Declarative package and session startup |
-| Monitor layouts | Runtime Lua rules matched by connector and panel description | Covers known laptop panels and MSI display |
-| Keyboard layouts | Hyprland `us,bg` with Bulgarian phonetic variant | Super+Space toggle |
-| Touchpad gestures | Native Hyprland workspace gesture | Three-finger horizontal |
-| Screenshots | Grim + Slurp + Satty | Super+P |
-| Night colour | Hyprsunset | Started with the session |
-| Fusuma | Nixpkgs bundle with the sendkey plugin | Parsed by a build check |
-| Discord, Spotify, pCloud, GLava | XWayland where native Wayland is unavailable | XWayland intentionally enabled |
-| Flameshot | Installed for retained workflows | Grim/Slurp/Satty is the native shortcut |
-| CopyQ | Retained; test clipboard behavior under Wayland | Manual state import remains available |
-| Ollama | Docker by default, native Vulkan optional | See `machine.nix` |
+| Window management | Hyprland `dwindle` tiling | Enabled |
+| Displays | Preferred mode, automatic placement, scale 1 | No machine-specific layout |
+| Wallpaper | Solid color through `swaybg` | Started with Hyprland |
+| Borders and gaps | Native Hyprland settings | Enabled |
+| Animations | Window, fade, and workspace animations | Enabled |
+| Launcher | Rofi `drun` | `Super+R` |
+| Terminal | Alacritty | `Super+Enter` |
+| Keyboard | US layout | No secondary layout configured |
+| Touchpad | Natural scrolling | Enabled |
+| Status bar | Waybar package and config retained | Not started automatically |
+| Lock and idle | Hyprlock and Hypridle packaged/configured | Not started automatically |
+| Notifications | Mako package and Monocraft config | Not started automatically |
+| Night colour | Hyprsunset packaged/configured | Not started automatically |
+| Screenshots | Grim, Slurp, Satty, and Flameshot installed | No compositor shortcut |
+| Discord, Spotify, pCloud, GLava | XWayland remains available | Test individually |
+| CopyQ | Package retained | Manual state import |
+| llama.cpp | Native package with Vulkan acceleration | User-managed GGUF models |
 
-Mutable application settings are seeded only when absent, so later rebuilds do
-not overwrite changes made through application interfaces.
+Monocraft Nerd Font is the fontconfig default for serif, sans-serif, and
+monospace text. Managed GTK, Alacritty, Rofi, Waybar, Hyprlock, Mako, Firefox,
+and VS Code settings select it explicitly. Applications and websites that ship
+or request their own fonts can still override the system default.

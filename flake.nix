@@ -72,15 +72,6 @@
       hyprlandCheckSystem = mkSystem {
         hardwareModules = [ syntheticHardware ];
       };
-      nativeOllamaCheckSystem = mkSystem {
-        hardwareModules = [ syntheticHardware ];
-        extraModules = [
-          {
-            dots.ollama.backend = lib.mkForce "native";
-          }
-        ];
-      };
-
       pkgs = import nixpkgs {
         inherit system;
         config.allowUnfree = true;
@@ -126,7 +117,6 @@
 
       checks.${system} = {
         hyprland-system = hyprlandCheckSystem.config.system.build.toplevel;
-        native-ollama-system = nativeOllamaCheckSystem.config.system.build.toplevel;
         fusuma-sendkey-config = fusumaSendkeyCheck;
         inherit onboard;
         hexagon-hud-plymouth = hexagonHudPlymouth;

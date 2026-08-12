@@ -54,6 +54,7 @@ writeShellApplication {
     check_command 'Nemo' nemo
     check_command 'VS Code' code
     check_command 'OpenCode' opencode
+    check_command 'llama.cpp CLI' llama-cli
     check_command 'Spotify' spotify
     check_command 'pCloud' pcloud
 
@@ -62,6 +63,7 @@ writeShellApplication {
     check_path 'BetterDiscord plugin settings directory' "$HOME/.config/BetterDiscord/plugins"
 
     printf '\nManual account/device steps\n'
+    printf '  Guide: ~/dots/nixos/POST_INSTALL.md\n'
     printf '  [action] Enroll fingerprints: fprintd-enroll\n'
     printf '  [action] Authenticate GitHub: gh auth login\n'
     printf '  [action] Import WireGuard: nmcli connection import type wireguard file /path/to/profile.conf\n'
@@ -76,7 +78,7 @@ writeShellApplication {
     printf '           dconf load /org/nemo/ < ~/.local/share/dots/imports/nemo_config\n'
     printf '  [action] Add Flathub and install non-nixpkgs apps only after reviewing them\n'
     printf '  [action] Restore NVM only if a project needs a Node version unavailable from the pinned system\n'
-    printf '  [action] Restore Ollama models/volume before changing its backend\n'
+    printf '  [action] Restore or download GGUF models for llama.cpp outside the Nix store\n'
     printf '  [action] Verify Fusuma is running: pgrep -a fusuma\n'
     printf '  [action] If gestures fail, stop the daemon and inspect devices with: fusuma -l\n'
     printf '  [action] Confirm SendkeyExecutor is enabled: fusuma --show-config -c ~/.config/fusuma/config.yml\n'

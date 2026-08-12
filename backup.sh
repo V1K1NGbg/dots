@@ -1,6 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-cd ~/dots
+repository_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+cd "$repository_root" || exit 1
 
 # nemo
 dconf dump /org/nemo/ > nemo_config

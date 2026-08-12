@@ -27,15 +27,13 @@ Run these on a NixOS machine or the official minimal installer:
 ```sh
 nix flake check --no-build
 nix build .#checks.x86_64-linux.hyprland-system
-nix build .#checks.x86_64-linux.native-ollama-system
 nix build .#checks.x86_64-linux.fusuma-sendkey-config
 ```
 
-The first command evaluates the published system. The next two build complete
-synthetic system closures for the desktop and optional native Ollama backend.
-The final check parses the restored Fusuma
-`sendkey:` configuration and confirms that Fusuma loads `SendkeyExecutor` from
-the bundled plugin. The repository's root and EFI filesystems come from
+The first command evaluates the published system. The next command builds a
+complete synthetic system closure for the desktop. The final check parses the
+restored Fusuma `sendkey:` configuration and confirms that Fusuma loads
+`SendkeyExecutor` from the bundled plugin. The repository's root and EFI filesystems come from
 `nixos/disko.nix`. Target-specific device and kernel details still come from
 `hardware-configuration.nix`, which the installer generates without duplicate
 filesystem declarations.
@@ -122,6 +120,10 @@ systemctl --failed
 systemctl --user --failed
 ```
 
+Continue with the [step-by-step application setup guide](./POST_INSTALL.md) for
+pCloud, Firefox, VS Code, GitHub, WireGuard, KeePassXC, CopyQ, Nemo, account-based
+applications, fingerprints, and llama.cpp.
+
 Use `boot` for initial changes so a bad new generation is never activated in
 the current session:
 
@@ -132,9 +134,13 @@ sudo nixos-rebuild boot --flake .#dots
 After the configuration has proved stable across reboots, `switch` is
 reasonable. The boot menu retains previous generations.
 
-Machine policy lives in `machine.nix`. In particular, Ollama defaults to the
-compatible Docker backend, bound to localhost. After migrating its models,
-change `dots.ollama.backend` to `"native"` for the pinned NixOS Vulkan service.
+Machine policy lives in `machine.nix`. llama.cpp is installed from the pinned
+Nixpkgs revision with Vulkan acceleration. It does not download a model or run
+a server automatically. Start one explicitly with a local GGUF model:
+
+```sh
+llama-server --model /path/to/model.gguf --host 127.0.0.1 --port 8080
+```
 
 ## State ownership
 

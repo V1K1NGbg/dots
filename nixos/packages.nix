@@ -7,7 +7,6 @@ let
     "alacritty"
     "copyq"
     "discord"
-    "firefox"
     "flameshot"
     "github-cli"
     "keepassxc"
@@ -110,10 +109,6 @@ let
       candidates = [ [ "docker" ] ];
     }
     {
-      name = "docker-compose";
-      candidates = [ [ "docker-compose" ] ];
-    }
-    {
       name = "dracut";
       candidates = [ [ "dracut" ] ];
     }
@@ -124,10 +119,6 @@ let
     {
       name = "fd";
       candidates = [ [ "fd" ] ];
-    }
-    {
-      name = "firefox";
-      candidates = [ [ "firefox" ] ];
     }
     {
       name = "flameshot";
@@ -388,7 +379,7 @@ let
       candidates = [ [ "zip" ] ];
     }
 
-    # Commands referenced by the checked-in configs but absent from install.sh.
+    # Commands referenced by checked-in configs and migration helpers.
     {
       name = "libqalculate";
       candidates = [ [ "libqalculate" ] ];
