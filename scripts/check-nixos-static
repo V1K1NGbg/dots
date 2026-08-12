@@ -3,11 +3,13 @@
 set -euo pipefail
 
 test -f flake.lock
+test -x nixos/install-blank-disk.sh
 
 bash -n nixos/install-from-minimal.sh
+bash -n nixos/install-blank-disk.sh
 bash -n .bashrc
 sh -n .config/awesome/autostart.sh
-shellcheck nixos/install-from-minimal.sh .config/awesome/autostart.sh
+shellcheck nixos/install-from-minimal.sh nixos/install-blank-disk.sh .config/awesome/autostart.sh
 luac -p .config/awesome/rc.lua
 luac -p .config/awesome/theme.lua
 luac -p nixos/hypr/hyprland.lua
@@ -27,7 +29,8 @@ rg -q 'sendkey: LEFTMETA' .config/fusuma/config.yml
 rg -q 'name = "ruby-fusuma"' nixos/packages.nix
 rg -q '"input"' nixos/configuration.nix
 
-if rg -n 'framework-13|7040|dots-framework' flake.nix nixos/install-from-minimal.sh; then
+if rg -n 'framework-13|7040|dots-framework' \
+  flake.nix nixos/install-from-minimal.sh nixos/install-blank-disk.sh; then
   echo "A removed hardware/profile variant reappeared." >&2
   exit 1
 fi

@@ -69,47 +69,44 @@ ping -c 3 nixos.org
 lsblk -o NAME,SIZE,MODEL,FSTYPE,LABEL,MOUNTPOINTS
 ```
 
-The following is a simple example for a **blank dedicated NVMe disk**. Replace
-`/dev/nvme0n1` only after checking `lsblk`. Formatting the wrong device destroys
-its data. In `cfdisk`, create a GPT table, a 1 GiB EFI System partition, and one
-Linux filesystem partition using the remaining space:
-
-```sh
-cfdisk /dev/nvme0n1
-mkfs.fat -F 32 -n NIXBOOT /dev/nvme0n1p1
-mkfs.ext4 -L nixos /dev/nvme0n1p2
-mount /dev/disk/by-label/nixos /mnt
-mkdir -p /mnt/boot
-mount -o umask=077 /dev/disk/by-label/NIXBOOT /mnt/boot
-findmnt /mnt
-findmnt /mnt/boot
-```
-
-If preserving an existing EFI partition, do not format it; mount it at
-`/mnt/boot`. For encryption, dual boot, a separate home partition, or reusing
-the Arch disk, stop and design the partition layout separately instead of using
-the simple commands above.
-
-Clone the pushed branch and run the guarded installer:
+Clone the pushed branch:
 
 ```sh
 nix-shell -p git --run 'git clone --branch nixos https://github.com/V1K1NGbg/dots.git /tmp/dots'
 cd /tmp/dots
+```
+
+### Automatic blank-disk installation
+
+For a **blank dedicated disk only**, verify the disk path and then run one
+command. Replace `/dev/nvme0n1` only after checking its model and size in
+`lsblk`. The `--reboot` form waits for you to remove the USB before rebooting:
+
+```sh
+./nixos/install-blank-disk.sh /dev/nvme0n1 dots --reboot
+```
+
+The script accepts only a whole disk, refuses disks with mounted filesystems,
+refuses disks smaller than 32 GiB, displays the disk model/size/serial, and
+requires typing `ERASE /dev/...` exactly. It then creates GPT, a 1 GiB FAT32 EFI
+partition, and an ext4 root partition using the remaining space. It formats and
+mounts them, generates the real hardware configuration, runs the locked checks,
+builds before installing, preserves the exact checkout at `~/dots`, asks only
+for the `victor` password, syncs, and unmounts everything. With `--reboot`, it
+requires you to remove the USB and type `REBOOT` before restarting.
+
+This permanently destroys all data on the selected disk. It does not provide
+encryption, dual boot, a separate home partition, hibernation swap, or in-place
+migration. For any of those, partition and mount manually, then use the safer
+mount-only helper:
+
+```sh
 ./nixos/install-from-minimal.sh /mnt dots
 ```
 
-The helper does not partition or format anything. It shows the resolved root
-and EFI devices and requires typing `INSTALL`. It then generates the real
-hardware configuration, passes the repository's static safety check without
-changing the lock, builds the selected profile before installation, runs
-`nixos-install`, sets the user password, and preserves the exact checkout at
-`~/dots` on the new system.
-
-When it finishes, unmount and reboot:
+Without `--reboot`, the automatic helper stops after a successful unmount:
 
 ```sh
-cd /
-umount -R /mnt
 reboot
 ```
 

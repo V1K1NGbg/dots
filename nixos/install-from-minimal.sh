@@ -56,8 +56,10 @@ echo "Source checkout:   ${repo}"
 echo
 echo "This helper does not partition or format disks. It will generate hardware"
 echo "configuration, build the selected system, and install it into the mounts above."
-read -r -p "Type INSTALL to continue: " confirmation
-[[ ${confirmation} == INSTALL ]] || die "Installation cancelled."
+if [[ ${DOTS_INSTALL_CONFIRMED:-} != "${target}:${configuration}" ]]; then
+  read -r -p "Type INSTALL to continue: " confirmation
+  [[ ${confirmation} == INSTALL ]] || die "Installation cancelled."
+fi
 
 echo "Generating target-specific hardware configuration..."
 nixos-generate-config --root "${target}"
@@ -79,11 +81,18 @@ nix --extra-experimental-features "nix-command flakes" \
   build --no-link --no-update-lock-file \
   "${flake}#nixosConfigurations.${configuration}.config.system.build.toplevel"
 
-echo "Installing NixOS. nixos-install will ask for the root password."
-nixos-install \
-  --root "${target}" \
-  --option experimental-features "nix-command flakes" \
+echo "Installing NixOS..."
+nixos_install_arguments=(
+  --root "${target}"
+  --option experimental-features "nix-command flakes"
   --flake "${flake}#${configuration}"
+)
+if [[ ${DOTS_NO_ROOT_PASSWORD:-0} == 1 ]]; then
+  nixos_install_arguments+=(--no-root-passwd)
+else
+  echo "nixos-install will ask for the root password."
+fi
+nixos-install "${nixos_install_arguments[@]}"
 
 case "${repo}/" in
   "${target}/"*)
