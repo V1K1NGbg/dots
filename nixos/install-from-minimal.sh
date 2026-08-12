@@ -62,7 +62,7 @@ if [[ ${DOTS_INSTALL_CONFIRMED:-} != "${target}:${configuration}" ]]; then
 fi
 
 echo "Generating target-specific hardware configuration..."
-nixos-generate-config --root "${target}"
+nixos-generate-config --no-filesystems --root "${target}"
 
 if [[ -e ${hardware_target} ]] && ! cmp -s "${hardware_source}" "${hardware_target}"; then
   backup="${hardware_target}.pre-install-backup"

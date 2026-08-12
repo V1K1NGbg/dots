@@ -3,6 +3,7 @@
 set -euo pipefail
 
 test -f flake.lock
+test -f nixos/disko.nix
 test -x nixos/install-blank-disk.sh
 
 bash -n nixos/install-from-minimal.sh
@@ -42,6 +43,16 @@ fi
 
 if rg -n 'nixos-unstable|github:nix-community/home-manager"' flake.nix; then
   echo "An unpinned flake input reappeared." >&2
+  exit 1
+fi
+
+rg -q 'disko.nixosModules.disko' flake.nix
+rg -q 'github:nix-community/disko/[0-9a-f]{40}' flake.nix
+rg -q 'device = "/dev/nvme0n1";' nixos/disko.nix
+rg -q -- '--no-filesystems' nixos/install-from-minimal.sh
+rg -q -- '--mode destroy,format,mount' nixos/install-blank-disk.sh
+if rg -n '\b(parted|mkfs\.(ext4|fat)|wipefs)\b' nixos/install-blank-disk.sh; then
+  echo "Blank-disk layout must be applied by Disko, not imperative formatting commands." >&2
   exit 1
 fi
 

@@ -13,11 +13,19 @@ die() {
   exit 1
 }
 
+cleanup_mounts() {
+  if findmnt --mountpoint "${target}" >/dev/null 2>&1; then
+    sync
+    umount -R "${target}" || echo "WARNING: could not fully unmount ${target}; inspect it before rebooting." >&2
+  fi
+}
+
 usage() {
   cat >&2 <<'EOF'
 Usage: install-blank-disk.sh /dev/WHOLE_DISK [dots|dots-hyprland] [--reboot]
 
-This erases the complete disk and creates:
+This uses the repository's declarative Disko layout to erase the complete disk
+and create:
   partition 1: 1 GiB FAT32 EFI System Partition
   partition 2: remaining space, ext4 NixOS root
 
@@ -41,9 +49,7 @@ case "${reboot_after}" in
   *) usage ;;
 esac
 
-for command in \
-  blockdev findmnt grep lsblk mkdir mkfs.ext4 mkfs.fat mount partprobe parted \
-  realpath sleep sync udevadm umount wipefs; do
+for command in blockdev findmnt grep lsblk nix realpath sync umount; do
   command -v "${command}" >/dev/null 2>&1 || die "Required command is unavailable: ${command}"
 done
 if [[ ${reboot_after} == --reboot ]]; then
@@ -70,6 +76,20 @@ fi
 disk_bytes="$(blockdev --getsize64 "${disk}")"
 ((disk_bytes >= 34359738368)) || die "Refusing to install to a disk smaller than 32 GiB."
 
+repo="$(realpath "${script_dir}/..")"
+flake="path:${repo}"
+[[ -f ${repo}/flake.lock ]] || die "flake.lock is missing; refusing to use unpinned Disko inputs."
+
+configured_disk="$(
+  nix --extra-experimental-features "nix-command flakes" \
+    eval --raw --no-write-lock-file \
+    "${flake}#nixosConfigurations.${configuration}.config.disko.devices.disk.system.device"
+)"
+configured_disk="$(realpath -- "${configured_disk}")"
+if [[ ${disk} != "${configured_disk}" ]]; then
+  die "${configuration} declares ${configured_disk}, not ${disk}. Change nixos/disko.nix deliberately before installing."
+fi
+
 echo "The following whole disk will be permanently erased:"
 lsblk -dn -o PATH,SIZE,MODEL,SERIAL,TRAN,RM "${disk}"
 echo
@@ -83,53 +103,28 @@ echo "ALL PARTITIONS AND DATA ON ${disk} WILL BE DESTROYED."
 read -r -p "Type 'ERASE ${disk}' to continue: " confirmation
 [[ ${confirmation} == "ERASE ${disk}" ]] || die "Confirmation did not match; nothing was erased."
 
-echo "Erasing old signatures and creating the GPT partition table..."
-wipefs --all --force "${disk}"
-parted --script --align optimal "${disk}" \
-  mklabel gpt \
-  mkpart ESP fat32 1MiB 1025MiB \
-  set 1 esp on \
-  mkpart primary ext4 1025MiB 100%
-partprobe "${disk}"
-udevadm settle
-
-if [[ ${disk} =~ [0-9]$ ]]; then
-  efi_partition="${disk}p1"
-  root_partition="${disk}p2"
-else
-  efi_partition="${disk}1"
-  root_partition="${disk}2"
-fi
-
-for _ in {1..10}; do
-  [[ -b ${efi_partition} && -b ${root_partition} ]] && break
-  udevadm settle
-  sleep 1
-done
-[[ -b ${efi_partition} ]] || die "EFI partition did not appear: ${efi_partition}"
-[[ -b ${root_partition} ]] || die "Root partition did not appear: ${root_partition}"
-
-echo "Formatting ${efi_partition} as FAT32 and ${root_partition} as ext4..."
-mkfs.fat -F 32 -n NIXBOOT "${efi_partition}"
-mkfs.ext4 -F -L nixos "${root_partition}"
-
-echo "Mounting the new system at ${target}..."
-mount "${root_partition}" "${target}"
-mkdir -p "${target}/boot"
-mount -o umask=077 "${efi_partition}" "${target}/boot"
+echo "Applying the locked declarative Disko layout..."
+nix --extra-experimental-features "nix-command flakes" \
+  run --no-write-lock-file "${flake}#disko" -- \
+  --mode destroy,format,mount \
+  --root-mountpoint "${target}" \
+  --yes-wipe-all-disks \
+  --flake "${flake}#${configuration}"
 
 echo "Mounted installation target:"
-findmnt "${target}"
-findmnt "${target}/boot"
+findmnt --mountpoint "${target}" || die "Disko did not mount the root filesystem at ${target}."
+findmnt --mountpoint "${target}/boot" || die "Disko did not mount the EFI filesystem at ${target}/boot."
+trap cleanup_mounts EXIT
 
 # The exact disk-erasure confirmation above also authorizes the inner installer.
 DOTS_INSTALL_CONFIRMED="${target}:${configuration}" \
 DOTS_NO_ROOT_PASSWORD=1 \
   "${script_dir}/install-from-minimal.sh" "${target}" "${configuration}"
 
-echo "Flushing writes and unmounting the installed system..."
+echo "Flushing writes and unmounting the Disko-managed filesystems..."
 sync
 umount -R "${target}"
+trap - EXIT
 
 echo
 echo "Installation and unmount completed successfully."

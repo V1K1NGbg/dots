@@ -45,15 +45,6 @@ in
       dots.ollama.backend = "native" after migrating the model data for a fully pinned service.
     '';
 
-  # Keep repository-wide evaluation possible before a target machine exists.
-  # The installer always replaces this non-bootable evaluation placeholder
-  # with nixos-generate-config output before it is allowed to install.
-  fileSystems = lib.mkIf (!builtins.pathExists ./hardware-configuration.nix) {
-    "/" = {
-      fsType = lib.mkDefault "tmpfs";
-    };
-  };
-
   nixpkgs.config.allowUnfree = true;
 
   nix = {

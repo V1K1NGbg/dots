@@ -6,8 +6,9 @@ AwesomeWM/X11 workflow, the existing key bindings, applications, Picom
 animations, monitor profiles, tray applets, startup behavior, and dotfiles.
 Hyprland is available only in separately named profiles.
 
-The inputs are immutable NixOS 26.05, Home Manager 26.05, nixos-hardware, and
-Plymouth theme revisions. Their content hashes are committed in `flake.lock`.
+The inputs are immutable NixOS 26.05, Home Manager 26.05, nixos-hardware,
+Disko, and Plymouth theme revisions. Their content hashes are committed in
+`flake.lock`.
 Required daily-driver packages fail evaluation if they disappear; optional
 gaps produce a visible warning and are documented in
 [COMPATIBILITY.md](./COMPATIBILITY.md).
@@ -38,11 +39,10 @@ The first command evaluates every published hardware/desktop combination. The
 next three build complete synthetic system closures for both desktop paths and
 the optional native Ollama backend. The final check parses the restored Fusuma
 `sendkey:` configuration and confirms that Fusuma loads `SendkeyExecutor` from
-the bundled plugin. The repository intentionally evaluates with a temporary
-tmpfs root when
-`hardware-configuration.nix` is absent; this placeholder is not an installable
-machine configuration. The installer refuses to continue until it has replaced
-it with output from `nixos-generate-config`.
+the bundled plugin. The repository's root and EFI filesystems come from
+`nixos/disko.nix`. Target-specific device and kernel details still come from
+`hardware-configuration.nix`, which the installer generates without duplicate
+filesystem declarations.
 
 An optional VM smoke test can be built on an x86_64 NixOS host:
 
@@ -78,9 +78,10 @@ cd /tmp/dots
 
 ### Automatic blank-disk installation
 
-For a **blank dedicated disk only**, verify the disk path and then run one
-command. Replace `/dev/nvme0n1` only after checking its model and size in
-`lsblk`. The `--reboot` form waits for you to remove the USB before rebooting:
+For a **dedicated disk that may be completely erased**, verify that the internal
+disk declared in `nixos/disko.nix` is `/dev/nvme0n1`, check its model and size in
+`lsblk`, and run one command. The `--reboot` form waits for you to remove the USB
+before rebooting:
 
 ```sh
 ./nixos/install-blank-disk.sh /dev/nvme0n1 dots --reboot
@@ -88,17 +89,20 @@ command. Replace `/dev/nvme0n1` only after checking its model and size in
 
 The script accepts only a whole disk, refuses disks with mounted filesystems,
 refuses disks smaller than 32 GiB, displays the disk model/size/serial, and
-requires typing `ERASE /dev/...` exactly. It then creates GPT, a 1 GiB FAT32 EFI
-partition, and an ext4 root partition using the remaining space. It formats and
-mounts them, generates the real hardware configuration, runs the locked checks,
-builds before installing, preserves the exact checkout at `~/dots`, asks only
-for the `victor` password, syncs, and unmounts everything. With `--reboot`, it
-requires you to remove the USB and type `REBOOT` before restarting.
+requires typing `ERASE /dev/...` exactly. It also refuses any disk that differs
+from the device declared in `nixos/disko.nix`. The pinned Disko input then
+applies that declarative GPT layout: a 1 GiB FAT32 EFI partition and an ext4
+root partition using the remaining space. The installer generates hardware
+configuration with `--no-filesystems`, runs the locked checks, builds before
+installing, preserves the exact checkout at `~/dots`, asks only for the `victor`
+password, syncs, and unmounts everything. With `--reboot`, it requires you to
+remove the USB and type `REBOOT` before restarting.
 
 This permanently destroys all data on the selected disk. It does not provide
 encryption, dual boot, a separate home partition, hibernation swap, or in-place
-migration. For any of those, partition and mount manually, then use the safer
-mount-only helper:
+migration. Changing the disk path or layout must be done deliberately in
+`nixos/disko.nix` before running the command. For a manually prepared target
+that matches the declared filesystems, mount it and use the mount-only helper:
 
 ```sh
 ./nixos/install-from-minimal.sh /mnt dots

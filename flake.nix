@@ -16,6 +16,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    disko = {
+      url = "github:nix-community/disko/ff8702b4de27f72b4c78573dfb89ec74e36abdf1";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     plymouth-themes-src = {
       url = "github:adi1090x/plymouth-themes/5d8817458d764bff4ff9daae94cf1bbaabf16ede";
       flake = false;
@@ -28,6 +33,7 @@
       nixpkgs,
       home-manager,
       nixos-hardware,
+      disko,
       ...
     }:
     let
@@ -46,7 +52,9 @@
             hardwareModules
             ++ [
               ./nixos/configuration.nix
+              ./nixos/disko.nix
               ./nixos/modules/desktop-hyprland.nix
+              disko.nixosModules.disko
               home-manager.nixosModules.home-manager
               {
                 home-manager = {
@@ -124,6 +132,7 @@
 
       packages.${system} = {
         inherit onboard;
+        disko = disko.packages.${system}.disko;
         hexagon-hud-plymouth = hexagonHudPlymouth;
       };
 
