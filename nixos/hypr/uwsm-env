@@ -1,4 +1,4 @@
 # Loaded by UWSM for the Hyprland session only. Do not put these in the global
-# NixOS environment: this profile can still launch Awesome/X11.
+# Environment shared by Hyprland and its XWayland applications.
 export NIXOS_OZONE_WL=1
 export MOZ_ENABLE_WAYLAND=1

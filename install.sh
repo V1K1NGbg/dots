@@ -59,10 +59,8 @@ pkg_installed() { pacman -Qq "$1" &>/dev/null 2>&1; }
 check_multilib()          { grep -q '^\[multilib\]' /etc/pacman.conf; }
 check_system_updated()    { is_marked "system_updated"; }
 check_paru()              { cmd_exists paru; }
-check_awesome()           { pacman -Qq awesome-git &>/dev/null 2>&1; }
 check_packages()          { pkg_installed alacritty && pkg_installed nemo && pkg_installed rofi && pkg_installed vim; }
 check_autologin()         { [[ -f /etc/systemd/system/getty@tty1.service.d/autologin.conf ]]; }
-check_picom()             { cmd_exists picom; }
 check_amd_gpu()           { grep -q 'amdgpu.dcdebugmask' /etc/kernel/cmdline 2>/dev/null; }
 check_plymouth()          { grep -q 'splash' /etc/kernel/cmdline 2>/dev/null && [[ -f /etc/dracut.conf.d/plymouth.conf ]]; }
 check_power_button()      { grep -q '^HandlePowerKey=ignore' /etc/systemd/logind.conf; }
@@ -80,14 +78,12 @@ check_fingerprint()       { grep -q 'pam_fprintd' /etc/pam.d/sudo 2>/dev/null; f
 check_ohmybash()          { [[ -d "${HOME}/.oh-my-bash" ]]; }
 check_bashrc()            { grep -q 'OSH_THEME="agnoster"' "${HOME}/.bashrc" 2>/dev/null; }
 check_nemo_config()       { dconf read /org/nemo/preferences/bulk-rename-tool 2>/dev/null | grep -q 'bulky'; }
-check_dotfiles()          { [[ -f "${HOME}/.vimrc" && -f "${HOME}/.tmux.conf" && -f "${HOME}/.Xresources" && -f "${HOME}/.bash_profile" && -d "${HOME}/.config/awesome" && -d "${HOME}/.config/alacritty" ]]; }
-check_i3lock()            { [[ -x "${HOME}/i3lock.sh" ]]; }
+check_dotfiles()          { [[ -f "${HOME}/.vimrc" && -f "${HOME}/.tmux.conf" && -f "${HOME}/.Xresources" && -f "${HOME}/.bash_profile" && -d "${HOME}/.config/alacritty" ]]; }
 check_default_apps()      { xdg-mime query default text/html 2>/dev/null | grep -q firefox; }
 check_nvm()               { [[ -d "${HOME}/.nvm" ]]; }
 check_vtop()              { cmd_exists vtop; }
 check_docker()            { systemctl is-enabled docker.service &>/dev/null; }
 check_pcloud()            { cmd_exists pcloud; }
-check_awesome_const()     { is_marked "awesome_const"; }
 check_discord()           { [[ -d "${HOME}/.config/BetterDiscord" ]]; }
 check_spotify()           { is_marked "spotify_setup"; }
 check_opencode()          { is_marked "opencode_setup"; }
@@ -128,23 +124,16 @@ install_paru() {
     print_success "paru installed"
 }
 
-install_awesome() {
-    print_header "Installing awesome-git"
-    sudo pacman -Rs awesome 2>/dev/null || true
-    paru -S awesome-git
-    print_success "awesome-git installed"
-}
-
 install_packages() {
     print_header "Installing all packages"
     paru -S \
-        acpi alacritty alsa-utils ani-cli arandr aspell aspell-en autorandr \
+        acpi alacritty alsa-utils ani-cli aspell aspell-en \
         baobab bash-completion blueman bluez bluez-utils bulky \
         capitaine-cursors copyq cowsay cpupower-gui-git curl \
         dangerzone-bin discord docker docker-compose dracut \
         fastfetch fd firefox flameshot fprintd  \
         gimp git github-cli glava gnome-disk-utility \
-        highlight htop i3lock-color imgcat \
+        highlight htop imgcat \
         jdk21-openjdk jdk8-openjdk keepassxc \
         lazygit less libconfig lobster-git localsend lolcat \
         man-db man-pages meld nano \
@@ -152,12 +141,12 @@ install_packages() {
         noto-fonts noto-fonts-cjk noto-fonts-emoji noto-fonts-extra nvtop \
         pasystray pavucontrol pcloud-drive playerctl \
         plymouth plymouth-theme-hexagon-hud-git prismlauncher \
-        qt6-svg ranger redshift rofi rofi-calc \
+        qt6-svg ranger rofi rofi-calc \
         ruby-fusuma ruby-fusuma-plugin-sendkey sof-firmware \
         spotify-launcher steam tmux tree \
-        unclutter unzip usbimager uthash \
+        unzip usbimager uthash \
         vim visual-studio-code-bin vlc vulkan-radeon vulkan-tools \
-        wget xdotool xorg-xev xorg-xinput xorg-xset xss-lock zip
+        wget zip
     # paru -S sunshine moonlight-qt
     print_success "Packages installed"
 }
@@ -170,21 +159,6 @@ ExecStart=
 ExecStart=-/sbin/agetty -o '-p -f -- \u' --noclear --autologin victor %I %TERM
 EOF
     print_success "Auto login configured for user: victor"
-}
-
-install_picom() {
-    print_header "Building and installing picom"
-    print_step "Cloning picom..."
-    git clone https://github.com/pijulius/picom.git /tmp/picom
-    cd /tmp/picom
-    print_step "Building..."
-    meson setup --buildtype=release build
-    ninja -C build
-    print_step "Installing..."
-    sudo ninja -C build install
-    cd "$SCRIPT_DIR"
-    sudo rm -rf /tmp/picom
-    print_success "picom installed"
 }
 
 install_amd_gpu() {
@@ -319,8 +293,6 @@ install_fingerprint() {
     sudo fprintd-enroll "$USER"
     print_step "Adding to PAM (sudo)..."
     sudo sed -i '/#%PAM-1.0/a auth            sufficient      pam_fprintd.so' /etc/pam.d/sudo
-    print_step "Adding to PAM (i3lock)..."
-    sudo sed -i '/auth include system-local-login/i auth sufficient pam_unix.so try_first_pass likeauth nullok\nauth sufficient pam_fprintd.so timeout=10' /etc/pam.d/i3lock
     print_success "Fingerprint authentication configured"
 }
 
@@ -351,7 +323,6 @@ install_nemo_config() {
 install_dotfiles() {
     print_header "Copying dotfiles"
     print_step "Creating directories..."
-    mkdir -p "${HOME}/.config/awesome/"
     mkdir -p "${HOME}/.config/alacritty/"
     mkdir -p "${HOME}/.vim/colors/"
     mkdir -p "${HOME}/Documents/BackUp/screenshots"
@@ -362,24 +333,16 @@ install_dotfiles() {
     yes | cp -rf "${SCRIPT_DIR}/.config/" ~
     yes | cp -rf "${SCRIPT_DIR}/.oh-my-bash/" ~ 2>/dev/null || true
     yes | cp -rf "${SCRIPT_DIR}/.vim/" ~
-    yes | cp -rf "${SCRIPT_DIR}/.screenlayout/" ~ 2>/dev/null || true
 
     print_step "Copying dotfiles..."
     yes | cp -f \
         "${SCRIPT_DIR}/.bash_profile" \
         "${SCRIPT_DIR}/.tmux.conf" \
         "${SCRIPT_DIR}/.vimrc" \
-        "${SCRIPT_DIR}/.Xresources" \
-        "${SCRIPT_DIR}/i3lock.sh" ~
+        "${SCRIPT_DIR}/.Xresources" ~
 
     mark_done "dotfiles"
     print_success "Dotfiles copied"
-}
-
-install_i3lock() {
-    print_header "Setting up i3lock"
-    chmod +x "${HOME}/i3lock.sh"
-    print_success "i3lock.sh made executable"
 }
 
 install_default_apps() {
@@ -427,14 +390,6 @@ install_pcloud() {
     read -p "  Log in pCloud and press Enter to continue..."
     read -p "  Enable start up minimised, Sync ~/Documents/PC <-> pCloudDrive/PC, Backup ~/Documents/BackUp and press Enter to continue..."
     print_success "pCloud configured"
-}
-
-install_awesome_const() {
-    print_header "Copying Awesome const file"
-    read -e -p "  Awesome const path (FULL PATH): " awesome_const_path
-    yes | cp -f "$awesome_const_path" "${HOME}/.config/awesome/"
-    mark_done "awesome_const"
-    print_success "Awesome const file copied"
 }
 
 install_discord() {
@@ -527,10 +482,8 @@ TASK_NAMES=(
     "Enable multilib"
     "Update system"
     "Install paru"
-    "Install awesome-git"
     "Install all packages"
     "Configure auto login"
-    "Build & install picom"
     "AMD GPU fix (Framework)"
     "Configure Plymouth"
     "Configure power button"
@@ -548,14 +501,12 @@ TASK_NAMES=(
     "Configure .bashrc"
     "Configure Nemo"
     "Copy dotfiles"
-    "Set up i3lock"
     "Set default applications"
     "Install nvm + Node.js"
     "Install vtop"
     "Set up Docker"
     "Set up pCloud"
     "Configure WireGuard VPN"
-    "Copy awesome const file"
     "Set up Discord + BetterDiscord"
     "Set up Spotify"
     "Install OpenCode"
@@ -570,10 +521,8 @@ TASK_CHECKS=(
     check_multilib
     check_system_updated
     check_paru
-    check_awesome
     check_packages
     check_autologin
-    check_picom
     check_amd_gpu
     check_plymouth
     check_power_button
@@ -591,14 +540,12 @@ TASK_CHECKS=(
     check_bashrc
     check_nemo_config
     check_dotfiles
-    check_i3lock
     check_default_apps
     check_nvm
     check_vtop
     check_docker
     check_pcloud
     check_wireguard
-    check_awesome_const
     check_discord
     check_spotify
     check_opencode
@@ -613,10 +560,8 @@ TASK_INSTALLS=(
     install_multilib
     install_system_update
     install_paru
-    install_awesome
     install_packages
     install_autologin
-    install_picom
     install_amd_gpu
     install_plymouth
     install_power_button
@@ -634,14 +579,12 @@ TASK_INSTALLS=(
     install_bashrc
     install_nemo_config
     install_dotfiles
-    install_i3lock
     install_default_apps
     install_nvm
     install_vtop
     install_docker
     install_pcloud
     install_wireguard
-    install_awesome_const
     install_discord
     install_spotify
     install_opencode
@@ -916,12 +859,8 @@ fi
 
 # # fix monitor setup !OLD!
 # # arandr to setup ONLY LAPTOP
-# autorandr --save laptop
-# autorandr --default laptop
 # # arandr to setup EXTEND LAPTOP
-# autorandr --save laptop_external
 # # # arandr to setup DUPLICATE LAPTOP
-# # autorandr --save laptop_duplicate
 
 # # generate ranger config !OLD!
 # ranger --copy-config=all

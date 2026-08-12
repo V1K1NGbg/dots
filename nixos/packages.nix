@@ -5,20 +5,17 @@ let
   # part of the daily desktop workflow and must never disappear silently.
   requiredNames = [
     "alacritty"
-    "awesome-git"
     "copyq"
     "discord"
     "firefox"
     "flameshot"
     "github-cli"
-    "i3lock-color"
     "keepassxc"
     "Monocraft Nerd Font"
     "nemo-compare"
     "network-manager-applet"
     "opencode"
     "pcloud-drive"
-    "picom-pijulius"
     "playerctl"
     "rofi"
     "rofi-calc"
@@ -28,8 +25,6 @@ let
     "vim"
     "visual-studio-code"
     "vlc"
-    "xdotool"
-    "xss-lock"
   ];
 
   specs = [
@@ -50,10 +45,6 @@ let
       candidates = [ [ "ani-cli" ] ];
     }
     {
-      name = "arandr";
-      candidates = [ [ "arandr" ] ];
-    }
-    {
       name = "aspell";
       candidates = [ [ "aspell" ] ];
     }
@@ -65,14 +56,6 @@ let
           "en"
         ]
       ];
-    }
-    {
-      name = "autorandr";
-      candidates = [ [ "autorandr" ] ];
-    }
-    {
-      name = "awesome-git";
-      candidates = [ [ "awesome" ] ];
     }
     {
       name = "baobab";
@@ -181,10 +164,6 @@ let
     {
       name = "htop";
       candidates = [ [ "htop" ] ];
-    }
-    {
-      name = "i3lock-color";
-      candidates = [ [ "i3lock-color" ] ];
     }
     {
       name = "imgcat";
@@ -334,10 +313,6 @@ let
       candidates = [ [ "ranger" ] ];
     }
     {
-      name = "redshift";
-      candidates = [ [ "redshift" ] ];
-    }
-    {
       name = "rofi";
       candidates = [ [ "rofi" ] ];
     }
@@ -371,10 +346,6 @@ let
     {
       name = "tree";
       candidates = [ [ "tree" ] ];
-    }
-    {
-      name = "unclutter";
-      candidates = [ [ "unclutter" ] ];
     }
     {
       name = "unzip";
@@ -411,38 +382,6 @@ let
     {
       name = "wget";
       candidates = [ [ "wget" ] ];
-    }
-    {
-      name = "xdotool";
-      candidates = [ [ "xdotool" ] ];
-    }
-    {
-      name = "xorg-xev";
-      candidates = [ [ "xev" ] ];
-    }
-    {
-      name = "xorg-xinput";
-      candidates = [ [ "xinput" ] ];
-    }
-    {
-      name = "xorg-xset";
-      candidates = [ [ "xset" ] ];
-    }
-    {
-      name = "xorg-setxkbmap";
-      candidates = [ [ "setxkbmap" ] ];
-    }
-    {
-      name = "xorg-xrandr";
-      candidates = [ [ "xrandr" ] ];
-    }
-    {
-      name = "xorg-xinit";
-      candidates = [ [ "xinit" ] ];
-    }
-    {
-      name = "xss-lock";
-      candidates = [ [ "xss-lock" ] ];
     }
     {
       name = "zip";
@@ -523,13 +462,6 @@ let
       candidates = [ [ "python3" ] ];
     }
 
-    # The animation syntax in picom.conf requires the pijulius fork.
-    # Never fall back to upstream Picom: the checked-in animation syntax is
-    # specific to the pijulius fork and would fail only after login.
-    {
-      name = "picom-pijulius";
-      candidates = [ [ "picom-pijulius" ] ];
-    }
     {
       name = "Monocraft Nerd Font";
       candidates = [

@@ -1,7 +1,6 @@
 {
   config,
   lib,
-  osConfig,
   pkgs,
   ...
 }:
@@ -9,12 +8,9 @@
 let
   staticConfigDirectories = [
     "alacritty"
-    "autorandr"
-    "awesome"
     "fusuma"
     "glava"
     "opencode"
-    "picom"
     "rofi"
     "spicetify"
   ];
@@ -42,7 +38,7 @@ let
     name: lib.hasSuffix ".theme.css" name
   );
 
-  hyprlandFiles = lib.optionalAttrs osConfig.dots.desktop.hyprland.enable {
+  hyprlandFiles = {
     "hypr/hyprland.lua".source = ./hypr/hyprland.lua;
     "hypr/hypridle.conf".source = ./hypr/hypridle.conf;
     "hypr/hyprlock.conf".source = ./hypr/hyprlock.conf;
@@ -68,16 +64,8 @@ in
       ".tmux.conf".source = ../.tmux.conf;
       ".vimrc".source = ../.vimrc;
       ".Xresources".source = ../.Xresources;
-      "i3lock.sh" = {
-        source = ../i3lock.sh;
-        executable = true;
-      };
       ".vim" = {
         source = ../.vim;
-        recursive = true;
-      };
-      ".screenlayout" = {
-        source = ../.screenlayout;
         recursive = true;
       };
       ".oh-my-bash" = {
@@ -187,11 +175,6 @@ in
       $DRY_RUN_CMD install -m 0600 ${lib.escapeShellArg (toString ../.config/keepassxc/keepassxc.ini)} "$keepass_destination"
     fi
 
-    awesome_private=${lib.escapeShellArg "${config.xdg.stateHome}/dots/awesome-const.lua"}
-    if [[ ! -e "$awesome_private" ]]; then
-      $DRY_RUN_CMD mkdir -p "$(dirname "$awesome_private")"
-      $DRY_RUN_CMD install -m 0600 ${lib.escapeShellArg (toString ../.config/awesome/const-temp.lua)} "$awesome_private"
-    fi
   '';
 
   home.activation.createDotfileDirectories = lib.hm.dag.entryAfter [ "writeBoundary" ] ''

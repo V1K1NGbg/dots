@@ -1,4 +1,4 @@
--- Optional Hyprland 0.55+ profile. Awesome/X11 remains the default desktop.
+-- Hyprland 0.55+ configuration for the Framework Laptop 16.
 
 local mod = "SUPER"
 

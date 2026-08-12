@@ -46,8 +46,9 @@ writeShellApplication {
 
     printf 'dots migration check\n\n'
     printf 'Core desktop\n'
-    check_command 'Awesome window manager' awesome
-    check_command 'Picom animation fork' picom
+    check_command 'Hyprland compositor' Hyprland
+    check_command 'Waybar' waybar
+    check_command 'Hyprlock' hyprlock
     check_command 'Fusuma gesture daemon and bundled plugins' fusuma
     check_command 'Firefox' firefox
     check_command 'Nemo' nemo
@@ -59,7 +60,6 @@ writeShellApplication {
     printf '\nWritable application state\n'
     check_path 'KeePassXC preferences seed' "$HOME/.config/keepassxc/keepassxc.ini"
     check_path 'BetterDiscord plugin settings directory' "$HOME/.config/BetterDiscord/plugins"
-    check_path 'Private Awesome weather values' "$HOME/.local/state/dots/awesome-const.lua"
 
     printf '\nManual account/device steps\n'
     printf '  [action] Enroll fingerprints: fprintd-enroll\n'
@@ -82,10 +82,9 @@ writeShellApplication {
     printf '  [action] Confirm SendkeyExecutor is enabled: fusuma --show-config -c ~/.config/fusuma/config.yml\n'
     printf '  [action] Check services: systemctl --failed && systemctl --user --failed\n'
 
-    printf '\nOptional Hyprland trial\n'
+    printf '\nHyprland system\n'
     printf '  Build without switching: nix build .#checks.x86_64-linux.hyprland-system\n'
-    printf '  Activate when ready: sudo nixos-rebuild boot --flake .#dots-hyprland\n'
-    printf '  Revert default: sudo nixos-rebuild boot --flake .#dots\n'
+    printf '  Activate for next boot: sudo nixos-rebuild boot --flake .#dots\n'
 
     printf '\nSummary: %d automatic checks passed; %d automatic checks need attention.\n' "$pass" "$action"
   '';

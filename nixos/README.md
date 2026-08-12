@@ -1,10 +1,8 @@
 # Conservative NixOS migration
 
-This branch is designed to make the operating-system migration independently
-from the desktop migration. The default `dots` configuration keeps the working
-AwesomeWM/X11 workflow, the existing key bindings, applications, Picom
-animations, monitor profiles, tray applets, startup behavior, and dotfiles.
-Hyprland is available only in separately named profiles.
+This branch provides one declarative NixOS configuration for the Framework
+Laptop 16 Ryzen AI 300 running Hyprland. XWayland remains enabled for legacy
+applications that do not yet run natively on Wayland.
 
 The inputs are immutable NixOS 26.05, Home Manager 26.05, nixos-hardware,
 Disko, and Plymouth theme revisions. Their content hashes are committed in
@@ -17,8 +15,7 @@ gaps produce a visible warning and are documented in
 
 | Profile | Hardware module | Login/desktop |
 | --- | --- | --- |
-| `dots` | Framework 16, Ryzen AI 300 plus generated storage hardware | tty1 autologin, Awesome/X11 |
-| `dots-hyprland` | Framework 16, Ryzen AI 300 plus generated storage hardware | chooser: Awesome or Hyprland |
+| `dots` | Framework 16, Ryzen AI 300 plus generated storage hardware | greetd chooser, Hyprland/UWSM |
 
 There are no generic, Framework 13, or Ryzen 7040 profiles. This branch now
 targets only the Framework 16 Ryzen AI 300 from the existing migration attempt.
@@ -29,15 +26,14 @@ Run these on a NixOS machine or the official minimal installer:
 
 ```sh
 nix flake check --no-build
-nix build .#checks.x86_64-linux.awesome-system
 nix build .#checks.x86_64-linux.hyprland-system
 nix build .#checks.x86_64-linux.native-ollama-system
 nix build .#checks.x86_64-linux.fusuma-sendkey-config
 ```
 
-The first command evaluates every published hardware/desktop combination. The
-next three build complete synthetic system closures for both desktop paths and
-the optional native Ollama backend. The final check parses the restored Fusuma
+The first command evaluates the published system. The next two build complete
+synthetic system closures for the desktop and optional native Ollama backend.
+The final check parses the restored Fusuma
 `sendkey:` configuration and confirms that Fusuma loads `SendkeyExecutor` from
 the bundled plugin. The repository's root and EFI filesystems come from
 `nixos/disko.nix`. Target-specific device and kernel details still come from
@@ -116,8 +112,8 @@ reboot
 
 ## First boot and normal updates
 
-Start with Awesome, run the checklist, and resolve every item that matters to
-the daily workflow:
+Log into Hyprland, run the checklist, and resolve every item that matters to the
+daily workflow:
 
 ```sh
 cd ~/dots
@@ -134,8 +130,7 @@ sudo nixos-rebuild boot --flake .#dots
 ```
 
 After the configuration has proved stable across reboots, `switch` is
-reasonable. The boot menu retains previous generations, and `master` remains
-untouched as the source of the known-good Arch setup.
+reasonable. The boot menu retains previous generations.
 
 Machine policy lives in `machine.nix`. In particular, Ollama defaults to the
 compatible Docker backend, bound to localhost. After migrating its models,
@@ -158,8 +153,6 @@ from application-owned state:
 - Nemo and CopyQ exports are placed under `~/.local/share/dots/imports`. Nothing
   imports them automatically, so you decide once whether to apply them.
 - Vimium, Bonjourr, and marketplace exports are also retained as manual imports.
-- The private Awesome weather module is writable at
-  `~/.local/state/dots/awesome-const.lua` and is not committed.
 - Browser profiles, credentials, keys, databases, pCloud content, Docker
   volumes, and application logins remain ordinary mutable state and require a
   backup/migration.

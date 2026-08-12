@@ -116,29 +116,7 @@ in
     blueman.enable = true;
     flatpak.enable = true;
     fprintd.enable = true;
-    getty.autologinUser = "victor";
     logind.settings.Login.HandlePowerKey = "ignore";
-
-    libinput = {
-      enable = true;
-      touchpad = {
-        tapping = true;
-        naturalScrolling = true;
-        clickMethod = "clickfinger";
-      };
-    };
-
-    xserver = {
-      enable = true;
-      videoDrivers = [ "amdgpu" ];
-      displayManager.startx.enable = true;
-      windowManager.awesome.enable = true;
-      xkb = {
-        layout = "us,bg";
-        variant = ",bas_phonetic";
-        options = "grp:win_space_toggle";
-      };
-    };
 
     pipewire = {
       enable = true;
@@ -176,7 +154,6 @@ in
     polkit.enable = true;
     pam.services = {
       sudo.fprintAuth = true;
-      i3lock.fprintAuth = true;
     };
   };
 
@@ -203,7 +180,6 @@ in
     dconf.enable = true;
     nix-ld.enable = true;
     steam.enable = true;
-    xss-lock.enable = true;
   };
 
   xdg.portal = {

@@ -24,7 +24,7 @@ fi
 [[ ${target} != / ]] || die "Refusing to install into the live root filesystem."
 
 case "${configuration}" in
-  dots | dots-hyprland)
+  dots)
     ;;
   *)
     die "Unknown configuration '${configuration}'. See nixos/README.md for valid names."

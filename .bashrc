@@ -4,13 +4,6 @@
 # #FOR CTRL+BCKSPACE to delete last word:
 # echo '"\C-H":"\C-W"' | sudo tee -a /etc/inputrc
 
-# #BASH PROFILE (.bash_profile):
-# if [ -z "$DISPLAY" ] && [ "$XDG_VTNR" = 1 ]; then
-#  exec startx
-# fi
-
-# ---
-
 OSH_THEME="agnoster"
 DISABLE_AUTO_UPDATE="true"
 #ENABLE_CORRECTION="true"
@@ -99,13 +92,6 @@ lastline() {
 
   printf "\033[?25h"
 }
-
-# X11-only commands must not run in a TTY or the optional Wayland session.
-if [[ -n ${DISPLAY:-} ]]; then
-  command -v xset >/dev/null 2>&1 && xset r rate 220 40
-  command -v setxkbmap >/dev/null 2>&1 && \
-    setxkbmap -layout us,bg -variant ,bas_phonetic -option 'grp:win_space_toggle'
-fi
 
 #Fzf
 # eval "$(fzf --bash)"

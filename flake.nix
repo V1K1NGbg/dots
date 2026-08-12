@@ -68,17 +68,9 @@
             ++ extraModules;
         };
 
-      enableHyprland = {
-        dots.desktop.hyprland.enable = true;
-      };
-
       syntheticHardware = ./nixos/checks/synthetic-hardware.nix;
-      awesomeCheckSystem = mkSystem {
-        hardwareModules = [ syntheticHardware ];
-      };
       hyprlandCheckSystem = mkSystem {
         hardwareModules = [ syntheticHardware ];
-        extraModules = [ enableHyprland ];
       };
       nativeOllamaCheckSystem = mkSystem {
         hardwareModules = [ syntheticHardware ];
@@ -112,15 +104,11 @@
           '';
     in
     {
-      # Both published profiles target the Framework 16 Ryzen AI 300. `dots`
-      # deliberately remains the low-risk Awesome/X11 configuration.
+      # The only published profile targets the Framework 16 Ryzen AI 300 and
+      # runs Hyprland, with XWayland retained for legacy applications.
       nixosConfigurations = {
         dots = mkSystem {
           hardwareModules = [ nixos-hardware.nixosModules.framework-16-amd-ai-300-series ];
-        };
-        dots-hyprland = mkSystem {
-          hardwareModules = [ nixos-hardware.nixosModules.framework-16-amd-ai-300-series ];
-          extraModules = [ enableHyprland ];
         };
       };
 
@@ -137,7 +125,6 @@
       };
 
       checks.${system} = {
-        awesome-system = awesomeCheckSystem.config.system.build.toplevel;
         hyprland-system = hyprlandCheckSystem.config.system.build.toplevel;
         native-ollama-system = nativeOllamaCheckSystem.config.system.build.toplevel;
         fusuma-sendkey-config = fusumaSendkeyCheck;

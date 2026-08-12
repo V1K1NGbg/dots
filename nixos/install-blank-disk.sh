@@ -22,7 +22,7 @@ cleanup_mounts() {
 
 usage() {
   cat >&2 <<'EOF'
-Usage: install-blank-disk.sh /dev/WHOLE_DISK [dots|dots-hyprland] [--reboot]
+Usage: install-blank-disk.sh /dev/WHOLE_DISK [dots] [--reboot]
 
 This uses the repository's declarative Disko layout to erase the complete disk
 and create:
@@ -40,7 +40,7 @@ EOF
 [[ -d /sys/firmware/efi ]] || die "The live ISO was not booted in UEFI mode."
 
 case "${configuration}" in
-  dots | dots-hyprland) ;;
+  dots) ;;
   *) die "Unknown configuration '${configuration}'." ;;
 esac
 
