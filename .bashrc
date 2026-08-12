@@ -16,9 +16,15 @@ DISABLE_AUTO_UPDATE="true"
 #ENABLE_CORRECTION="true"
 COMPLETION_WAITING_DOTS="true"
 
-source "$OSH"/oh-my-bash.sh
+if [[ -n ${OSH:-} && -r ${OSH}/oh-my-bash.sh ]]; then
+  source "${OSH}/oh-my-bash.sh"
+elif [[ -r ${HOME}/.oh-my-bash/oh-my-bash.sh ]]; then
+  source "${HOME}/.oh-my-bash/oh-my-bash.sh"
+fi
 
-echo "UwU" | cowsay -f tux | lolcat --spread=0.5
+if command -v cowsay >/dev/null 2>&1 && command -v lolcat >/dev/null 2>&1; then
+  echo "UwU" | cowsay -f tux | lolcat --spread=0.5
+fi
 
 alias clear="clear && source ~/.bashrc"
 alias notes="code -n ~/pCloudDrive/0Notes.md"
@@ -94,8 +100,12 @@ lastline() {
   printf "\033[?25h"
 }
 
-# fix double type
-xset r rate 220 40
+# X11-only commands must not run in a TTY or the optional Wayland session.
+if [[ -n ${DISPLAY:-} ]]; then
+  command -v xset >/dev/null 2>&1 && xset r rate 220 40
+  command -v setxkbmap >/dev/null 2>&1 && \
+    setxkbmap -layout us,bg -variant ,bas_phonetic -option 'grp:win_space_toggle'
+fi
 
 #Fzf
 # eval "$(fzf --bash)"
@@ -116,8 +126,6 @@ xset r rate 220 40
 
 # _fzf_bash_completion_loading_msg() { echo "${PS1@P}${READLINE_LINE}"; }
 
-setxkbmap -layout us,bg -variant ,bas_phonetic -option 'grp:win_space_toggle'
-
 # complete -d cd
 
 #Ranger
@@ -125,4 +133,4 @@ export VISUAL=vim
 export EDITOR=vim
 
 #Rofi
-export TERMINAL=/usr/bin/alacritty
+export TERMINAL=alacritty

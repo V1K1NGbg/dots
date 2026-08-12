@@ -10,7 +10,12 @@ local lain     = require("lain")
 local awful    = require("awful")
 local wibox    = require("wibox")
 local dpi      = require("beautiful.xresources").apply_dpi
-local const    = require("const")
+local const = { APPID = "", lat = 0, lon = 0 }
+local private_const = os.getenv("HOME") .. "/.local/state/dots/awesome-const.lua"
+local private_ok, private_values = pcall(dofile, private_const)
+if private_ok and type(private_values) == "table" then
+    const = private_values
+end
 
 local os       = os
 local my_table = awful.util.table or gears.table -- 4.{0,1} compatibility

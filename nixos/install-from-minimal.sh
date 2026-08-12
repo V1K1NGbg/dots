@@ -3,60 +3,105 @@
 set -euo pipefail
 
 target="${1:-/mnt}"
+configuration="${2:-dots}"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 repo="$(realpath "${script_dir}/..")"
+target="$(realpath "${target}")"
 flake="path:${repo}"
 hardware_source="${target}/etc/nixos/hardware-configuration.nix"
 hardware_target="${script_dir}/hardware-configuration.nix"
+checkout_target="${target}/home/victor/dots"
+
+die() {
+  echo "ERROR: $*" >&2
+  exit 1
+}
 
 if [[ ${EUID} -ne 0 ]]; then
-  echo "Run this script as root (normally: sudo $0 ${target})." >&2
-  exit 1
+  die "Run this script as root (normally: sudo $0 ${target} ${configuration})."
 fi
 
-for command in findmnt nix nixos-generate-config nixos-install nixos-enter realpath; do
-  if ! command -v "${command}" >/dev/null 2>&1; then
-    echo "Required command is unavailable on this installer: ${command}" >&2
-    exit 1
-  fi
+[[ ${target} != / ]] || die "Refusing to install into the live root filesystem."
+
+case "${configuration}" in
+  dots | dots-hyprland)
+    ;;
+  *)
+    die "Unknown configuration '${configuration}'. See nixos/README.md for valid names."
+    ;;
+esac
+
+for command in cmp cp findmnt install nix nixos-enter nixos-generate-config nixos-install realpath; do
+  command -v "${command}" >/dev/null 2>&1 || die "Required installer command is unavailable: ${command}"
 done
 
-if ! findmnt --mountpoint "${target}" >/dev/null 2>&1; then
-  echo "The target root is not mounted at ${target}." >&2
-  exit 1
-fi
+[[ -f ${repo}/flake.lock ]] || die "flake.lock is missing; do not install from unpinned inputs."
+findmnt --mountpoint "${target}" >/dev/null 2>&1 || die "The target root is not mounted at ${target}."
+[[ -d /sys/firmware/efi ]] || die "The installer was not booted in UEFI mode."
+findmnt --mountpoint "${target}/boot" >/dev/null 2>&1 || \
+  die "Mount the EFI system partition at ${target}/boot before continuing."
 
-if [[ ! -d /sys/firmware/efi ]]; then
-  echo "This configuration uses systemd-boot, but the installer was not booted in UEFI mode." >&2
-  exit 1
-fi
+root_source="$(findmnt --noheadings --output SOURCE --target "${target}")"
+boot_source="$(findmnt --noheadings --output SOURCE --target "${target}/boot")"
 
-if ! findmnt --mountpoint "${target}/boot" >/dev/null 2>&1; then
-  echo "Mount the EFI system partition at ${target}/boot before continuing." >&2
-  exit 1
-fi
+case "${repo}/" in
+  "${target}/"*) ;;
+  *) [[ ! -e ${checkout_target} ]] || die "Refusing to overwrite existing ${checkout_target}." ;;
+esac
 
-echo "Generating hardware configuration for ${target}..."
+echo "Target root:       ${target} (${root_source})"
+echo "Target EFI:        ${target}/boot (${boot_source})"
+echo "Configuration:     ${configuration}"
+echo "Source checkout:   ${repo}"
+echo
+echo "This helper does not partition or format disks. It will generate hardware"
+echo "configuration, build the selected system, and install it into the mounts above."
+read -r -p "Type INSTALL to continue: " confirmation
+[[ ${confirmation} == INSTALL ]] || die "Installation cancelled."
+
+echo "Generating target-specific hardware configuration..."
 nixos-generate-config --root "${target}"
 
-if [[ -e "${hardware_target}" ]] && ! cmp -s "${hardware_source}" "${hardware_target}"; then
+if [[ -e ${hardware_target} ]] && ! cmp -s "${hardware_source}" "${hardware_target}"; then
   backup="${hardware_target}.pre-install-backup"
   cp --preserve=mode,timestamps "${hardware_target}" "${backup}"
-  echo "Existing hardware configuration backed up to ${backup}."
+  echo "Previous hardware configuration backed up to ${backup}."
 fi
 install -m 0644 "${hardware_source}" "${hardware_target}"
 
-echo "Locking and evaluating the flake..."
-nix --extra-experimental-features "nix-command flakes" flake lock "${flake}"
-nix --extra-experimental-features "nix-command flakes" flake check --no-build "${flake}"
+echo "Running the locked repository safety checks..."
+nix --extra-experimental-features "nix-command flakes" \
+  build --no-link --no-update-lock-file \
+  "${flake}#checks.x86_64-linux.static-syntax"
+
+echo "Building ${configuration} before changing the installed system..."
+nix --extra-experimental-features "nix-command flakes" \
+  build --no-link --no-update-lock-file \
+  "${flake}#nixosConfigurations.${configuration}.config.system.build.toplevel"
 
 echo "Installing NixOS. nixos-install will ask for the root password."
 nixos-install \
   --root "${target}" \
   --option experimental-features "nix-command flakes" \
-  --flake "${flake}#dots"
+  --flake "${flake}#${configuration}"
+
+case "${repo}/" in
+  "${target}/"*)
+    relative_repo="/${repo#"${target}/"}"
+    echo "The checkout is already on the target filesystem at ${relative_repo}."
+    nixos-enter --root "${target}" -c "chown -R victor:users '${relative_repo}'"
+    ;;
+  *)
+    install -d -m 0755 "$(dirname "${checkout_target}")"
+    cp -a "${repo}" "${checkout_target}"
+    nixos-enter --root "${target}" -c "chown -R victor:users /home/victor/dots"
+    echo "Preserved this exact checkout at /home/victor/dots on the installed system."
+    ;;
+esac
 
 echo "Set the password for the victor account."
 nixos-enter --root "${target}" -c "passwd victor"
 
-echo "Installation complete. Reboot after unmounting ${target}."
+echo
+echo "Installation complete. Reboot only after unmounting ${target}."
+echo "After login, run: cd ~/dots && nix run .#onboard"

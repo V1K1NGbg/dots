@@ -1,29 +1,62 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  osConfig,
+  pkgs,
+  ...
+}:
 
 let
-  packageSet = import ./packages.nix { inherit lib pkgs; };
-  configDirectories = [
-    "BetterDiscord"
+  staticConfigDirectories = [
     "alacritty"
     "autorandr"
     "awesome"
-    "flameshot"
     "fusuma"
     "glava"
-    "gtk-3.0"
-    "keepassxc"
     "opencode"
     "picom"
     "rofi"
     "spicetify"
   ];
+
+  configFilesFrom =
+    relativeDirectory: targetPrefix: predicate:
+    let
+      directory = ../. + "/${relativeDirectory}";
+      entries = builtins.readDir directory;
+      names = builtins.filter (name: entries.${name} == "regular" && predicate name) (
+        builtins.attrNames entries
+      );
+    in
+    builtins.listToAttrs (
+      map (name: {
+        name = "${targetPrefix}/${name}";
+        value.source = directory + "/${name}";
+      }) names
+    );
+
+  betterDiscordPlugins = configFilesFrom ".config/BetterDiscord/plugins" "BetterDiscord/plugins" (
+    name: lib.hasSuffix ".plugin.js" name
+  );
+  betterDiscordThemes = configFilesFrom ".config/BetterDiscord/themes" "BetterDiscord/themes" (
+    name: lib.hasSuffix ".theme.css" name
+  );
+
+  hyprlandFiles = lib.optionalAttrs osConfig.dots.desktop.hyprland.enable {
+    "hypr/hyprland.lua".source = ./hypr/hyprland.lua;
+    "hypr/hypridle.conf".source = ./hypr/hypridle.conf;
+    "hypr/hyprlock.conf".source = ./hypr/hyprlock.conf;
+    "hypr/hyprsunset.conf".source = ./hypr/hyprsunset.conf;
+    "uwsm/env".source = ./hypr/uwsm-env;
+    "waybar/config.jsonc".source = ./hypr/waybar.jsonc;
+    "waybar/style.css".source = ./hypr/waybar.css;
+  };
 in
 {
   home = {
     username = "victor";
     homeDirectory = "/home/victor";
     stateVersion = "26.05";
-    packages = packageSet.available;
     sessionVariables = {
       EDITOR = "vim";
       VISUAL = "vim";
@@ -56,27 +89,30 @@ in
 
   xdg = {
     enable = true;
-    configFile = lib.genAttrs configDirectories (name: {
-      source = ../.config + "/${name}";
-      recursive = true;
-    }) // {
-      "awesome/const.lua".text = ''
-        local const = {}
-        const.APPID = ""
-        const.lat = 0.0000
-        const.lon = 0.0000
-        return const
-      '';
-    };
+    configFile =
+      lib.genAttrs staticConfigDirectories (name: {
+        source = ../.config + "/${name}";
+        recursive = true;
+      })
+      // betterDiscordPlugins
+      // betterDiscordThemes
+      // hyprlandFiles
+      // {
+        "gtk-3.0/settings.ini".source = ../.config/gtk-3.0/settings.ini;
+      };
+
     dataFile = {
       "dots/imports/nemo_config".source = ../nemo_config;
       "dots/imports/copyq.cpq".source = ../copyq.cpq;
       "dots/imports/vimium-options.json".source = ../vimium-options.json;
       "dots/imports/bonjourr-20.1.2.json".source = ../. + "/bonjourr-20.1.2 2024-11-07 19_41_39.json";
       "dots/imports/bonjourr-20.4.2.json".source = ../. + "/bonjourr-20.4.2 2025-05-09 23_59_13.json";
-      "dots/imports/marketplace-settings.json".source = ../marketplace-settings-2025-09-29T22_09_50.571Z.json;
+      "dots/imports/marketplace-settings.json".source =
+        ../marketplace-settings-2025-09-29T22_09_50.571Z.json;
+      "dots/imports/keepassxc.ini".source = ../.config/keepassxc/keepassxc.ini;
       "dots/docker-compose.yml".source = ../docker-compose.yml;
     };
+
     mimeApps = {
       enable = true;
       defaultApplications = {
@@ -93,6 +129,7 @@ in
         "image/png" = [ "gimp.desktop" ];
       };
     };
+
     userDirs = {
       enable = true;
       createDirectories = true;
@@ -109,21 +146,53 @@ in
     };
   };
 
-  systemd.user.services.import-nemo-dotfiles = {
-    Unit = {
-      Description = "Apply the Nemo settings from the dots repository";
-      After = [ "graphical-session.target" ];
-      PartOf = [ "graphical-session.target" ];
-    };
-    Service = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-      ExecStart = "${pkgs.writeShellScript "import-nemo-dotfiles" ''
-        ${pkgs.dconf}/bin/dconf load /org/nemo/ < ${../nemo_config}
-      ''}";
-    };
-    Install.WantedBy = [ "graphical-session.target" ];
+  programs.readline = {
+    enable = true;
+    extraConfig = ''
+      "\C-H": backward-kill-word
+    '';
   };
+
+  # Create writable initial state, but never overwrite changes made by apps.
+  # Only executable plugin/theme code is declaratively linked above.
+  home.activation.seedMutableApplicationConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    betterdiscord_destination=${lib.escapeShellArg "${config.xdg.configHome}/BetterDiscord/plugins"}
+    $DRY_RUN_CMD mkdir -p "$betterdiscord_destination"
+
+    betterdiscord_seed=${lib.escapeShellArg (toString ../.config/BetterDiscord/plugins)}
+    while IFS= read -r seed; do
+      relative="''${seed#"$betterdiscord_seed"/}"
+      destination="$betterdiscord_destination/$relative"
+      if [[ ! -e "$destination" ]]; then
+        $DRY_RUN_CMD mkdir -p "$(dirname "$destination")"
+        $DRY_RUN_CMD install -m 0600 "$seed" "$destination"
+      fi
+    done < <(${pkgs.findutils}/bin/find "$betterdiscord_seed" -type f -name '*.config.json' -print)
+
+    flameshot_destination=${lib.escapeShellArg "${config.xdg.configHome}/flameshot/flameshot.ini"}
+    if [[ ! -e "$flameshot_destination" ]]; then
+      $DRY_RUN_CMD mkdir -p "$(dirname "$flameshot_destination")"
+      $DRY_RUN_CMD install -m 0600 ${lib.escapeShellArg (toString ../.config/flameshot/flameshot.ini)} "$flameshot_destination"
+    fi
+
+    gtk_bookmarks_destination=${lib.escapeShellArg "${config.xdg.configHome}/gtk-3.0/bookmarks"}
+    if [[ ! -e "$gtk_bookmarks_destination" ]]; then
+      $DRY_RUN_CMD mkdir -p "$(dirname "$gtk_bookmarks_destination")"
+      $DRY_RUN_CMD install -m 0600 ${lib.escapeShellArg (toString ../.config/gtk-3.0/bookmarks)} "$gtk_bookmarks_destination"
+    fi
+
+    keepass_destination=${lib.escapeShellArg "${config.xdg.configHome}/keepassxc/keepassxc.ini"}
+    if [[ ! -e "$keepass_destination" ]]; then
+      $DRY_RUN_CMD mkdir -p "$(dirname "$keepass_destination")"
+      $DRY_RUN_CMD install -m 0600 ${lib.escapeShellArg (toString ../.config/keepassxc/keepassxc.ini)} "$keepass_destination"
+    fi
+
+    awesome_private=${lib.escapeShellArg "${config.xdg.stateHome}/dots/awesome-const.lua"}
+    if [[ ! -e "$awesome_private" ]]; then
+      $DRY_RUN_CMD mkdir -p "$(dirname "$awesome_private")"
+      $DRY_RUN_CMD install -m 0600 ${lib.escapeShellArg (toString ../.config/awesome/const-temp.lua)} "$awesome_private"
+    fi
+  '';
 
   home.activation.createDotfileDirectories = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     $DRY_RUN_CMD mkdir -p \
@@ -131,7 +200,4 @@ in
       ${lib.escapeShellArg "${config.home.homeDirectory}/Documents/PC"} \
       ${lib.escapeShellArg "${config.home.homeDirectory}/Documents/GitHub"}
   '';
-
-  warnings = lib.optional (packageSet.missing != [ ])
-    "Some requested desktop packages are unavailable in this nixpkgs revision: ${lib.concatStringsSep ", " packageSet.missing}";
 }

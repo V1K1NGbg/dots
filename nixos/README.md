@@ -1,91 +1,167 @@
-# NixOS conversion
+# Conservative NixOS migration
 
-This flake converts the checked-in Arch installer and dotfiles into the `dots`
-NixOS configuration. It uses only files in the current checkout. All tracked
-desktop configuration directories are installed by Home Manager; the vendored
-AwesomeWM `lain` tree, icons, BetterDiscord plugins, OpenCode agents/scripts,
-GLava shaders, and monitor profiles are therefore preserved byte-for-byte.
+This branch is designed to make the operating-system migration independently
+from the desktop migration. The default `dots` configuration keeps the working
+AwesomeWM/X11 workflow, the existing key bindings, applications, Picom
+animations, monitor profiles, tray applets, startup behavior, and dotfiles.
+Hyprland is available only in separately named profiles.
 
-## Install
+The inputs are immutable NixOS 26.05, Home Manager 26.05, nixos-hardware, and
+Plymouth theme revisions. Their content hashes are committed in `flake.lock`.
+Required daily-driver packages fail evaluation if they disappear; optional
+gaps produce a visible warning and are documented in
+[COMPATIBILITY.md](./COMPATIBILITY.md).
 
-Boot the official minimal NixOS image in UEFI mode. Connect it to the network,
-partition the disk, mount the root filesystem at `/mnt`, and mount the EFI
-system partition at `/mnt/boot`. From this repository, run:
+## Profiles
 
-```sh
-sudo ./nixos/install-from-minimal.sh /mnt
-```
+| Profile | Hardware module | Login/desktop |
+| --- | --- | --- |
+| `dots` | Framework 16, Ryzen AI 300 plus generated storage hardware | tty1 autologin, Awesome/X11 |
+| `dots-hyprland` | Framework 16, Ryzen AI 300 plus generated storage hardware | chooser: Awesome or Hyprland |
 
-The installer checks the mounts and UEFI mode, generates the target-specific
-`hardware-configuration.nix`, locks and evaluates the path-based flake, runs
-`nixos-install`, and asks for passwords for both root and `victor`. The path
-flake form is intentional: it also works when the newly created Nix files have
-not been committed yet.
+There are no generic, Framework 13, or Ryzen 7040 profiles. This branch now
+targets only the Framework 16 Ryzen AI 300 from the existing migration attempt.
 
-`hardware-configuration.nix` is generated rather than fabricated because its
-filesystems, swap, and initrd storage drivers must match the target machine.
-If the repository already contains a different hardware configuration, the
-script saves it as `hardware-configuration.nix.pre-install-backup` first.
+## Validate before installing
 
-For a non-UEFI machine or an EFI partition mounted somewhere other than
-`/boot`, adjust the boot-loader module and install manually instead of using
-the helper.
-
-After edits, validate and apply with:
+Run these on a NixOS machine or the official minimal installer:
 
 ```sh
-nix flake check
-sudo nixos-rebuild switch --flake .#dots
+nix flake check --no-build
+nix build .#checks.x86_64-linux.awesome-system
+nix build .#checks.x86_64-linux.hyprland-system
+nix build .#checks.x86_64-linux.native-ollama-system
+nix build .#checks.x86_64-linux.fusuma-sendkey-config
 ```
 
-When the new files are still uncommitted in a Git checkout, use a path flake:
+The first command evaluates every published hardware/desktop combination. The
+next three build complete synthetic system closures for both desktop paths and
+the optional native Ollama backend. The final check parses the restored Fusuma
+`sendkey:` configuration and confirms that Fusuma loads `SendkeyExecutor` from
+the bundled plugin. The repository intentionally evaluates with a temporary
+tmpfs root when
+`hardware-configuration.nix` is absent; this placeholder is not an installable
+machine configuration. The installer refuses to continue until it has replaced
+it with output from `nixos-generate-config`.
+
+An optional VM smoke test can be built on an x86_64 NixOS host:
 
 ```sh
-nix flake check "path:$PWD"
-sudo nixos-rebuild switch --flake "path:$PWD#dots"
+nixos-rebuild build-vm --flake .#dots
+./result/bin/run-dots-vm
 ```
 
-## Exact and non-declarative state
+## Install from the minimal live ISO
 
-- AwesomeWM needs a private `const.lua` for the OpenWeatherMap APPID and
-  coordinates. Home Manager creates a harmless empty placeholder. Put real
-  values in a private module or secret manager; do not commit them.
-- Nemo's complete dconf dump is installed at
-  `~/.local/share/dots/imports/nemo_config` and a user service applies it at
-  graphical login. It can also be reapplied manually with:
+First commit and push the complete `nixos` branch, including all new files.
+Download the current NixOS 26.05 x86_64 minimal ISO from
+<https://nixos.org/download/>, write it to a USB drive, and boot the entry marked
+UEFI. Keep the working Arch installation and personal-data backup until the
+acceptance tests in [MIGRATION.md](./MIGRATION.md) pass.
 
-  ```sh
-  dconf load /org/nemo/ < ~/.local/share/dots/imports/nemo_config
-  ```
+At the live console, become root, confirm UEFI, and connect to the network:
 
-- CopyQ, Vimium, both Bonjourr snapshots, and marketplace settings are placed
-  under `~/.local/share/dots/imports/` for their applications' import dialogs.
-- GitHub authentication, WireGuard keys, fingerprint enrollment, Firefox/VS
-  Code sync, Discord/Spotify/pCloud login, and BetterDiscord injection are
-  account-, device-, or secret-specific and still require interactive setup.
-- The old installer fetched the latest Node through NVM. Nix installs its
-  pinned `nodejs` package instead. OpenCode's formatter and LSP commands are
-  installed explicitly.
-- The repository requests the pijulius Picom animation fork. The package map
-  prefers `picom-pijulius` and falls back to upstream `picom`; evaluation emits
-  warnings for packages with no equivalent in the selected nixpkgs revision.
-- Fusuma is installed and the user belongs to `input`; if the nixpkgs Fusuma
-  build does not include the `sendkey` plugin, install/package that Ruby plugin
-  before enabling the checked-in gesture actions.
-- The AUR Plymouth `hexagon_hud` theme is not reproduced without a pinned,
-  hashed source. Plymouth itself, quiet boot, splash, and the AMD kernel option
-  are enabled.
+```sh
+sudo -i
+test -d /sys/firmware/efi/efivars && echo "UEFI boot confirmed"
+nmtui
+ping -c 3 nixos.org
+lsblk -o NAME,SIZE,MODEL,FSTYPE,LABEL,MOUNTPOINTS
+```
 
-## Package mapping notes
+The following is a simple example for a **blank dedicated NVMe disk**. Replace
+`/dev/nvme0n1` only after checking `lsblk`. Formatting the wrong device destroys
+its data. In `cfdisk`, create a GPT table, a 1 GiB EFI System partition, and one
+Linux filesystem partition using the remaining space:
 
-NixOS modules replace Arch packages for Docker, Steam, Bluetooth, NetworkManager,
-fprintd, Xorg/AwesomeWM, graphics/Vulkan, PipeWire/ALSA, dconf, and Plymouth.
-`packages.nix` contains every remaining package from `install.sh`, plus commands
-found only in configs: `xsel`, `libqalculate`, `iputils`, Oh My Bash, OpenCode,
-Node, VTop, Python, Prettier, Black, Clang tools, shfmt, Rust Analyzer/rustfmt,
-Go/gopls, Pyright, and TypeScript Language Server.
+```sh
+cfdisk /dev/nvme0n1
+mkfs.fat -F 32 -n NIXBOOT /dev/nvme0n1p1
+mkfs.ext4 -L nixos /dev/nvme0n1p2
+mount /dev/disk/by-label/nixos /mnt
+mkdir -p /mnt/boot
+mount -o umask=077 /dev/disk/by-label/NIXBOOT /mnt/boot
+findmnt /mnt
+findmnt /mnt/boot
+```
 
-The Ollama compose definition is translated into a boot-managed Docker
-container with the same ports, volume, AMD devices, resource limits,
-environment, and ulimits. The original compose file is also retained at
-`~/.local/share/dots/docker-compose.yml` for inspection or manual use.
+If preserving an existing EFI partition, do not format it; mount it at
+`/mnt/boot`. For encryption, dual boot, a separate home partition, or reusing
+the Arch disk, stop and design the partition layout separately instead of using
+the simple commands above.
+
+Clone the pushed branch and run the guarded installer:
+
+```sh
+nix-shell -p git --run 'git clone --branch nixos https://github.com/V1K1NGbg/dots.git /tmp/dots'
+cd /tmp/dots
+./nixos/install-from-minimal.sh /mnt dots
+```
+
+The helper does not partition or format anything. It shows the resolved root
+and EFI devices and requires typing `INSTALL`. It then generates the real
+hardware configuration, passes the repository's static safety check without
+changing the lock, builds the selected profile before installation, runs
+`nixos-install`, sets the user password, and preserves the exact checkout at
+`~/dots` on the new system.
+
+When it finishes, unmount and reboot:
+
+```sh
+cd /
+umount -R /mnt
+reboot
+```
+
+## First boot and normal updates
+
+Start with Awesome, run the checklist, and resolve every item that matters to
+the daily workflow:
+
+```sh
+cd ~/dots
+nix run .#onboard
+systemctl --failed
+systemctl --user --failed
+```
+
+Use `boot` for initial changes so a bad new generation is never activated in
+the current session:
+
+```sh
+sudo nixos-rebuild boot --flake .#dots
+```
+
+After the configuration has proved stable across reboots, `switch` is
+reasonable. The boot menu retains previous generations, and `master` remains
+untouched as the source of the known-good Arch setup.
+
+Machine policy lives in `machine.nix`. In particular, Ollama defaults to the
+compatible Docker backend, bound to localhost. After migrating its models,
+change `dots.ollama.backend` to `"native"` for the pinned NixOS Vulkan service.
+
+## State ownership
+
+Home Manager normally implements `xdg.configFile` using symlinks into the
+read-only Nix store. Linking an entire application directory can therefore
+prevent the application from saving settings, or make a later activation put
+the repository's old settings back. This branch now separates static config
+from application-owned state:
+
+- BetterDiscord plugin JavaScript and themes remain repository-controlled and
+  read-only. Plugin JSON settings are copied once and remain writable.
+- KeePassXC and Flameshot preferences are copied only when their destination is
+  absent. Changes made in their GUIs survive later rebuilds.
+- GTK `settings.ini` remains declarative; GTK bookmarks are a writable one-time
+  seed.
+- Nemo and CopyQ exports are placed under `~/.local/share/dots/imports`. Nothing
+  imports them automatically, so you decide once whether to apply them.
+- Vimium, Bonjourr, and marketplace exports are also retained as manual imports.
+- The private Awesome weather module is writable at
+  `~/.local/state/dots/awesome-const.lua` and is not committed.
+- Browser profiles, credentials, keys, databases, pCloud content, Docker
+  volumes, and application logins remain ordinary mutable state and require a
+  backup/migration.
+
+See [MIGRATION.md](./MIGRATION.md) for the staged decision process and
+[COMPATIBILITY.md](./COMPATIBILITY.md) for tool-by-tool status.

@@ -64,7 +64,7 @@ end
 --     end
 -- end
 
--- run_once({ "nm-applet", "blueman-applet", "pcloud", "flameshot", "picom", "fusuma", "code", "alacritty", "discord", "nemo", "spotify-launcher", "firefox|MainThread"}) -- comma-separated entries
+-- run_once({ "nm-applet", "blueman-applet", "pcloud", "flameshot", "picom", "fusuma", "code", "alacritty", "discord", "nemo", "spotify", "firefox|MainThread"}) -- comma-separated entries
 awful.spawn.with_shell(string.format("%s/.config/awesome/autostart.sh", os.getenv("HOME")))
 
 -- {{{ Variable definitions

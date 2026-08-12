@@ -1,134 +1,549 @@
 { lib, pkgs }:
 
 let
-  specs = [
-    { name = "acpi"; candidates = [ [ "acpi" ] ]; }
-    { name = "alacritty"; candidates = [ [ "alacritty" ] ]; }
-    { name = "alsa-utils"; candidates = [ [ "alsa-utils" ] ]; }
-    { name = "ani-cli"; candidates = [ [ "ani-cli" ] ]; }
-    { name = "arandr"; candidates = [ [ "arandr" ] ]; }
-    { name = "aspell"; candidates = [ [ "aspell" ] ]; }
-    { name = "aspell-en"; candidates = [ [ "aspellDicts" "en" ] ]; }
-    { name = "autorandr"; candidates = [ [ "autorandr" ] ]; }
-    { name = "awesome-git"; candidates = [ [ "awesome" ] ]; }
-    { name = "baobab"; candidates = [ [ "baobab" ] ]; }
-    { name = "bash-completion"; candidates = [ [ "bash-completion" ] ]; }
-    { name = "blueman"; candidates = [ [ "blueman" ] ]; }
-    { name = "bluez"; candidates = [ [ "bluez" ] ]; }
-    { name = "bluez-utils"; candidates = [ [ "bluez" ] ]; }
-    { name = "bulky"; candidates = [ [ "bulky" ] ]; }
-    { name = "capitaine-cursors"; candidates = [ [ "capitaine-cursors" ] ]; }
-    { name = "copyq"; candidates = [ [ "copyq" ] ]; }
-    { name = "cowsay"; candidates = [ [ "cowsay" ] ]; }
-    { name = "cpupower-gui"; candidates = [ [ "cpupower-gui" ] ]; }
-    { name = "curl"; candidates = [ [ "curl" ] ]; }
-    { name = "dangerzone"; candidates = [ [ "dangerzone" ] ]; }
-    { name = "discord"; candidates = [ [ "discord" ] ]; }
-    { name = "docker"; candidates = [ [ "docker" ] ]; }
-    { name = "docker-compose"; candidates = [ [ "docker-compose" ] ]; }
-    { name = "dracut"; candidates = [ [ "dracut" ] ]; }
-    { name = "fastfetch"; candidates = [ [ "fastfetch" ] ]; }
-    { name = "fd"; candidates = [ [ "fd" ] ]; }
-    { name = "firefox"; candidates = [ [ "firefox" ] ]; }
-    { name = "flameshot"; candidates = [ [ "flameshot" ] ]; }
-    { name = "fprintd"; candidates = [ [ "fprintd" ] ]; }
-    { name = "gimp"; candidates = [ [ "gimp" ] ]; }
-    { name = "git"; candidates = [ [ "git" ] ]; }
-    { name = "github-cli"; candidates = [ [ "gh" ] ]; }
-    { name = "glava"; candidates = [ [ "glava" ] ]; }
-    { name = "gnome-disk-utility"; candidates = [ [ "gnome-disk-utility" ] ]; }
-    { name = "highlight"; candidates = [ [ "highlight" ] ]; }
-    { name = "htop"; candidates = [ [ "htop" ] ]; }
-    { name = "i3lock-color"; candidates = [ [ "i3lock-color" ] ]; }
-    { name = "imgcat"; candidates = [ [ "imgcat" ] ]; }
-    { name = "jdk21-openjdk"; candidates = [ [ "jdk21" ] ]; }
-    { name = "jdk8-openjdk"; candidates = [ [ "jdk8" ] ]; }
-    { name = "keepassxc"; candidates = [ [ "keepassxc" ] ]; }
-    { name = "lazygit"; candidates = [ [ "lazygit" ] ]; }
-    { name = "less"; candidates = [ [ "less" ] ]; }
-    { name = "libconfig"; candidates = [ [ "libconfig" ] ]; }
-    { name = "lobster"; candidates = [ [ "lobster" ] ]; }
-    { name = "localsend"; candidates = [ [ "localsend" ] ]; }
-    { name = "lolcat"; candidates = [ [ "lolcat" ] ]; }
-    { name = "man-db"; candidates = [ [ "man-db" ] ]; }
-    { name = "man-pages"; candidates = [ [ "man-pages" ] ]; }
-    { name = "meld"; candidates = [ [ "meld" ] ]; }
-    { name = "nano"; candidates = [ [ "nano" ] ]; }
-    { name = "nemo"; candidates = [ [ "nemo" ] ]; }
-    { name = "nemo-compare"; candidates = [ [ "nemo-with-extensions" ] ]; }
-    { name = "nemo-fileroller"; candidates = [ [ "nemo-fileroller" ] [ "file-roller" ] ]; }
-    { name = "network-manager-applet"; candidates = [ [ "networkmanagerapplet" ] ]; }
-    { name = "nmap"; candidates = [ [ "nmap" ] ]; }
-    { name = "noto-fonts"; candidates = [ [ "noto-fonts" ] ]; }
-    { name = "noto-fonts-cjk"; candidates = [ [ "noto-fonts-cjk-sans" ] [ "noto-fonts-cjk" ] ]; }
-    { name = "noto-fonts-emoji"; candidates = [ [ "noto-fonts-color-emoji" ] ]; }
-    { name = "noto-fonts-extra"; candidates = [ [ "noto-fonts-extra" ] ]; }
-    { name = "nvtop"; candidates = [ [ "nvtopPackages" "amd" ] [ "nvtop" ] ]; }
-    { name = "pasystray"; candidates = [ [ "pasystray" ] ]; }
-    { name = "pavucontrol"; candidates = [ [ "pavucontrol" ] ]; }
-    { name = "pcloud-drive"; candidates = [ [ "pcloud" ] ]; }
-    { name = "playerctl"; candidates = [ [ "playerctl" ] ]; }
-    { name = "plymouth"; candidates = [ [ "plymouth" ] ]; }
-    { name = "plymouth-theme-hexagon-hud-git"; candidates = [ [ "plymouth-theme-hexagon-hud" ] ]; }
-    { name = "prismlauncher"; candidates = [ [ "prismlauncher" ] ]; }
-    { name = "qt6-svg"; candidates = [ [ "qt6Packages" "qtsvg" ] ]; }
-    { name = "ranger"; candidates = [ [ "ranger" ] ]; }
-    { name = "redshift"; candidates = [ [ "redshift" ] ]; }
-    { name = "rofi"; candidates = [ [ "rofi" ] ]; }
-    { name = "rofi-calc"; candidates = [ [ "rofi-calc" ] ]; }
-    { name = "ruby-fusuma"; candidates = [ [ "fusuma" ] ]; }
-    { name = "ruby-fusuma-plugin-sendkey"; candidates = [ [ "rubyPackages" "fusuma-plugin-sendkey" ] ]; }
-    { name = "sof-firmware"; candidates = [ [ "sof-firmware" ] ]; }
-    { name = "spotify-launcher"; candidates = [ [ "spotify-launcher" ] ]; }
-    { name = "steam"; candidates = [ [ "steam" ] ]; }
-    { name = "tmux"; candidates = [ [ "tmux" ] ]; }
-    { name = "tree"; candidates = [ [ "tree" ] ]; }
-    { name = "unclutter"; candidates = [ [ "unclutter" ] ]; }
-    { name = "unzip"; candidates = [ [ "unzip" ] ]; }
-    { name = "usbimager"; candidates = [ [ "usbimager" ] ]; }
-    { name = "uthash"; candidates = [ [ "uthash" ] ]; }
-    { name = "vim"; candidates = [ [ "vim" ] ]; }
-    { name = "visual-studio-code"; candidates = [ [ "vscode" ] ]; }
-    { name = "vlc"; candidates = [ [ "vlc" ] ]; }
-    { name = "vulkan-radeon"; candidates = [ [ "mesa" ] ]; }
-    { name = "vulkan-tools"; candidates = [ [ "vulkan-tools" ] ]; }
-    { name = "wget"; candidates = [ [ "wget" ] ]; }
-    { name = "xdotool"; candidates = [ [ "xdotool" ] ]; }
-    { name = "xorg-xev"; candidates = [ [ "xorg" "xev" ] ]; }
-    { name = "xorg-xinput"; candidates = [ [ "xorg" "xinput" ] ]; }
-    { name = "xorg-xset"; candidates = [ [ "xorg" "xset" ] ]; }
-    { name = "xorg-setxkbmap"; candidates = [ [ "xorg" "setxkbmap" ] ]; }
-    { name = "xorg-xrandr"; candidates = [ [ "xorg" "xrandr" ] ]; }
-    { name = "xorg-xinit"; candidates = [ [ "xorg" "xinit" ] ]; }
-    { name = "xss-lock"; candidates = [ [ "xss-lock" ] ]; }
-    { name = "zip"; candidates = [ [ "zip" ] ]; }
-
-    # Commands referenced by the checked-in configs but absent from install.sh.
-    { name = "libqalculate"; candidates = [ [ "libqalculate" ] ]; }
-    { name = "xsel"; candidates = [ [ "xsel" ] ]; }
-    { name = "iputils"; candidates = [ [ "iputils" ] ]; }
-    { name = "oh-my-bash"; candidates = [ [ "oh-my-bash" ] ]; }
-    { name = "opencode"; candidates = [ [ "opencode" ] ]; }
-    { name = "nodejs"; candidates = [ [ "nodejs" ] ]; }
-    { name = "vtop"; candidates = [ [ "nodePackages" "vtop" ] ]; }
-    { name = "prettier"; candidates = [ [ "nodePackages" "prettier" ] [ "prettier" ] ]; }
-    { name = "typescript-language-server"; candidates = [ [ "nodePackages" "typescript-language-server" ] [ "typescript-language-server" ] ]; }
-    { name = "pyright"; candidates = [ [ "pyright" ] [ "nodePackages" "pyright" ] ]; }
-    { name = "black"; candidates = [ [ "black" ] ]; }
-    { name = "clang-tools"; candidates = [ [ "clang-tools" ] ]; }
-    { name = "shfmt"; candidates = [ [ "shfmt" ] ]; }
-    { name = "rust-analyzer"; candidates = [ [ "rust-analyzer" ] ]; }
-    { name = "rustfmt"; candidates = [ [ "rustfmt" ] [ "rustc" ] ]; }
-    { name = "go"; candidates = [ [ "go" ] ]; }
-    { name = "gopls"; candidates = [ [ "gopls" ] ]; }
-    { name = "python3"; candidates = [ [ "python3" ] ]; }
-
-    # The animation syntax in picom.conf requires the pijulius fork.
-    { name = "picom-pijulius"; candidates = [ [ "picom-pijulius" ] [ "picom" ] ]; }
-    { name = "Monocraft Nerd Font"; candidates = [ [ "nerd-fonts" "monocraft" ] [ "monocraft" ] ]; }
+  # If one of these cannot be resolved, evaluation fails. These packages are
+  # part of the daily desktop workflow and must never disappear silently.
+  requiredNames = [
+    "alacritty"
+    "awesome-git"
+    "copyq"
+    "discord"
+    "firefox"
+    "flameshot"
+    "github-cli"
+    "i3lock-color"
+    "keepassxc"
+    "Monocraft Nerd Font"
+    "nemo-compare"
+    "network-manager-applet"
+    "opencode"
+    "pcloud-drive"
+    "picom-pijulius"
+    "playerctl"
+    "rofi"
+    "rofi-calc"
+    "ruby-fusuma"
+    "spotify"
+    "tmux"
+    "vim"
+    "visual-studio-code"
+    "vlc"
+    "xdotool"
+    "xss-lock"
   ];
 
-  resolve = spec:
+  specs = [
+    {
+      name = "acpi";
+      candidates = [ [ "acpi" ] ];
+    }
+    {
+      name = "alacritty";
+      candidates = [ [ "alacritty" ] ];
+    }
+    {
+      name = "alsa-utils";
+      candidates = [ [ "alsa-utils" ] ];
+    }
+    {
+      name = "ani-cli";
+      candidates = [ [ "ani-cli" ] ];
+    }
+    {
+      name = "arandr";
+      candidates = [ [ "arandr" ] ];
+    }
+    {
+      name = "aspell";
+      candidates = [ [ "aspell" ] ];
+    }
+    {
+      name = "aspell-en";
+      candidates = [
+        [
+          "aspellDicts"
+          "en"
+        ]
+      ];
+    }
+    {
+      name = "autorandr";
+      candidates = [ [ "autorandr" ] ];
+    }
+    {
+      name = "awesome-git";
+      candidates = [ [ "awesome" ] ];
+    }
+    {
+      name = "baobab";
+      candidates = [ [ "baobab" ] ];
+    }
+    {
+      name = "bash-completion";
+      candidates = [ [ "bash-completion" ] ];
+    }
+    {
+      name = "blueman";
+      candidates = [ [ "blueman" ] ];
+    }
+    {
+      name = "bluez";
+      candidates = [ [ "bluez" ] ];
+    }
+    {
+      name = "bluez-utils";
+      candidates = [ [ "bluez" ] ];
+    }
+    {
+      name = "bulky";
+      candidates = [ [ "bulky" ] ];
+    }
+    {
+      name = "capitaine-cursors";
+      candidates = [ [ "capitaine-cursors" ] ];
+    }
+    {
+      name = "copyq";
+      candidates = [ [ "copyq" ] ];
+    }
+    {
+      name = "cowsay";
+      candidates = [ [ "cowsay" ] ];
+    }
+    {
+      name = "cpupower-gui";
+      candidates = [ [ "cpupower-gui" ] ];
+    }
+    {
+      name = "curl";
+      candidates = [ [ "curl" ] ];
+    }
+    {
+      name = "discord";
+      candidates = [ [ "discord" ] ];
+    }
+    {
+      name = "docker";
+      candidates = [ [ "docker" ] ];
+    }
+    {
+      name = "docker-compose";
+      candidates = [ [ "docker-compose" ] ];
+    }
+    {
+      name = "dracut";
+      candidates = [ [ "dracut" ] ];
+    }
+    {
+      name = "fastfetch";
+      candidates = [ [ "fastfetch" ] ];
+    }
+    {
+      name = "fd";
+      candidates = [ [ "fd" ] ];
+    }
+    {
+      name = "firefox";
+      candidates = [ [ "firefox" ] ];
+    }
+    {
+      name = "flameshot";
+      candidates = [ [ "flameshot" ] ];
+    }
+    {
+      name = "fprintd";
+      candidates = [ [ "fprintd" ] ];
+    }
+    {
+      name = "gimp";
+      candidates = [ [ "gimp" ] ];
+    }
+    {
+      name = "git";
+      candidates = [ [ "git" ] ];
+    }
+    {
+      name = "github-cli";
+      candidates = [ [ "gh" ] ];
+    }
+    {
+      name = "glava";
+      candidates = [ [ "glava" ] ];
+    }
+    {
+      name = "gnome-disk-utility";
+      candidates = [ [ "gnome-disk-utility" ] ];
+    }
+    {
+      name = "highlight";
+      candidates = [ [ "highlight" ] ];
+    }
+    {
+      name = "htop";
+      candidates = [ [ "htop" ] ];
+    }
+    {
+      name = "i3lock-color";
+      candidates = [ [ "i3lock-color" ] ];
+    }
+    {
+      name = "imgcat";
+      candidates = [ [ "imgcat" ] ];
+    }
+    {
+      name = "jdk21-openjdk";
+      candidates = [ [ "jdk21" ] ];
+    }
+    {
+      name = "jdk8-openjdk";
+      candidates = [ [ "jdk8" ] ];
+    }
+    {
+      name = "keepassxc";
+      candidates = [ [ "keepassxc" ] ];
+    }
+    {
+      name = "lazygit";
+      candidates = [ [ "lazygit" ] ];
+    }
+    {
+      name = "less";
+      candidates = [ [ "less" ] ];
+    }
+    {
+      name = "libconfig";
+      candidates = [ [ "libconfig" ] ];
+    }
+    {
+      name = "lobster";
+      candidates = [ [ "lobster" ] ];
+    }
+    {
+      name = "localsend";
+      candidates = [ [ "localsend" ] ];
+    }
+    {
+      name = "lolcat";
+      candidates = [ [ "lolcat" ] ];
+    }
+    {
+      name = "man-db";
+      candidates = [ [ "man-db" ] ];
+    }
+    {
+      name = "man-pages";
+      candidates = [ [ "man-pages" ] ];
+    }
+    {
+      name = "meld";
+      candidates = [ [ "meld" ] ];
+    }
+    {
+      name = "nano";
+      candidates = [ [ "nano" ] ];
+    }
+    {
+      name = "nemo";
+      candidates = [ [ "nemo" ] ];
+    }
+    {
+      name = "nemo-compare";
+      candidates = [ [ "nemo-with-extensions" ] ];
+    }
+    {
+      name = "nemo-fileroller";
+      candidates = [
+        [ "nemo-fileroller" ]
+        [ "file-roller" ]
+      ];
+    }
+    {
+      name = "network-manager-applet";
+      candidates = [ [ "networkmanagerapplet" ] ];
+    }
+    {
+      name = "nmap";
+      candidates = [ [ "nmap" ] ];
+    }
+    {
+      name = "noto-fonts";
+      candidates = [ [ "noto-fonts" ] ];
+    }
+    {
+      name = "noto-fonts-cjk";
+      candidates = [
+        [ "noto-fonts-cjk-sans" ]
+        [ "noto-fonts-cjk" ]
+      ];
+    }
+    {
+      name = "noto-fonts-emoji";
+      candidates = [ [ "noto-fonts-color-emoji" ] ];
+    }
+    # Merged into noto-fonts in this release; keep the logical name because it
+    # is used by the font selection below.
+    {
+      name = "noto-fonts-extra";
+      candidates = [ [ "noto-fonts" ] ];
+    }
+    {
+      name = "nvtop";
+      candidates = [
+        [
+          "nvtopPackages"
+          "amd"
+        ]
+        [ "nvtop" ]
+      ];
+    }
+    {
+      name = "pasystray";
+      candidates = [ [ "pasystray" ] ];
+    }
+    {
+      name = "pavucontrol";
+      candidates = [ [ "pavucontrol" ] ];
+    }
+    {
+      name = "pcloud-drive";
+      candidates = [ [ "pcloud" ] ];
+    }
+    {
+      name = "playerctl";
+      candidates = [ [ "playerctl" ] ];
+    }
+    {
+      name = "plymouth";
+      candidates = [ [ "plymouth" ] ];
+    }
+    {
+      name = "prismlauncher";
+      candidates = [ [ "prismlauncher" ] ];
+    }
+    {
+      name = "qt6-svg";
+      candidates = [
+        [
+          "qt6Packages"
+          "qtsvg"
+        ]
+      ];
+    }
+    {
+      name = "ranger";
+      candidates = [ [ "ranger" ] ];
+    }
+    {
+      name = "redshift";
+      candidates = [ [ "redshift" ] ];
+    }
+    {
+      name = "rofi";
+      candidates = [ [ "rofi" ] ];
+    }
+    {
+      name = "rofi-calc";
+      candidates = [ [ "rofi-calc" ] ];
+    }
+    {
+      name = "ruby-fusuma";
+      # The pinned nixpkgs Fusuma bundle includes fusuma-plugin-sendkey and
+      # revdev, so sendkey actions work without a separate Ruby installation.
+      candidates = [ [ "fusuma" ] ];
+    }
+    {
+      name = "sof-firmware";
+      candidates = [ [ "sof-firmware" ] ];
+    }
+    # nixpkgs 26.05 has the official client, not spotify-launcher.
+    {
+      name = "spotify";
+      candidates = [ [ "spotify" ] ];
+    }
+    {
+      name = "steam";
+      candidates = [ [ "steam" ] ];
+    }
+    {
+      name = "tmux";
+      candidates = [ [ "tmux" ] ];
+    }
+    {
+      name = "tree";
+      candidates = [ [ "tree" ] ];
+    }
+    {
+      name = "unclutter";
+      candidates = [ [ "unclutter" ] ];
+    }
+    {
+      name = "unzip";
+      candidates = [ [ "unzip" ] ];
+    }
+    {
+      name = "usbimager";
+      candidates = [ [ "usbimager" ] ];
+    }
+    {
+      name = "uthash";
+      candidates = [ [ "uthash" ] ];
+    }
+    {
+      name = "vim";
+      candidates = [ [ "vim" ] ];
+    }
+    {
+      name = "visual-studio-code";
+      candidates = [ [ "vscode" ] ];
+    }
+    {
+      name = "vlc";
+      candidates = [ [ "vlc" ] ];
+    }
+    {
+      name = "vulkan-radeon";
+      candidates = [ [ "mesa" ] ];
+    }
+    {
+      name = "vulkan-tools";
+      candidates = [ [ "vulkan-tools" ] ];
+    }
+    {
+      name = "wget";
+      candidates = [ [ "wget" ] ];
+    }
+    {
+      name = "xdotool";
+      candidates = [ [ "xdotool" ] ];
+    }
+    {
+      name = "xorg-xev";
+      candidates = [ [ "xev" ] ];
+    }
+    {
+      name = "xorg-xinput";
+      candidates = [ [ "xinput" ] ];
+    }
+    {
+      name = "xorg-xset";
+      candidates = [ [ "xset" ] ];
+    }
+    {
+      name = "xorg-setxkbmap";
+      candidates = [ [ "setxkbmap" ] ];
+    }
+    {
+      name = "xorg-xrandr";
+      candidates = [ [ "xrandr" ] ];
+    }
+    {
+      name = "xorg-xinit";
+      candidates = [ [ "xinit" ] ];
+    }
+    {
+      name = "xss-lock";
+      candidates = [ [ "xss-lock" ] ];
+    }
+    {
+      name = "zip";
+      candidates = [ [ "zip" ] ];
+    }
+
+    # Commands referenced by the checked-in configs but absent from install.sh.
+    {
+      name = "libqalculate";
+      candidates = [ [ "libqalculate" ] ];
+    }
+    {
+      name = "xsel";
+      candidates = [ [ "xsel" ] ];
+    }
+    {
+      name = "iputils";
+      candidates = [ [ "iputils" ] ];
+    }
+    {
+      name = "opencode";
+      candidates = [ [ "opencode" ] ];
+    }
+    {
+      name = "nodejs";
+      candidates = [ [ "nodejs" ] ];
+    }
+    # vtop is no longer in nixpkgs; btop covers the same monitoring goal.
+    {
+      name = "btop";
+      candidates = [ [ "btop" ] ];
+    }
+    {
+      name = "prettier";
+      candidates = [ [ "prettier" ] ];
+    }
+    {
+      name = "typescript-language-server";
+      candidates = [ [ "typescript-language-server" ] ];
+    }
+    {
+      name = "pyright";
+      candidates = [ [ "pyright" ] ];
+    }
+    {
+      name = "black";
+      candidates = [ [ "black" ] ];
+    }
+    {
+      name = "clang-tools";
+      candidates = [ [ "clang-tools" ] ];
+    }
+    {
+      name = "shfmt";
+      candidates = [ [ "shfmt" ] ];
+    }
+    {
+      name = "rust-analyzer";
+      candidates = [ [ "rust-analyzer" ] ];
+    }
+    {
+      name = "rustfmt";
+      candidates = [
+        [ "rustfmt" ]
+        [ "rustc" ]
+      ];
+    }
+    {
+      name = "go";
+      candidates = [ [ "go" ] ];
+    }
+    {
+      name = "gopls";
+      candidates = [ [ "gopls" ] ];
+    }
+    {
+      name = "python3";
+      candidates = [ [ "python3" ] ];
+    }
+
+    # The animation syntax in picom.conf requires the pijulius fork.
+    # Never fall back to upstream Picom: the checked-in animation syntax is
+    # specific to the pijulius fork and would fail only after login.
+    {
+      name = "picom-pijulius";
+      candidates = [ [ "picom-pijulius" ] ];
+    }
+    {
+      name = "Monocraft Nerd Font";
+      candidates = [
+        [ "monocraft" ]
+        [
+          "nerd-fonts"
+          "monocraft"
+        ]
+      ];
+    }
+  ];
+
+  resolve =
+    spec:
     let
       paths = builtins.filter (path: lib.hasAttrByPath path pkgs) spec.candidates;
       values = map (path: lib.getAttrFromPath path pkgs) paths;
@@ -136,15 +551,30 @@ let
     in
     if packages == [ ] then null else builtins.head packages;
 
-  resolved = map (spec: spec // { package = resolve spec; }) specs;
+  resolved = map (
+    spec:
+    spec
+    // {
+      package = resolve spec;
+      required = builtins.elem spec.name requiredNames;
+    }
+  ) specs;
   present = builtins.filter (spec: spec.package != null) resolved;
   absent = builtins.filter (spec: spec.package == null) resolved;
+  required = builtins.filter (spec: spec.required) present;
+  optional = builtins.filter (spec: !spec.required) present;
+  missingRequired = map (spec: spec.name) (builtins.filter (spec: spec.required) absent);
+  missingOptional = map (spec: spec.name) (builtins.filter (spec: !spec.required) absent);
 in
 {
-  available = map (spec: spec.package) present;
-  byName = builtins.listToAttrs (map (spec: {
-    inherit (spec) name;
-    value = spec.package;
-  }) present);
-  missing = map (spec: spec.name) absent;
+  all = map (spec: spec.package) present;
+  required = map (spec: spec.package) required;
+  optional = map (spec: spec.package) optional;
+  byName = builtins.listToAttrs (
+    map (spec: {
+      inherit (spec) name;
+      value = spec.package;
+    }) present
+  );
+  inherit missingRequired missingOptional;
 }

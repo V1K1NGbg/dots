@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+test -f flake.lock
+
+bash -n nixos/install-from-minimal.sh
+bash -n .bashrc
+sh -n .config/awesome/autostart.sh
+shellcheck nixos/install-from-minimal.sh .config/awesome/autostart.sh
+luac -p .config/awesome/rc.lua
+luac -p .config/awesome/theme.lua
+luac -p nixos/hypr/hyprland.lua
+jq --exit-status . nixos/hypr/waybar.jsonc >/dev/null
+
+if rg -n 'name = "vtop"|name = "spotify-launcher"|start_once spotify-launcher' \
+  nixos/packages.nix .config/awesome/autostart.sh; then
+  echo "Removed package/command names reappeared in the NixOS migration." >&2
+  exit 1
+fi
+
+if rg -n 'command:.*xdotool key' .config/fusuma/config.yml; then
+  echo "Fusuma regressed to the slower xdotool command workaround." >&2
+  exit 1
+fi
+rg -q 'sendkey: LEFTMETA' .config/fusuma/config.yml
+rg -q 'name = "ruby-fusuma"' nixos/packages.nix
+rg -q '"input"' nixos/configuration.nix
+
+if rg -n 'framework-13|7040|dots-framework' flake.nix nixos/install-from-minimal.sh; then
+  echo "A removed hardware/profile variant reappeared." >&2
+  exit 1
+fi
+
+if rg -ni 'dangerzone' nixos flake.nix; then
+  echo "Dangerzone should not be part of this migration." >&2
+  exit 1
+fi
+
+if rg -n 'nixos-unstable|github:nix-community/home-manager"' flake.nix; then
+  echo "An unpinned flake input reappeared." >&2
+  exit 1
+fi
+
+if rg -n 'source = ../\.config/(BetterDiscord|flameshot|gtk-3.0|keepassxc);$' nixos/home.nix; then
+  echo "Mutable application directories must not be recursively store-managed." >&2
+  exit 1
+fi
+
+test -f nixos/COMPATIBILITY.md
+test -f nixos/MIGRATION.md
