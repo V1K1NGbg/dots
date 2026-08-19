@@ -15,7 +15,7 @@ gaps produce a visible warning and are documented in
 
 | Profile | Hardware module | Login/desktop |
 | --- | --- | --- |
-| `dots` | Framework 16, Ryzen AI 300 plus generated storage hardware | greetd chooser, Hyprland/UWSM |
+| `dots` | Framework 16, Ryzen AI 300 plus generated storage hardware | Plymouth LUKS unlock, tty1 autologin, Hyprland/UWSM |
 
 There are no generic, Framework 13, or Ryzen 7040 profiles. This branch now
 targets only the Framework 16 Ryzen AI 300 from the existing migration attempt.
@@ -85,17 +85,21 @@ The script accepts only a whole disk, refuses disks with mounted filesystems,
 refuses disks smaller than 32 GiB, displays the disk model/size/serial, and
 requires typing `ERASE /dev/...` exactly. It also refuses any disk that differs
 from the device declared in `nixos/disko.nix`. The pinned Disko input then
-applies that declarative GPT layout: a 1 GiB FAT32 EFI partition and an ext4
-root partition using the remaining space. The installer generates hardware
-configuration with `--no-filesystems`, runs the locked checks, builds before
-installing, preserves the exact checkout at `~/dots`, asks only for the `victor`
-password, syncs, and unmounts everything. With `--reboot`, it requires you to
-remove the USB and type `REBOOT` before restarting.
+applies that declarative GPT layout: a 1 GiB FAT32 EFI partition and a
+LUKS2-encrypted ext4 root using the remaining space. After the erase
+confirmation, the installer asks twice for a disk passphrase of at least 12
+characters. It stores that passphrase only in a mode-0600 file in the live
+installer's `/tmp`, removes it immediately after Disko formats the drive, then
+generates hardware configuration with `--no-filesystems`, runs the locked
+checks, builds before installing, preserves the exact checkout at `~/dots`,
+asks for the `victor` password used by `sudo` and Hyprlock, syncs, and unmounts
+everything. With `--reboot`, it requires you to remove the USB and type
+`REBOOT` before restarting.
 
-This permanently destroys all data on the selected disk. It does not provide
-encryption, dual boot, a separate home partition, hibernation swap, or in-place
-migration. Changing the disk path or layout must be done deliberately in
-`nixos/disko.nix` before running the command. For a manually prepared target
+This permanently destroys all data on the selected disk. It provides encrypted
+root but not dual boot, a separate home partition, hibernation swap, or in-place
+encryption of an existing installation. Changing the disk path or layout must
+be done deliberately in `nixos/disko.nix` before running the command. For a manually prepared target
 that matches the declared filesystems, mount it and use the mount-only helper:
 
 ```sh
@@ -110,8 +114,9 @@ reboot
 
 ## First boot and normal updates
 
-Log into Hyprland, run the checklist, and resolve every item that matters to the
-daily workflow:
+Enter the LUKS passphrase in the Hexagon HUD Plymouth prompt. The system then
+autologs `victor` into tty1 and starts Hyprland through UWSM without a display
+manager. Run the checklist and resolve every item that matters to the workflow:
 
 ```sh
 cd ~/dots

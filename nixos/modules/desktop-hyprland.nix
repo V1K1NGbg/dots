@@ -1,13 +1,9 @@
 {
-  config,
   lib,
   pkgs,
   ...
 }:
 
-let
-  sessionRoot = "${config.services.displayManager.sessionData.desktops}/share";
-in
 {
   assertions = [
     {
@@ -16,35 +12,7 @@ in
     }
   ];
 
-  services.greetd = {
-    enable = true;
-    useTextGreeter = true;
-    settings.default_session = {
-      command = lib.concatStringsSep " " [
-        (lib.getExe pkgs.tuigreet)
-        "--time"
-        "--time-format"
-        ''"%A, %d %B  %H:%M"''
-        "--greeting"
-        ''"Welcome back, Victor"''
-        "--asterisks"
-        "--remember"
-        "--remember-user-session"
-        "--user-menu"
-        "--width"
-        "60"
-        "--window-padding"
-        "2"
-        "--container-padding"
-        "2"
-        "--theme"
-        ''"border=blue;text=white;time=cyan;container=black;title=cyan;greet=blue;prompt=cyan;input=white;action=white;button=cyan"''
-        "--sessions"
-        "${sessionRoot}/wayland-sessions"
-      ];
-      user = "greeter";
-    };
-  };
+  services.getty.autologinUser = "victor";
 
   programs.hyprland = {
     enable = true;
@@ -76,7 +44,6 @@ in
     satty
     slurp
     swaybg
-    tuigreet
     waybar
     wev
     wl-clipboard

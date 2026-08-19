@@ -7,6 +7,7 @@ configuration="${2:-dots}"
 reboot_after="${3:-}"
 target="/mnt"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+luks_password_file="/tmp/dots-luks-password"
 
 die() {
   echo "ERROR: $*" >&2
@@ -20,6 +21,15 @@ cleanup_mounts() {
   fi
 }
 
+cleanup_sensitive() {
+  rm -f -- "${luks_password_file}"
+}
+
+cleanup() {
+  cleanup_mounts
+  cleanup_sensitive
+}
+
 usage() {
   cat >&2 <<'EOF'
 Usage: install-blank-disk.sh /dev/WHOLE_DISK [dots] [--reboot]
@@ -27,7 +37,7 @@ Usage: install-blank-disk.sh /dev/WHOLE_DISK [dots] [--reboot]
 This uses the repository's declarative Disko layout to erase the complete disk
 and create:
   partition 1: 1 GiB FAT32 EFI System Partition
-  partition 2: remaining space, ext4 NixOS root
+  partition 2: remaining space, LUKS2-encrypted ext4 NixOS root
 
 Example:
   ./nixos/install-blank-disk.sh /dev/nvme0n1 dots --reboot
@@ -49,7 +59,7 @@ case "${reboot_after}" in
   *) usage ;;
 esac
 
-for command in blockdev findmnt grep lsblk nix realpath sync umount; do
+for command in blockdev findmnt grep lsblk nix realpath rm sync umount; do
   command -v "${command}" >/dev/null 2>&1 || die "Required command is unavailable: ${command}"
 done
 if [[ ${reboot_after} == --reboot ]]; then
@@ -79,6 +89,8 @@ disk_bytes="$(blockdev --getsize64 "${disk}")"
 repo="$(realpath "${script_dir}/..")"
 flake="path:${repo}"
 [[ -f ${repo}/flake.lock ]] || die "flake.lock is missing; refusing to use unpinned Disko inputs."
+[[ ! -e ${luks_password_file} ]] || die "Refusing to overwrite existing ${luks_password_file}; remove it after verifying it is stale."
+trap cleanup EXIT
 
 configured_disk="$(
   nix --extra-experimental-features "nix-command flakes" \
@@ -96,12 +108,33 @@ echo
 echo "Planned layout:"
 echo "  ${disk}: GPT"
 echo "  partition 1: 1 GiB FAT32 EFI System Partition, label NIXBOOT"
-echo "  partition 2: remaining space ext4 root, label nixos"
+echo "  partition 2: remaining space LUKS2 container, mapper cryptroot"
+echo "               ext4 root inside, label nixos"
 echo "  configuration: ${configuration}"
 echo
 echo "ALL PARTITIONS AND DATA ON ${disk} WILL BE DESTROYED."
 read -r -p "Type 'ERASE ${disk}' to continue: " confirmation
 [[ ${confirmation} == "ERASE ${disk}" ]] || die "Confirmation did not match; nothing was erased."
+
+while true; do
+  read -r -s -p "Choose the LUKS disk passphrase (12+ characters): " luks_password
+  echo
+  if ((${#luks_password} < 12)); then
+    echo "The passphrase must contain at least 12 characters." >&2
+    continue
+  fi
+  read -r -s -p "Repeat the LUKS disk passphrase: " luks_password_confirmation
+  echo
+  if [[ ${luks_password} != "${luks_password_confirmation}" ]]; then
+    echo "The passphrases did not match; try again." >&2
+    continue
+  fi
+  break
+done
+
+umask 077
+printf '%s' "${luks_password}" >"${luks_password_file}"
+unset luks_password luks_password_confirmation
 
 echo "Applying the locked declarative Disko layout..."
 nix --extra-experimental-features "nix-command flakes" \
@@ -111,10 +144,11 @@ nix --extra-experimental-features "nix-command flakes" \
   --yes-wipe-all-disks \
   --flake "${flake}#${configuration}"
 
+cleanup_sensitive
+
 echo "Mounted installation target:"
 findmnt --mountpoint "${target}" || die "Disko did not mount the root filesystem at ${target}."
 findmnt --mountpoint "${target}/boot" || die "Disko did not mount the EFI filesystem at ${target}/boot."
-trap cleanup_mounts EXIT
 
 # The exact disk-erasure confirmation above also authorizes the inner installer.
 DOTS_INSTALL_CONFIRMED="${target}:${configuration}" \

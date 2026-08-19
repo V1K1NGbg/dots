@@ -21,6 +21,9 @@ sudo reboot
 
 ## Acceptance checks
 
+- The Hexagon HUD Plymouth theme asks for the LUKS passphrase, rejects an
+  incorrect passphrase, and unlocks `cryptroot` with the correct one.
+- No display manager appears; tty1 autologs `victor` and UWSM starts Hyprland.
 - Displays select their preferred mode and automatic placement; hotplug and
   suspend/resume work.
 - The US keyboard layout and touchpad natural scrolling work.
@@ -43,3 +46,7 @@ journalctl --user -b -u pcloud
 If a new generation is unusable, select an older NixOS generation from the
 systemd-boot menu. Do not erase or reinstall the disk to roll back a desktop
 configuration change.
+
+Changing `nixos/disko.nix` does not encrypt an existing installation. The LUKS
+layout is created only by the destructive blank-disk installer. Back up all data
+and verify the target disk before reinstalling.

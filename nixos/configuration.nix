@@ -77,10 +77,15 @@ in
   i18n.defaultLocale = "en_US.UTF-8";
 
   boot = {
-    initrd.kernelModules = [ "amdgpu" ];
+    initrd = {
+      kernelModules = [ "amdgpu" ];
+      systemd.enable = true;
+    };
     kernelParams = [
       "quiet"
       "splash"
+      "rd.systemd.show_status=false"
+      "udev.log_level=3"
     ]
     ++ lib.optional cfg.hardware.amdgpuDisplayFix "amdgpu.dcdebugmask=0x10";
     loader = {

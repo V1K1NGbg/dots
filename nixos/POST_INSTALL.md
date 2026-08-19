@@ -14,7 +14,8 @@ sudo nixos-rebuild boot --flake .#dots
 sudo reboot
 ```
 
-Log in through tuigreet, open Alacritty with `Super+Enter`, then run:
+Enter the disk passphrase in the Plymouth prompt. tty1 then autologs `victor`
+and starts Hyprland through UWSM. Open Alacritty with `Super+Enter`, then run:
 
 ```sh
 cd ~/dots
@@ -181,7 +182,7 @@ fprintd-enroll
 fprintd-verify
 ```
 
-Test `sudo` and Hyprlock while a password login path is still available.
+Test `sudo` and Hyprlock while the account password is still available.
 
 ## 11. llama.cpp
 

@@ -30,13 +30,20 @@
         root = {
           size = "100%";
           content = {
-            type = "filesystem";
-            format = "ext4";
-            mountpoint = "/";
-            extraArgs = [
-              "-L"
-              "nixos"
-            ];
+            type = "luks";
+            name = "cryptroot";
+            passwordFile = "/tmp/dots-luks-password";
+            extraFormatArgs = [ "--type=luks2" ];
+            settings.allowDiscards = true;
+            content = {
+              type = "filesystem";
+              format = "ext4";
+              mountpoint = "/";
+              extraArgs = [
+                "-L"
+                "nixos"
+              ];
+            };
           };
         };
       };
