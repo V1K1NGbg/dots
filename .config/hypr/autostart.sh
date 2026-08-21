@@ -15,6 +15,7 @@ systemctl --user start hypridle.service hyprpolkitagent.service nemo-settings.se
 spawn waybar
 spawn nm-applet --indicator
 spawn blueman-applet
+spawn pcloud
 spawn mako
 spawn wl-paste --type text --watch cliphist store
 spawn wl-paste --type image --watch cliphist store
@@ -23,6 +24,7 @@ spawn wl-paste --type image --watch cliphist store
 spawn code
 spawn firefox
 spawn alacritty
+spawn nemo
 spawn Discord
 spawn spotify
 

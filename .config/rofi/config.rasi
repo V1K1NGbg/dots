@@ -61,6 +61,7 @@ window {
     anchor:                      center;
     fullscreen:                  false;
     width:                       700px;
+    height:                      420px;
     x-offset:                    0px;
     y-offset:                    0px;
 
@@ -94,7 +95,7 @@ mainbox {
     border-radius:               0px 0px 0px 0px;
     border-color:                @border-colour;
     background-color:            transparent;
-    children:                    [ "inputbar", "message", "custombox" ];
+    children:                    [ "inputbar", "custombox" ];
 }
 
 /*****----- A Custom Box -----*****/
@@ -103,7 +104,17 @@ custombox {
     background-color:            @background-colour;
     text-color:                  @foreground-colour;
     orientation:                 horizontal;
-    children:                    [ "mode-switcher", "listview" ];
+    children:                    [ "mode-switcher", "results" ];
+}
+
+/*****----- Results Pane -----*****/
+results {
+    enabled:                     true;
+    expand:                      true;
+    spacing:                     5px;
+    background-color:            transparent;
+    orientation:                 vertical;
+    children:                    [ "message", "listview" ];
 }
 
 /*****----- Inputbar -----*****/

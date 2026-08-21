@@ -37,6 +37,7 @@ in
       fnm
       git
       github-cli
+      glava
       gnome-disk-utility
       go
       gopls

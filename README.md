@@ -84,9 +84,9 @@ The system includes:
 - Native Wayland Hyprland input, locking, idle, clipboard, screenshots, display
   profiles, notifications, app launcher, and power-menu integration.
 - `us,bg` keyboard layouts with Bulgarian `bas_phonetic`, switched with
-  Super+Space; the physical power button opens the Rofi power mode. Super+D
-  opens Rofi with all application and utility modes available from its mode
-  switcher, and Super+B toggles Waybar.
+  Super+Space; the physical power button opens the Rofi power mode. Super+W
+  opens Rofi, and Super+S shows searchable keybinding help. Waybar starts
+  hidden; Super+T toggles it.
 - A minimal top bar containing only the date/time, tray icons, and battery
   percentage.
 - PipeWire audio, NetworkManager with static `1.1.1.1` DNS, Bluetooth, Steam,

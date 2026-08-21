@@ -1,6 +1,7 @@
 {
   "layer": "top",
   "position": "top",
+  "start_hidden": true,
   "height": 30,
   "spacing": 6,
   "on-sigusr1": "toggle",
