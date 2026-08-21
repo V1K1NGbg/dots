@@ -1,5 +1,4 @@
 .config/opencode/style/about.md
 **/__pycache__/
 *.pyc
-hardware-configuration.nix
 result

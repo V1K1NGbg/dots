@@ -130,7 +130,7 @@ if grep -q pam_fprintd /etc/pam.d/login && grep -q pam_fprintd /etc/pam.d/sudo; 
 else
     printf '%s\n' \
         'WARNING: fingerprint PAM is not active yet. Rebuild the current configuration first:' \
-        '  sudo nixos-rebuild switch --flake /etc/nixos#laptop' >&2
+        '  sudo nixos-rebuild switch --flake ~/dots#laptop' >&2
 fi
 
 step "pCloud account setup"

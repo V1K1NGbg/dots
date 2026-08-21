@@ -5,7 +5,8 @@ hl.monitor({
     output = "",
     mode = "preferred",
     position = "auto",
-    scale = "auto",
+    -- Use native-size UI instead of Hyprland's larger automatic HiDPI scale.
+    scale = 1,
 })
 
 hl.env("XCURSOR_SIZE", "24")
@@ -85,12 +86,33 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("~/.config/hypr/autostart.sh")
 end)
 
+-- Keep the main applications on predictable workspaces. Match the initial
+-- class so later title/class changes cannot move an already-open window.
+local workspace_apps = {
+    { class = "[Cc]ode", workspace = "1 silent" },
+    { class = "[Ff]irefox", workspace = "2 silent" },
+    { class = "[Aa]lacritty", workspace = "3 silent" },
+    { class = "[Nn]emo", workspace = "4 silent" },
+    { class = "[Dd]iscord", workspace = "5 silent" },
+    { class = "[Ss]potify", workspace = "6 silent" },
+    { class = "(org\\.keepassxc\\.KeePassXC|[Kk]ee[Pp]ass[Xx][Cc])", workspace = "7 silent" },
+}
+
+for _, app in ipairs(workspace_apps) do
+    hl.window_rule({
+        match = { initial_class = app.class },
+        workspace = app.workspace,
+    })
+end
+
 local mod = "SUPER"
 
 hl.bind(mod .. " + Return", hl.dsp.exec_cmd("alacritty"))
-hl.bind(mod .. " + D", hl.dsp.exec_cmd("rofi -show run"))
-hl.bind(mod .. " + SHIFT + E", hl.dsp.exec_cmd("rofi -show power"))
-hl.bind("XF86PowerOff", hl.dsp.exec_cmd("rofi -show power"))
+hl.bind(mod .. " + D", hl.dsp.exec_cmd("rofi -show drun"))
+hl.bind(mod .. " + SHIFT + D", hl.dsp.exec_cmd("~/.config/rofi/menu.sh"))
+hl.bind(mod .. " + B", hl.dsp.exec_cmd("pkill -SIGUSR1 waybar"))
+hl.bind(mod .. " + SHIFT + E", hl.dsp.exec_cmd("~/.config/rofi/menu.sh Power"))
+hl.bind("XF86PowerOff", hl.dsp.exec_cmd("~/.config/rofi/menu.sh Power"))
 hl.bind(mod .. " + SHIFT + Q", hl.dsp.window.close())
 hl.bind(mod .. " + SHIFT + C", hl.dsp.exec_cmd("hyprctl reload"))
 

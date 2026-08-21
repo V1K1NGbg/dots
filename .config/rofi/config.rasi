@@ -1,7 +1,8 @@
 configuration {
-    modi:                       "run,calc,clipboard:~/.config/rofi/clipboard.sh,autocorrector:~/.config/rofi/autocorrect.sh,media:~/.config/rofi/media.sh,wifi:~/.config/rofi/wifi.sh,bluetooth:~/.config/rofi/bluetooth.sh,power:~/.config/rofi/power.sh";
+    /* Keep startup fast: utility scripts are loaded individually by menu.sh. */
+    modi:                       "drun";
     show-icons:                 false;
-    display-run:                "🚀 Run";
+    display-drun:               "🚀 Apps";
     display-calc:               "🧮 Calculator";
     display-clipboard:          "📋 Clipboard";
     display-autocorrector:      "✍️ Autocorrector";
@@ -9,7 +10,7 @@ configuration {
     display-wifi:               "📶 Wifi";
     display-bluetooth:          " Bluetooth";
     display-power:              "🔌 Power";
-	drun-display-format:        "{name}";
+	drun-display-format:         "{name}";
 	window-format:              "{w} · {c} · {t}";
     calc {
         no-persist-history: true;

@@ -12,7 +12,7 @@ echo "UwU" | cowsay -f tux | lolcat --spread=0.5
 
 alias clear="clear && source ~/.bashrc"
 alias notes="code -n ~/pCloudDrive/0Notes.md"
-alias config="code -n /etc/nixos"
+alias config="code -n ~/dots"
 alias shutdown="systemctl poweroff"
 
 alias lgit="lazygit"

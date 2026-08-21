@@ -3,12 +3,16 @@
 set -Eeuo pipefail
 
 readonly USER_NAME="victor"
-readonly HOST_NAME="viking"
-SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
+readonly HOST_NAME="nixfwbtw"
+readonly CONFIG_DIR="/home/$USER_NAME/dots"
+readonly REPOSITORY_URL="https://github.com/V1K1NGbg/dots.git"
+readonly REPOSITORY_BRANCH="nixos"
 TARGET_DISK=""
 REBOOT_AFTER_INSTALL=1
 LUKS_PASSWORD=""
 USER_PASSWORD=""
+WIFI_CONNECTION_NAME=""
+WIFI_PROFILE_PATH=""
 INSTALL_MOUNTS_ACTIVE=0
 CRYPTROOT_OPEN=0
 
@@ -107,12 +111,11 @@ done
 
 [[ $EUID -eq 0 ]] || fail "run this installer as root"
 [[ -d /sys/firmware/efi ]] || fail "boot the NixOS USB in UEFI mode"
-[[ -f "$SCRIPT_DIR/flake.nix" ]] || fail "flake.nix is missing beside install.sh"
 
 required_commands=(
-    awk blkid btrfs cryptsetup curl grep lsblk mkfs.btrfs mkfs.fat
+    awk basename blkid btrfs cryptsetup curl dirname find git grep install lsblk mkfs.btrfs mkfs.fat
     df mount nix nixos-enter nixos-generate-config nixos-install parted
-    partprobe sed tar udevadm umount
+    nmcli nmtui partprobe sed udevadm umount
 )
 for command_name in "${required_commands[@]}"; do
     command -v "$command_name" >/dev/null || fail "required command not found: $command_name"
@@ -124,6 +127,35 @@ if ! curl --silent --show-error --fail --head https://cache.nixos.org/ >/dev/nul
     curl --silent --show-error --fail --head https://cache.nixos.org/ >/dev/null \
         || fail "network access is still unavailable"
 fi
+
+git ls-remote --exit-code --heads \
+    "$REPOSITORY_URL" "refs/heads/$REPOSITORY_BRANCH" >/dev/null \
+    || fail "cannot access branch '$REPOSITORY_BRANCH' at $REPOSITORY_URL"
+
+active_wifi_uuid=$(
+    nmcli -t -f UUID,TYPE connection show --active \
+        | awk -F: '$2 == "802-11-wireless" || $2 == "wifi" { print $1; exit }'
+)
+[[ -n "$active_wifi_uuid" ]] \
+    || fail "no active Wi-Fi connection; connect with nmtui and run the installer again"
+
+WIFI_CONNECTION_NAME=$(nmcli -g connection.id connection show uuid "$active_wifi_uuid")
+for profile_directory in \
+    /etc/NetworkManager/system-connections \
+    /run/NetworkManager/system-connections; do
+    [[ -d "$profile_directory" ]] || continue
+    while IFS= read -r -d '' candidate; do
+        if grep -Fqx -- "uuid=$active_wifi_uuid" "$candidate"; then
+            WIFI_PROFILE_PATH=$candidate
+            break
+        fi
+    done < <(find "$profile_directory" -maxdepth 1 -type f -print0)
+    [[ -n "$WIFI_PROFILE_PATH" ]] && break
+done
+[[ -n "$WIFI_PROFILE_PATH" && -r "$WIFI_PROFILE_PATH" ]] \
+    || fail "the active Wi-Fi profile is not saved on disk; reconnect with nmtui and retry"
+
+printf "The installed system will reuse Wi-Fi connection '%s'.\n" "$WIFI_CONNECTION_NAME"
 
 if [[ -z "$TARGET_DISK" ]]; then
     printf 'Available physical disks:\n'
@@ -199,18 +231,26 @@ mount -o subvol=@nix,compress=zstd,noatime /dev/mapper/cryptroot /mnt/nix
 mount -o subvol=@log,compress=zstd,noatime /dev/mapper/cryptroot /mnt/var/log
 mount "$BOOT_PARTITION" /mnt/boot
 
-mkdir -p /mnt/etc/nixos
-tar \
-    --exclude=.git \
-    --exclude='*/__pycache__' \
-    --exclude='*.pyc' \
-    --exclude=hardware-configuration.nix \
-    --exclude=disk-config.nix \
-    -C "$SCRIPT_DIR" -cf - . \
-    | tar -C /mnt/etc/nixos -xf -
+printf "Cloning %s branch '%s' into %s...\n" \
+    "$REPOSITORY_URL" "$REPOSITORY_BRANCH" "$CONFIG_DIR"
+mkdir -p "$(dirname -- "/mnt$CONFIG_DIR")"
+git clone \
+    --branch "$REPOSITORY_BRANCH" \
+    --single-branch \
+    "$REPOSITORY_URL" \
+    "/mnt$CONFIG_DIR"
+
+target_wifi_profile="/mnt/etc/NetworkManager/system-connections/$(basename -- "$WIFI_PROFILE_PATH")"
+install -D -m 0600 /dev/null "$target_wifi_profile"
+nmcli --offline connection modify \
+    connection.autoconnect yes \
+    connection.permissions "" \
+    < "$WIFI_PROFILE_PATH" \
+    > "$target_wifi_profile"
+chmod 0600 "$target_wifi_profile"
 
 nixos-generate-config --root /mnt --show-hardware-config --no-filesystems \
-    > /mnt/etc/nixos/hardware-configuration.nix
+    > "/mnt$CONFIG_DIR/hardware-configuration.nix"
 
 LUKS_UUID=$(cryptsetup luksUUID "$CRYPT_PARTITION")
 BOOT_UUID=$(blkid -s UUID -o value "$BOOT_PARTITION")
@@ -219,11 +259,11 @@ BOOT_UUID=$(blkid -s UUID -o value "$BOOT_PARTITION")
 sed \
     -e "s|@LUKS_UUID@|$LUKS_UUID|g" \
     -e "s|@BOOT_UUID@|$BOOT_UUID|g" \
-    /mnt/etc/nixos/disk-config.nix.template \
-    > /mnt/etc/nixos/disk-config.nix
+    "/mnt$CONFIG_DIR/disk-config.nix.template" \
+    > "/mnt$CONFIG_DIR/disk-config.nix"
 
-[[ -f /mnt/etc/nixos/flake.lock ]] \
-    || fail "the pinned flake.lock was not copied to the target"
+[[ -f "/mnt$CONFIG_DIR/flake.lock" ]] \
+    || fail "the cloned branch does not contain the pinned flake.lock"
 
 # The live ISO uses RAM-backed writable filesystems. Keep downloads, evaluation
 # caches, and temporary files on the encrypted target so a large desktop closure
@@ -240,13 +280,15 @@ df -h /mnt /mnt/nix /mnt/boot
 printf 'Installing NixOS from the pinned flake...\n'
 nixos-install \
     --root /mnt \
-    --flake /mnt/etc/nixos#laptop \
+    --flake "/mnt$CONFIG_DIR#laptop" \
     --no-channel-copy \
     --no-write-lock-file \
     --no-root-passwd
 
 printf '%s:%s\n' "$USER_NAME" "$USER_PASSWORD" \
     | nixos-enter --root /mnt -c 'chpasswd'
+nixos-enter --root /mnt -c "chown $USER_NAME:users '/home/$USER_NAME'"
+nixos-enter --root /mnt -c "chown -R $USER_NAME:users '$CONFIG_DIR'"
 
 clear_secrets
 rm -rf "$XDG_CACHE_HOME" "$TMPDIR"
@@ -257,7 +299,7 @@ cryptsetup close cryptroot
 CRYPTROOT_OPEN=0
 
 printf '\nInstallation complete. Host: %s, user: %s.\n' "$HOST_NAME" "$USER_NAME"
-printf 'After the first desktop starts, run /etc/nixos/post-install.sh as %s.\n' "$USER_NAME"
+printf 'After the first desktop starts, run %s/post-install.sh as %s.\n' "$CONFIG_DIR" "$USER_NAME"
 if [[ $REBOOT_AFTER_INSTALL -eq 1 ]]; then
     printf 'Rebooting into the encrypted installation...\n'
     systemctl reboot

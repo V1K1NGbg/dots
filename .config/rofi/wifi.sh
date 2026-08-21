@@ -29,7 +29,9 @@ get_wifi_status() {
 }
 
 get_internet_status() {
-    if ping -c 1 -W 2 1.1.1.1 &>/dev/null; then
+    # Use NetworkManager's cached state. A synchronous ping made this menu take
+    # up to two seconds to appear whenever the network was unavailable.
+    if [[ $(nmcli -t -f CONNECTIVITY general) == "full" ]]; then
         echo "🌐 Internet: Connected"
     else
         echo "🌐 Internet: Disconnected"

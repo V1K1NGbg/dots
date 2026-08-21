@@ -3,49 +3,20 @@
   "position": "top",
   "height": 30,
   "spacing": 6,
-  "modules-left": ["hyprland/workspaces"],
+  "on-sigusr1": "toggle",
+  "modules-left": [],
   "modules-center": ["clock"],
-  "modules-right": ["idle_inhibitor", "pulseaudio", "network", "cpu", "memory", "battery", "tray"],
-  "hyprland/workspaces": {
-    "disable-scroll": true,
-    "all-outputs": true
-  },
+  "modules-right": ["tray", "battery"],
   "clock": {
     "format": "{:%Y-%m-%d  %H:%M}"
-  },
-  "idle_inhibitor": {
-    "format": "{icon}",
-    "format-icons": {
-      "activated": "󰈈",
-      "deactivated": "󰈉"
-    }
-  },
-  "pulseaudio": {
-    "format": "{icon} {volume}%",
-    "format-muted": "󰝟 muted",
-    "format-icons": ["󰕿", "󰖀", "󰕾"],
-    "on-click": "pavucontrol"
-  },
-  "network": {
-    "format-wifi": "󰖩 {essid}",
-    "format-ethernet": "󰈀 {ipaddr}",
-    "format-disconnected": "󰖪 offline",
-    "tooltip-format": "{ifname}: {ipaddr}/{cidr}"
-  },
-  "cpu": {
-    "format": "CPU {usage}%"
-  },
-  "memory": {
-    "format": "RAM {percentage}%"
   },
   "battery": {
     "states": {
       "warning": 30,
       "critical": 15
     },
-    "format": "{icon} {capacity}%",
-    "format-charging": "󰂄 {capacity}%",
-    "format-icons": ["󰁺", "󰁼", "󰁾", "󰂀", "󰁹"]
+    "format": "{capacity}%",
+    "format-charging": "{capacity}%"
   },
   "tray": {
     "spacing": 8

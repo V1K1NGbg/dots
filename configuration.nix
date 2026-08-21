@@ -69,7 +69,9 @@ in
       verbose = false;
     };
     kernelParams = [
-      "amdgpu.dcdebugmask=0x10"
+      # Disable PSR and the broken firmware-provided brightness curve. The
+      # latter otherwise wraps the top two brightness steps back to dim.
+      "amdgpu.dcdebugmask=0x40010"
       "quiet"
       "splash"
       "rd.udev.log_level=3"
@@ -95,7 +97,7 @@ in
   };
 
   networking = {
-    hostName = "viking";
+    hostName = "nixfwbtw";
     nameservers = [ "1.1.1.1" ];
     networkmanager = {
       enable = true;
