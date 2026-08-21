@@ -9,6 +9,8 @@ TARGET_DISK=""
 REBOOT_AFTER_INSTALL=1
 LUKS_PASSWORD=""
 USER_PASSWORD=""
+INSTALL_MOUNTS_ACTIVE=0
+CRYPTROOT_OPEN=0
 
 usage() {
     cat <<'EOF'
@@ -62,6 +64,19 @@ on_exit() {
         df -h / /nix /nix/.rw-store /mnt /mnt/nix /mnt/boot 2>/dev/null >&2 || true
         printf '\nInode capacity at failure:\n' >&2
         df -i / /nix /nix/.rw-store /mnt /mnt/nix /mnt/boot 2>/dev/null >&2 || true
+
+        if [[ $INSTALL_MOUNTS_ACTIVE -eq 1 ]]; then
+            printf '\nUnmounting the incomplete target installation...\n' >&2
+            if umount -R /mnt; then
+                INSTALL_MOUNTS_ACTIVE=0
+            else
+                printf 'WARNING: /mnt is busy; leave /mnt and run: sudo umount -R /mnt\n' >&2
+            fi
+        fi
+        if [[ $CRYPTROOT_OPEN -eq 1 && $INSTALL_MOUNTS_ACTIVE -eq 0 ]]; then
+            cryptsetup close cryptroot \
+                || printf 'WARNING: run: sudo cryptsetup close cryptroot\n' >&2
+        fi
     fi
 
     return "$status"
@@ -150,15 +165,19 @@ printf '%s' "$LUKS_PASSWORD" \
     | cryptsetup luksFormat --batch-mode --type luks2 --label NIXCRYPT --key-file - "$CRYPT_PARTITION"
 printf '%s' "$LUKS_PASSWORD" \
     | cryptsetup open --key-file - "$CRYPT_PARTITION" cryptroot
+CRYPTROOT_OPEN=1
 mkfs.btrfs -f -L NIXROOT /dev/mapper/cryptroot
 
 mount /dev/mapper/cryptroot /mnt
+INSTALL_MOUNTS_ACTIVE=1
 for subvolume in @ @home @nix @log; do
     btrfs subvolume create "/mnt/$subvolume"
 done
 umount /mnt
+INSTALL_MOUNTS_ACTIVE=0
 
 mount -o subvol=@,compress=zstd,noatime /dev/mapper/cryptroot /mnt
+INSTALL_MOUNTS_ACTIVE=1
 mkdir -p /mnt/boot /mnt/home /mnt/nix /mnt/var/log
 mount -o subvol=@home,compress=zstd,noatime /dev/mapper/cryptroot /mnt/home
 mount -o subvol=@nix,compress=zstd,noatime /dev/mapper/cryptroot /mnt/nix
@@ -218,7 +237,9 @@ clear_secrets
 rm -rf "$XDG_CACHE_HOME" "$TMPDIR"
 sync
 umount -R /mnt
+INSTALL_MOUNTS_ACTIVE=0
 cryptsetup close cryptroot
+CRYPTROOT_OPEN=0
 
 printf '\nInstallation complete. Host: %s, user: %s.\n' "$HOST_NAME" "$USER_NAME"
 printf 'After the first desktop starts, run /etc/nixos/post-install.sh as %s.\n' "$USER_NAME"

@@ -39,8 +39,9 @@ installer uses the committed lock file unchanged and places `TMPDIR` and
 
 If an installation still fails, the script automatically prints block and inode
 usage for the live root, live Nix overlay, encrypted target, Nix subvolume, and
-EFI partition. Preserve that final diagnostic output; it identifies which
-filesystem actually filled up.
+EFI partition, then unmounts the incomplete target and closes `cryptroot` when
+possible. Preserve that final diagnostic output; it identifies which filesystem
+actually filled up.
 
 ## Login and security flow
 
