@@ -43,6 +43,13 @@ EFI partition, then unmounts the incomplete target and closes `cryptroot` when
 possible. Preserve that final diagnostic output; it identifies which filesystem
 actually filled up.
 
+If `parted` says it wrote the partition table but could not inform the kernel,
+the old target is still mounted or has an open device-mapper holder. Reboot the
+live USB, make sure the target is not opened by a file manager, and retry with
+the latest script. The installer now refuses to repartition a disk with an
+active `cryptroot`, mounted descendant, swap partition, or mapped descendant and
+prints the relevant `lsblk` device tree instead.
+
 ## Login and security flow
 
 At boot, Plymouth shows the `hexagon_hud` theme while the initrd asks for the

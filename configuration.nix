@@ -25,6 +25,13 @@ let
     mkdir -p "$out/share/plymouth/themes/hexagon_hud"
     cp -R ${inputs.plymouth-themes}/pack_2/hexagon_hud/. \
       "$out/share/plymouth/themes/hexagon_hud/"
+
+    # The upstream Arch-oriented metadata uses /usr/share. Point it at the
+    # package so the NixOS Plymouth module can rewrite it for the initrd.
+    substituteInPlace \
+      "$out/share/plymouth/themes/hexagon_hud/hexagon_hud.plymouth" \
+      --replace-fail "/usr/share/plymouth/themes/hexagon_hud" \
+        "$out/share/plymouth/themes/hexagon_hud"
   '';
 
   sddmTheme = pkgs.stdenvNoCC.mkDerivation {
@@ -56,7 +63,11 @@ in
   };
 
   boot = {
-    initrd.systemd.enable = true;
+    initrd = {
+      kernelModules = [ "amdgpu" ];
+      systemd.enable = true;
+      verbose = false;
+    };
     kernelParams = [
       "amdgpu.dcdebugmask=0x10"
       "quiet"
@@ -66,8 +77,6 @@ in
       "systemd.show_status=auto"
     ];
     consoleLogLevel = 3;
-    initrd.verbose = false;
-
     loader = {
       efi.canTouchEfiVariables = true;
       systemd-boot = {

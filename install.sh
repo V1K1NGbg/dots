@@ -139,6 +139,21 @@ mounted_paths=$(lsblk -nrpo MOUNTPOINT "$TARGET_DISK" | sed '/^$/d')
 [[ -z "$mounted_paths" ]] \
     || fail "the target disk has mounted filesystems; unmount them first: $mounted_paths"
 
+if [[ -e /dev/mapper/cryptroot ]]; then
+    printf 'Current target device tree:\n' >&2
+    lsblk -o NAME,PATH,SIZE,TYPE,FSTYPE,MOUNTPOINTS "$TARGET_DISK" >&2
+    fail "cryptroot is still open; reboot the live USB or close it before retrying"
+fi
+
+active_holders=$(
+    lsblk -nrpo NAME,TYPE,MOUNTPOINTS "$TARGET_DISK" \
+        | awk 'NR > 1 && ($2 != "part" || NF > 2)'
+)
+if [[ -n "$active_holders" ]]; then
+    printf 'Active target descendants:\n%s\n' "$active_holders" >&2
+    fail "the kernel is still using the target disk; reboot the live USB before retrying"
+fi
+
 printf '\nALL DATA ON %s WILL BE DESTROYED.\n' "$TARGET_DISK"
 read -r -p "Type ERASE to continue: " confirmation
 [[ "$confirmation" == "ERASE" ]] || fail "confirmation did not match"
