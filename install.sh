@@ -140,8 +140,8 @@ mounted_paths=$(lsblk -nrpo MOUNTPOINT "$TARGET_DISK" | sed '/^$/d')
     || fail "the target disk has mounted filesystems; unmount them first: $mounted_paths"
 
 printf '\nALL DATA ON %s WILL BE DESTROYED.\n' "$TARGET_DISK"
-read -r -p "Type ERASE $TARGET_DISK to continue: " confirmation
-[[ "$confirmation" == "ERASE $TARGET_DISK" ]] || fail "confirmation did not match"
+read -r -p "Type ERASE to continue: " confirmation
+[[ "$confirmation" == "ERASE" ]] || fail "confirmation did not match"
 
 prompt_password "LUKS disk passphrase" LUKS_PASSWORD
 prompt_password "Password for $USER_NAME" USER_PASSWORD
