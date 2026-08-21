@@ -52,7 +52,21 @@ clear_secrets() {
     LUKS_PASSWORD=""
     USER_PASSWORD=""
 }
-trap clear_secrets EXIT
+
+on_exit() {
+    local status=$?
+
+    clear_secrets
+    if [[ $status -ne 0 ]]; then
+        printf '\nInstallation failed. Filesystem capacity at failure:\n' >&2
+        df -h / /nix /nix/.rw-store /mnt /mnt/nix /mnt/boot 2>/dev/null >&2 || true
+        printf '\nInode capacity at failure:\n' >&2
+        df -i / /nix /nix/.rw-store /mnt /mnt/nix /mnt/boot 2>/dev/null >&2 || true
+    fi
+
+    return "$status"
+}
+trap on_exit EXIT
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -82,7 +96,7 @@ done
 
 required_commands=(
     awk blkid btrfs cryptsetup curl grep lsblk mkfs.btrfs mkfs.fat
-    mount nix nixos-enter nixos-generate-config nixos-install parted
+    df mount nix nixos-enter nixos-generate-config nixos-install parted
     partprobe sed tar udevadm umount
 )
 for command_name in "${required_commands[@]}"; do
@@ -174,18 +188,34 @@ sed \
     /mnt/etc/nixos/disk-config.nix.template \
     > /mnt/etc/nixos/disk-config.nix
 
-printf 'Locking flake inputs and installing NixOS...\n'
-nix --extra-experimental-features 'nix-command flakes' \
-    flake lock /mnt/etc/nixos
+[[ -f /mnt/etc/nixos/flake.lock ]] \
+    || fail "the pinned flake.lock was not copied to the target"
+
+# The live ISO uses RAM-backed writable filesystems. Keep downloads, evaluation
+# caches, and temporary files on the encrypted target so a large desktop closure
+# cannot exhaust the live environment before nixos-install reaches its target
+# store. The committed lock file is used unchanged for reproducibility.
+export XDG_CACHE_HOME=/mnt/nix/.installer-cache
+export TMPDIR=/mnt/nix/.installer-tmp
+mkdir -p "$XDG_CACHE_HOME" "$TMPDIR"
+chmod 0700 "$XDG_CACHE_HOME"
+chmod 1777 "$TMPDIR"
+
+printf 'Target capacity before installation:\n'
+df -h /mnt /mnt/nix /mnt/boot
+printf 'Installing NixOS from the pinned flake...\n'
 nixos-install \
     --root /mnt \
     --flake /mnt/etc/nixos#laptop \
+    --no-channel-copy \
+    --no-write-lock-file \
     --no-root-passwd
 
 printf '%s:%s\n' "$USER_NAME" "$USER_PASSWORD" \
     | nixos-enter --root /mnt -c 'chpasswd'
 
 clear_secrets
+rm -rf "$XDG_CACHE_HOME" "$TMPDIR"
 sync
 umount -R /mnt
 cryptsetup close cryptroot

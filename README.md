@@ -23,8 +23,24 @@ testing. The installer asks only for:
 Everything on the selected disk is erased. The script creates a 1 GiB EFI
 partition and a LUKS2-encrypted Btrfs partition with separate `@`, `@home`,
 `@nix`, and `@log` subvolumes. It generates hardware configuration, locks all
-flake inputs, installs the system, sets the user password without putting it in
-the Nix store, unmounts the disk, and reboots.
+flake inputs to the repository's existing `flake.lock`, installs the system,
+sets the user password without putting it in the Nix store, unmounts the disk,
+and reboots. Nix evaluation caches and temporary downloads are placed on the
+encrypted target during installation instead of the live USB's RAM-backed
+writable filesystem.
+
+### Live USB reports no space left
+
+Use the latest `install.sh` and restart the installation. An older version
+re-ran `nix flake lock` in the live environment, which could exhaust its small
+writable overlay while evaluating a large desktop configuration. The current
+installer uses the committed lock file unchanged and places `TMPDIR` and
+`XDG_CACHE_HOME` under `/mnt/nix`.
+
+If an installation still fails, the script automatically prints block and inode
+usage for the live root, live Nix overlay, encrypted target, Nix subvolume, and
+EFI partition. Preserve that final diagnostic output; it identifies which
+filesystem actually filled up.
 
 ## Login and security flow
 
