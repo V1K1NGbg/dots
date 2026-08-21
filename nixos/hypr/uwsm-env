@@ -1,4 +1,0 @@
-# Loaded by UWSM for the Hyprland session only. Do not put these in the global
-# Environment shared by Hyprland and its XWayland applications.
-export NIXOS_OZONE_WL=1
-export MOZ_ENABLE_WAYLAND=1

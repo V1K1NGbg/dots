@@ -1,0 +1,106 @@
+# Package audit against nixos-unstable on 2026-08-20.
+# Format: original | status | NixOS / Wayland choices
+# "selected" identifies what packages.nix currently uses. Edit packages.nix after choosing.
+# Additional dependencies referenced by the checked-in configs are installed in
+# packages.nix: black, clang-tools, go, gopls, nodejs, poppler-utils, prettier,
+# pyright, python3, rust-analyzer, rustfmt, and typescript-language-server.
+
+acpi | available | selected: acpi; alternatives: upower
+alacritty | available, native Wayland | selected: alacritty; alternatives: foot, kitty
+alsa-utils | available, low-level audio tools | selected: alsa-utils + PipeWire wpctl; alternative: wireplumber tools only
+ani-cli | available | selected: ani-cli; alternatives: use a browser; lobster-git is unavailable
+arandr | available but X11-only | selected: nwg-displays; alternatives: wdisplays, kanshi (automatic profiles)
+aspell | available | selected: aspellWithDicts; alternative: hunspell
+aspell-en | Arch name unavailable | selected: aspellDicts.en; alternatives: hunspellDicts.en_US, hunspellDicts.en_GB-ise
+autorandr | available but X11-only | selected: nwg-displays (Hyprland 0.55+ Lua output); alternatives: Hyprland monitor rules, shikane, kanshi on wlroots compositors
+baobab | available, native Wayland GTK | selected: baobab; alternatives: ncdu, gdu
+bash-completion | available | selected: bash-completion; alternative: carapace
+blueman | available, native Wayland GTK | selected: blueman; alternative: bluetoothctl
+bluez | available | selected: bluez; alternative: NixOS hardware.bluetooth module (also enabled)
+bluez-utils | Arch split-package name unavailable | selected: bluez (contains bluetoothctl); alternative: blueman
+bulky | available, native Wayland GTK | selected: bulky; alternatives: mmv, qmv
+capitaine-cursors | available | selected: capitaine-cursors; alternative: bibata-cursors
+copyq | available but Wayland clipboard access is limited | selected: cliphist + wl-clipboard; alternatives: clipman, CopyQ through Xwayland
+cowsay | available | selected: cowsay; alternative: ponysay
+cpupower-gui-git | AUR suffix unavailable | selected: cpupower-gui; alternatives: auto-cpufreq, power-profiles-daemon
+curl | available | selected: curl; alternatives: wget, httpie
+dangerzone-bin | unavailable in current nixos-unstable | selected: none; alternatives: Flatpak org.firstlook.Dangerzone, a disposable VM/container
+discord | available, Wayland through Electron/Ozone | selected: discord; alternatives: vesktop, Discord web
+docker | available but the NixOS service is preferred | selected: virtualisation.docker.enable; alternative: Podman
+docker-compose | available | selected: docker-compose; alternatives: podman-compose, Compose through `docker compose`
+dracut | available but NixOS builds initrds declaratively and does not need it | selected: NixOS boot.initrd; alternative: dracut only for external image work
+fastfetch | available | selected: fastfetch; alternatives: macchina, hyfetch
+fd | available | selected: fd; alternative: findutils
+firefox | available, native Wayland | selected: Firefox with MOZ_ENABLE_WAYLAND; alternatives: Chromium, LibreWolf
+flameshot | available but Wayland capture is compositor/portal-sensitive | selected: grim + slurp + swappy; alternatives: flameshot, wayshot
+fprintdgimp | AUR-only and unavailable | selected: fprintd with post-install enrollment; alternatives: fprintd-tod plus the hardware-matching libfprint TOD driver
+git | available | selected: git; alternative: jujutsu with Git interoperability
+github-cli | available | selected: github-cli with `post-install.sh` authentication; alternatives: hub, browser
+glava | available but X11-oriented | selected: cava; alternatives: projectM, glava through Xwayland
+gnome-disk-utility | available, native Wayland GTK | selected: gnome-disk-utility; alternative: kdePackages.partitionmanager
+highlight | available | selected: highlight; alternatives: bat, pygmentize
+htop | available | selected: htop; alternatives: btop, bottom
+i3lock-color | available but X11-only | selected: hyprlock with password + parallel fingerprint; alternatives: gtklock, swaylock
+imgcat | available | selected: imgcat; alternatives: chafa, kitty icat
+jdk21-openjdk | Arch name unavailable | selected: jdk21; alternatives: temurin-bin-21, graalvm-ce
+jdk8-openjdk | Arch name unavailable | selected: jdk8; alternatives: temurin-bin-8, a per-project Nix shell
+keepassxc | available, native Wayland Qt | selected: keepassxc; alternatives: bitwarden-desktop, rbw
+lazygit | available | selected: lazygit; alternative: gitui
+less | available | selected: less; alternative: most
+libconfig | available development library | selected: libconfig; alternative: add it only to project buildInputs
+llama-cpp | available | selected: llama-cpp; alternatives: ollama, koboldcpp
+lobster-git | the AUR movie/anime CLI is unavailable; NixOS `lobster` is a different language | selected: ani-cli; alternatives: browser, package the upstream script locally
+localsend | available, native Wayland | selected: localsend; alternatives: kdeconnect-kde, croc
+lolcat | available | selected: lolcat; alternative: toilet with color filters
+man-db | available | selected: man-db; alternative: tealdeer for short examples
+man-pages | available | selected: man-pages; alternative: man-pages-posix
+meld | available, native Wayland GTK | selected: meld; alternatives: kdiff3, diffuse
+nano | available | selected: nano; alternatives: micro, vim
+nemo | available, native Wayland GTK | selected: nemo-with-extensions; alternatives: nautilus, thunar
+nemo-compare | unavailable in current nixos-unstable | selected: Meld via Open With; alternatives: custom Nemo action, package nemo-compare locally
+nemo-fileroller | available | selected: included by nemo-with-extensions; alternative: nemo + file-roller
+network-manager-applet | Arch name unavailable | selected: networkmanagerapplet; alternatives: Rofi wifi script, nmcli
+nmap | available | selected: nmap; alternatives: rustscan, masscan
+noto-fonts | available | selected: noto-fonts; alternative: liberation_ttf
+noto-fonts-cjk | combined name unavailable | selected: noto-fonts-cjk-sans + noto-fonts-cjk-serif; alternative: source-han-sans
+noto-fonts-emoji | old name unavailable | selected: noto-fonts-color-emoji; alternatives: noto-fonts-monochrome-emoji, twemoji-color-font
+noto-fonts-extra | old combined package unavailable | selected: noto-fonts plus the explicit CJK and emoji packages; alternative: install individual Noto families
+nvm | unavailable/ill-suited to immutable Nix profiles | selected: fnm; alternatives: mise, per-project devShells
+nvtop | top-level name unavailable | selected: nvtopPackages.amd; alternatives: nvtopPackages.full, radeontop
+opencode | available | selected: opencode; alternative: none required
+pasystray | available but X11/XEmbed-oriented | selected: Waybar pulseaudio module + pavucontrol; alternatives: pwvucontrol, pasystray through Xwayland
+pavucontrol | available, native Wayland GTK | selected: pavucontrol; alternative: pwvucontrol
+pcloud-drive | Arch name unavailable | selected: pcloud with GUI setup launched by `post-install.sh`; alternatives: rclone, pCloud web
+playerctl | available, desktop-protocol based | selected: playerctl; alternative: direct MPRIS D-Bus calls
+plymouth | available but configured as a NixOS module | selected: boot.plymouth.enable; alternative: none
+plymouth-theme-hexagon-hud-git | AUR package unavailable | selected: pinned adi1090x/plymouth-themes flake source; alternatives: built-in Plymouth bgrt, spinner
+prismlauncher | available, native Wayland Qt | selected: prismlauncher; alternatives: ATLauncher, GDLauncher-Carbon
+qt6-svg | Arch library name unavailable | selected: qt6.qtsvg only when an app explicitly needs it; alternative: let Nix package dependencies provide it
+ranger | available, terminal-native | selected: ranger; alternatives: yazi, lf
+redshift | available but X11-oriented | selected: hyprsunset; alternatives: gammastep, wlsunset, compositor output color management
+rofi | available with Wayland enabled by default in NixOS 2.0 | selected: rofi; alternatives: fuzzel, wofi
+rofi-calc | available plugin | selected: rofi.override with rofi-calc; alternatives: qalculate-gtk, libqalculate CLI
+ruby-fusuma | available but its automation path targets X11 | selected: native Hyprland gestures; alternatives: libinput-gestures + wtype/ydotool
+ruby-fusuma-plugin-sendkey | unavailable and X11-oriented | selected: native Hyprland bindings; alternatives: wtype for text/keys, ydotool for generic input
+sof-firmware | available but should be loaded through firmware configuration | selected: hardware.firmware + enableRedistributableFirmware; alternative: linux-firmware
+spotify-launcher | unavailable in current nixos-unstable | selected: spotify; alternatives: spotify-player, ncspot
+steam | available but the NixOS module sets required drivers/wrappers | selected: programs.steam.enable; alternative: Steam Flatpak
+tmux | available, terminal-native | selected: tmux; alternative: zellij
+tree | available | selected: tree; alternatives: eza --tree, broot
+unclutter | available but X11-only | selected: Hyprland `cursor.inactive_timeout`; alternative: compositor-specific cursor timeout
+unzip | available | selected: unzip; alternative: 7zz
+usbimager | available, Qt Wayland via QT_QPA_PLATFORM | selected: usbimager; alternatives: impression, gnome-disk-utility image writer
+uthash | available header-only development package | selected: uthash; alternative: add it only to project buildInputs
+vim | available, terminal-native | selected: vim; alternatives: neovim, helix
+visual-studio-code-bin | Arch name unavailable | selected: vscode; alternatives: vscodium, code-cursor
+vlc | available, native Wayland Qt where supported | selected: vlc; alternatives: mpv, celluloid
+vtop | unavailable in current nixos-unstable | selected: btop; alternatives: bottom, glances
+vulkan-radeon | Arch driver package; not a NixOS package | selected: hardware.graphics (Mesa RADV); alternatives: amdvlk, Mesa RADV remains recommended
+vulkan-tools | available | selected: vulkan-tools; alternative: mangohud for in-game inspection
+wget | available | selected: wget; alternative: curl
+xdotool | available but X11-only | selected: wtype for Wayland keys/text + ydotool for generic automation; alternative: Hyprland IPC
+xorg-xev | X11 package namespace / X11-only | selected: wev; alternative: libinput debug-events
+xorg-xinput | X11 package namespace / X11-only | selected: libinput; alternatives: Hyprland `hyprctl devices`, wev
+xorg-xset | X11 package namespace / X11-only | selected: Hyprland input/output settings + brightnessctl; alternatives: hyprctl, nwg-displays
+xss-lock | available but X11-only | selected: hypridle + hyprlock; alternative: gtklock with a Wayland idle daemon
+zip | available | selected: zip; alternative: 7zz

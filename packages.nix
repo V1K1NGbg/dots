@@ -1,0 +1,116 @@
+{ pkgs, ... }:
+
+let
+  rofiWithPlugins = pkgs.rofi.override {
+    plugins = [ pkgs.rofi-calc ];
+  };
+in
+{
+  environment.systemPackages =
+    (with pkgs; [
+      acpi
+      alacritty
+      alsa-utils
+      ani-cli
+      (aspellWithDicts (dicts: [ dicts.en ]))
+      baobab
+      bash-completion
+      black
+      blueman
+      bluez
+      btop
+      brightnessctl
+      bulky
+      capitaine-cursors
+      cava
+      cliphist
+      clang-tools
+      cowsay
+      cpupower-gui
+      curl
+      discord
+      docker-compose
+      fastfetch
+      fd
+      firefox
+      fprintd
+      fnm
+      git
+      github-cli
+      gnome-disk-utility
+      go
+      gopls
+      grim
+      highlight
+      htop
+      hypridle
+      hyprlock
+      hyprpolkitagent
+      hyprsunset
+      imgcat
+      jdk21
+      jdk8
+      keepassxc
+      lazygit
+      less
+      libconfig
+      libinput
+      libqalculate
+      llama-cpp
+      localsend
+      lolcat
+      mako
+      man-db
+      man-pages
+      meld
+      nano
+      nemo-with-extensions
+      networkmanagerapplet
+      nmap
+      nvtopPackages.amd
+      nwg-displays
+      nwg-look
+      opencode
+      papirus-icon-theme
+      pavucontrol
+      pcloud
+      playerctl
+      poppler-utils
+      prettier
+      prismlauncher
+      pyright
+      python3
+      qalculate-gtk
+      ranger
+      rust-analyzer
+      rustfmt
+      slurp
+      spotify
+      swappy
+      tmux
+      tree
+      typescript-language-server
+      unzip
+      usbimager
+      uthash
+      vim
+      vlc
+      vscode
+      vulkan-tools
+      waybar
+      wev
+      wget
+      wireplumber
+      wl-clipboard
+      wtype
+      ydotool
+      zip
+      nodejs
+
+      adw-gtk3
+      kdePackages.qt6ct
+      libsForQt5.qt5ct
+      xdg-utils
+    ])
+    ++ [ rofiWithPlugins ];
+}

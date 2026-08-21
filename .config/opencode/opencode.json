@@ -76,7 +76,7 @@
   },
   "formatter": {
     "prettier": {
-      "command": ["npx", "prettier", "--write", "$FILE"],
+      "command": ["prettier", "--write", "$FILE"],
       "extensions": [
         ".js",
         ".ts",
@@ -94,7 +94,7 @@
       ]
     },
     "black": {
-      "command": ["python3", "-m", "black", "$FILE"],
+      "command": ["black", "$FILE"],
       "extensions": [".py"]
     },
     "clang-format": {

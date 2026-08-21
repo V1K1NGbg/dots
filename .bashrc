@@ -1,31 +1,22 @@
-# #FOR AUTO COMPLETE: (!OH MY BASH SUPPORTS IT OUT OF THE BOX && RESTART TERMINAL!)
-# echo 'set completion-ignore-case On' | sudo tee -a /etc/inputrc
-
-# #FOR CTRL+BCKSPACE to delete last word:
-# echo '"\C-H":"\C-W"' | sudo tee -a /etc/inputrc
-
+export OSH="$HOME/.oh-my-bash"
 OSH_THEME="agnoster"
 DISABLE_AUTO_UPDATE="true"
 #ENABLE_CORRECTION="true"
 COMPLETION_WAITING_DOTS="true"
 
-if [[ -n ${OSH:-} && -r ${OSH}/oh-my-bash.sh ]]; then
-  source "${OSH}/oh-my-bash.sh"
-elif [[ -r ${HOME}/.oh-my-bash/oh-my-bash.sh ]]; then
-  source "${HOME}/.oh-my-bash/oh-my-bash.sh"
+if [[ -r "$OSH/oh-my-bash.sh" ]]; then
+  source "$OSH/oh-my-bash.sh"
 fi
 
-if command -v cowsay >/dev/null 2>&1 && command -v lolcat >/dev/null 2>&1; then
-  echo "UwU" | cowsay -f tux | lolcat --spread=0.5
-fi
+echo "UwU" | cowsay -f tux | lolcat --spread=0.5
 
 alias clear="clear && source ~/.bashrc"
 alias notes="code -n ~/pCloudDrive/0Notes.md"
-alias config="code -n ~/dots"
-alias shutdown="shutdown now"
+alias config="code -n /etc/nixos"
+alias shutdown="systemctl poweroff"
 
 alias lgit="lazygit"
-alias mov-cli="lobster"
+alias mov-cli="ani-cli"
 
 hgrep() {
   history | awk '{$1=""; sub(/^[ \t]+/, ""); print}' | grep "$1" --color=always -B "${2:-0}" -A "${3:-0}"

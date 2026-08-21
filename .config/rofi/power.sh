@@ -1,17 +1,19 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Power management functions
 get_uptime() {
-    local uptime_info=$(uptime -p)
+    local uptime_info
+    uptime_info=$(uptime -p)
     echo "⏰ $uptime_info"
 }
 
 get_battery_status() {
-    # Check if we have a battery
-    if [[ -d /sys/class/power_supply/BAT1 ]]; then
-        local capacity=$(cat "/sys/class/power_supply/BAT1/capacity" 2>/dev/null)
-        local status=$(cat "/sys/class/power_supply/BAT1/status" 2>/dev/null)
-        
+    local battery capacity status
+    for battery in /sys/class/power_supply/BAT*; do
+        [[ -d "$battery" ]] || continue
+        capacity=$(<"$battery/capacity")
+        status=$(<"$battery/status")
+
         if [[ -n "$capacity" && -n "$status" ]]; then
             local icon="🔋"
             case "$status" in
@@ -26,14 +28,15 @@ get_battery_status() {
                     ;;
             esac
             echo "$icon Battery: ${capacity}% ($status)"
+            return
         fi
-    fi
+    done
 }
 
 # If no arguments, show the menu
 if [[ $# -eq 0 ]]; then
-    echo "$(get_uptime)"
-    echo "$(get_battery_status)"
+    get_uptime
+    get_battery_status
     echo "---"
     echo "🔒 Lock Screen"
     echo "⏻  Shutdown"
@@ -46,15 +49,13 @@ fi
 case "$1" in
     "🔒 Lock Screen")
         pkill rofi
-        sleep 0.1
-        ~/i3lock.sh &
-        exit 0
+        exec hyprlock
         ;;
     "⏻  Shutdown")
-        exec shutdown now
+        exec systemctl poweroff
         ;;
     "🔄 Restart")
-        exec reboot
+        exec systemctl reboot
         ;;
     *)
         exit 0

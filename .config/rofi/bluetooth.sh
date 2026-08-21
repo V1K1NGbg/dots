@@ -1,14 +1,15 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Check if bluetoothctl is available
 if ! command -v bluetoothctl &> /dev/null; then
-    echo "bluetoothctl is not installed. Please install bluez-utils"
+    echo "bluetoothctl is not installed. Please install the NixOS bluez package"
     exit 1
 fi
 
 # Bluetooth status functions
 get_bluetooth_status() {
-    local bt_status=$(bluetoothctl show | grep "Powered" | awk '{print $2}')
+    local bt_status
+    bt_status=$(bluetoothctl show | awk '/Powered/ {print $2; exit}')
     
     if [[ "$bt_status" == "yes" ]]; then
         echo "🔵 Bluetooth: Enabled"
@@ -18,13 +19,14 @@ get_bluetooth_status() {
 }
 
 get_connected_devices() {
-    local connected_devices=$(bluetoothctl devices Connected)
-    local connected_count=$(bluetoothctl devices Connected | wc -l)
+    local connected_devices connected_count device_names
+    connected_devices=$(bluetoothctl devices Connected)
+    connected_count=$(grep -c '^Device ' <<<"$connected_devices")
     
     if [[ $connected_count -gt 0 ]]; then
-        local device_names=$(echo "$connected_devices" | while read -r line; do
+        device_names=$(while read -r line; do
             echo "$line" | cut -d' ' -f3-
-        done | tr '\n' ', ' | sed 's/, *$//')
+        done <<<"$connected_devices" | paste -sd, - | sed 's/,/, /g')
         echo "📱 Connected devices: $connected_count [$device_names]"
     else
         echo "📱 No devices connected"
@@ -35,12 +37,12 @@ get_paired_devices() {
     echo "⬅️ Back"
     echo "---"
     bluetoothctl devices Paired | while read -r line; do
-        local mac=$(echo "$line" | awk '{print $2}')
-        local name=$(echo "$line" | cut -d' ' -f3-)
-        
+        local mac name
+        mac=$(awk '{print $2}' <<<"$line")
+        name=$(cut -d' ' -f3- <<<"$line")
+
         # Check if device is connected
-        local connected=$(bluetoothctl info "$mac" | grep "Connected: yes")
-        if [[ -n "$connected" ]]; then
+        if bluetoothctl info "$mac" | grep -q "Connected: yes"; then
             echo "🔗 $name (Connected)"
         else
             echo "📲 $name (Paired)"
@@ -50,8 +52,8 @@ get_paired_devices() {
 
 # If no arguments, show the menu
 if [[ $# -eq 0 ]]; then
-    echo "$(get_bluetooth_status)"
-    echo "$(get_connected_devices)"
+    get_bluetooth_status
+    get_connected_devices
     echo "---"
     
     # Bluetooth control options
@@ -83,20 +85,20 @@ case "$1" in
         ;;
     🔗*)
         # Disconnect a connected device
-        device_line=$(echo "$1" | sed 's/🔗 //')
-        device_name=$(echo "$device_line" | sed 's/ (Connected)//')
+        device_line=${1#🔗 }
+        device_name=${device_line% (Connected)}
         # Find MAC address by name
-        mac=$(bluetoothctl devices Paired | grep "$device_name" | awk '{print $2}')
+        mac=$(bluetoothctl devices Paired | grep -F -- "$device_name" | awk '{print $2}')
         if [[ -n "$mac" ]]; then
             bluetoothctl disconnect "$mac" &>/dev/null
         fi
         ;;
     📲*)
         # Connect to a paired device
-        device_line=$(echo "$1" | sed 's/📲 //')
-        device_name=$(echo "$device_line" | sed 's/ (Paired)//')
+        device_line=${1#📲 }
+        device_name=${device_line% (Paired)}
         # Find MAC address by name
-        mac=$(bluetoothctl devices Paired | grep "$device_name" | awk '{print $2}')
+        mac=$(bluetoothctl devices Paired | grep -F -- "$device_name" | awk '{print $2}')
         if [[ -n "$mac" ]]; then
             bluetoothctl connect "$mac" &>/dev/null
         fi

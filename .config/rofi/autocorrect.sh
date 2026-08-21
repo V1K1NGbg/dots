@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Check if aspell is available
-if ! command -v aspell &> /dev/null; then
+if ! command -v aspell &>/dev/null; then
     echo "aspell is not installed"
     exit 1
 fi
@@ -21,7 +21,7 @@ case "$1" in
         exit 0
         ;;
     "🟢"*)
-        echo -n "$1" | sed "s/🟢 '//" | sed "s/' is correct//" | xsel -b >/dev/null 2>&1
+        printf '%s' "$1" | sed "s/🟢 '//" | sed "s/' is correct//" | wl-copy
         exit 0
         ;;
     "🔴"*)
@@ -34,7 +34,7 @@ case "$1" in
         exit 0
         ;;
     "-"*)
-        echo -n "$1" | sed 's/^- //' | xsel -b >/dev/null 2>&1
+        printf '%s' "$1" | sed 's/^- //' | wl-copy
         exit 0
         ;;
     *)

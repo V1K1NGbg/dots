@@ -1,0 +1,55 @@
+{ ... }:
+
+{
+  boot.initrd.luks.devices.cryptroot = {
+    device = "/dev/disk/by-uuid/@LUKS_UUID@";
+    allowDiscards = false;
+  };
+
+  fileSystems = {
+    "/" = {
+      device = "/dev/mapper/cryptroot";
+      fsType = "btrfs";
+      options = [
+        "subvol=@"
+        "compress=zstd"
+        "noatime"
+      ];
+    };
+    "/home" = {
+      device = "/dev/mapper/cryptroot";
+      fsType = "btrfs";
+      options = [
+        "subvol=@home"
+        "compress=zstd"
+        "noatime"
+      ];
+    };
+    "/nix" = {
+      device = "/dev/mapper/cryptroot";
+      fsType = "btrfs";
+      options = [
+        "subvol=@nix"
+        "compress=zstd"
+        "noatime"
+      ];
+    };
+    "/var/log" = {
+      device = "/dev/mapper/cryptroot";
+      fsType = "btrfs";
+      options = [
+        "subvol=@log"
+        "compress=zstd"
+        "noatime"
+      ];
+    };
+    "/boot" = {
+      device = "/dev/disk/by-uuid/@BOOT_UUID@";
+      fsType = "vfat";
+      options = [
+        "fmask=0022"
+        "dmask=0022"
+      ];
+    };
+  };
+}

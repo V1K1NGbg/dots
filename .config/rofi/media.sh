@@ -1,11 +1,12 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Media control functions
 get_status() {
-    local status=$(playerctl --player=spotify,%any status 2>/dev/null)
-    local player=$(playerctl --player=spotify,%any metadata -f "{{playerName}}" 2>/dev/null)
-    local title=$(playerctl --player=spotify,%any metadata -f "{{title}}" 2>/dev/null)
-    local artist=$(playerctl --player=spotify,%any metadata -f "{{artist}}" 2>/dev/null)
+    local status player title artist
+    status=$(playerctl --player=spotify,%any status 2>/dev/null)
+    player=$(playerctl --player=spotify,%any metadata -f "{{playerName}}" 2>/dev/null)
+    title=$(playerctl --player=spotify,%any metadata -f "{{title}}" 2>/dev/null)
+    artist=$(playerctl --player=spotify,%any metadata -f "{{artist}}" 2>/dev/null)
 
     if [[ -n "$status" && "$status" != "No players found" ]]; then
         if [[ -n "$title" && -n "$artist" ]]; then
@@ -21,7 +22,8 @@ get_status() {
 }
 
 get_volume() {
-    local volume=$(amixer get Master | grep -o '[0-9]*%' | head -n1)
+    local volume
+    volume=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | awk '{printf "%.0f%%", $2 * 100}')
     if [[ -n "$volume" ]]; then
         echo "🔊 Volume: ${volume}"
     else
@@ -31,8 +33,8 @@ get_volume() {
 
 # If no arguments, show the menu
 if [[ $# -eq 0 ]]; then
-    echo "$(get_status)"
-    echo "$(get_volume)"
+    get_status
+    get_volume
     echo "---"
     echo "⏯️  Play/Pause"
     echo "⏭️  Next Track"
@@ -55,13 +57,13 @@ case "$1" in
         playerctl --player=spotify,%any previous
         ;;
     "🔇  Mute/Unmute")
-        amixer -q set Master toggle
+        wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
         ;;
     "🔉  Volume Down (-5%)")
-        amixer -q set Master 5%-
+        wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
         ;;
     "🔊  Volume Up (+5%)")
-        amixer -q set Master 5%+
+        wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+
         ;;
     *)
         # If it's a status line, just exit

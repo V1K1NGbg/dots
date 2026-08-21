@@ -1,0 +1,12 @@
+[SddmGreeterTheme]
+Name=Monocraft
+Description=Minimal Alacritty-palette SDDM theme
+Author=Victor
+License=MIT
+Type=sddm-theme
+Version=1.0
+MainScript=Main.qml
+ConfigFile=theme.conf
+Theme-Id=monocraft
+Theme-API=2.0
+

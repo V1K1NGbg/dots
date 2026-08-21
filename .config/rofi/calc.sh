@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Check if qalc is installed
 if ! command -v qalc &> /dev/null; then

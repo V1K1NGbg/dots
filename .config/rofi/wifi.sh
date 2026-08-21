@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Check if NetworkManager is available
 if ! command -v nmcli &> /dev/null; then
@@ -8,12 +8,13 @@ fi
 
 # WiFi status functions
 get_wifi_status() {
-    local wifi_status=$(nmcli radio wifi)
-    local connection_status=$(nmcli -t -f STATE general)
+    local wifi_status connection_status current_ssid
+    wifi_status=$(nmcli radio wifi)
+    connection_status=$(nmcli -t -f STATE general)
     
     if [[ "$wifi_status" == "enabled" ]]; then
         if [[ "$connection_status" == "connected" ]]; then
-            local current_ssid=$(nmcli -t -f GENERAL.CONNECTION dev show | head -1 | cut -d: -f2)
+            current_ssid=$(nmcli -t -f ACTIVE,SSID dev wifi | awk -F: '$1 == "yes" {sub(/^yes:/, ""); print; exit}')
             if [[ -n "$current_ssid" ]]; then
                 echo "📶 Connected to: $current_ssid"
             else
@@ -28,7 +29,7 @@ get_wifi_status() {
 }
 
 get_internet_status() {
-    if ping -c 1 -W 2 8.8.8.8 &> /dev/null; then
+    if ping -c 1 -W 2 1.1.1.1 &>/dev/null; then
         echo "🌐 Internet: Connected"
     else
         echo "🌐 Internet: Disconnected"
@@ -45,6 +46,7 @@ get_known_networks() {
 }
 
 get_vpns() {
+    local active_vpns
     echo "⬅️ Back"
     echo "---"
     # Get all VPN connections (both active and inactive)
@@ -66,8 +68,8 @@ get_vpns() {
 
 # If no arguments, show the menu
 if [[ $# -eq 0 ]]; then
-    echo "$(get_wifi_status)"
-    echo "$(get_internet_status)"
+    get_wifi_status
+    get_internet_status
     echo "---"
     
     # WiFi control options
@@ -94,8 +96,8 @@ case "$1" in
         ;;
     *"Disconnect")
         # Disconnect from current WiFi
-        current_connection=$(nmcli -t -f NAME,TYPE connection show --active | grep wireless | cut -d: -f1)
-        nmcli connection down "$current_connection" &>/dev/null
+        current_connection=$(nmcli -t -f NAME,TYPE connection show --active | awk -F: '$2 == "802-11-wireless" {print $1; exit}')
+        [[ -n "$current_connection" ]] && nmcli connection down "$current_connection" &>/dev/null
         ;;
     *"VPN Menu")
         get_vpns
@@ -109,13 +111,14 @@ case "$1" in
         ;;
     📡*)
         # Connect to a known network
-        network_name=$(echo "$1" | sed 's/📡 //')
+        network_name=${1#📡 }
         nmcli connection up "$network_name" &>/dev/null
         ;;
     🔒*)
         # Handle VPN connections
-        vpn_line=$(echo "$1" | sed 's/🔒 VPN: //')
-        vpn_name=$(echo "$vpn_line" | sed 's/ (Connected)//' | sed 's/ (Disconnected)//')
+        vpn_line=${1#🔒 VPN: }
+        vpn_name=${vpn_line% (Connected)}
+        vpn_name=${vpn_name% (Disconnected)}
         
         if [[ "$vpn_line" == *"(Connected)"* ]]; then
             # Disconnect VPN
