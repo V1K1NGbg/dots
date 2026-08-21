@@ -66,6 +66,7 @@ hl.config({
     misc = {
         disable_hyprland_logo = true,
         disable_splash_rendering = true,
+        session_lock_xray = true,
         background_color = "rgb(191919)",
         font_family = "Monocraft Nerd Font",
     },
@@ -109,10 +110,9 @@ local mod = "SUPER"
 
 hl.bind(mod .. " + Return", hl.dsp.exec_cmd("alacritty"))
 hl.bind(mod .. " + D", hl.dsp.exec_cmd("rofi -show drun"))
-hl.bind(mod .. " + SHIFT + D", hl.dsp.exec_cmd("~/.config/rofi/menu.sh"))
 hl.bind(mod .. " + B", hl.dsp.exec_cmd("pkill -SIGUSR1 waybar"))
-hl.bind(mod .. " + SHIFT + E", hl.dsp.exec_cmd("~/.config/rofi/menu.sh Power"))
-hl.bind("XF86PowerOff", hl.dsp.exec_cmd("~/.config/rofi/menu.sh Power"))
+hl.bind(mod .. " + SHIFT + E", hl.dsp.exec_cmd("rofi -show power"))
+hl.bind("XF86PowerOff", hl.dsp.exec_cmd("rofi -show power"))
 hl.bind(mod .. " + SHIFT + Q", hl.dsp.window.close())
 hl.bind(mod .. " + SHIFT + C", hl.dsp.exec_cmd("hyprctl reload"))
 

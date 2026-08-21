@@ -48,7 +48,6 @@ in
       ".config/hypr".source = ./.config/hypr;
       ".config/mako".source = ./.config/mako;
       ".config/waybar".source = ./.config/waybar;
-      ".config/Code/User/settings.json".source = ./.config/Code/User/settings.json;
 
       ".config/gtk-3.0/gtk.css".source = ./.config/gtk-3.0/gtk.css;
       ".config/gtk-4.0/gtk.css".source = ./.config/gtk-4.0/gtk.css;

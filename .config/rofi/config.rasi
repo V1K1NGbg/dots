@@ -1,6 +1,5 @@
 configuration {
-    /* Keep startup fast: utility scripts are loaded individually by menu.sh. */
-    modi:                       "drun";
+    modi:                       "drun,calc,clipboard:/home/victor/.config/rofi/clipboard.sh,autocorrector:/home/victor/.config/rofi/autocorrect.sh,media:/home/victor/.config/rofi/media.sh,wifi:/home/victor/.config/rofi/wifi.sh,bluetooth:/home/victor/.config/rofi/bluetooth.sh,power:/home/victor/.config/rofi/power.sh";
     show-icons:                 false;
     display-drun:               "🚀 Apps";
     display-calc:               "🧮 Calculator";

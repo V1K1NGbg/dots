@@ -85,8 +85,8 @@ The system includes:
   profiles, notifications, app launcher, and power-menu integration.
 - `us,bg` keyboard layouts with Bulgarian `bas_phonetic`, switched with
   Super+Space; the physical power button opens the Rofi power mode. Super+D
-  opens the fast desktop-app launcher, Super+Shift+D opens the utility-menu
-  chooser, and Super+B toggles Waybar.
+  opens Rofi with all application and utility modes available from its mode
+  switcher, and Super+B toggles Waybar.
 - A minimal top bar containing only the date/time, tray icons, and battery
   percentage.
 - PipeWire audio, NetworkManager with static `1.1.1.1` DNS, Bluetooth, Steam,
@@ -94,7 +94,7 @@ The system includes:
 - `amdgpu.dcdebugmask=0x40010` (PSR and the broken custom brightness curve are
   disabled), `quiet`, and `splash` kernel parameters.
 - Monocraft Nerd Font 4.0 and the Alacritty palette applied to Hyprland,
-  Hyprlock, SDDM, Waybar, Mako, Rofi, GTK, Qt, VS Code, Vim, and tmux.
+  Hyprlock, SDDM, Waybar, Mako, Rofi, GTK, Qt, Vim, and tmux.
 - Declarative Oh My Bash, Git identity, dotfiles, and Nemo settings.
 - VS Code, Firefox, Alacritty, Discord, and Spotify launched once whenever the
   Hyprland desktop session starts. VS Code, Firefox, Alacritty, Nemo, Discord,

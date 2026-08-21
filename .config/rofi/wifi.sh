@@ -6,35 +6,44 @@ if ! command -v nmcli &> /dev/null; then
     exit 1
 fi
 
-# WiFi status functions
-get_wifi_status() {
-    local wifi_status connection_status current_ssid
-    wifi_status=$(nmcli radio wifi)
-    connection_status=$(nmcli -t -f STATE general)
-    
-    if [[ "$wifi_status" == "enabled" ]]; then
-        if [[ "$connection_status" == "connected" ]]; then
-            current_ssid=$(nmcli -t -f ACTIVE,SSID dev wifi | awk -F: '$1 == "yes" {sub(/^yes:/, ""); print; exit}')
-            if [[ -n "$current_ssid" ]]; then
-                echo "📶 Connected to: $current_ssid"
-            else
-                echo "📶 WiFi enabled, not connected"
-            fi
-        else
-            echo "📶 WiFi enabled, disconnected"
-        fi
-    else
-        echo "📵 WiFi disabled"
-    fi
-}
+# Rofi initializes every configured script mode when it opens. Keep this mode's
+# initial request to one cached device-status query and never trigger a Wi-Fi
+# scan just to populate the mode switcher.
+show_main_menu() {
+    local wifi_row wifi_state connection_name
 
-get_internet_status() {
-    # Use NetworkManager's cached state. A synchronous ping made this menu take
-    # up to two seconds to appear whenever the network was unavailable.
-    if [[ $(nmcli -t -f CONNECTIVITY general) == "full" ]]; then
-        echo "🌐 Internet: Connected"
+    wifi_row=$(
+        nmcli -t -f TYPE,STATE,CONNECTION device status \
+            | awk -F: '$1 == "wifi" || $1 == "802-11-wireless" { print; exit }'
+    )
+
+    if [[ -z "$wifi_row" ]]; then
+        wifi_state="unavailable"
+        connection_name=""
     else
-        echo "🌐 Internet: Disconnected"
+        IFS=: read -r _ wifi_state connection_name <<<"$wifi_row"
+    fi
+
+    case "$wifi_state" in
+        connected)
+            echo "📶 Connected to: $connection_name"
+            ;;
+        disconnected|connecting)
+            echo "📶 WiFi enabled, $wifi_state"
+            ;;
+        *)
+            echo "📵 WiFi disabled"
+            ;;
+    esac
+
+    echo "---"
+    if [[ "$wifi_state" == "unavailable" || "$wifi_state" == "unmanaged" ]]; then
+        echo "📶 Turn WiFi On"
+    else
+        echo "📵 Turn WiFi Off"
+        [[ "$wifi_state" == "connected" ]] && echo "🔄 Disconnect"
+        echo "📡 Known Networks"
+        echo "🔒 VPN Menu"
     fi
 }
 
@@ -42,7 +51,9 @@ get_known_networks() {
     echo "⬅️ Back"
     echo "---"
     # Get saved WiFi connections
-    nmcli -t -f NAME,TYPE connection show | grep wireless | cut -d: -f1 | while read -r network; do
+    nmcli -t -f NAME,TYPE connection show \
+        | awk -F: '$2 == "802-11-wireless" || $2 == "wifi" { print $1 }' \
+        | while read -r network; do
         echo "📡 $network"
     done
 }
@@ -70,21 +81,7 @@ get_vpns() {
 
 # If no arguments, show the menu
 if [[ $# -eq 0 ]]; then
-    get_wifi_status
-    get_internet_status
-    echo "---"
-    
-    # WiFi control options
-    wifi_status=$(nmcli radio wifi)
-    if [[ "$wifi_status" == "enabled" ]]; then
-        echo "📵 Turn WiFi Off"
-        echo "🔄 Disconnect"
-        echo "📡 Known Networks"
-        echo "🔒 VPN Menu"
-    else
-        echo "📶 Turn WiFi On"
-    fi
-    
+    show_main_menu
     exit 0
 fi
 
@@ -98,7 +95,7 @@ case "$1" in
         ;;
     *"Disconnect")
         # Disconnect from current WiFi
-        current_connection=$(nmcli -t -f NAME,TYPE connection show --active | awk -F: '$2 == "802-11-wireless" {print $1; exit}')
+        current_connection=$(nmcli -t -f NAME,TYPE connection show --active | awk -F: '$2 == "802-11-wireless" || $2 == "wifi" {print $1; exit}')
         [[ -n "$current_connection" ]] && nmcli connection down "$current_connection" &>/dev/null
         ;;
     *"VPN Menu")
