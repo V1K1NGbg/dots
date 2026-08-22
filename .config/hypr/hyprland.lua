@@ -9,13 +9,15 @@ hl.monitor({
     scale = 1,
 })
 
+hl.env("XCURSOR_THEME", "Vimix-Monocraft")
 hl.env("XCURSOR_SIZE", "24")
+hl.env("HYPRCURSOR_THEME", "Vimix-Monocraft")
 hl.env("HYPRCURSOR_SIZE", "24")
 
 hl.config({
     general = {
-        gaps_in = 6,
-        gaps_out = 3,
+        gaps_in = 12,
+        gaps_out = 18,
         border_size = 2,
         layout = "dwindle",
         resize_on_border = true,
@@ -31,9 +33,11 @@ hl.config({
         inactive_opacity = 0.96,
         shadow = {
             enabled = true,
-            range = 8,
+            range = 10,
             render_power = 3,
-            color = "rgba(00000099)",
+            offset = { 0, 3 },
+            color = "rgba(00000088)",
+            color_inactive = "rgba(00000066)",
         },
         blur = {
             enabled = true,
@@ -45,10 +49,10 @@ hl.config({
         enabled = true,
     },
     gestures = {
-        workspace_swipe_distance = 400,
+        workspace_swipe_distance = 550,
         workspace_swipe_min_speed_to_force = 0,
-        workspace_swipe_cancel_ratio = 0.35,
-        workspace_swipe_direction_lock_threshold = 20,
+        workspace_swipe_cancel_ratio = 0.5,
+        workspace_swipe_direction_lock_threshold = 10,
     },
     dwindle = {
         preserve_split = true,
@@ -83,10 +87,10 @@ hl.config({
     }
 })
 
-hl.curve("fluid", { type = "bezier", points = { { 0.4, 0.0 }, { 0.2, 1.0 } } })
-hl.animation({ leaf = "windows", enabled = true, speed = 3.5, bezier = "fluid" })
-hl.animation({ leaf = "fade", enabled = true, speed = 3.5, bezier = "fluid" })
-hl.animation({ leaf = "workspaces", enabled = true, speed = 3.2, bezier = "fluid", style = "slide" })
+hl.curve("fluid", { type = "bezier", points = { { 0.25, 0.1 }, { 0.25, 1.0 } } })
+hl.animation({ leaf = "windows", enabled = true, speed = 5.0, bezier = "fluid" })
+hl.animation({ leaf = "fade", enabled = true, speed = 4.5, bezier = "fluid" })
+hl.animation({ leaf = "workspaces", enabled = true, speed = 5.5, bezier = "fluid", style = "slide" })
 
 hl.gesture({
     fingers = 3,
@@ -192,7 +196,7 @@ end)
 bind(mod .. " + SHIFT + R", hl.dsp.exec_cmd("hyprctl reload"), "Reload Hyprland")
 bind(mod .. " + SHIFT + Q", hl.dsp.exec_cmd("uwsm stop"), "Quit Hyprland")
 bind(mod .. " + S", hl.dsp.exec_cmd("~/.config/rofi/keybinds.sh"), "Show keybinding help")
-bind(mod .. " + W", hl.dsp.exec_cmd("rofi -show drun"), "Show main menu")
+bind(mod .. " + W", hl.dsp.exec_cmd("rofi -show run"), "Show main menu")
 
 -- Client focus and workspace browsing.
 bind(mod .. " + SHIFT + Tab", hl.dsp.window.cycle_next({ next = false }), "Focus previous window")
@@ -234,17 +238,17 @@ bind(mod .. " + apostrophe", hl.dsp.focus({ monitor = "-1" }), "Focus the previo
 bind(mod .. " + SHIFT + semicolon", hl.dsp.window.move({ monitor = "-1" }), "Move window to the previous monitor")
 bind(mod .. " + SHIFT + apostrophe", hl.dsp.window.move({ monitor = "+1" }), "Move window to the next monitor")
 
-bind(mod .. " + G", hl.dsp.exec_cmd("pkill -x glava || glava --desktop"), "Start or stop GLava")
+bind(mod .. " + G", hl.dsp.exec_cmd("~/.config/hypr/toggle-visualizer.sh"), "Start or stop Kwybars")
 
 -- Keyboard-driven pointer control.
-bind(mod .. " + left", move_cursor(-50, 0), "Move pointer left", { repeating = true })
-bind(mod .. " + down", move_cursor(0, 50), "Move pointer down", { repeating = true })
-bind(mod .. " + up", move_cursor(0, -50), "Move pointer up", { repeating = true })
-bind(mod .. " + right", move_cursor(50, 0), "Move pointer right", { repeating = true })
-bind(mod .. " + SHIFT + left", move_cursor(-5, 0), "Nudge pointer left", { repeating = true })
-bind(mod .. " + SHIFT + down", move_cursor(0, 5), "Nudge pointer down", { repeating = true })
-bind(mod .. " + SHIFT + up", move_cursor(0, -5), "Nudge pointer up", { repeating = true })
-bind(mod .. " + SHIFT + right", move_cursor(5, 0), "Nudge pointer right", { repeating = true })
+bind(mod .. " + left", move_cursor(-16, 0), "Move pointer left", { repeating = true })
+bind(mod .. " + down", move_cursor(0, 16), "Move pointer down", { repeating = true })
+bind(mod .. " + up", move_cursor(0, -16), "Move pointer up", { repeating = true })
+bind(mod .. " + right", move_cursor(16, 0), "Move pointer right", { repeating = true })
+bind(mod .. " + SHIFT + left", move_cursor(-3, 0), "Nudge pointer left", { repeating = true })
+bind(mod .. " + SHIFT + down", move_cursor(0, 3), "Nudge pointer down", { repeating = true })
+bind(mod .. " + SHIFT + up", move_cursor(0, -3), "Nudge pointer up", { repeating = true })
+bind(mod .. " + SHIFT + right", move_cursor(3, 0), "Nudge pointer right", { repeating = true })
 bind(mod .. " + bracketleft", click("mouse:272"), "Left-click the pointer")
 bind(mod .. " + bracketright", click("mouse:273"), "Right-click the pointer")
 

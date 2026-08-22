@@ -26,6 +26,8 @@ let
   loadNemoConfig = pkgs.writeShellScript "load-nemo-config" ''
     ${pkgs.dconf}/bin/dconf load /org/nemo/ < ${./nemo_config}
   '';
+
+  vimixCursor = import ./cursor-theme.nix { inherit pkgs; };
 in
 {
   home = {
@@ -73,8 +75,8 @@ in
       package = pkgs.papirus-icon-theme;
     };
     cursorTheme = {
-      name = "capitaine-cursors";
-      package = pkgs.capitaine-cursors;
+      name = "Vimix-Monocraft";
+      package = vimixCursor;
       size = 24;
     };
   };

@@ -21,10 +21,9 @@ spawn wl-paste --type text --watch cliphist store
 spawn wl-paste --type image --watch cliphist store
 
 # Requested desktop applications: each starts once per Hyprland session.
-spawn code
 spawn firefox
 spawn alacritty
 spawn nemo
 spawn Discord
 spawn spotify
-
+spawn code

@@ -21,7 +21,6 @@ in
       btop
       brightnessctl
       bulky
-      capitaine-cursors
       cava
       cliphist
       clang-tools
@@ -37,7 +36,6 @@ in
       fnm
       git
       github-cli
-      glava
       gnome-disk-utility
       go
       gopls

@@ -16,7 +16,6 @@ alias config="code -n ~/dots"
 alias shutdown="systemctl poweroff"
 
 alias lgit="lazygit"
-alias mov-cli="ani-cli"
 
 hgrep() {
   history | awk '{$1=""; sub(/^[ \t]+/, ""); print}' | grep "$1" --color=always -B "${2:-0}" -A "${3:-0}"

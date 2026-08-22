@@ -61,9 +61,9 @@ At boot, Plymouth shows the `hexagon_hud` theme while the initrd asks for the
 LUKS passphrase. After decryption, SDDM automatically starts the UWSM-managed
 Hyprland session as `victor`; there is no second login prompt. Hyprlock and
 `sudo` accept the separate `victor` password or an enrolled fingerprint. If
-Hyprland exits, the custom Monocraft SDDM greeter is shown instead of repeating
-automatic login. That greeter also accepts the password or fingerprint (press
-Enter, then scan a finger).
+Hyprland exits, a wallpaper-free Astronaut SDDM greeter using the shared
+Monocraft palette is shown instead of repeating automatic login. That greeter
+also accepts the password or fingerprint (press Enter, then scan a finger).
 
 This matches the requested trust model: possession of the disk passphrase is
 enough to reach the desktop, while later unlocks and privilege elevation need
@@ -83,9 +83,12 @@ The system includes:
 
 - Native Wayland Hyprland input, locking, idle, clipboard, screenshots, display
   profiles, notifications, app launcher, and power-menu integration.
+- A PipeWire-driven Kwybars visualizer rendered as a native Wayland background
+  layer; Super+G toggles its managed user service.
 - `us,bg` keyboard layouts with Bulgarian `bas_phonetic`, switched with
   Super+Space; the physical power button opens the Rofi power mode. Super+W
-  opens Rofi, and Super+S shows searchable keybinding help. Waybar starts
+  opens Rofi on its first, clearly labelled Run mode, and Super+S shows
+  searchable keybinding help. Waybar starts
   hidden; Super+T toggles it.
 - A minimal top bar containing only the date/time, tray icons, and battery
   percentage.
@@ -95,6 +98,8 @@ The system includes:
   disabled), `quiet`, and `splash` kernel parameters.
 - Monocraft Nerd Font 4.0 and the Alacritty palette applied to Hyprland,
   Hyprlock, SDDM, Waybar, Mako, Rofi, GTK, Qt, Vim, and tmux.
+- A precompiled, palette-matched Vimix cursor in both XCursor and Hyprcursor
+  formats, generated once with Accurse and stored with the configuration.
 - Declarative Oh My Bash, Git identity, dotfiles, and Nemo settings.
 - VS Code, Firefox, Alacritty, Discord, and Spotify launched once whenever the
   Hyprland desktop session starts. VS Code, Firefox, Alacritty, Nemo, Discord,

@@ -9,6 +9,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    kwybars = {
+      url = "github:naurissteins/Kwybars";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     oh-my-bash = {
       url = "github:ohmybash/oh-my-bash";
       flake = false;
@@ -36,6 +41,7 @@
         modules = [
           ./configuration.nix
           home-manager.nixosModules.home-manager
+          inputs.kwybars.nixosModules.default
           {
             home-manager = {
               useGlobalPkgs = true;
