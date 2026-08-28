@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-# Check if NetworkManager is available
 if ! command -v nmcli &> /dev/null; then
     echo "nmcli (NetworkManager) is not installed. Please install NetworkManager"
     exit 1
@@ -50,42 +49,32 @@ show_main_menu() {
 get_known_networks() {
     echo "⬅️ Back"
     echo "---"
-    # Get saved WiFi connections
     nmcli -t -f NAME,TYPE connection show \
-        | awk -F: '$2 == "802-11-wireless" || $2 == "wifi" { print $1 }' \
-        | while read -r network; do
-        echo "📡 $network"
-    done
+        | awk -F: '$2 == "802-11-wireless" || $2 == "wifi" { print "📡 " $1 }'
 }
 
 get_vpns() {
     local active_vpns
     echo "⬅️ Back"
     echo "---"
-    # Get all VPN connections (both active and inactive)
-    # Check if there are any active VPN connections first
-    active_vpns=$(nmcli -t -f NAME,TYPE connection show --active | grep -E "(vpn|wireguard)" | cut -d: -f1)
+    active_vpns=$(nmcli -t -f NAME,TYPE connection show --active \
+        | awk -F: '/(vpn|wireguard)/ { print $1 }')
     
     if [[ -n "$active_vpns" ]]; then
-        # Show only active VPNs
-        echo "$active_vpns" | while read -r vpn; do
+        while read -r vpn; do
             echo "🔒 VPN: $vpn (Connected)"
-        done
+        done <<<"$active_vpns"
     else
-        # Show all VPNs if none are active
-        nmcli -t -f NAME,TYPE connection show | grep -E "(vpn|wireguard)" | cut -d: -f1 | while read -r vpn; do
-            echo "🔒 VPN: $vpn (Disconnected)"
-        done
+        nmcli -t -f NAME,TYPE connection show \
+            | awk -F: '/(vpn|wireguard)/ { print "🔒 VPN: " $1 " (Disconnected)" }'
     fi
 }
 
-# If no arguments, show the menu
 if [[ $# -eq 0 ]]; then
     show_main_menu
     exit 0
 fi
 
-# Handle menu selection
 case "$1" in
     *"Turn WiFi Off")
         nmcli radio wifi off
@@ -94,7 +83,6 @@ case "$1" in
         nmcli radio wifi on
         ;;
     *"Disconnect")
-        # Disconnect from current WiFi
         current_connection=$(nmcli -t -f NAME,TYPE connection show --active | awk -F: '$2 == "802-11-wireless" || $2 == "wifi" {print $1; exit}')
         [[ -n "$current_connection" ]] && nmcli connection down "$current_connection" &>/dev/null
         ;;
@@ -105,30 +93,25 @@ case "$1" in
         get_known_networks
         ;;
     *"Back")
-        # Go back to main menu
         exec "$0"
         ;;
     📡*)
-        # Connect to a known network
         network_name=${1#📡 }
         nmcli connection up "$network_name" &>/dev/null
         ;;
     🔒*)
-        # Handle VPN connections
         vpn_line=${1#🔒 VPN: }
         vpn_name=${vpn_line% (Connected)}
         vpn_name=${vpn_name% (Disconnected)}
         
         if [[ "$vpn_line" == *"(Connected)"* ]]; then
-            # Disconnect VPN
-            nmcli connection down "$vpn_name" &>/dev/null
+            action=down
         else
-            # Connect VPN
-            nmcli connection up "$vpn_name" &>/dev/null
+            action=up
         fi
+        nmcli connection "$action" "$vpn_name" &>/dev/null
         ;;
     *)
-        # If it's a status line, just exit
         exit 0
         ;;
 esac

@@ -71,7 +71,7 @@ def get_deck(public_id: str) -> dict:
     boards = data.get("boards", {})
 
     commanders = boards.get("commanders", {}).get("cards", {})
-    for _, card_data in commanders.items():
+    for card_data in commanders.values():
         card = card_data.get("card", {})
         result["commanders"].append({
             "name": card.get("name", ""),
@@ -80,7 +80,7 @@ def get_deck(public_id: str) -> dict:
         })
 
     mainboard = boards.get("mainboard", {}).get("cards", {})
-    for _, card_data in mainboard.items():
+    for card_data in mainboard.values():
         card = card_data.get("card", {})
         qty = card_data.get("quantity", 1)
         name = card.get("name", "")

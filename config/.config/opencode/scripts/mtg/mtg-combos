@@ -6,7 +6,6 @@ Example: mtg-combos "Krenko, Mob Boss"
 Example: mtg-combos "Krenko, Mob Boss" --cards "Skirk Prospector" "Thornbite Staff"
 """
 
-import sys
 import json
 import time
 import urllib.request
@@ -38,8 +37,7 @@ def _fetch_json(url: str, retries: int = MAX_RETRIES) -> dict | None:
 def fetch_combos(commander: str, cards: list[str] | None = None, limit: int = 20) -> dict:
     query_parts = [f'card="{commander}"']
     if cards:
-        for card in cards:
-            query_parts.append(f'card="{card}"')
+        query_parts.extend(f'card="{card}"' for card in cards)
 
     q = " ".join(query_parts)
     params = urllib.parse.urlencode({"q": q, "limit": limit})
@@ -56,18 +54,18 @@ def fetch_combos(commander: str, cards: list[str] | None = None, limit: int = 20
 
     combos = []
     for combo in data.get("results", []):
-        uses = []
-        for use in combo.get("uses", []):
-            card = use.get("card", {})
-            uses.append({
-                "name": card.get("name", "Unknown"),
+        uses = [
+            {
+                "name": use.get("card", {}).get("name", "Unknown"),
                 "zone": use.get("zoneLocations", []),
-            })
+            }
+            for use in combo.get("uses", [])
+        ]
 
-        produces = []
-        for prod in combo.get("produces", []):
-            feature = prod.get("feature", {})
-            produces.append(feature.get("name", "Unknown"))
+        produces = [
+            product.get("feature", {}).get("name", "Unknown")
+            for product in combo.get("produces", [])
+        ]
 
         requires = []
         for req_item in combo.get("requires", []):
@@ -109,31 +107,8 @@ def main():
     parser.add_argument("--limit", type=int, default=20, help="Max combos to return (default: 20)")
     args = parser.parse_args()
 
-    commander_parts = []
-    card_parts = []
-    in_cards = False
-    limit = 20
-    skip_next = False
-    for i, arg in enumerate(sys.argv[1:]):
-        if skip_next:
-            skip_next = False
-            continue
-        if arg == "--cards":
-            in_cards = True
-            continue
-        if arg == "--limit":
-            skip_next = True
-            limit = int(sys.argv[i + 2])
-            continue
-        if in_cards:
-            card_parts.append(arg)
-        else:
-            commander_parts.append(arg)
-
-    commander_name = " ".join(commander_parts) if commander_parts else " ".join(args.commander)
-    cards = card_parts if card_parts else args.cards
-
-    result = fetch_combos(commander_name, cards, limit)
+    commander_name = " ".join(args.commander)
+    result = fetch_combos(commander_name, args.cards, args.limit)
     print(json.dumps(result, indent=2))
 
 

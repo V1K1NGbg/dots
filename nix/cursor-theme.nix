@@ -10,7 +10,7 @@ pkgs.stdenvNoCC.mkDerivation {
   installPhase = ''
     runHook preInstall
     mkdir -p "$out/share/icons/Vimix-Monocraft"
-    cp -R ${./cursor-theme/Vimix-Monocraft}/. \
+    cp -R ${../config/cursor-theme/Vimix-Monocraft}/. \
       "$out/share/icons/Vimix-Monocraft/"
     runHook postInstall
   '';

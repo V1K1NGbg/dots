@@ -84,9 +84,8 @@ def main():
 
     # Handle double-faced cards
     if "card_faces" in card:
-        faces = []
-        for face in card["card_faces"]:
-            faces.append({
+        faces = [
+            {
                 "name": face.get("name", ""),
                 "mana_cost": face.get("mana_cost", ""),
                 "type_line": face.get("type_line", ""),
@@ -94,7 +93,9 @@ def main():
                 "power": face.get("power"),
                 "toughness": face.get("toughness"),
                 "loyalty": face.get("loyalty"),
-            })
+            }
+            for face in card["card_faces"]
+        ]
         oracle_text = " // ".join(f.get("oracle_text", "") for f in card["card_faces"])
     else:
         faces = None
@@ -130,14 +131,14 @@ def main():
         result["card_faces"] = faces
 
     if card.get("all_parts"):
-        related = []
-        for part in card["all_parts"]:
-            related.append({
+        result["related_cards"] = [
+            {
                 "name": part.get("name", ""),
                 "type_line": part.get("type_line", ""),
                 "component": part.get("component", ""),
-            })
-        result["related_cards"] = related
+            }
+            for part in card["all_parts"]
+        ]
 
     if args.rulings:
         card_id = card.get("id", "")

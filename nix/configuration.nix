@@ -34,6 +34,14 @@ let
         "$out/share/plymouth/themes/hexagon_hud"
   '';
 
+  palette = {
+    background = "#191919";
+    foreground = "#f8f8f2";
+    muted = "#404040";
+    accent = "#67ffeb";
+    warning = "#ff025f";
+  };
+
   sddmAstronaut = pkgs.sddm-astronaut.override {
     embeddedTheme = "astronaut";
     themeConfig = {
@@ -42,44 +50,44 @@ let
       # astronaut artwork.
       Background = "";
       BackgroundPlaceholder = "";
-      BackgroundColor = "#191919";
-      DimBackgroundColor = "#191919";
-      FormBackgroundColor = "#191919";
+      BackgroundColor = palette.background;
+      DimBackgroundColor = palette.background;
+      FormBackgroundColor = palette.background;
 
       Font = "Monocraft Nerd Font";
       FontSize = "13";
       RoundCorners = "8";
       HeaderText = "VIKING";
-      HeaderTextColor = "#f8f8f2";
-      DateTextColor = "#67ffeb";
-      TimeTextColor = "#67ffeb";
+      HeaderTextColor = palette.foreground;
+      DateTextColor = palette.accent;
+      TimeTextColor = palette.accent;
 
-      LoginFieldBackgroundColor = "#191919";
-      PasswordFieldBackgroundColor = "#191919";
-      LoginFieldTextColor = "#f8f8f2";
-      PasswordFieldTextColor = "#f8f8f2";
-      UserIconColor = "#f8f8f2";
-      PasswordIconColor = "#f8f8f2";
-      PlaceholderTextColor = "#404040";
-      WarningColor = "#ff025f";
+      LoginFieldBackgroundColor = palette.background;
+      PasswordFieldBackgroundColor = palette.background;
+      LoginFieldTextColor = palette.foreground;
+      PasswordFieldTextColor = palette.foreground;
+      UserIconColor = palette.foreground;
+      PasswordIconColor = palette.foreground;
+      PlaceholderTextColor = palette.muted;
+      WarningColor = palette.warning;
 
-      LoginButtonTextColor = "#191919";
-      LoginButtonBackgroundColor = "#67ffeb";
-      SystemButtonsIconsColor = "#f8f8f2";
-      SessionButtonTextColor = "#f8f8f2";
-      VirtualKeyboardButtonTextColor = "#f8f8f2";
-      DropdownTextColor = "#f8f8f2";
-      DropdownSelectedBackgroundColor = "#67ffeb";
-      DropdownBackgroundColor = "#191919";
+      LoginButtonTextColor = palette.background;
+      LoginButtonBackgroundColor = palette.accent;
+      SystemButtonsIconsColor = palette.foreground;
+      SessionButtonTextColor = palette.foreground;
+      VirtualKeyboardButtonTextColor = palette.foreground;
+      DropdownTextColor = palette.foreground;
+      DropdownSelectedBackgroundColor = palette.accent;
+      DropdownBackgroundColor = palette.background;
 
-      HighlightTextColor = "#191919";
-      HighlightBackgroundColor = "#67ffeb";
-      HighlightBorderColor = "#67ffeb";
-      HoverUserIconColor = "#67ffeb";
-      HoverPasswordIconColor = "#67ffeb";
-      HoverSystemButtonsIconsColor = "#67ffeb";
-      HoverSessionButtonTextColor = "#67ffeb";
-      HoverVirtualKeyboardButtonTextColor = "#67ffeb";
+      HighlightTextColor = palette.background;
+      HighlightBackgroundColor = palette.accent;
+      HighlightBorderColor = palette.accent;
+      HoverUserIconColor = palette.accent;
+      HoverPasswordIconColor = palette.accent;
+      HoverSystemButtonsIconsColor = palette.accent;
+      HoverSessionButtonTextColor = palette.accent;
+      HoverVirtualKeyboardButtonTextColor = palette.accent;
 
       PartialBlur = "false";
       FullBlur = "false";

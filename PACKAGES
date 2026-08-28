@@ -1,8 +1,8 @@
 # Package audit against nixos-unstable on 2026-08-20.
 # Format: original | status | NixOS / Wayland choices
-# "selected" identifies what packages.nix currently uses. Edit packages.nix after choosing.
+# "selected" identifies what nix/packages.nix currently uses. Edit that file after choosing.
 # Additional dependencies referenced by the checked-in configs are installed in
-# packages.nix: black, clang-tools, go, gopls, nodejs, poppler-utils, prettier,
+# nix/packages.nix: black, clang-tools, go, gopls, nodejs, poppler-utils, prettier,
 # pyright, python3, rust-analyzer, rustfmt, and typescript-language-server.
 
 acpi | available | selected: acpi; alternatives: upower

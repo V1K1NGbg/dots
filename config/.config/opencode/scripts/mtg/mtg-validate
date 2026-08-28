@@ -178,7 +178,7 @@ def main():
     unique_names = list(dict.fromkeys(name for _, name in cards))
 
     # Batch fetch all cards at once (2 API calls for 99 cards)
-    found_cards, not_found_names = fetch_collection(unique_names)
+    found_cards, _ = fetch_collection(unique_names)
 
     # Build lookup by name (lowercase for fuzzy matching)
     card_lookup: dict[str, dict] = {}
@@ -267,9 +267,11 @@ def main():
             f"{'Add ' + str(100 - total_count) + ' more cards to the decklist.' if total_count < 100 else 'Remove ' + str(total_count - 100) + ' cards from the decklist.'}"
         )
     if duplicates:
+        basic_types = [
+            "plains", "island", "swamp", "mountain", "forest", "wastes",
+            "snow-covered",
+        ]
         for name, count in duplicates.items():
-            basic_types = ["plains", "island", "swamp", "mountain", "forest",
-                           "wastes", "snow-covered"]
             if not any(bt in name.lower() for bt in basic_types):
                 issues.append(f"DUPLICATE: {name} appears {count} times (singleton format)")
 
@@ -291,7 +293,6 @@ def main():
             warnings.append(f"HIGH LAND COUNT: {land_count} lands (typical is 33-38)")
 
     sorted_curve = {str(k): cmc_curve.get(k, 0) for k in range(8)}
-    sorted_curve["7"] = cmc_curve.get(7, 0)
 
     active_pips = {k: v for k, v in total_pips.items() if v > 0}
 

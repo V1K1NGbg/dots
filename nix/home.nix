@@ -9,12 +9,12 @@ let
   ohMyBash = pkgs.runCommand "oh-my-bash-configured" { } ''
     cp -R ${inputs.oh-my-bash} "$out"
     chmod -R u+w "$out"
-    cp ${./.oh-my-bash/themes/agnoster/agnoster.theme.sh} \
+    cp ${../config/.oh-my-bash/themes/agnoster/agnoster.theme.sh} \
       "$out/themes/agnoster/agnoster.theme.sh"
   '';
 
   opencodeSource = lib.cleanSourceWith {
-    src = ./.config/opencode;
+    src = ../config/.config/opencode;
     filter =
       path: type:
       let
@@ -24,8 +24,27 @@ let
   };
 
   loadNemoConfig = pkgs.writeShellScript "load-nemo-config" ''
-    ${pkgs.dconf}/bin/dconf load /org/nemo/ < ${./nemo_config}
+    ${pkgs.dconf}/bin/dconf load /org/nemo/ < ${../config/nemo_config}
   '';
+
+  sourcedFiles = [
+    ".bashrc"
+    ".tmux.conf"
+    ".vimrc"
+    ".vim"
+    ".config/alacritty"
+    ".config/keepassxc"
+    ".config/rofi"
+    ".config/hypr"
+    ".config/mako"
+    ".config/waybar"
+    ".config/gtk-3.0/gtk.css"
+    ".config/gtk-4.0/gtk.css"
+    ".config/qt5ct/qt5ct.conf"
+    ".config/qt5ct/colors/monocraft.conf"
+    ".config/qt6ct/qt6ct.conf"
+    ".config/qt6ct/colors/monocraft.conf"
+  ];
 
   vimixCursor = import ./cursor-theme.nix { inherit pkgs; };
 in
@@ -35,29 +54,14 @@ in
     homeDirectory = "/home/victor";
     stateVersion = "26.05";
 
-    file = {
-      ".bashrc".source = ./.bashrc;
-      ".tmux.conf".source = ./.tmux.conf;
-      ".vimrc".source = ./.vimrc;
-      ".vim".source = ./.vim;
-      ".oh-my-bash".source = ohMyBash;
-
-      ".config/alacritty".source = ./.config/alacritty;
-      ".config/keepassxc".source = ./.config/keepassxc;
-      ".config/opencode".source = opencodeSource;
-      ".config/rofi".source = ./.config/rofi;
-
-      ".config/hypr".source = ./.config/hypr;
-      ".config/mako".source = ./.config/mako;
-      ".config/waybar".source = ./.config/waybar;
-
-      ".config/gtk-3.0/gtk.css".source = ./.config/gtk-3.0/gtk.css;
-      ".config/gtk-4.0/gtk.css".source = ./.config/gtk-4.0/gtk.css;
-      ".config/qt5ct/qt5ct.conf".source = ./.config/qt5ct/qt5ct.conf;
-      ".config/qt5ct/colors/monocraft.conf".source = ./.config/qt5ct/colors/monocraft.conf;
-      ".config/qt6ct/qt6ct.conf".source = ./.config/qt6ct/qt6ct.conf;
-      ".config/qt6ct/colors/monocraft.conf".source = ./.config/qt6ct/colors/monocraft.conf;
-    };
+    file =
+      lib.genAttrs sourcedFiles (name: {
+        source = ../config + "/${name}";
+      })
+      // {
+        ".oh-my-bash".source = ohMyBash;
+        ".config/opencode".source = opencodeSource;
+      };
   };
 
   gtk = {

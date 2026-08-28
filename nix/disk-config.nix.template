@@ -1,0 +1,7 @@
+{ lib, ... }:
+
+import ./disk-layout.nix {
+  inherit lib;
+  luksDevice = "/dev/disk/by-uuid/@LUKS_UUID@";
+  bootDevice = "/dev/disk/by-uuid/@BOOT_UUID@";
+}

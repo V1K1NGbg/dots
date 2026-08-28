@@ -7,11 +7,18 @@ readonly HOST_NAME="nixfwbtw"
 readonly CONFIG_DIR="/home/$USER_NAME/dots"
 readonly REPOSITORY_URL="https://github.com/V1K1NGbg/dots.git"
 readonly REPOSITORY_BRANCH="nixos"
+readonly TARGET_ROOT="/mnt"
+readonly TARGET_CONFIG_DIR="$TARGET_ROOT$CONFIG_DIR"
+readonly CRYPTROOT_NAME="cryptroot"
+readonly CRYPTROOT_DEVICE="/dev/mapper/$CRYPTROOT_NAME"
+readonly -a CAPACITY_PATHS=(
+    / /nix /nix/.rw-store
+    "$TARGET_ROOT" "$TARGET_ROOT/nix" "$TARGET_ROOT/boot"
+)
 TARGET_DISK=""
 REBOOT_AFTER_INSTALL=1
 LUKS_PASSWORD=""
 USER_PASSWORD=""
-WIFI_CONNECTION_NAME=""
 WIFI_PROFILE_PATH=""
 INSTALL_MOUNTS_ACTIVE=0
 CRYPTROOT_OPEN=0
@@ -59,27 +66,59 @@ clear_secrets() {
     USER_PASSWORD=""
 }
 
+unmount_target() {
+    umount -R "$TARGET_ROOT" || return
+    INSTALL_MOUNTS_ACTIVE=0
+}
+
+close_cryptroot() {
+    cryptsetup close "$CRYPTROOT_NAME" || return
+    CRYPTROOT_OPEN=0
+}
+
+find_wifi_profile() {
+    local uuid=$1
+    local profile_directory candidate
+
+    for profile_directory in \
+        /etc/NetworkManager/system-connections \
+        /run/NetworkManager/system-connections; do
+        [[ -d "$profile_directory" ]] || continue
+        while IFS= read -r -d '' candidate; do
+            if grep -Fqx -- "uuid=$uuid" "$candidate"; then
+                WIFI_PROFILE_PATH=$candidate
+                return
+            fi
+        done < <(find "$profile_directory" -maxdepth 1 -type f -print0)
+    done
+}
+
+mount_subvolume() {
+    local subvolume=$1
+    local target=$2
+
+    mount -o "subvol=$subvolume,compress=zstd,noatime" "$CRYPTROOT_DEVICE" "$target"
+}
+
 on_exit() {
     local status=$?
 
     clear_secrets
     if [[ $status -ne 0 ]]; then
         printf '\nInstallation failed. Filesystem capacity at failure:\n' >&2
-        df -h / /nix /nix/.rw-store /mnt /mnt/nix /mnt/boot 2>/dev/null >&2 || true
+        df -h "${CAPACITY_PATHS[@]}" 2>/dev/null >&2 || true
         printf '\nInode capacity at failure:\n' >&2
-        df -i / /nix /nix/.rw-store /mnt /mnt/nix /mnt/boot 2>/dev/null >&2 || true
+        df -i "${CAPACITY_PATHS[@]}" 2>/dev/null >&2 || true
 
         if [[ $INSTALL_MOUNTS_ACTIVE -eq 1 ]]; then
             printf '\nUnmounting the incomplete target installation...\n' >&2
-            if umount -R /mnt; then
-                INSTALL_MOUNTS_ACTIVE=0
-            else
-                printf 'WARNING: /mnt is busy; leave /mnt and run: sudo umount -R /mnt\n' >&2
-            fi
+            unmount_target \
+                || printf 'WARNING: %s is busy; leave %s and run: sudo umount -R %s\n' \
+                    "$TARGET_ROOT" "$TARGET_ROOT" "$TARGET_ROOT" >&2
         fi
         if [[ $CRYPTROOT_OPEN -eq 1 && $INSTALL_MOUNTS_ACTIVE -eq 0 ]]; then
-            cryptsetup close cryptroot \
-                || printf 'WARNING: run: sudo cryptsetup close cryptroot\n' >&2
+            close_cryptroot \
+                || printf 'WARNING: run: sudo cryptsetup close %s\n' "$CRYPTROOT_NAME" >&2
         fi
     fi
 
@@ -139,23 +178,12 @@ active_wifi_uuid=$(
 [[ -n "$active_wifi_uuid" ]] \
     || fail "no active Wi-Fi connection; connect with nmtui and run the installer again"
 
-WIFI_CONNECTION_NAME=$(nmcli -g connection.id connection show uuid "$active_wifi_uuid")
-for profile_directory in \
-    /etc/NetworkManager/system-connections \
-    /run/NetworkManager/system-connections; do
-    [[ -d "$profile_directory" ]] || continue
-    while IFS= read -r -d '' candidate; do
-        if grep -Fqx -- "uuid=$active_wifi_uuid" "$candidate"; then
-            WIFI_PROFILE_PATH=$candidate
-            break
-        fi
-    done < <(find "$profile_directory" -maxdepth 1 -type f -print0)
-    [[ -n "$WIFI_PROFILE_PATH" ]] && break
-done
+wifi_connection_name=$(nmcli -g connection.id connection show uuid "$active_wifi_uuid")
+find_wifi_profile "$active_wifi_uuid"
 [[ -n "$WIFI_PROFILE_PATH" && -r "$WIFI_PROFILE_PATH" ]] \
     || fail "the active Wi-Fi profile is not saved on disk; reconnect with nmtui and retry"
 
-printf "The installed system will reuse Wi-Fi connection '%s'.\n" "$WIFI_CONNECTION_NAME"
+printf "The installed system will reuse Wi-Fi connection '%s'.\n" "$wifi_connection_name"
 
 if [[ -z "$TARGET_DISK" ]]; then
     printf 'Available physical disks:\n'
@@ -171,7 +199,7 @@ mounted_paths=$(lsblk -nrpo MOUNTPOINT "$TARGET_DISK" | sed '/^$/d')
 [[ -z "$mounted_paths" ]] \
     || fail "the target disk has mounted filesystems; unmount them first: $mounted_paths"
 
-if [[ -e /dev/mapper/cryptroot ]]; then
+if [[ -e "$CRYPTROOT_DEVICE" ]]; then
     printf 'Current target device tree:\n' >&2
     lsblk -o NAME,PATH,SIZE,TYPE,FSTYPE,MOUNTPOINTS "$TARGET_DISK" >&2
     fail "cryptroot is still open; reboot the live USB or close it before retrying"
@@ -211,36 +239,35 @@ mkfs.fat -F 32 -n NIXBOOT "$BOOT_PARTITION"
 printf '%s' "$LUKS_PASSWORD" \
     | cryptsetup luksFormat --batch-mode --type luks2 --label NIXCRYPT --key-file - "$CRYPT_PARTITION"
 printf '%s' "$LUKS_PASSWORD" \
-    | cryptsetup open --key-file - "$CRYPT_PARTITION" cryptroot
+    | cryptsetup open --key-file - "$CRYPT_PARTITION" "$CRYPTROOT_NAME"
 CRYPTROOT_OPEN=1
-mkfs.btrfs -f -L NIXROOT /dev/mapper/cryptroot
+mkfs.btrfs -f -L NIXROOT "$CRYPTROOT_DEVICE"
 
-mount /dev/mapper/cryptroot /mnt
+mount "$CRYPTROOT_DEVICE" "$TARGET_ROOT"
 INSTALL_MOUNTS_ACTIVE=1
 for subvolume in @ @home @nix @log; do
-    btrfs subvolume create "/mnt/$subvolume"
+    btrfs subvolume create "$TARGET_ROOT/$subvolume"
 done
-umount /mnt
-INSTALL_MOUNTS_ACTIVE=0
+unmount_target
 
-mount -o subvol=@,compress=zstd,noatime /dev/mapper/cryptroot /mnt
+mount_subvolume @ "$TARGET_ROOT"
 INSTALL_MOUNTS_ACTIVE=1
-mkdir -p /mnt/boot /mnt/home /mnt/nix /mnt/var/log
-mount -o subvol=@home,compress=zstd,noatime /dev/mapper/cryptroot /mnt/home
-mount -o subvol=@nix,compress=zstd,noatime /dev/mapper/cryptroot /mnt/nix
-mount -o subvol=@log,compress=zstd,noatime /dev/mapper/cryptroot /mnt/var/log
-mount "$BOOT_PARTITION" /mnt/boot
+mkdir -p "$TARGET_ROOT/boot" "$TARGET_ROOT/home" "$TARGET_ROOT/nix" "$TARGET_ROOT/var/log"
+mount_subvolume @home "$TARGET_ROOT/home"
+mount_subvolume @nix "$TARGET_ROOT/nix"
+mount_subvolume @log "$TARGET_ROOT/var/log"
+mount "$BOOT_PARTITION" "$TARGET_ROOT/boot"
 
 printf "Cloning %s branch '%s' into %s...\n" \
     "$REPOSITORY_URL" "$REPOSITORY_BRANCH" "$CONFIG_DIR"
-mkdir -p "$(dirname -- "/mnt$CONFIG_DIR")"
+mkdir -p "$(dirname -- "$TARGET_CONFIG_DIR")"
 git clone \
     --branch "$REPOSITORY_BRANCH" \
     --single-branch \
     "$REPOSITORY_URL" \
-    "/mnt$CONFIG_DIR"
+    "$TARGET_CONFIG_DIR"
 
-target_wifi_profile="/mnt/etc/NetworkManager/system-connections/$(basename -- "$WIFI_PROFILE_PATH")"
+target_wifi_profile="$TARGET_ROOT/etc/NetworkManager/system-connections/$(basename -- "$WIFI_PROFILE_PATH")"
 install -D -m 0600 /dev/null "$target_wifi_profile"
 nmcli --offline connection modify \
     connection.autoconnect yes \
@@ -249,8 +276,8 @@ nmcli --offline connection modify \
     > "$target_wifi_profile"
 chmod 0600 "$target_wifi_profile"
 
-nixos-generate-config --root /mnt --show-hardware-config --no-filesystems \
-    > "/mnt$CONFIG_DIR/hardware-configuration.nix"
+nixos-generate-config --root "$TARGET_ROOT" --show-hardware-config --no-filesystems \
+    > "$TARGET_CONFIG_DIR/nix/hardware-configuration.nix"
 
 LUKS_UUID=$(cryptsetup luksUUID "$CRYPT_PARTITION")
 BOOT_UUID=$(blkid -s UUID -o value "$BOOT_PARTITION")
@@ -259,44 +286,42 @@ BOOT_UUID=$(blkid -s UUID -o value "$BOOT_PARTITION")
 sed \
     -e "s|@LUKS_UUID@|$LUKS_UUID|g" \
     -e "s|@BOOT_UUID@|$BOOT_UUID|g" \
-    "/mnt$CONFIG_DIR/disk-config.nix.template" \
-    > "/mnt$CONFIG_DIR/disk-config.nix"
+    "$TARGET_CONFIG_DIR/nix/disk-config.nix.template" \
+    > "$TARGET_CONFIG_DIR/nix/disk-config.nix"
 
-[[ -f "/mnt$CONFIG_DIR/flake.lock" ]] \
+[[ -f "$TARGET_CONFIG_DIR/flake.lock" ]] \
     || fail "the cloned branch does not contain the pinned flake.lock"
 
 # The live ISO uses RAM-backed writable filesystems. Keep downloads, evaluation
 # caches, and temporary files on the encrypted target so a large desktop closure
 # cannot exhaust the live environment before nixos-install reaches its target
 # store. The committed lock file is used unchanged for reproducibility.
-export XDG_CACHE_HOME=/mnt/nix/.installer-cache
-export TMPDIR=/mnt/nix/.installer-tmp
+export XDG_CACHE_HOME="$TARGET_ROOT/nix/.installer-cache"
+export TMPDIR="$TARGET_ROOT/nix/.installer-tmp"
 mkdir -p "$XDG_CACHE_HOME" "$TMPDIR"
 chmod 0700 "$XDG_CACHE_HOME"
 chmod 1777 "$TMPDIR"
 
 printf 'Target capacity before installation:\n'
-df -h /mnt /mnt/nix /mnt/boot
+df -h "$TARGET_ROOT" "$TARGET_ROOT/nix" "$TARGET_ROOT/boot"
 printf 'Installing NixOS from the pinned flake...\n'
 nixos-install \
-    --root /mnt \
-    --flake "/mnt$CONFIG_DIR#laptop" \
+    --root "$TARGET_ROOT" \
+    --flake "$TARGET_CONFIG_DIR#laptop" \
     --no-channel-copy \
     --no-write-lock-file \
     --no-root-passwd
 
 printf '%s:%s\n' "$USER_NAME" "$USER_PASSWORD" \
-    | nixos-enter --root /mnt -c 'chpasswd'
-nixos-enter --root /mnt -c "chown $USER_NAME:users '/home/$USER_NAME'"
-nixos-enter --root /mnt -c "chown -R $USER_NAME:users '$CONFIG_DIR'"
+    | nixos-enter --root "$TARGET_ROOT" -c 'chpasswd'
+nixos-enter --root "$TARGET_ROOT" -c "chown $USER_NAME:users '/home/$USER_NAME'"
+nixos-enter --root "$TARGET_ROOT" -c "chown -R $USER_NAME:users '$CONFIG_DIR'"
 
 clear_secrets
 rm -rf "$XDG_CACHE_HOME" "$TMPDIR"
 sync
-umount -R /mnt
-INSTALL_MOUNTS_ACTIVE=0
-cryptsetup close cryptroot
-CRYPTROOT_OPEN=0
+unmount_target
+close_cryptroot
 
 printf '\nInstallation complete. Host: %s, user: %s.\n' "$HOST_NAME" "$USER_NAME"
 printf 'After the first desktop starts, run %s/post-install.sh as %s.\n' "$CONFIG_DIR" "$USER_NAME"

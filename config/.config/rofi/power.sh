@@ -2,9 +2,9 @@
 
 # Power management functions
 get_uptime() {
-    local uptime_seconds ignored days hours minutes suffix
+    local uptime_seconds days hours minutes suffix
 
-    if ! read -r uptime_seconds ignored < /proc/uptime; then
+    if ! read -r uptime_seconds _ < /proc/uptime; then
         echo "⏰ Uptime unavailable"
         return
     fi

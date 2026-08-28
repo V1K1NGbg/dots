@@ -39,7 +39,7 @@
         inherit system;
         specialArgs = { inherit inputs; };
         modules = [
-          ./configuration.nix
+          ./nix/configuration.nix
           home-manager.nixosModules.home-manager
           inputs.kwybars.nixosModules.default
           {
@@ -48,7 +48,7 @@
               useUserPackages = true;
               backupFileExtension = "hm-backup";
               extraSpecialArgs = { inherit inputs; };
-              users.victor = import ./home.nix;
+              users.victor = import ./nix/home.nix;
             };
           }
         ];

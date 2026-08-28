@@ -1,4 +1,4 @@
-.config/opencode/style/about.md
+config/.config/opencode/style/about.md
 **/__pycache__/
 *.pyc
 result

@@ -1,18 +1,15 @@
 #!/usr/bin/env bash
 
-# Check if aspell is available
 if ! command -v aspell &>/dev/null; then
     echo "aspell is not installed"
     exit 1
 fi
 
-# If no arguments, show the menu
 if [[ $# -eq 0 ]]; then
     echo "✍️ Type Word:"
     exit 0
 fi
 
-# Handle menu selection
 case "$1" in
     "✍️ Type Word:")
         echo "Type word and press Enter..."
@@ -21,7 +18,7 @@ case "$1" in
         exit 0
         ;;
     "🟢"*)
-        printf '%s' "$1" | sed "s/🟢 '//" | sed "s/' is correct//" | wl-copy
+        sed -e "s/🟢 '//" -e "s/' is correct//" <<<"$1" | wl-copy
         exit 0
         ;;
     "🔴"*)
@@ -38,11 +35,15 @@ case "$1" in
         exit 0
         ;;
     *)
-        # Check typed word
-        if echo "$1" | aspell list | grep -q .; then
+        if aspell list <<<"$1" | grep -q .; then
             echo "🔴 '$1' is misspelled"
             echo "---"
-            echo "$1" | aspell pipe | grep -v "^[@*]" | grep -v "^$" | sed 's/^& .* [0-9]*: //' | tr ',' '\n' | sed 's/^ //' | while read -r suggestion; do
+            aspell pipe <<<"$1" \
+                | grep -Ev '^[@*]|^$' \
+                | sed 's/^& .* [0-9]*: //' \
+                | tr ',' '\n' \
+                | sed 's/^ //' \
+                | while read -r suggestion; do
                 [[ -n "$suggestion" ]] && echo "- $suggestion"
             done
         else
