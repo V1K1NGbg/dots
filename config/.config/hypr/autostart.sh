@@ -19,6 +19,7 @@ systemctl --user start \
     hypridle.service \
     hyprpolkitagent.service \
     hyprsunset.service \
+    cava-wallpaper.service \
     nemo-settings.service || true
 
 spawn waybar

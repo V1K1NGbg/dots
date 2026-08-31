@@ -14,6 +14,31 @@ hl.env("XCURSOR_SIZE", "24")
 hl.env("HYPRCURSOR_THEME", "Vimix-Monocraft")
 hl.env("HYPRCURSOR_SIZE", "24")
 
+-- Cava is an ordinary terminal process, but hyprwinwrap renders its window in
+-- the wallpaper pass so it never covers or takes focus from application windows.
+local hyprwinwrap_path = os.getenv("HYPRWINWRAP_PLUGIN")
+local hyprwinwrap_loaded = false
+for _, plugin in ipairs(hl.get_loaded_plugins()) do
+    if plugin.name == "hyprwinwrap" then
+        hyprwinwrap_loaded = true
+        break
+    end
+end
+if not hyprwinwrap_loaded and hyprwinwrap_path then
+    hl.plugin.load(hyprwinwrap_path)
+end
+if hl.plugin.hyprwinwrap then
+    hl.plugin.hyprwinwrap.window({
+        class = "Cava",
+        title = "Cava",
+        layer = 0,
+        pos_x = 0,
+        pos_y = 0,
+        size_x = 100,
+        size_y = 100,
+    })
+end
+
 hl.config({
     general = {
         gaps_in = 12,
@@ -57,6 +82,9 @@ hl.config({
     },
     dwindle = {
         preserve_split = true,
+        -- Every new split is placed to the right or below its parent, keeping
+        -- the visual spiral anchored toward the bottom-right corner.
+        force_split = 2,
     },
     master = {
         orientation = "left",
@@ -151,13 +179,6 @@ hl.window_rule({
     persistent_size = true,
 })
 
-hl.window_rule({
-    match = { initial_class = "Cava" },
-    float = true,
-    center = true,
-    size = { "monitor_w", "monitor_h" },
-})
-
 local mod = "SUPER"
 
 local function bind(keys, dispatcher, description, options)
@@ -198,15 +219,28 @@ local function active_workspace()
     return hl.get_active_special_workspace() or hl.get_active_workspace()
 end
 
+-- Awesome's fair layout: use the smallest square-ish grid that can contain
+-- every tiled window. Nine windows therefore occupy an exact 3-by-3 grid.
+hl.layout.register("fair", {
+    recalculate = function(ctx)
+        local count = #ctx.targets
+        if count == 0 then
+            return
+        end
+
+        local columns = math.ceil(math.sqrt(count))
+        for index, target in ipairs(ctx.targets) do
+            target:place(ctx:grid_cell(index, columns))
+        end
+    end,
+})
+
 local function cycle_workspace_layout()
-    -- Hyprland names the closest equivalents to Awesome's tile/fair layouts
-    -- "master" and "scrolling". Layout changes apply to every tiled window
-    -- on the active workspace.
-    local layouts = { "dwindle", "master", "scrolling" }
+    local layouts = { "dwindle", "master", "lua:fair" }
     local labels = {
         dwindle = "Dwindle",
         master = "Tile (master)",
-        scrolling = "Fair (scrolling)",
+        ["lua:fair"] = "Fair (equal grid)",
     }
     local workspace = active_workspace()
     if not workspace then
@@ -230,6 +264,27 @@ local function cycle_workspace_layout()
     })
 end
 
+local function resize_current_split(delta)
+    local workspace = active_workspace()
+    if not workspace then
+        return
+    end
+
+    if workspace.tiled_layout == "dwindle" then
+        -- Dwindle chooses the relevant right/down parent split itself, so only
+        -- that axis changes instead of resizing two unrelated ancestors.
+        hl.dispatch(hl.dsp.layout("splitratio " .. delta))
+    elseif workspace.tiled_layout == "master" then
+        hl.dispatch(hl.dsp.layout("mfact " .. delta))
+    else
+        hl.notification.create({
+            text = "Fair stays equal-sized",
+            timeout = 1000,
+            icon = "info",
+        })
+    end
+end
+
 local function ensure_floating(window)
     if window and not window.floating then
         hl.dispatch(hl.dsp.window.float({ window = window, action = "set" }))
@@ -245,14 +300,37 @@ local function toggle_sticky()
     hl.dispatch(hl.dsp.window.pin({ window = window, action = "toggle" }))
 end
 
-local function raise_window()
+local kept_on_top = {}
+
+local function reassert_kept_on_top()
+    for _, window in pairs(kept_on_top) do
+        hl.dispatch(hl.dsp.window.alter_zorder({ window = window, mode = "top" }))
+    end
+end
+
+local function toggle_keep_on_top()
     local window = hl.get_active_window()
     if not window then
         return
     end
+
+    local address = window.address
+    if kept_on_top[address] then
+        kept_on_top[address] = nil
+        hl.notification.create({ text = "Keep on top: off", timeout = 1200, icon = "ok" })
+        return
+    end
+
     ensure_floating(window)
+    kept_on_top[address] = window
     hl.dispatch(hl.dsp.window.alter_zorder({ window = window, mode = "top" }))
+    hl.notification.create({ text = "Keep on top: on", timeout = 1200, icon = "ok" })
 end
+
+-- alter_zorder is a one-shot compositor operation. Reapply it whenever a new
+-- window opens or focus changes so "keep on top" remains persistent.
+hl.on("window.open", reassert_kept_on_top)
+hl.on("window.active", reassert_kept_on_top)
 
 local minimized_windows = {}
 
@@ -294,6 +372,7 @@ local function restore_minimized_window()
 end
 
 hl.on("window.close", function(window)
+    kept_on_top[window.address] = nil
     for i = #minimized_windows, 1, -1 do
         if minimized_windows[i].window == window then
             table.remove(minimized_windows, i)
@@ -323,12 +402,14 @@ bind(mod .. " + L", hl.dsp.exec_cmd("hyprlock"), "Lock the screen")
 bind("XF86PowerOff", hl.dsp.exec_cmd("rofi -show power"), "Open the power menu")
 
 -- Window and layout manipulation.
-bind(mod .. " + SHIFT + J", hl.dsp.window.swap({ next = true }), "Swap with the next window")
-bind(mod .. " + SHIFT + K", hl.dsp.window.swap({ prev = true }), "Swap with the previous window")
+bind(mod .. " + J", hl.dsp.window.swap({ next = true }), "Swap with the next window")
+bind(mod .. " + K", hl.dsp.window.swap({ prev = true }), "Swap with the previous window")
+bind(mod .. " + SHIFT + J", function() resize_current_split("+0.05") end, "Grow the current right/down split", { repeating = true })
+bind(mod .. " + SHIFT + K", function() resize_current_split("-0.05") end, "Shrink the current right/down split", { repeating = true })
 bind(mod .. " + SHIFT + space", cycle_workspace_layout, "Cycle Dwindle, Tile, and Fair layouts")
 bind(mod .. " + SHIFT + F", hl.dsp.window.float({ action = "toggle" }), "Toggle floating")
 bind(mod .. " + SHIFT + S", toggle_sticky, "Toggle sticky")
-bind(mod .. " + SHIFT + T", raise_window, "Raise above other windows")
+bind(mod .. " + SHIFT + T", toggle_keep_on_top, "Toggle persistent keep on top")
 bind(mod .. " + T", hl.dsp.exec_cmd("pkill -SIGUSR1 waybar"), "Toggle the top bar")
 bind(mod .. " + F", hl.dsp.window.fullscreen({ action = "toggle" }), "Toggle fullscreen")
 bind(mod .. " + Q", hl.dsp.window.close(), "Close window")
@@ -343,7 +424,7 @@ bind(mod .. " + apostrophe", hl.dsp.focus({ monitor = "-1" }), "Focus the previo
 bind(mod .. " + SHIFT + semicolon", hl.dsp.window.move({ monitor = "-1" }), "Move window to the previous monitor")
 bind(mod .. " + SHIFT + apostrophe", hl.dsp.window.move({ monitor = "+1" }), "Move window to the next monitor")
 
-bind(mod .. " + G", hl.dsp.exec_cmd("~/.config/hypr/toggle-visualizer.sh"), "Start or stop Cava")
+bind(mod .. " + G", hl.dsp.exec_cmd("~/.config/hypr/toggle-visualizer.sh"), "Restart the Cava wallpaper")
 
 -- Keyboard-driven pointer control.
 bind(mod .. " + left", move_cursor(-16, 0), "Move pointer left", { repeating = true })

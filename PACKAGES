@@ -38,7 +38,7 @@ flameshot | available but Wayland capture is compositor/portal-sensitive | selec
 fprintdgimp | AUR-only and unavailable | selected: fprintd with post-install enrollment; alternatives: fprintd-tod plus the hardware-matching libfprint TOD driver
 git | available | selected: git; alternative: jujutsu with Git interoperability
 github-cli | available | selected: github-cli with `post-install.sh` authentication; alternatives: hub, browser
-glava | available but X11-oriented | selected: cava in an Alacritty window toggled with Super+G
+glava | available but X11-oriented | removed; selected: always-on cava rendered as a Hyprland wallpaper through hyprwinwrap
 gnome-disk-utility | available, native Wayland GTK | selected: gnome-disk-utility; alternative: kdePackages.partitionmanager
 highlight | available | selected: highlight; alternatives: bat, pygmentize
 htop | available | selected: htop; alternatives: btop, bottom
@@ -82,7 +82,7 @@ ranger | available, terminal-native | selected: ranger; alternatives: yazi, lf
 redshift | available but X11-oriented | selected: always-on hyprsunset at 4500 K; alternatives: gammastep, wlsunset
 rofi | available with Wayland enabled by default in NixOS 2.0 | selected: rofi; alternatives: fuzzel, wofi
 rofi-calc | available plugin | selected: rofi.override with rofi-calc; alternatives: qalculate-gtk, libqalculate CLI
-sddm-astronaut | available, Qt 6 | removed; selected: SDDM's bundled artwork-free Maldives theme
+sddm-astronaut | available, Qt 6 | selected with its controls and typography intact, but with both astronaut artwork layers disabled
 ufw | unavailable in the pinned Nixpkgs revision | selected: NixOS firewall with the nftables backend and `nixos-firewall-tool`
 ruby-fusuma | available but its automation path targets X11 | selected: native Hyprland gestures; alternatives: libinput-gestures + wtype/ydotool
 ruby-fusuma-plugin-sendkey | unavailable and X11-oriented | selected: native Hyprland bindings; alternatives: wtype for text/keys, ydotool for generic input

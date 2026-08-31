@@ -18,6 +18,13 @@ cd ~/dots
 sudo nixos-rebuild switch --flake ~/dots#laptop
 ```
 
+The rebuild enables fingerprint PAM for SDDM and sudo. Fingerprints are local
+machine state rather than Nix configuration, so enroll and verify one once with:
+
+```bash
+fingerprint-setup
+```
+
 The boot menu stays hidden during a normal boot. Hold Space before the firmware
 hands off to systemd-boot, or open it reliably for the next reboot with:
 

@@ -14,8 +14,7 @@ window#waybar {
 
 #clock,
 #battery,
-#tray,
-#window {
+#tray {
   padding: 0 9px;
 }
 
@@ -55,7 +54,6 @@ window#waybar {
   opacity: 1;
 }
 
-#window { color: #f8f8f2; }
 #clock { color: #67ffeb; }
 #battery.warning { color: #ffb247; }
 #battery.critical { color: #ff025f; }

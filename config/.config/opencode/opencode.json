@@ -4,19 +4,16 @@
   "username": "victor",
   "model": "ollama/qwen3.5:9b",
   "small_model": "ollama/qwen3.5:9b",
+  "enabled_providers": ["ollama"],
   "provider": {
     "ollama": {
       "npm": "@ai-sdk/openai-compatible",
       "name": "Ollama",
       "options": {
-        "baseURL": "http://localhost:11434/v1"
+        "baseURL": "http://127.0.0.1:11434/v1"
       },
       "models": {
-        "qwen3.5:9b": {
-          "options": {
-            "noThinking": true
-          }
-        }
+        "qwen3.5:9b": {}
       }
     }
   },

@@ -33,6 +33,7 @@ let
     ".vimrc"
     ".vim"
     ".config/alacritty"
+    ".config/cava"
     ".config/keepassxc"
     ".config/rofi"
     ".config/hypr"
@@ -104,6 +105,20 @@ in
   };
 
   systemd.user.services = {
+    cava-wallpaper = {
+      Unit = {
+        Description = "Cava audio visualizer wallpaper";
+        After = [ "graphical-session.target" ];
+        PartOf = [ "graphical-session.target" ];
+      };
+      Service = {
+        ExecStart = "${pkgs.alacritty}/bin/alacritty --class Cava,Cava --title Cava -o window.opacity=1.0 -o window.decorations=\"None\" -e ${pkgs.bash}/bin/bash -lc 'sleep 1; exec ${pkgs.cava}/bin/cava -p /home/victor/.config/cava/config'";
+        Restart = "always";
+        RestartSec = 2;
+      };
+      Install.WantedBy = [ "graphical-session.target" ];
+    };
+
     hyprsunset = {
       Unit = {
         Description = "Always-on Hyprland blue-light filter";
@@ -142,4 +157,16 @@ in
       Install.WantedBy = [ "graphical-session.target" ];
     };
   };
+
+  # OpenCode can turn a truncated auth.json into the generic
+  # ProcessTicksAndRejections startup error. Preserve the bad file for
+  # inspection and replace only invalid JSON with an empty credential store.
+  home.activation.repairOpenCodeAuth = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
+    auth_file="$HOME/.local/share/opencode/auth.json"
+    if [[ -f "$auth_file" ]] && ! ${pkgs.jq}/bin/jq empty "$auth_file" >/dev/null 2>&1; then
+      backup_file="$auth_file.corrupt-$(${pkgs.coreutils}/bin/date +%Y%m%d-%H%M%S)"
+      ${pkgs.coreutils}/bin/mv -- "$auth_file" "$backup_file"
+      ${pkgs.coreutils}/bin/printf '{}\n' > "$auth_file"
+    fi
+  '';
 }

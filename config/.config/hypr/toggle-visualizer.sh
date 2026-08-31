@@ -2,8 +2,6 @@
 
 set -euo pipefail
 
-if pgrep -x cava >/dev/null; then
-    pkill -x cava
-else
-    alacritty --class Cava,Cava --title Cava -e cava >/dev/null 2>&1 &
-fi
+# Cava is supervised so it remains part of the desktop background. This key
+# refreshes it without leaving the wallpaper visualizer stopped.
+systemctl --user restart cava-wallpaper.service

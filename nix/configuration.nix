@@ -36,6 +36,107 @@ let
 
   vimixCursor = import ./cursor-theme.nix { inherit pkgs; };
 
+  palette = {
+    background = "#191919";
+    foreground = "#f8f8f2";
+    muted = "#404040";
+    accent = "#67ffeb";
+    warning = "#ff025f";
+  };
+
+  # Keep Astronaut's controls and typography, but replace both artwork layers
+  # with the same flat background used by the rest of the desktop.
+  sddmAstronaut = pkgs.sddm-astronaut.override {
+    embeddedTheme = "astronaut";
+    themeConfig = {
+      Background = "";
+      BackgroundPlaceholder = "";
+      BackgroundColor = palette.background;
+      DimBackgroundColor = palette.background;
+      FormBackgroundColor = palette.background;
+      Font = "Monocraft Nerd Font";
+      FontSize = "13";
+      RoundCorners = "8";
+      HeaderText = "VIKING";
+      HeaderTextColor = palette.foreground;
+      DateTextColor = palette.accent;
+      TimeTextColor = palette.accent;
+      LoginFieldBackgroundColor = palette.background;
+      PasswordFieldBackgroundColor = palette.background;
+      LoginFieldTextColor = palette.foreground;
+      PasswordFieldTextColor = palette.foreground;
+      UserIconColor = palette.foreground;
+      PasswordIconColor = palette.foreground;
+      PlaceholderTextColor = palette.muted;
+      WarningColor = palette.warning;
+      LoginButtonTextColor = palette.background;
+      LoginButtonBackgroundColor = palette.accent;
+      SystemButtonsIconsColor = palette.foreground;
+      SessionButtonTextColor = palette.foreground;
+      VirtualKeyboardButtonTextColor = palette.foreground;
+      DropdownTextColor = palette.foreground;
+      DropdownSelectedBackgroundColor = palette.accent;
+      DropdownBackgroundColor = palette.background;
+      HighlightTextColor = palette.background;
+      HighlightBackgroundColor = palette.accent;
+      HighlightBorderColor = palette.accent;
+      HoverUserIconColor = palette.accent;
+      HoverPasswordIconColor = palette.accent;
+      HoverSystemButtonsIconsColor = palette.accent;
+      HoverSessionButtonTextColor = palette.accent;
+      HoverVirtualKeyboardButtonTextColor = palette.accent;
+      PartialBlur = "false";
+      FullBlur = "false";
+      HaveFormBackground = "false";
+      FormPosition = "center";
+      PasswordFocus = "true";
+      ForceLastUser = "true";
+      HideCompletePassword = "true";
+    };
+  };
+
+  fingerprintSetup = pkgs.writeShellApplication {
+    name = "fingerprint-setup";
+    runtimeInputs = with pkgs; [
+      fprintd
+      usbutils
+    ];
+    text = ''
+      set -euo pipefail
+
+      user_name="''${1:-$USER}"
+      printf 'Existing fingerprints for %s:\n' "$user_name"
+      fprintd-list "$user_name" || true
+      printf '\nEnroll the right index finger:\n'
+      if ! fprintd-enroll --finger right-index-finger "$user_name"; then
+        printf '\nEnrollment failed. USB devices visible to libfprint diagnostics:\n' >&2
+        lsusb >&2
+        exit 1
+      fi
+      printf '\nVerify it:\n'
+      fprintd-verify --finger right-index-finger "$user_name"
+    '';
+  };
+
+  # hyprwinwrap was split out of the official plugin collection. Pin the
+  # revision matched to Hyprland 0.56.0 and build it against this system's
+  # Hyprland package so the compositor/plugin ABI stays identical.
+  hyprwinwrap = pkgs.hyprlandPlugins.mkHyprlandPlugin {
+    pluginName = "hyprwinwrap";
+    version = "1.1-unstable-2026-07-26";
+    src = pkgs.fetchurl {
+      name = "hyprwinwrap-a72d3ee.tar.gz";
+      url = "https://codeload.github.com/gen3vra/hyprwinwrap/tar.gz/a72d3eeecfb0eaab64092c23410662ec907ca671";
+      hash = "sha256-tHTaak4FaYwYSU/86kYiyOBcZRahT0qAAZlVYssz2rE=";
+    };
+    inherit (pkgs.hyprland) nativeBuildInputs;
+    meta = {
+      homepage = "https://github.com/gen3vra/hyprwinwrap";
+      description = "Display any window as a background wallpaper";
+      license = lib.licenses.bsd3;
+    };
+  };
+
   rebootToBootMenu = pkgs.writeShellApplication {
     name = "reboot-to-boot-menu";
     runtimeInputs = [ pkgs.systemd ];
@@ -153,10 +254,8 @@ in
 
   services.displayManager = {
     defaultSession = "hyprland-uwsm";
-    autoLogin = {
-      enable = true;
-      user = "victor";
-    };
+    # SDDM must perform a real PAM login for its fingerprint stack to run.
+    autoLogin.enable = false;
     sddm = {
       enable = true;
       enableHidpi = true;
@@ -166,8 +265,7 @@ in
         qtsvg
         qtvirtualkeyboard
       ];
-      # Use SDDM's bundled, artwork-free theme instead of Astronaut.
-      theme = "maldives";
+      theme = "sddm-astronaut-theme";
       settings.Theme = {
         CursorTheme = "Vimix-Monocraft";
         CursorSize = 24;
@@ -283,8 +381,11 @@ in
 
   environment = {
     systemPackages = [
+      fingerprintSetup
       rebootToBootMenu
+      sddmAstronaut
       vimixCursor
+      hyprwinwrap
     ];
     etc.inputrc.text = ''
       set completion-ignore-case on
@@ -296,6 +397,7 @@ in
       QT_QPA_PLATFORM = "wayland;xcb";
       QT_QPA_PLATFORMTHEME = "qt6ct";
       TERMINAL = "alacritty";
+      HYPRWINWRAP_PLUGIN = "${hyprwinwrap}/lib/libhyprwinwrap.so";
       _JAVA_AWT_WM_NONREPARENTING = "1";
     };
   };
