@@ -44,19 +44,13 @@ let
     warning = "#ff025f";
   };
 
-  sddmSolidBackground = builtins.toFile "sddm-solid-background.svg" ''
-    <svg xmlns="http://www.w3.org/2000/svg" width="1" height="1" viewBox="0 0 1 1">
-      <rect width="1" height="1" fill="${palette.background}"/>
-    </svg>
-  '';
-
-  # Keep Astronaut's controls and typography, but replace both artwork layers
-  # with the same flat background used by the rest of the desktop.
+  # Keep Astronaut's controls and typography, but disable its image layer so
+  # the theme renders its palette.window color as the background instead.
   sddmAstronaut =
     (pkgs.sddm-astronaut.override {
       embeddedTheme = "astronaut";
       themeConfig = {
-        Background = "Backgrounds/solid-background.svg";
+        Background = "";
         BackgroundPlaceholder = "";
         BackgroundColor = palette.background;
         DimBackgroundColor = palette.background;
@@ -103,12 +97,13 @@ let
     }).overrideAttrs
       (oldAttrs: {
         installPhase = oldAttrs.installPhase + ''
-          install -Dm444 ${sddmSolidBackground} \
-            "$out/share/sddm/themes/sddm-astronaut-theme/Backgrounds/solid-background.svg"
+          theme_dir="$out/share/sddm/themes/sddm-astronaut-theme"
+          chmod u+w "$theme_dir" "$theme_dir/Main.qml"
           substituteInPlace \
-            "$out/share/sddm/themes/sddm-astronaut-theme/Themes/astronaut.conf" \
-            --replace-fail 'Background="Backgrounds/astronaut.png"' \
-              'Background="Backgrounds/solid-background.svg"'
+            "$theme_dir/Main.qml" \
+            --replace-fail \
+              'backgroundImage.source = config.background || config.Background' \
+              'backgroundImage.visible = false'
         '';
       });
 
@@ -284,7 +279,6 @@ in
       ];
       theme = "sddm-astronaut-theme";
       settings.Theme = {
-        Background = "Backgrounds/solid-background.svg";
         CursorTheme = "Vimix-Monocraft";
         CursorSize = 24;
       };
