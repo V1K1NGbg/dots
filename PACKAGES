@@ -83,7 +83,7 @@ redshift | available but X11-oriented | selected: always-on hyprsunset at 4500 K
 rofi | available with Wayland enabled by default in NixOS 2.0 | selected: rofi; alternatives: fuzzel, wofi
 rofi-calc | available plugin | selected: rofi.override with rofi-calc; alternatives: qalculate-gtk, libqalculate CLI
 sddm-astronaut | available, Qt 6 | removed; selected: SDDM's bundled artwork-free Maldives theme
-ufw | available | selected as a familiar firewall CLI; NixOS firewall remains enabled with the nftables backend
+ufw | unavailable in the pinned Nixpkgs revision | selected: NixOS firewall with the nftables backend and `nixos-firewall-tool`
 ruby-fusuma | available but its automation path targets X11 | selected: native Hyprland gestures; alternatives: libinput-gestures + wtype/ydotool
 ruby-fusuma-plugin-sendkey | unavailable and X11-oriented | selected: native Hyprland bindings; alternatives: wtype for text/keys, ydotool for generic input
 sof-firmware | available but should be loaded through firmware configuration | selected: hardware.firmware + enableRedistributableFirmware; alternative: linux-firmware

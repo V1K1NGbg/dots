@@ -168,7 +168,7 @@
       "systemctl stop*": "ask",
       "systemctl disable*": "ask",
       "iptables *": "ask",
-      "ufw *": "ask",
+      "nixos-firewall-tool *": "ask",
       "ip6tables *": "ask",
       "mount *": "ask",
       "umount *": "ask",

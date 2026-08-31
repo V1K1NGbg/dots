@@ -64,6 +64,7 @@ in
     nano
     nemo-with-extensions
     networkmanagerapplet
+    nixos-firewall-tool
     nmap
     nvtopPackages.amd
     nwg-displays
@@ -88,7 +89,6 @@ in
     tmux
     tree
     typescript-language-server
-    ufw
     unzip
     usbimager
     uthash
