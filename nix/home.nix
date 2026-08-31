@@ -113,10 +113,9 @@ in
       };
       Service = {
         ExecStart = "${pkgs.alacritty}/bin/alacritty --class Cava,Cava --title Cava -o window.opacity=1.0 -o window.decorations=\"None\" -e ${pkgs.bash}/bin/bash -lc 'sleep 1; exec ${pkgs.cava}/bin/cava -p /home/victor/.config/cava/config'";
-        Restart = "always";
+        Restart = "on-failure";
         RestartSec = 2;
       };
-      Install.WantedBy = [ "graphical-session.target" ];
     };
 
     hyprsunset = {

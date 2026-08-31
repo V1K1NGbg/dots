@@ -15,18 +15,10 @@ hl.env("HYPRCURSOR_THEME", "Vimix-Monocraft")
 hl.env("HYPRCURSOR_SIZE", "24")
 
 -- Cava is an ordinary terminal process, but hyprwinwrap renders its window in
--- the wallpaper pass so it never covers or takes focus from application windows.
-local hyprwinwrap_path = os.getenv("HYPRWINWRAP_PLUGIN")
-local hyprwinwrap_loaded = false
-for _, plugin in ipairs(hl.get_loaded_plugins()) do
-    if plugin.name == "hyprwinwrap" then
-        hyprwinwrap_loaded = true
-        break
-    end
-end
-if not hyprwinwrap_loaded and hyprwinwrap_path then
-    hl.plugin.load(hyprwinwrap_path)
-end
+-- the wallpaper pass so it never covers or takes focus from application
+-- windows. The Win+G toggle loads the plugin before reloading this config;
+-- keeping plugin loading out of startup prevents a bad plugin ABI from taking
+-- the entire login session down.
 if hl.plugin.hyprwinwrap then
     hl.plugin.hyprwinwrap.window({
         class = "Cava",
@@ -424,7 +416,7 @@ bind(mod .. " + apostrophe", hl.dsp.focus({ monitor = "-1" }), "Focus the previo
 bind(mod .. " + SHIFT + semicolon", hl.dsp.window.move({ monitor = "-1" }), "Move window to the previous monitor")
 bind(mod .. " + SHIFT + apostrophe", hl.dsp.window.move({ monitor = "+1" }), "Move window to the next monitor")
 
-bind(mod .. " + G", hl.dsp.exec_cmd("~/.config/hypr/toggle-visualizer.sh"), "Restart the Cava wallpaper")
+bind(mod .. " + G", hl.dsp.exec_cmd("~/.config/hypr/toggle-visualizer.sh"), "Start or stop the Cava wallpaper")
 
 -- Keyboard-driven pointer control.
 bind(mod .. " + left", move_cursor(-16, 0), "Move pointer left", { repeating = true })
