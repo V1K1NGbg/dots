@@ -104,6 +104,19 @@ in
   };
 
   systemd.user.services = {
+    hyprsunset = {
+      Unit = {
+        Description = "Always-on Hyprland blue-light filter";
+        After = [ "graphical-session.target" ];
+        PartOf = [ "graphical-session.target" ];
+      };
+      Service = {
+        ExecStart = lib.getExe pkgs.hyprsunset;
+        Restart = "on-failure";
+      };
+      Install.WantedBy = [ "graphical-session.target" ];
+    };
+
     hyprpolkitagent = {
       Unit = {
         Description = "Hyprland PolicyKit authentication agent";

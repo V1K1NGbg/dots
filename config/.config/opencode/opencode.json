@@ -2,6 +2,8 @@
   "$schema": "https://opencode.ai/config.json",
   "logLevel": "WARN",
   "username": "victor",
+  "model": "ollama/qwen3.5:9b",
+  "small_model": "ollama/qwen3.5:9b",
   "provider": {
     "ollama": {
       "npm": "@ai-sdk/openai-compatible",
@@ -19,11 +21,10 @@
     }
   },
   "share": "manual",
-  "autoupdate": true,
+  "autoupdate": false,
   "snapshot": true,
   "default_agent": "plan",
   "skills": {
-    "urls": ["https://skillsmp.com/", "https://skills.sh/"],
     "paths": ["~/.skills", "~/.config/opencode/skills"]
   },
   "instructions": [
@@ -167,6 +168,7 @@
       "systemctl stop*": "ask",
       "systemctl disable*": "ask",
       "iptables *": "ask",
+      "ufw *": "ask",
       "ip6tables *": "ask",
       "mount *": "ask",
       "umount *": "ask",

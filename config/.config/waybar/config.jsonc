@@ -5,11 +5,40 @@
   "height": 30,
   "spacing": 6,
   "on-sigusr1": "toggle",
-  "modules-left": [],
-  "modules-center": ["clock"],
+  "modules-left": ["hyprland/workspaces"],
+  "modules-center": ["hyprland/workspaces#windows", "hyprland/window", "clock"],
   "modules-right": ["tray", "battery"],
   "clock": {
     "format": "{:%Y-%m-%d  %H:%M}"
+  },
+  "hyprland/workspaces": {
+    "format": "{id}",
+    "sort-by-id": true,
+    "active-only": false,
+    "all-outputs": true,
+    "persistent-workspaces": {
+      "*": [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    },
+    "on-click": "activate",
+    "disable-scroll": true
+  },
+  "hyprland/window": {
+    "format": "{class}: {title}",
+    "max-length": 55,
+    "separate-outputs": true
+  },
+  "hyprland/workspaces#windows": {
+    "active-only": true,
+    "all-outputs": false,
+    "format": "{windows}",
+    "workspace-taskbar": {
+      "enable": true,
+      "update-active-window": true,
+      "format": "{icon}",
+      "icon-size": 16,
+      "orientation": "horizontal",
+      "on-click-window": "/home/victor/.config/waybar/focus-window.sh {address}"
+    }
   },
   "battery": {
     "states": {

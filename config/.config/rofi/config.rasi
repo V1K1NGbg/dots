@@ -1,13 +1,15 @@
 configuration {
-    modi:                       "run,calc,clipboard:/home/victor/.config/rofi/clipboard.sh,autocorrector:/home/victor/.config/rofi/autocorrect.sh,media:/home/victor/.config/rofi/media.sh,wifi:/home/victor/.config/rofi/wifi.sh,bluetooth:/home/victor/.config/rofi/bluetooth.sh,power:/home/victor/.config/rofi/power.sh";
+    modi:                       "run,window,calc,clipboard:/home/victor/.config/rofi/clipboard.sh,autocorrector:/home/victor/.config/rofi/autocorrect.sh,media:/home/victor/.config/rofi/media.sh,wifi:/home/victor/.config/rofi/wifi.sh,bluetooth:/home/victor/.config/rofi/bluetooth.sh,power-mode:/home/victor/.config/rofi/power-mode.sh,power:/home/victor/.config/rofi/power.sh";
     show-icons:                 false;
-    display-run:               "🚀 Apps";
+    display-run:                "🚀 Apps";
+    display-window:             "▣ Windows";
     display-calc:               "🧮 Calculator";
     display-clipboard:          "📋 Clipboard";
     display-autocorrector:      "✍️ Autocorrector";
     display-media:              "🎵 Media";
     display-wifi:               "📶 Wifi";
     display-bluetooth:          " Bluetooth";
+    display-power-mode:         "⚡ Power Mode";
     display-power:              "🔌 Power";
 	drun-display-format:         "{name}";
 	window-format:              "{w} · {c} · {t}";

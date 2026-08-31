@@ -24,7 +24,6 @@ in
     cliphist
     clang-tools
     cowsay
-    cpupower-gui
     curl
     discord
     docker-compose
@@ -53,6 +52,7 @@ in
     less
     libconfig
     libinput
+    libnotify
     libqalculate
     llama-cpp
     localsend
@@ -88,6 +88,7 @@ in
     tmux
     tree
     typescript-language-server
+    ufw
     unzip
     usbimager
     uthash

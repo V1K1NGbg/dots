@@ -20,7 +20,8 @@ hl.config({
         gaps_out = 18,
         border_size = 2,
         layout = "dwindle",
-        resize_on_border = true,
+        -- Interactive move/resize is deliberately reserved for Super+mouse.
+        resize_on_border = false,
         allow_tearing = false,
         col = {
             active_border = "rgb(67ffeb)",
@@ -57,6 +58,17 @@ hl.config({
     dwindle = {
         preserve_split = true,
     },
+    master = {
+        orientation = "left",
+        mfact = 0.55,
+    },
+    scrolling = {
+        column_width = 0.5,
+    },
+    binds = {
+        drag_threshold = 6,
+        pass_mouse_when_bound = false,
+    },
     input = {
         kb_layout = "us,bg",
         kb_variant = ",bas_phonetic",
@@ -66,6 +78,8 @@ hl.config({
         follow_mouse = 1,
         touchpad = {
             tap_to_click = true,
+            -- One-finger click = left; two-finger click = right everywhere.
+            clickfinger_behavior = true,
             natural_scroll = true,
             disable_while_typing = true,
         },
@@ -121,6 +135,29 @@ for _, app in ipairs(workspace_apps) do
     })
 end
 
+-- Keep all nine workspaces available so the bar can always show the complete
+-- set, including currently empty workspaces.
+for i = 1, 9 do
+    hl.workspace_rule({ workspace = tostring(i), persistent = true })
+end
+
+-- pCloud's Electron window can otherwise inherit an awkward, effectively
+-- immovable size/position. Give it a normal centered floating surface.
+hl.window_rule({
+    match = { initial_class = ".*[Pp][Cc]loud.*" },
+    float = true,
+    center = true,
+    size = { "monitor_w * 0.70", "monitor_h * 0.75" },
+    persistent_size = true,
+})
+
+hl.window_rule({
+    match = { initial_class = "Cava" },
+    float = true,
+    center = true,
+    size = { "monitor_w", "monitor_h" },
+})
+
 local mod = "SUPER"
 
 local function bind(keys, dispatcher, description, options)
@@ -136,13 +173,85 @@ local function click(button)
     end
 end
 
+local cursor_reveal_generation = 0
+
 local function move_cursor(x, y)
     return function()
         local position = hl.get_cursor_pos()
         if position then
+            -- Programmatic cursor movement does not count as libinput motion.
+            -- Debounce timeout restoration so held arrow keys do not flicker.
+            cursor_reveal_generation = cursor_reveal_generation + 1
+            local generation = cursor_reveal_generation
+            hl.config({ cursor = { inactive_timeout = 0 } })
             hl.dispatch(hl.dsp.cursor.move({ x = position.x + x, y = position.y + y }))
+            hl.timer(function()
+                if generation == cursor_reveal_generation then
+                    hl.config({ cursor = { inactive_timeout = 5 } })
+                end
+            end, { timeout = 800, type = "oneshot" })
         end
     end
+end
+
+local function active_workspace()
+    return hl.get_active_special_workspace() or hl.get_active_workspace()
+end
+
+local function cycle_workspace_layout()
+    -- Hyprland names the closest equivalents to Awesome's tile/fair layouts
+    -- "master" and "scrolling". Layout changes apply to every tiled window
+    -- on the active workspace.
+    local layouts = { "dwindle", "master", "scrolling" }
+    local labels = {
+        dwindle = "Dwindle",
+        master = "Tile (master)",
+        scrolling = "Fair (scrolling)",
+    }
+    local workspace = active_workspace()
+    if not workspace then
+        return
+    end
+
+    local next_layout = layouts[1]
+    for i = 1, #layouts do
+        if layouts[i] == workspace.tiled_layout then
+            next_layout = layouts[(i % #layouts) + 1]
+            break
+        end
+    end
+
+    local workspace_selector = workspace.special and workspace.name or tostring(workspace.id)
+    hl.workspace_rule({ workspace = workspace_selector, layout = next_layout })
+    hl.notification.create({
+        text = "Layout: " .. labels[next_layout],
+        timeout = 1400,
+        icon = "ok",
+    })
+end
+
+local function ensure_floating(window)
+    if window and not window.floating then
+        hl.dispatch(hl.dsp.window.float({ window = window, action = "set" }))
+    end
+end
+
+local function toggle_sticky()
+    local window = hl.get_active_window()
+    if not window then
+        return
+    end
+    ensure_floating(window)
+    hl.dispatch(hl.dsp.window.pin({ window = window, action = "toggle" }))
+end
+
+local function raise_window()
+    local window = hl.get_active_window()
+    if not window then
+        return
+    end
+    ensure_floating(window)
+    hl.dispatch(hl.dsp.window.alter_zorder({ window = window, mode = "top" }))
 end
 
 local minimized_windows = {}
@@ -193,17 +302,15 @@ hl.on("window.close", function(window)
 end)
 
 -- Awesome/session controls.
-bind(mod .. " + SHIFT + R", hl.dsp.exec_cmd("hyprctl reload"), "Reload Hyprland")
+bind(mod .. " + SHIFT + R", hl.dsp.exec_cmd("hyprctl reload && notify-send 'Hyprland configuration reloaded'"), "Reload Hyprland")
 bind(mod .. " + SHIFT + Q", hl.dsp.exec_cmd("uwsm stop"), "Quit Hyprland")
 bind(mod .. " + S", hl.dsp.exec_cmd("~/.config/rofi/keybinds.sh"), "Show keybinding help")
-bind(mod .. " + W", hl.dsp.exec_cmd("rofi -show run"), "Show main menu")
 
 -- Client focus and workspace browsing.
 bind(mod .. " + SHIFT + Tab", hl.dsp.window.cycle_next({ next = false }), "Focus previous window")
 bind(mod .. " + Tab", hl.dsp.window.cycle_next({ next = true }), "Focus next window")
 bind(mod .. " + comma", hl.dsp.focus({ workspace = "e-1" }), "View previous workspace")
 bind(mod .. " + period", hl.dsp.focus({ workspace = "e+1" }), "View next workspace")
-bind(mod .. " + U", hl.dsp.focus({ urgent_or_last = true }), "Jump to urgent window")
 
 -- Launchers and session utilities.
 bind(mod .. " + Return", hl.dsp.exec_cmd("alacritty"), "Open a terminal")
@@ -213,18 +320,16 @@ bind(mod .. " + C", hl.dsp.exec_cmd("code"), "Open VS Code")
 bind(mod .. " + R", hl.dsp.exec_cmd("rofi -terminal alacritty -show run"), "Open the run prompt")
 bind(mod .. " + P", hl.dsp.exec_cmd("grim -g \"$(slurp)\" - | swappy -f -"), "Take a screenshot")
 bind(mod .. " + L", hl.dsp.exec_cmd("hyprlock"), "Lock the screen")
-bind(mod .. " + SHIFT + E", hl.dsp.exec_cmd("rofi -show power"), "Open the power menu")
 bind("XF86PowerOff", hl.dsp.exec_cmd("rofi -show power"), "Open the power menu")
 
 -- Window and layout manipulation.
 bind(mod .. " + SHIFT + J", hl.dsp.window.swap({ next = true }), "Swap with the next window")
 bind(mod .. " + SHIFT + K", hl.dsp.window.swap({ prev = true }), "Swap with the previous window")
-bind(mod .. " + SHIFT + space", hl.dsp.layout("togglesplit"), "Toggle split orientation")
+bind(mod .. " + SHIFT + space", cycle_workspace_layout, "Cycle Dwindle, Tile, and Fair layouts")
 bind(mod .. " + SHIFT + F", hl.dsp.window.float({ action = "toggle" }), "Toggle floating")
-bind(mod .. " + SHIFT + S", hl.dsp.window.pin({ action = "toggle" }), "Toggle sticky")
-bind(mod .. " + SHIFT + T", hl.dsp.window.alter_zorder({ mode = "top" }), "Raise above other windows")
+bind(mod .. " + SHIFT + S", toggle_sticky, "Toggle sticky")
+bind(mod .. " + SHIFT + T", raise_window, "Raise above other windows")
 bind(mod .. " + T", hl.dsp.exec_cmd("pkill -SIGUSR1 waybar"), "Toggle the top bar")
-bind(mod .. " + SHIFT + M", hl.dsp.window.fullscreen({ mode = "maximized", action = "toggle" }), "Magnify window")
 bind(mod .. " + F", hl.dsp.window.fullscreen({ action = "toggle" }), "Toggle fullscreen")
 bind(mod .. " + Q", hl.dsp.window.close(), "Close window")
 bind(mod .. " + N", minimize_window, "Minimize window")
@@ -238,7 +343,7 @@ bind(mod .. " + apostrophe", hl.dsp.focus({ monitor = "-1" }), "Focus the previo
 bind(mod .. " + SHIFT + semicolon", hl.dsp.window.move({ monitor = "-1" }), "Move window to the previous monitor")
 bind(mod .. " + SHIFT + apostrophe", hl.dsp.window.move({ monitor = "+1" }), "Move window to the next monitor")
 
-bind(mod .. " + G", hl.dsp.exec_cmd("~/.config/hypr/toggle-visualizer.sh"), "Start or stop Kwybars")
+bind(mod .. " + G", hl.dsp.exec_cmd("~/.config/hypr/toggle-visualizer.sh"), "Start or stop Cava")
 
 -- Keyboard-driven pointer control.
 bind(mod .. " + left", move_cursor(-16, 0), "Move pointer left", { repeating = true })

@@ -2,10 +2,8 @@
 
 set -euo pipefail
 
-visualizer_service="kwybars-daemon.service"
-
-if systemctl --user is-active --quiet "$visualizer_service"; then
-    systemctl --user stop "$visualizer_service"
+if pgrep -x cava >/dev/null; then
+    pkill -x cava
 else
-    systemctl --user start "$visualizer_service"
+    alacritty --class Cava,Cava --title Cava -e cava >/dev/null 2>&1 &
 fi

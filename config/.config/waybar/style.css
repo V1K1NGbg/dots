@@ -14,10 +14,48 @@ window#waybar {
 
 #clock,
 #battery,
-#tray {
+#tray,
+#window {
   padding: 0 9px;
 }
 
+#workspaces {
+  padding: 0 4px;
+}
+
+#workspaces button {
+  color: #777777;
+  padding: 0 6px;
+  margin: 4px 1px;
+  border-radius: 4px;
+}
+
+#workspaces button.active {
+  background: #67ffeb;
+  color: #191919;
+}
+
+#workspaces button.urgent {
+  color: #ff025f;
+}
+
+#workspaces.windows {
+  padding: 0 3px;
+}
+
+#workspaces.windows button.taskbar-window {
+  background: transparent;
+  padding: 0 4px;
+  margin: 3px 1px;
+  opacity: 0.65;
+}
+
+#workspaces.windows button.taskbar-window.active {
+  background: rgba(103, 255, 235, 0.18);
+  opacity: 1;
+}
+
+#window { color: #f8f8f2; }
 #clock { color: #67ffeb; }
 #battery.warning { color: #ffb247; }
 #battery.critical { color: #ff025f; }

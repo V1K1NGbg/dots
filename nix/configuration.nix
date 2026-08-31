@@ -34,72 +34,15 @@ let
         "$out/share/plymouth/themes/hexagon_hud"
   '';
 
-  palette = {
-    background = "#191919";
-    foreground = "#f8f8f2";
-    muted = "#404040";
-    accent = "#67ffeb";
-    warning = "#ff025f";
-  };
-
-  sddmAstronaut = pkgs.sddm-astronaut.override {
-    embeddedTheme = "astronaut";
-    themeConfig = {
-      # Keep Astronaut's layout and use the palette shared by the rest of this
-      # configuration. An empty background deliberately removes the bundled
-      # astronaut artwork.
-      Background = "";
-      BackgroundPlaceholder = "";
-      BackgroundColor = palette.background;
-      DimBackgroundColor = palette.background;
-      FormBackgroundColor = palette.background;
-
-      Font = "Monocraft Nerd Font";
-      FontSize = "13";
-      RoundCorners = "8";
-      HeaderText = "VIKING";
-      HeaderTextColor = palette.foreground;
-      DateTextColor = palette.accent;
-      TimeTextColor = palette.accent;
-
-      LoginFieldBackgroundColor = palette.background;
-      PasswordFieldBackgroundColor = palette.background;
-      LoginFieldTextColor = palette.foreground;
-      PasswordFieldTextColor = palette.foreground;
-      UserIconColor = palette.foreground;
-      PasswordIconColor = palette.foreground;
-      PlaceholderTextColor = palette.muted;
-      WarningColor = palette.warning;
-
-      LoginButtonTextColor = palette.background;
-      LoginButtonBackgroundColor = palette.accent;
-      SystemButtonsIconsColor = palette.foreground;
-      SessionButtonTextColor = palette.foreground;
-      VirtualKeyboardButtonTextColor = palette.foreground;
-      DropdownTextColor = palette.foreground;
-      DropdownSelectedBackgroundColor = palette.accent;
-      DropdownBackgroundColor = palette.background;
-
-      HighlightTextColor = palette.background;
-      HighlightBackgroundColor = palette.accent;
-      HighlightBorderColor = palette.accent;
-      HoverUserIconColor = palette.accent;
-      HoverPasswordIconColor = palette.accent;
-      HoverSystemButtonsIconsColor = palette.accent;
-      HoverSessionButtonTextColor = palette.accent;
-      HoverVirtualKeyboardButtonTextColor = palette.accent;
-
-      PartialBlur = "false";
-      FullBlur = "false";
-      HaveFormBackground = "false";
-      FormPosition = "center";
-      PasswordFocus = "true";
-      ForceLastUser = "true";
-      HideCompletePassword = "true";
-    };
-  };
-
   vimixCursor = import ./cursor-theme.nix { inherit pkgs; };
+
+  rebootToBootMenu = pkgs.writeShellApplication {
+    name = "reboot-to-boot-menu";
+    runtimeInputs = [ pkgs.systemd ];
+    text = ''
+      exec systemctl reboot --boot-loader-menu=30s
+    '';
+  };
 in
 {
   imports = [
@@ -124,9 +67,15 @@ in
       verbose = false;
     };
     kernelParams = [
-      # Disable PSR and the broken firmware-provided brightness curve. The
-      # latter otherwise wraps the top two brightness steps back to dim.
+      # Disable PSR, adaptive backlight power transitions, and the broken
+      # firmware-provided brightness curve. AC/DC events otherwise make the
+      # AMD display stack retrain its power-saving state and visibly stall.
       "amdgpu.dcdebugmask=0x40010"
+      "amdgpu.abmlevel=0"
+      # Keep the CPU energy preference stable across AC/DC events. A power
+      # profile is selected explicitly through power-profiles-daemon instead.
+      "amd_pstate=active"
+      "amd_dynamic_epp=disable"
       "quiet"
       "splash"
       "rd.udev.log_level=3"
@@ -139,7 +88,11 @@ in
       systemd-boot = {
         enable = true;
         configurationLimit = 10;
+        consoleMode = "auto";
+        editor = false;
       };
+      # Keep the menu invisible during normal boots. Hold Space before the
+      # firmware hands off to systemd-boot to reveal all retained generations.
       timeout = 0;
     };
 
@@ -153,10 +106,26 @@ in
 
   networking = {
     hostName = "nixfwbtw";
-    nameservers = [ "1.1.1.1" ];
+    useDHCP = false;
+    dhcpcd.enable = false;
+    nameservers = [
+      "1.1.1.1"
+      "1.0.0.1"
+    ];
+    nftables.enable = true;
+    firewall.enable = true;
     networkmanager = {
       enable = true;
-      dns = "none";
+      dns = "default";
+      settings = {
+        # Do not let DHCP-provided router DNS override the global resolvers.
+        connection = {
+          "ipv4.ignore-auto-dns" = true;
+          "ipv6.ignore-auto-dns" = true;
+        };
+        global-dns.searches = "~.";
+        "global-dns-domain-*".servers = "1.1.1.1,1.0.0.1";
+      };
     };
   };
 
@@ -197,7 +166,8 @@ in
         qtsvg
         qtvirtualkeyboard
       ];
-      theme = "sddm-astronaut-theme";
+      # Use SDDM's bundled, artwork-free theme instead of Astronaut.
+      theme = "maldives";
       settings.Theme = {
         CursorTheme = "Vimix-Monocraft";
         CursorSize = 24;
@@ -226,56 +196,8 @@ in
       xwayland.enable = true;
     };
     hyprlock.enable = true;
-    kwybars = {
-      enable = true;
-      settings = {
-        overlay = {
-          monitor_mode = "all";
-          layer = "background";
-          position = "bottom";
-          full_length = true;
-          height = 260;
-          anchor_margin = 0;
-          margin_left = 24;
-          margin_right = 24;
-          margin_bottom = 12;
-          fade_in_ms = 300;
-          fade_out_ms = 700;
-        };
-        visualizer = {
-          backend = "pipewire";
-          layout = "wave";
-          bars = 24;
-          framerate = 60;
-          wave_stroke_width = 5;
-          wave_fill = true;
-          wave_glow = true;
-          wave_smoothing = 2.0;
-          wave_motion_smoothing = 0.14;
-          wave_amplitude = 0.75;
-          color_mode = "gradient";
-          color_rgba = "rgba(103, 255, 235, 0.72)";
-          color2_rgba = "rgba(162, 243, 0, 0.48)";
-        };
-        daemon = {
-          enabled = true;
-          poll_interval_ms = 50;
-          activity_threshold = 0.025;
-          activate_delay_ms = 120;
-          deactivate_delay_ms = 1800;
-          stop_on_silence = true;
-          notify_on_error = true;
-          notify_cooldown_seconds = 45;
-        };
-      };
-      # Install a managed unit, but preserve Super+G as the explicit on/off
-      # control instead of starting the visualizer on every login.
-      systemd.enable = true;
-    };
     steam.enable = true;
   };
-
-  systemd.user.services.kwybars-daemon.wantedBy = lib.mkForce [ ];
 
   security = {
     pam.services = {
@@ -315,6 +237,12 @@ in
   services = {
     blueman.enable = true;
     fprintd.enable = true;
+    power-profiles-daemon.enable = true;
+    ollama = {
+      enable = true;
+      package = pkgs.ollama-rocm;
+      loadModels = [ "qwen3.5:9b" ];
+    };
     pipewire = {
       enable = true;
       alsa = {
@@ -323,6 +251,13 @@ in
       };
       pulse.enable = true;
     };
+  };
+
+  # Hyprlock talks to fprintd directly in parallel with password PAM. Start it
+  # before the first lock instead of racing D-Bus activation and reader setup.
+  systemd.services.fprintd = {
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig.Restart = "on-failure";
   };
 
   virtualisation.docker = {
@@ -348,7 +283,7 @@ in
 
   environment = {
     systemPackages = [
-      sddmAstronaut
+      rebootToBootMenu
       vimixCursor
     ];
     etc.inputrc.text = ''

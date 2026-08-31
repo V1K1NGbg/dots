@@ -277,7 +277,7 @@ nmcli --offline connection modify \
 chmod 0600 "$target_wifi_profile"
 
 nixos-generate-config --root "$TARGET_ROOT" --show-hardware-config --no-filesystems \
-    > "$TARGET_CONFIG_DIR/nix/hardware-configuration.nix"
+    > "$TARGET_CONFIG_DIR/hardware-configuration.nix"
 
 LUKS_UUID=$(cryptsetup luksUUID "$CRYPT_PARTITION")
 BOOT_UUID=$(blkid -s UUID -o value "$BOOT_PARTITION")
@@ -286,8 +286,8 @@ BOOT_UUID=$(blkid -s UUID -o value "$BOOT_PARTITION")
 sed \
     -e "s|@LUKS_UUID@|$LUKS_UUID|g" \
     -e "s|@BOOT_UUID@|$BOOT_UUID|g" \
-    "$TARGET_CONFIG_DIR/nix/disk-config.nix.template" \
-    > "$TARGET_CONFIG_DIR/nix/disk-config.nix"
+    "$TARGET_CONFIG_DIR/disk-config.nix.template" \
+    > "$TARGET_CONFIG_DIR/disk-config.nix"
 
 [[ -f "$TARGET_CONFIG_DIR/flake.lock" ]] \
     || fail "the cloned branch does not contain the pinned flake.lock"
