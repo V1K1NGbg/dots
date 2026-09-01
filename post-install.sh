@@ -125,8 +125,8 @@ else
     fi
 fi
 
-if grep -q pam_fprintd /etc/pam.d/login && grep -q pam_fprintd /etc/pam.d/sudo; then
-    printf 'Fingerprint PAM is active for SDDM/login and sudo.\n'
+if grep -q pam_fprintd /etc/pam.d/sudo; then
+    printf 'Fingerprint PAM is active for sudo; Hyprlock uses parallel fprintd authentication.\n'
 else
     printf '%s\n' \
         'WARNING: fingerprint PAM is not active yet. Rebuild the current configuration first:' \

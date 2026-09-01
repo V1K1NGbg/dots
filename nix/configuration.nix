@@ -80,7 +80,9 @@ let
         DropdownBackgroundColor = palette.background;
         HighlightTextColor = palette.background;
         HighlightBackgroundColor = palette.accent;
-        HighlightBorderColor = palette.accent;
+        # The focused username field otherwise leaves a tiny accent-colored
+        # edge visible beside its overlaid user icon.
+        HighlightBorderColor = palette.background;
         HoverUserIconColor = palette.accent;
         HoverPasswordIconColor = palette.accent;
         HoverSystemButtonsIconsColor = palette.accent;
@@ -128,25 +130,6 @@ let
       printf '\nVerify it:\n'
       fprintd-verify --finger right-index-finger "$user_name"
     '';
-  };
-
-  # hyprwinwrap was split out of the official plugin collection. Pin the
-  # revision matched to Hyprland 0.56.0 and build it against this system's
-  # Hyprland package so the compositor/plugin ABI stays identical.
-  hyprwinwrap = pkgs.hyprlandPlugins.mkHyprlandPlugin {
-    pluginName = "hyprwinwrap";
-    version = "1.1-unstable-2026-07-26";
-    src = pkgs.fetchurl {
-      name = "hyprwinwrap-a72d3ee.tar.gz";
-      url = "https://codeload.github.com/gen3vra/hyprwinwrap/tar.gz/a72d3eeecfb0eaab64092c23410662ec907ca671";
-      hash = "sha256-tHTaak4FaYwYSU/86kYiyOBcZRahT0qAAZlVYssz2rE=";
-    };
-    inherit (pkgs.hyprland) nativeBuildInputs;
-    meta = {
-      homepage = "https://github.com/gen3vra/hyprwinwrap";
-      description = "Display any window as a background wallpaper";
-      license = lib.licenses.bsd3;
-    };
   };
 
   rebootToBootMenu = pkgs.writeShellApplication {
@@ -266,8 +249,10 @@ in
 
   services.displayManager = {
     defaultSession = "hyprland-uwsm";
-    # SDDM must perform a real PAM login for its fingerprint stack to run.
-    autoLogin.enable = false;
+    autoLogin = {
+      enable = true;
+      user = "victor";
+    };
     sddm = {
       enable = true;
       enableHidpi = true;
@@ -311,8 +296,9 @@ in
 
   security = {
     pam.services = {
-      # Hyprlock performs fingerprint scanning in parallel with its password
-      # prompt. PAM remains password-only there to avoid two fprintd clients.
+      # Hyprlock talks to fprintd directly so fingerprint and password remain
+      # available in parallel. Enabling PAM fprint here would create a second
+      # reader client and make the password prompt wait for fingerprint PAM.
       hyprlock.fprintAuth = false;
       login.fprintAuth = true;
       sddm.fprintAuth = true;
@@ -365,9 +351,15 @@ in
 
   # Hyprlock talks to fprintd directly in parallel with password PAM. Start it
   # before the first lock instead of racing D-Bus activation and reader setup.
+  # StateDirectory makes the enrollment database at /var/lib/fprint explicit
+  # persistent machine state; switching NixOS generations must never replace it.
   systemd.services.fprintd = {
     wantedBy = [ "multi-user.target" ];
-    serviceConfig.Restart = "on-failure";
+    serviceConfig = {
+      Restart = "on-failure";
+      StateDirectory = "fprint";
+      StateDirectoryMode = "0700";
+    };
   };
 
   virtualisation.docker = {
@@ -397,7 +389,6 @@ in
       rebootToBootMenu
       sddmAstronaut
       vimixCursor
-      hyprwinwrap
     ];
     etc.inputrc.text = ''
       set completion-ignore-case on
@@ -409,7 +400,6 @@ in
       QT_QPA_PLATFORM = "wayland;xcb";
       QT_QPA_PLATFORMTHEME = "qt6ct";
       TERMINAL = "alacritty";
-      HYPRWINWRAP_PLUGIN = "${hyprwinwrap}/lib/libhyprwinwrap.so";
       _JAVA_AWT_WM_NONREPARENTING = "1";
     };
   };

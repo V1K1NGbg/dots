@@ -38,7 +38,6 @@ flameshot | available but Wayland capture is compositor/portal-sensitive | selec
 fprintdgimp | AUR-only and unavailable | selected: fprintd with post-install enrollment; alternatives: fprintd-tod plus the hardware-matching libfprint TOD driver
 git | available | selected: git; alternative: jujutsu with Git interoperability
 github-cli | available | selected: github-cli with `post-install.sh` authentication; alternatives: hub, browser
-glava | available but X11-oriented | removed; selected: always-on cava rendered as a Hyprland wallpaper through hyprwinwrap
 gnome-disk-utility | available, native Wayland GTK | selected: gnome-disk-utility; alternative: kdePackages.partitionmanager
 highlight | available | selected: highlight; alternatives: bat, pygmentize
 htop | available | selected: htop; alternatives: btop, bottom

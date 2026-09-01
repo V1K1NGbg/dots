@@ -20,7 +20,6 @@ in
     btop
     brightnessctl
     bulky
-    cava
     cliphist
     clang-tools
     cowsay
