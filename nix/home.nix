@@ -145,7 +145,7 @@ in
 
   # OpenCode currently turns invalid or expired provider credentials into the
   # generic ProcessTicksAndRejections startup error. This configuration uses
-  # only local Ollama, so preserve and clear any unnecessary credential state.
+  # only local llama.cpp, so preserve and clear any unnecessary credential state.
   home.activation.repairOpenCodeAuth = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
     auth_file="$HOME/.local/share/opencode/auth.json"
     if [[ -f "$auth_file" ]] && ! ${pkgs.jq}/bin/jq -e \

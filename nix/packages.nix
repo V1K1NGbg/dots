@@ -53,7 +53,7 @@ in
     libinput
     libnotify
     libqalculate
-    llama-cpp
+    llama-cpp-rocm
     localsend
     lolcat
     mako

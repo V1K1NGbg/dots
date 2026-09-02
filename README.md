@@ -18,6 +18,13 @@ cd ~/dots
 sudo nixos-rebuild switch --flake ~/dots#laptop
 ```
 
+## Update flake with:
+
+```bash
+nix flake update --flake ~/dots
+sudo nixos-rebuild switch --flake ~/dots#laptop
+```
+
 The rebuild enables parallel fingerprint authentication in Hyprlock and PAM
 fingerprint authentication for sudo. Enroll and verify one once with:
 

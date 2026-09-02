@@ -341,10 +341,13 @@ in
     blueman.enable = true;
     fprintd.enable = true;
     power-profiles-daemon.enable = true;
-    ollama = {
+    llama-cpp = {
       enable = true;
-      package = pkgs.ollama-rocm;
-      loadModels = [ "qwen3.5:9b" ];
+      package = pkgs.llama-cpp-rocm;
+      settings = {
+        hf-repo = "unsloth/Qwen3.8-27B-GGUF:UD-Q4_K_M";
+        alias = "qwen3.8:27b";
+      };
     };
     pipewire = {
       enable = true;

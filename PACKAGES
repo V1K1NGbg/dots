@@ -49,7 +49,7 @@ keepassxc | available, native Wayland Qt | selected: keepassxc; alternatives: bi
 lazygit | available | selected: lazygit; alternative: gitui
 less | available | selected: less; alternative: most
 libconfig | available development library | selected: libconfig; alternative: add it only to project buildInputs
-llama-cpp | available | selected: llama-cpp; alternatives: ollama, koboldcpp
+llama-cpp | available | selected: llama-cpp-rocm; alternatives: ollama, koboldcpp
 lobster-git | the AUR movie/anime CLI is unavailable; NixOS `lobster` is a different language | selected: ani-cli; alternatives: browser, package the upstream script locally
 localsend | available, native Wayland | selected: localsend; alternatives: kdeconnect-kde, croc
 lolcat | available | selected: lolcat; alternative: toilet with color filters
