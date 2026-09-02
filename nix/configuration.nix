@@ -80,9 +80,7 @@ let
         DropdownBackgroundColor = palette.background;
         HighlightTextColor = palette.background;
         HighlightBackgroundColor = palette.accent;
-        # The focused username field otherwise leaves a tiny accent-colored
-        # edge visible beside its overlaid user icon.
-        HighlightBorderColor = palette.background;
+        HighlightBorderColor = palette.accent;
         HoverUserIconColor = palette.accent;
         HoverPasswordIconColor = palette.accent;
         HoverSystemButtonsIconsColor = palette.accent;
@@ -100,12 +98,24 @@ let
       (oldAttrs: {
         installPhase = oldAttrs.installPhase + ''
           theme_dir="$out/share/sddm/themes/sddm-astronaut-theme"
-          chmod u+w "$theme_dir" "$theme_dir/Main.qml"
+          input_file="$theme_dir/Components/Input.qml"
+          chmod u+w "$theme_dir" "$theme_dir/Main.qml" "$input_file"
           substituteInPlace \
             "$theme_dir/Main.qml" \
             --replace-fail \
               'backgroundImage.source = config.background || config.Background' \
               'backgroundImage.visible = false'
+
+          # The username field is drawn underneath its icon. Its focused
+          # border therefore peeks out as a tiny accent line beside the icon;
+          # keep the accent border on the password field, but not this one.
+          old_username_border=$'target: username.background\n                        border.color: config.HighlightBorderColor'
+          new_username_border=$'target: username.background\n                        border.color: "transparent"'
+          substituteInPlace \
+            "$input_file" \
+            --replace-fail \
+              "$old_username_border" \
+              "$new_username_border"
         '';
       });
 
@@ -296,12 +306,9 @@ in
 
   security = {
     pam.services = {
-      # Hyprlock talks to fprintd directly so fingerprint and password remain
-      # available in parallel. Enabling PAM fprint here would create a second
-      # reader client and make the password prompt wait for fingerprint PAM.
-      hyprlock.fprintAuth = false;
-      login.fprintAuth = true;
-      sddm.fprintAuth = true;
+      # Use the PAM path for both Hyprlock and sudo. Hyprlock's native fprintd
+      # client is currently unreliable with the packaged 0.9.x release.
+      hyprlock.fprintAuth = true;
       sudo.fprintAuth = true;
     };
     polkit.enable = true;
@@ -349,8 +356,8 @@ in
     };
   };
 
-  # Hyprlock talks to fprintd directly in parallel with password PAM. Start it
-  # before the first lock instead of racing D-Bus activation and reader setup.
+  # Start fprintd before the first PAM request instead of racing D-Bus
+  # activation and reader setup.
   # StateDirectory makes the enrollment database at /var/lib/fprint explicit
   # persistent machine state; switching NixOS generations must never replace it.
   systemd.services.fprintd = {
@@ -359,6 +366,17 @@ in
       Restart = "on-failure";
       StateDirectory = "fprint";
       StateDirectoryMode = "0700";
+    };
+  };
+
+  # A suspended reader can leave fprintd with a stale device connection. Stop
+  # it before sleep and let D-Bus start a fresh instance on the next request.
+  systemd.services.fprintd-before-sleep = {
+    before = [ "sleep.target" ];
+    wantedBy = [ "sleep.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.systemd}/bin/systemctl stop fprintd.service";
     };
   };
 

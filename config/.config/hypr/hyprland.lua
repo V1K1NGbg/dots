@@ -60,6 +60,8 @@ hl.config({
         -- Every new split is placed to the right or below its parent, keeping
         -- the visual spiral anchored toward the bottom-right corner.
         force_split = 2,
+        smart_split = false,
+        use_active_for_splits = true,
     },
     master = {
         orientation = "left",
@@ -144,16 +146,6 @@ for i = 1, 9 do
     hl.workspace_rule({ workspace = tostring(i), persistent = true })
 end
 
--- pCloud's Electron window can otherwise inherit an awkward, effectively
--- immovable size/position. Give it a normal centered floating surface.
-hl.window_rule({
-    match = { initial_class = ".*[Pp][Cc]loud.*" },
-    float = true,
-    center = true,
-    size = { "monitor_w * 0.70", "monitor_h * 0.75" },
-    persistent_size = true,
-})
-
 local mod = "SUPER"
 
 local function bind(keys, dispatcher, description, options)
@@ -210,13 +202,27 @@ hl.layout.register("fair", {
     end,
 })
 
+local function focus_bottom_right_tiled(workspace)
+    local bottom_right
+    local bottom_right_score
+
+    for _, window in ipairs(hl.get_windows({ workspace = workspace })) do
+        if not window.floating then
+            local score = window.at.x + (window.size.x / 2) + window.at.y + (window.size.y / 2)
+            if not bottom_right_score or score > bottom_right_score then
+                bottom_right = window
+                bottom_right_score = score
+            end
+        end
+    end
+
+    if bottom_right then
+        hl.dispatch(hl.dsp.focus({ window = bottom_right }))
+    end
+end
+
 local function cycle_workspace_layout()
     local layouts = { "dwindle", "master", "lua:fair" }
-    local labels = {
-        dwindle = "Dwindle",
-        master = "Tile (master)",
-        ["lua:fair"] = "Fair (equal grid)",
-    }
     local workspace = active_workspace()
     if not workspace then
         return
@@ -232,11 +238,11 @@ local function cycle_workspace_layout()
 
     local workspace_selector = workspace.special and workspace.name or tostring(workspace.id)
     hl.workspace_rule({ workspace = workspace_selector, layout = next_layout })
-    hl.notification.create({
-        text = "Layout: " .. labels[next_layout],
-        timeout = 1400,
-        icon = "ok",
-    })
+    if next_layout == "dwindle" then
+        hl.timer(function()
+            focus_bottom_right_tiled(workspace)
+        end, { timeout = 1, type = "oneshot" })
+    end
 end
 
 local function resize_current_split(delta)
@@ -251,19 +257,51 @@ local function resize_current_split(delta)
         hl.dispatch(hl.dsp.layout("splitratio " .. delta))
     elseif workspace.tiled_layout == "master" then
         hl.dispatch(hl.dsp.layout("mfact " .. delta))
-    else
-        hl.notification.create({
-            text = "Fair stays equal-sized",
-            timeout = 1000,
-            icon = "info",
-        })
     end
 end
 
-local function ensure_floating(window)
-    if window and not window.floating then
-        hl.dispatch(hl.dsp.window.float({ window = window, action = "set" }))
+local function set_floating(window, floating)
+    if window and window.floating ~= floating then
+        hl.dispatch(hl.dsp.window.float({
+            window = window,
+            action = floating and "set" or "unset",
+        }))
     end
+end
+
+local sticky_windows = {}
+local kept_on_top = {}
+
+local function stop_sticky(address, restore_workspace)
+    local entry = sticky_windows[address]
+    if not entry then
+        return nil
+    end
+
+    sticky_windows[address] = nil
+    if entry.window.pinned then
+        hl.dispatch(hl.dsp.window.pin({ window = entry.window, action = "unset" }))
+    end
+    if restore_workspace and entry.workspace then
+        hl.dispatch(hl.dsp.window.move({
+            window = entry.window,
+            workspace = entry.workspace,
+            follow = false,
+        }))
+    end
+    set_floating(entry.window, entry.was_floating)
+    return entry.was_floating
+end
+
+local function stop_keep_on_top(address)
+    local entry = kept_on_top[address]
+    if not entry then
+        return nil
+    end
+
+    kept_on_top[address] = nil
+    set_floating(entry.window, entry.was_floating)
+    return entry.was_floating
 end
 
 local function toggle_sticky()
@@ -271,15 +309,35 @@ local function toggle_sticky()
     if not window then
         return
     end
-    ensure_floating(window)
-    hl.dispatch(hl.dsp.window.pin({ window = window, action = "toggle" }))
+
+    local address = window.address
+    if sticky_windows[address] then
+        stop_sticky(address, true)
+        return
+    end
+
+    -- Sticky and keep-on-top are exclusive. Changing modes restores the old
+    -- mode first, so disabling either one can always restore a known state.
+    local was_floating = window.floating
+    if kept_on_top[address] then
+        was_floating = stop_keep_on_top(address)
+    end
+    if window.pinned then
+        hl.dispatch(hl.dsp.window.pin({ window = window, action = "unset" }))
+    end
+
+    sticky_windows[address] = {
+        window = window,
+        workspace = window.workspace,
+        monitor = window.workspace and window.workspace.monitor,
+        was_floating = was_floating,
+    }
+    set_floating(window, false)
 end
 
-local kept_on_top = {}
-
 local function reassert_kept_on_top()
-    for _, window in pairs(kept_on_top) do
-        hl.dispatch(hl.dsp.window.alter_zorder({ window = window, mode = "top" }))
+    for _, entry in pairs(kept_on_top) do
+        hl.dispatch(hl.dsp.window.alter_zorder({ window = entry.window, mode = "top" }))
     end
 end
 
@@ -291,21 +349,49 @@ local function toggle_keep_on_top()
 
     local address = window.address
     if kept_on_top[address] then
-        kept_on_top[address] = nil
-        hl.notification.create({ text = "Keep on top: off", timeout = 1200, icon = "ok" })
+        stop_keep_on_top(address)
         return
     end
 
-    ensure_floating(window)
-    kept_on_top[address] = window
+    local was_floating = window.floating
+    if sticky_windows[address] then
+        -- Keep it on the workspace where the mode was changed instead of
+        -- jumping back to its original workspace before going on top.
+        was_floating = stop_sticky(address, false)
+    end
+
+    kept_on_top[address] = {
+        window = window,
+        was_floating = was_floating,
+    }
+    set_floating(window, true)
     hl.dispatch(hl.dsp.window.alter_zorder({ window = window, mode = "top" }))
-    hl.notification.create({ text = "Keep on top: on", timeout = 1200, icon = "ok" })
 end
 
 -- alter_zorder is a one-shot compositor operation. Reapply it whenever a new
 -- window opens or focus changes so "keep on top" remains persistent.
 hl.on("window.open", reassert_kept_on_top)
 hl.on("window.active", reassert_kept_on_top)
+
+-- Hyprland's native pin requires a floating window. Sticky instead follows
+-- active normal workspaces on its monitor while remaining tiled.
+hl.on("workspace.active", function(workspace)
+    if workspace.special then
+        return
+    end
+
+    for _, entry in pairs(sticky_windows) do
+        local source_monitor = entry.monitor and entry.monitor.name
+        local target_monitor = workspace.monitor and workspace.monitor.name
+        if not source_monitor or not target_monitor or source_monitor == target_monitor then
+            hl.dispatch(hl.dsp.window.move({
+                window = entry.window,
+                workspace = workspace,
+                follow = false,
+            }))
+        end
+    end
+end)
 
 local minimized_windows = {}
 
@@ -348,6 +434,7 @@ end
 
 hl.on("window.close", function(window)
     kept_on_top[window.address] = nil
+    sticky_windows[window.address] = nil
     for i = #minimized_windows, 1, -1 do
         if minimized_windows[i].window == window then
             table.remove(minimized_windows, i)
@@ -411,11 +498,8 @@ bind(mod .. " + SHIFT + right", move_cursor(3, 0), "Nudge pointer right", { repe
 bind(mod .. " + bracketleft", click("mouse:272"), "Left-click the pointer")
 bind(mod .. " + bracketright", click("mouse:273"), "Right-click the pointer")
 
--- Workspaces replace Awesome tags. Hyprland cannot display multiple normal
--- workspaces at once, so Control+number focuses the requested workspace too.
 for i = 1, 9 do
     bind(mod .. " + " .. i, hl.dsp.focus({ workspace = i }), "View workspace " .. i)
-    bind(mod .. " + CTRL + " .. i, hl.dsp.focus({ workspace = i }), "View workspace " .. i)
     bind(mod .. " + SHIFT + " .. i, hl.dsp.window.move({ workspace = i }), "Move window to workspace " .. i)
 end
 

@@ -143,13 +143,14 @@ in
     };
   };
 
-  # OpenCode can turn a truncated auth.json into the generic
-  # ProcessTicksAndRejections startup error. Preserve the bad file for
-  # inspection and replace only invalid JSON with an empty credential store.
+  # OpenCode currently turns invalid or expired provider credentials into the
+  # generic ProcessTicksAndRejections startup error. This configuration uses
+  # only local Ollama, so preserve and clear any unnecessary credential state.
   home.activation.repairOpenCodeAuth = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
     auth_file="$HOME/.local/share/opencode/auth.json"
-    if [[ -f "$auth_file" ]] && ! ${pkgs.jq}/bin/jq empty "$auth_file" >/dev/null 2>&1; then
-      backup_file="$auth_file.corrupt-$(${pkgs.coreutils}/bin/date +%Y%m%d-%H%M%S)"
+    if [[ -f "$auth_file" ]] && ! ${pkgs.jq}/bin/jq -e \
+      'type == "object" and length == 0' "$auth_file" >/dev/null 2>&1; then
+      backup_file="$auth_file.stale-$(${pkgs.coreutils}/bin/date +%Y%m%d-%H%M%S)"
       ${pkgs.coreutils}/bin/mv -- "$auth_file" "$backup_file"
       ${pkgs.coreutils}/bin/printf '{}\n' > "$auth_file"
     fi
