@@ -125,11 +125,11 @@ else
     fi
 fi
 
-if grep -q pam_fprintd /etc/pam.d/sudo; then
-    printf 'Fingerprint PAM is active for sudo; Hyprlock uses parallel fprintd authentication.\n'
+if grep -q pam_fprintd /etc/pam.d/sudo && grep -q pam_fprintd /etc/pam.d/hyprlock; then
+    printf 'Fingerprint PAM is active for sudo and Hyprlock.\n'
 else
     printf '%s\n' \
-        'WARNING: fingerprint PAM is not active yet. Rebuild the current configuration first:' \
+        'WARNING: fingerprint PAM is not active for both sudo and Hyprlock yet. Rebuild first:' \
         '  sudo nixos-rebuild switch --flake ~/dots#laptop' >&2
 fi
 

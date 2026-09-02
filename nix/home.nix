@@ -60,7 +60,10 @@ in
       })
       // {
         ".oh-my-bash".source = ohMyBash;
-        ".config/opencode".source = opencodeSource;
+        ".config/opencode" = {
+          source = opencodeSource;
+          recursive = true;
+        };
       };
   };
 
@@ -143,16 +146,35 @@ in
     };
   };
 
-  # OpenCode currently turns invalid or expired provider credentials into the
-  # generic ProcessTicksAndRejections startup error. This configuration uses
-  # only local llama.cpp, so preserve and clear any unnecessary credential state.
+  # OpenCode currently turns invalid credentials and a damaged SQLite state
+  # into the same generic ProcessTicksAndRejections error. Credentials are not
+  # used by the local provider; keep a recoverable backup of stale state.
   home.activation.repairOpenCodeAuth = lib.hm.dag.entryBefore [ "checkLinkTargets" ] ''
+    state_dir="$HOME/.local/share/opencode"
     auth_file="$HOME/.local/share/opencode/auth.json"
     if [[ -f "$auth_file" ]] && ! ${pkgs.jq}/bin/jq -e \
       'type == "object" and length == 0' "$auth_file" >/dev/null 2>&1; then
       backup_file="$auth_file.stale-$(${pkgs.coreutils}/bin/date +%Y%m%d-%H%M%S)"
       ${pkgs.coreutils}/bin/mv -- "$auth_file" "$backup_file"
       ${pkgs.coreutils}/bin/printf '{}\n' > "$auth_file"
+    fi
+
+    repair_marker="$state_dir/.nixos-state-repair-v1"
+    if [[ ! -e "$repair_marker" ]]; then
+      backup_dir="$state_dir/nixos-state-backup-$(${pkgs.coreutils}/bin/date +%Y%m%d-%H%M%S)"
+      for state_file in opencode.db opencode.db-shm opencode.db-wal storage; do
+        if [[ -e "$state_dir/$state_file" ]]; then
+          ${pkgs.coreutils}/bin/mkdir -p "$backup_dir"
+          ${pkgs.coreutils}/bin/mv -- "$state_dir/$state_file" "$backup_dir/$state_file"
+        fi
+      done
+      cache_dir="$HOME/.cache/opencode"
+      if [[ -e "$cache_dir" ]]; then
+        ${pkgs.coreutils}/bin/mkdir -p "$backup_dir"
+        ${pkgs.coreutils}/bin/mv -- "$cache_dir" "$backup_dir/cache"
+      fi
+      ${pkgs.coreutils}/bin/mkdir -p "$state_dir"
+      ${pkgs.coreutils}/bin/touch "$repair_marker"
     fi
   '';
 }

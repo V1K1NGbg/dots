@@ -80,7 +80,9 @@ let
         DropdownBackgroundColor = palette.background;
         HighlightTextColor = palette.background;
         HighlightBackgroundColor = palette.accent;
-        HighlightBorderColor = palette.accent;
+        # The username icon overlaps this border by a few pixels in Astronaut.
+        # Matching the field background removes the visible blue sliver.
+        HighlightBorderColor = palette.background;
         HoverUserIconColor = palette.accent;
         HoverPasswordIconColor = palette.accent;
         HoverSystemButtonsIconsColor = palette.accent;
@@ -98,24 +100,12 @@ let
       (oldAttrs: {
         installPhase = oldAttrs.installPhase + ''
           theme_dir="$out/share/sddm/themes/sddm-astronaut-theme"
-          input_file="$theme_dir/Components/Input.qml"
-          chmod u+w "$theme_dir" "$theme_dir/Main.qml" "$input_file"
+          chmod u+w "$theme_dir" "$theme_dir/Main.qml"
           substituteInPlace \
             "$theme_dir/Main.qml" \
             --replace-fail \
               'backgroundImage.source = config.background || config.Background' \
               'backgroundImage.visible = false'
-
-          # The username field is drawn underneath its icon. Its focused
-          # border therefore peeks out as a tiny accent line beside the icon;
-          # keep the accent border on the password field, but not this one.
-          old_username_border=$'target: username.background\n                        border.color: config.HighlightBorderColor'
-          new_username_border=$'target: username.background\n                        border.color: "transparent"'
-          substituteInPlace \
-            "$input_file" \
-            --replace-fail \
-              "$old_username_border" \
-              "$new_username_border"
         '';
       });
 
@@ -306,9 +296,11 @@ in
 
   security = {
     pam.services = {
-      # Use the PAM path for both Hyprlock and sudo. Hyprlock's native fprintd
-      # client is currently unreliable with the packaged 0.9.x release.
+      # Fingerprint authentication is intentionally limited to Hyprlock and
+      # sudo; SDDM and the console login remain password-only.
       hyprlock.fprintAuth = true;
+      login.fprintAuth = false;
+      sddm.fprintAuth = false;
       sudo.fprintAuth = true;
     };
     polkit.enable = true;
@@ -343,10 +335,13 @@ in
     power-profiles-daemon.enable = true;
     llama-cpp = {
       enable = true;
-      package = pkgs.llama-cpp-rocm;
+      # Vulkan works on the laptop's AMD graphics without ROCm's supported-GPU
+      # target restrictions.
+      package = pkgs.llama-cpp.override { vulkanSupport = true; };
       settings = {
         hf-repo = "unsloth/Qwen3.8-27B-GGUF:UD-Q4_K_M";
         alias = "qwen3.8:27b";
+        flash-attn = "on";
       };
     };
     pipewire = {
@@ -359,28 +354,14 @@ in
     };
   };
 
-  # Start fprintd before the first PAM request instead of racing D-Bus
-  # activation and reader setup.
-  # StateDirectory makes the enrollment database at /var/lib/fprint explicit
-  # persistent machine state; switching NixOS generations must never replace it.
-  systemd.services.fprintd = {
-    wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      Restart = "on-failure";
-      StateDirectory = "fprint";
-      StateDirectoryMode = "0700";
+  # GPU backends need a writable HOME for their shader cache. Without these,
+  # llama-server exits immediately under the hardened DynamicUser service.
+  systemd.services.llama-cpp = {
+    environment = {
+      HOME = "/var/cache/llama-cpp";
+      XDG_CACHE_HOME = "/var/cache/llama-cpp";
     };
-  };
-
-  # A suspended reader can leave fprintd with a stale device connection. Stop
-  # it before sleep and let D-Bus start a fresh instance on the next request.
-  systemd.services.fprintd-before-sleep = {
-    before = [ "sleep.target" ];
-    wantedBy = [ "sleep.target" ];
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = "${pkgs.systemd}/bin/systemctl stop fprintd.service";
-    };
+    serviceConfig.RestartSec = lib.mkForce "5s";
   };
 
   virtualisation.docker = {

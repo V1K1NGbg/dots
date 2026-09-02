@@ -4,6 +4,39 @@ let
   rofiWithPlugins = pkgs.rofi.override {
     plugins = [ pkgs.rofi-calc ];
   };
+
+  opencodeWithLocalModel = pkgs.writeShellApplication {
+    name = "opencode";
+    runtimeInputs = with pkgs; [
+      coreutils
+      curl
+      systemd
+    ];
+    text = ''
+      case "''${1:-}" in
+        --help|-h|--version|-v|completion)
+          exec ${pkgs.opencode}/bin/opencode "$@"
+          ;;
+      esac
+
+      endpoint=http://127.0.0.1:8080
+      printf '%s\n' 'Waiting for the local Qwen3.8 model to become ready...'
+
+      until curl --fail --silent --show-error "$endpoint/health" >/dev/null 2>&1; do
+        if ! systemctl is-active --quiet llama-cpp.service; then
+          printf '%s\n' \
+            'OpenCode cannot start because llama-cpp.service is not running.' \
+            'Run: systemctl status llama-cpp.service' \
+            'Then: journalctl -u llama-cpp.service -b --no-pager' >&2
+          exit 1
+        fi
+
+        sleep 2
+      done
+
+      exec ${pkgs.opencode}/bin/opencode "$@"
+    '';
+  };
 in
 {
   environment.systemPackages = with pkgs; [
@@ -53,7 +86,7 @@ in
     libinput
     libnotify
     libqalculate
-    llama-cpp-rocm
+    (llama-cpp.override { vulkanSupport = true; })
     localsend
     lolcat
     mako
@@ -68,7 +101,7 @@ in
     nvtopPackages.amd
     nwg-displays
     nwg-look
-    opencode
+    opencodeWithLocalModel
     papirus-icon-theme
     pavucontrol
     pcloud

@@ -56,7 +56,7 @@ hl.config({
         workspace_swipe_direction_lock_threshold = 10,
     },
     dwindle = {
-        preserve_split = true,
+        preserve_split = false,
         -- Every new split is placed to the right or below its parent, keeping
         -- the visual spiral anchored toward the bottom-right corner.
         force_split = 2,
@@ -140,6 +140,14 @@ for _, app in ipairs(workspace_apps) do
     })
 end
 
+-- pCloud marks its main Electron surface as floating. Tile it when it first
+-- opens so it behaves like a normal window; the keep-on-top toggle can still
+-- float it temporarily and restore it to tiled afterward.
+hl.window_rule({
+    match = { initial_class = ".*[Pp][Cc]loud.*" },
+    float = false,
+})
+
 -- Keep all nine workspaces available so the bar can always show the complete
 -- set, including currently empty workspaces.
 for i = 1, 9 do
@@ -204,14 +212,20 @@ hl.layout.register("fair", {
 
 local function focus_bottom_right_tiled(workspace)
     local bottom_right
-    local bottom_right_score
+    local bottom_right_x
+    local bottom_right_y
 
     for _, window in ipairs(hl.get_windows({ workspace = workspace })) do
         if not window.floating then
-            local score = window.at.x + (window.size.x / 2) + window.at.y + (window.size.y / 2)
-            if not bottom_right_score or score > bottom_right_score then
+            local center_x = window.at.x + (window.size.x / 2)
+            local center_y = window.at.y + (window.size.y / 2)
+            if not bottom_right_y
+                or center_y > bottom_right_y
+                or (center_y == bottom_right_y and center_x > bottom_right_x)
+            then
                 bottom_right = window
-                bottom_right_score = score
+                bottom_right_x = center_x
+                bottom_right_y = center_y
             end
         end
     end
@@ -236,13 +250,14 @@ local function cycle_workspace_layout()
         end
     end
 
+    if next_layout == "dwindle" then
+        -- Dwindle builds its tree around the focused leaf. Select the visual
+        -- bottom-right leaf before changing layouts so the rebuilt spiral does
+        -- not reverse toward the top-left.
+        focus_bottom_right_tiled(workspace)
+    end
     local workspace_selector = workspace.special and workspace.name or tostring(workspace.id)
     hl.workspace_rule({ workspace = workspace_selector, layout = next_layout })
-    if next_layout == "dwindle" then
-        hl.timer(function()
-            focus_bottom_right_tiled(workspace)
-        end, { timeout = 1, type = "oneshot" })
-    end
 end
 
 local function resize_current_split(delta)
@@ -272,7 +287,7 @@ end
 local sticky_windows = {}
 local kept_on_top = {}
 
-local function stop_sticky(address, restore_workspace)
+local function stop_sticky(address)
     local entry = sticky_windows[address]
     if not entry then
         return nil
@@ -281,13 +296,6 @@ local function stop_sticky(address, restore_workspace)
     sticky_windows[address] = nil
     if entry.window.pinned then
         hl.dispatch(hl.dsp.window.pin({ window = entry.window, action = "unset" }))
-    end
-    if restore_workspace and entry.workspace then
-        hl.dispatch(hl.dsp.window.move({
-            window = entry.window,
-            workspace = entry.workspace,
-            follow = false,
-        }))
     end
     set_floating(entry.window, entry.was_floating)
     return entry.was_floating
@@ -300,6 +308,7 @@ local function stop_keep_on_top(address)
     end
 
     kept_on_top[address] = nil
+    hl.dispatch(hl.dsp.window.alter_zorder({ window = entry.window, mode = "bottom" }))
     set_floating(entry.window, entry.was_floating)
     return entry.was_floating
 end
@@ -312,7 +321,8 @@ local function toggle_sticky()
 
     local address = window.address
     if sticky_windows[address] then
-        stop_sticky(address, true)
+        -- Leave the window on the workspace where sticky was disabled.
+        stop_sticky(address)
         return
     end
 
@@ -328,8 +338,7 @@ local function toggle_sticky()
 
     sticky_windows[address] = {
         window = window,
-        workspace = window.workspace,
-        monitor = window.workspace and window.workspace.monitor,
+        monitor = window.monitor,
         was_floating = was_floating,
     }
     set_floating(window, false)
@@ -355,9 +364,7 @@ local function toggle_keep_on_top()
 
     local was_floating = window.floating
     if sticky_windows[address] then
-        -- Keep it on the workspace where the mode was changed instead of
-        -- jumping back to its original workspace before going on top.
-        was_floating = stop_sticky(address, false)
+        was_floating = stop_sticky(address)
     end
 
     kept_on_top[address] = {
