@@ -1,20 +1,22 @@
 configuration {
-	modi:                       "run,calc,autocorrector:~/.config/rofi/autocorrect.sh,media:~/.config/rofi/media.sh,wifi:~/.config/rofi/wifi.sh,bluetooth:~/.config/rofi/bluetooth.sh,power:~/.config/rofi/power.sh";
+    modi:                       "run,window,calc,clipboard:/home/victor/.config/rofi/clipboard.sh,autocorrector:/home/victor/.config/rofi/autocorrect.sh,media:/home/victor/.config/rofi/media.sh,wifi:/home/victor/.config/rofi/wifi.sh,bluetooth:/home/victor/.config/rofi/bluetooth.sh,power-mode:/home/victor/.config/rofi/power-mode.sh,power:/home/victor/.config/rofi/power.sh";
     show-icons:                 false;
-    display-run:                "🚀 Run";
+    display-run:                "🚀 Apps";
+    display-window:             "▣ Windows";
     display-calc:               "🧮 Calculator";
+    display-clipboard:          "📋 Clipboard";
     display-autocorrector:      "✍️ Autocorrector";
     display-media:              "🎵 Media";
     display-wifi:               "📶 Wifi";
     display-bluetooth:          " Bluetooth";
+    display-power-mode:         "⚡ Power Mode";
     display-power:              "🔌 Power";
-	drun-display-format:        "{name}";
+	drun-display-format:         "{name}";
 	window-format:              "{w} · {c} · {t}";
     calc {
         no-persist-history: true;
     }
 }
-
 * {
     background:     #191919;
     background-alt: #191919;
@@ -60,6 +62,7 @@ window {
     anchor:                      center;
     fullscreen:                  false;
     width:                       700px;
+    height:                      420px;
     x-offset:                    0px;
     y-offset:                    0px;
 
@@ -93,7 +96,7 @@ mainbox {
     border-radius:               0px 0px 0px 0px;
     border-color:                @border-colour;
     background-color:            transparent;
-    children:                    [ "inputbar", "message", "custombox" ];
+    children:                    [ "inputbar", "custombox" ];
 }
 
 /*****----- A Custom Box -----*****/
@@ -102,7 +105,17 @@ custombox {
     background-color:            @background-colour;
     text-color:                  @foreground-colour;
     orientation:                 horizontal;
-    children:                    [ "mode-switcher", "listview" ];
+    children:                    [ "mode-switcher", "results" ];
+}
+
+/*****----- Results Pane -----*****/
+results {
+    enabled:                     true;
+    expand:                      true;
+    spacing:                     5px;
+    background-color:            transparent;
+    orientation:                 vertical;
+    children:                    [ "message", "listview" ];
 }
 
 /*****----- Inputbar -----*****/

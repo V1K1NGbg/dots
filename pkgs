@@ -1,0 +1,19 @@
+acpi adw-gtk-theme alacritty alsa-utils aspell aspell-en
+    baobab bash-completion blueman bluez bluez-utils btop brightnessctl bulky
+    capitaine-cursors
+    cliphist clang cowsay curl dconf discord docker docker-compose dracut
+    fastfetch fd firefox fprintd fnm gimp git github-cli gnome-disk-utility
+    go gopls grim highlight htop hypridle hyprlock hyprpolkitagent hyprsunset
+    jdk21-openjdk jdk8-openjdk keepassxc lazygit less libconfig libinput
+    libnotify libqalculate llama-cpp ggml-vulkan lolcat mako
+    man-db man-pages meld nano nemo nemo-fileroller networkmanager network-manager-applet nmap
+    noto-fonts noto-fonts-cjk noto-fonts-emoji nvtop nwg-displays nwg-look
+    nodejs papirus-icon-theme pavucontrol pipewire pipewire-alsa
+    pipewire-pulse playerctl plymouth
+    poppler power-profiles-daemon prettier
+    prismlauncher pyright python python-black qalculate-gtk qt5ct qt6ct
+    ranger rofi rofi-calc rust rust-analyzer slurp sof-firmware spotify-launcher steam
+    swappy tmux tree typescript-language-server unzip uthash vim
+    code vlc vulkan-radeon lib32-vulkan-radeon vulkan-tools
+    waybar wev wget wireplumber wl-clipboard wtype xdg-desktop-portal-gtk
+    xdg-desktop-portal-hyprland xdg-utils ydotool zip

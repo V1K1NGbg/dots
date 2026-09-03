@@ -50,7 +50,51 @@ mark_done()     { touch "${STATE_DIR}/$1.done"; }
 is_marked()     { [[ -f "${STATE_DIR}/$1.done" ]]; }
 
 cmd_exists()    { command -v "$1" &>/dev/null; }
-pkg_installed() { pacman -Qq "$1" &>/dev/null 2>&1; }
+
+rebuild_initramfs() {
+    local kernel_cmdline
+
+    kernel_cmdline=$(tr '\n' ' ' < /etc/kernel/cmdline)
+    kernel_cmdline=${kernel_cmdline% }
+    sudo install -d -m 0755 /etc/dracut.conf.d
+    printf 'kernel_cmdline="%s"\n' "$kernel_cmdline" \
+        | sudo tee /etc/dracut.conf.d/20-cmdline.conf > /dev/null
+    sudo dracut --force
+}
+
+# Full package set for the graphical installation stage.
+readonly -a REPO_PACKAGES=(
+    acpi adw-gtk-theme alacritty alsa-utils aspell aspell-en
+    baobab bash-completion blueman bluez bluez-utils brightnessctl bulky
+    capitaine-cursors
+    cliphist clang cowsay curl dconf discord docker docker-compose dracut
+    fastfetch fd firefox fprintd gimp git github-cli gnome-disk-utility
+    go gopls grim highlight htop hypridle hyprland hyprlock hyprpolkitagent hyprsunset
+    jdk21-openjdk jdk8-openjdk keepassxc lazygit less libinput
+    libnotify libqalculate llama-cpp ggml-vulkan lolcat mako
+    man-db man-pages meld nano nemo nemo-fileroller networkmanager network-manager-applet nmap
+    noto-fonts noto-fonts-cjk noto-fonts-emoji nvtop nwg-displays nwg-look
+    papirus-icon-theme pavucontrol pipewire pipewire-alsa
+    pipewire-pulse playerctl plymouth
+    poppler power-profiles-daemon prettier
+    prismlauncher pyright python python-black qt5ct qt6ct
+    ranger rofi rofi-calc rust rust-analyzer slurp sof-firmware spotify-launcher steam
+    swappy tmux tree typescript-language-server unzip vim
+    code vlc vulkan-radeon lib32-vulkan-radeon vulkan-tools
+    waybar wev wget wireplumber wl-clipboard xdg-desktop-portal-gtk
+    xdg-desktop-portal-hyprland xdg-utils zip uwsm
+)
+
+readonly -a AUR_PACKAGES=(
+    ani-cli
+    imgcat
+    localsend
+    pcloud-drive
+    plymouth-theme-hexagon-hud-git
+    usbimager
+)
+
+readonly -a PACKAGES=("${REPO_PACKAGES[@]}" "${AUR_PACKAGES[@]}")
 
 # ==============================================================================
 # CHECK FUNCTIONS  (return 0 = done, non-zero = not done)
@@ -59,43 +103,36 @@ pkg_installed() { pacman -Qq "$1" &>/dev/null 2>&1; }
 check_multilib()          { grep -q '^\[multilib\]' /etc/pacman.conf; }
 check_system_updated()    { is_marked "system_updated"; }
 check_paru()              { cmd_exists paru; }
-check_awesome()           { pacman -Qq awesome-git &>/dev/null 2>&1; }
-check_packages()          { pkg_installed alacritty && pkg_installed nemo && pkg_installed rofi && pkg_installed vim; }
+check_packages()          { pacman -Qq "${PACKAGES[@]}" &>/dev/null; }
 check_autologin()         { [[ -f /etc/systemd/system/getty@tty1.service.d/autologin.conf ]]; }
-check_picom()             { cmd_exists picom; }
 check_amd_gpu()           { grep -q 'amdgpu.dcdebugmask' /etc/kernel/cmdline 2>/dev/null; }
 check_plymouth()          { grep -q 'splash' /etc/kernel/cmdline 2>/dev/null && [[ -f /etc/dracut.conf.d/plymouth.conf ]]; }
 check_power_button()      { grep -q '^HandlePowerKey=ignore' /etc/systemd/logind.conf; }
 check_bluetooth()         { systemctl is-enabled bluetooth.service &>/dev/null; }
-check_touchpad()          { grep -q 'Tapping' /usr/share/X11/xorg.conf.d/40-libinput.conf 2>/dev/null; }
-check_keyboard_layout()   { grep -q 'us,bg' /etc/X11/xorg.conf.d/00-keyboard.conf 2>/dev/null; }
-check_fusuma()            { [[ -d "${HOME}/.config/fusuma" ]] && id -nG "$USER" | grep -qw input; }
+check_desktop_services()  { systemctl is-enabled power-profiles-daemon.service &>/dev/null; }
 check_ctrl_backspace()    { grep -qF '"\C-H"' /etc/inputrc 2>/dev/null; }
 check_monocraft()         { fc-list 2>/dev/null | grep -qi monocraft; }
 check_dns()               { grep -q '1.1.1.1' /etc/NetworkManager/conf.d/dns-servers.conf 2>/dev/null; }
 check_wireguard()         { nmcli connection show 2>/dev/null | grep -qi wireguard; }
 check_git_config()        { [[ -n "$(git config --global user.name 2>/dev/null)" ]]; }
 check_gh_auth()           { gh auth status &>/dev/null; }
-check_fingerprint()       { grep -q 'pam_fprintd' /etc/pam.d/sudo 2>/dev/null; fprintd-list "$USER" 2>/dev/null | grep -q 'right-index-finger'; }
+check_fingerprint()       { grep -q 'pam_fprintd' /etc/pam.d/sudo 2>/dev/null && grep -q 'pam_fprintd' /etc/pam.d/hyprlock 2>/dev/null && fprintd-list "$USER" 2>/dev/null | grep -q 'right-index-finger'; }
 check_ohmybash()          { [[ -d "${HOME}/.oh-my-bash" ]]; }
 check_bashrc()            { grep -q 'OSH_THEME="agnoster"' "${HOME}/.bashrc" 2>/dev/null; }
 check_nemo_config()       { dconf read /org/nemo/preferences/bulk-rename-tool 2>/dev/null | grep -q 'bulky'; }
-check_dotfiles()          { [[ -f "${HOME}/.vimrc" && -f "${HOME}/.tmux.conf" && -f "${HOME}/.Xresources" && -f "${HOME}/.bash_profile" && -d "${HOME}/.config/awesome" && -d "${HOME}/.config/alacritty" ]]; }
-check_i3lock()            { [[ -x "${HOME}/i3lock.sh" ]]; }
+check_dotfiles()          { [[ -f "${HOME}/.vimrc" && -f "${HOME}/.tmux.conf" && -f "${HOME}/.bash_profile" && -f "${HOME}/.config/hypr/hyprland.lua" && -f "${HOME}/.config/waybar/config.jsonc" && -d "${HOME}/.config/alacritty" ]]; }
 check_default_apps()      { xdg-mime query default text/html 2>/dev/null | grep -q firefox; }
 check_nvm()               { [[ -d "${HOME}/.nvm" ]]; }
 check_vtop()              { cmd_exists vtop; }
 check_docker()            { systemctl is-enabled docker.service &>/dev/null; }
 check_pcloud()            { cmd_exists pcloud; }
-check_awesome_const()     { is_marked "awesome_const"; }
 check_discord()           { [[ -d "${HOME}/.config/BetterDiscord" ]]; }
 check_spotify()           { is_marked "spotify_setup"; }
 check_opencode()          { is_marked "opencode_setup"; }
 check_vscode()            { is_marked "vscode_setup"; }
-check_copyq()             { [[ -f "${HOME}/.config/copyq/copyq.conf" ]]; }
 check_firefox()           { is_marked "firefox_setup"; }
 check_steam()             { is_marked "steam_setup"; }
-check_docker_containers() { docker ps 2>/dev/null | grep -q ollama; }
+check_llama_cpp()         { systemctl --user is-enabled llama-cpp.service &>/dev/null; }
 
 # ==============================================================================
 # INSTALL FUNCTIONS
@@ -128,36 +165,11 @@ install_paru() {
     print_success "paru installed"
 }
 
-install_awesome() {
-    print_header "Installing awesome-git"
-    sudo pacman -Rs awesome 2>/dev/null || true
-    paru -S awesome-git
-    print_success "awesome-git installed"
-}
-
 install_packages() {
-    print_header "Installing all packages"
-    paru -S \
-        acpi alacritty alsa-utils ani-cli arandr aspell aspell-en autorandr \
-        baobab bash-completion blueman bluez bluez-utils bulky \
-        capitaine-cursors copyq cowsay cpupower-gui-git curl \
-        dangerzone-bin discord docker docker-compose dracut \
-        fastfetch fd firefox flameshot fprintd  \
-        gimp git github-cli glava gnome-disk-utility \
-        highlight htop i3lock-color imgcat \
-        jdk21-openjdk jdk8-openjdk keepassxc \
-        lazygit less libconfig lobster-git localsend lolcat \
-        man-db man-pages meld nano \
-        nemo nemo-compare nemo-fileroller network-manager-applet nmap \
-        noto-fonts noto-fonts-cjk noto-fonts-emoji noto-fonts-extra nvtop \
-        pasystray pavucontrol pcloud-drive playerctl \
-        plymouth plymouth-theme-hexagon-hud-git prismlauncher \
-        qt6-svg ranger redshift rofi rofi-calc \
-        ruby-fusuma ruby-fusuma-plugin-sendkey sof-firmware \
-        spotify-launcher steam tmux tree \
-        unclutter unzip usbimager uthash \
-        vim visual-studio-code-bin vlc vulkan-radeon vulkan-tools \
-        wget xdotool xorg-xev xorg-xinput xorg-xset xss-lock zip
+    print_header "Installing repository packages"
+    sudo pacman -S --needed "${REPO_PACKAGES[@]}"
+    print_header "Installing AUR-only packages"
+    paru -S --needed "${AUR_PACKAGES[@]}"
     # paru -S sunshine moonlight-qt
     print_success "Packages installed"
 }
@@ -172,21 +184,6 @@ EOF
     print_success "Auto login configured for user: victor"
 }
 
-install_picom() {
-    print_header "Building and installing picom"
-    print_step "Cloning picom..."
-    git clone https://github.com/pijulius/picom.git /tmp/picom
-    cd /tmp/picom
-    print_step "Building..."
-    meson setup --buildtype=release build
-    ninja -C build
-    print_step "Installing..."
-    sudo ninja -C build install
-    cd "$SCRIPT_DIR"
-    sudo rm -rf /tmp/picom
-    print_success "picom installed"
-}
-
 install_amd_gpu() {
     print_header "Framework AMD GPU fix"
     print_step "Adding amdgpu.dcdebugmask=0x10 to kernel cmdline..."
@@ -195,7 +192,7 @@ install_amd_gpu() {
     [[ -f /etc/kernel/cmdline && $(wc -l < /etc/kernel/cmdline) -gt 1 ]] \
         && sudo sed -i ':a;N;$!ba;s/\n/ /g' /etc/kernel/cmdline
     print_step "Rebuilding UKI..."
-    sudo dracut --force
+    rebuild_initramfs
     print_success "AMD GPU debug mask set"
 }
 
@@ -209,7 +206,7 @@ install_plymouth() {
     print_step "Configuring dracut for Plymouth..."
     echo 'add_dracutmodules+=" plymouth "' | sudo tee /etc/dracut.conf.d/plymouth.conf > /dev/null
     print_step "Rebuilding UKI..."
-    sudo dracut --force
+    rebuild_initramfs
     print_step "Setting Plymouth theme..."
     sudo plymouth-set-default-theme -R hexagon_hud
     print_success "Plymouth configured"
@@ -223,41 +220,14 @@ install_power_button() {
 
 install_bluetooth() {
     print_header "Enabling Bluetooth"
-    systemctl enable bluetooth.service
-    systemctl start bluetooth.service
+    sudo systemctl enable --now bluetooth.service
     print_success "Bluetooth enabled and started"
 }
 
-install_touchpad() {
-    print_header "Configuring touchpad"
-    sudo sed -i '/Section "InputClass"/,/EndSection/ {
-        /Identifier.*touchpad/,/EndSection/ {
-        /Driver "libinput"/a\
-        Option "Tapping" "on"\
-        Option "NaturalScrolling" "true"\
-        Option "ClickMethod" "clickfinger"
-        }
-}' /usr/share/X11/xorg.conf.d/40-libinput.conf
-    print_success "Touchpad: tap-to-click, natural scroll, clickfinger enabled"
-}
-
-install_keyboard_layout() {
-    print_header "Adding Bulgarian keyboard layout"
-    sudo sed -i '/Section "InputClass"/,/EndSection/ {
-        /Identifier.*system-keyboard/,/EndSection/ {
-        s/Option "XkbLayout".*$/Option "XkbLayout" "us,bg"/
-        /Option "XkbLayout"/a\
-        Option "XkbVariant" ",bas_phonetic"
-        }
-}' /etc/X11/xorg.conf.d/00-keyboard.conf
-    print_success "Bulgarian (bas_phonetic) layout added"
-}
-
-install_fusuma() {
-    print_header "Setting up Fusuma (gestures)"
-    sudo gpasswd -a "$USER" input
-    mkdir -p "${HOME}/.config/fusuma"
-    print_success "Fusuma configured — re-login required for group change"
+install_desktop_services() {
+    print_header "Enabling Hyprland desktop service"
+    sudo systemctl enable --now power-profiles-daemon.service
+    print_success "Power profiles enabled"
 }
 
 install_ctrl_backspace() {
@@ -317,10 +287,11 @@ install_fingerprint() {
     print_header "Setting up fingerprint authentication"
     print_step "Enrolling fingerprint..."
     sudo fprintd-enroll "$USER"
-    print_step "Adding to PAM (sudo)..."
-    sudo sed -i '/#%PAM-1.0/a auth            sufficient      pam_fprintd.so' /etc/pam.d/sudo
-    print_step "Adding to PAM (i3lock)..."
-    sudo sed -i '/auth include system-local-login/i auth sufficient pam_unix.so try_first_pass likeauth nullok\nauth sufficient pam_fprintd.so timeout=10' /etc/pam.d/i3lock
+    print_step "Adding fingerprint authentication to PAM..."
+    grep -q 'pam_fprintd' /etc/pam.d/sudo 2>/dev/null \
+        || sudo sed -i '/#%PAM-1.0/a auth            sufficient      pam_fprintd.so' /etc/pam.d/sudo
+    grep -q 'pam_fprintd' /etc/pam.d/hyprlock 2>/dev/null \
+        || sudo sed -i '1a auth            sufficient      pam_fprintd.so' /etc/pam.d/hyprlock
     print_success "Fingerprint authentication configured"
 }
 
@@ -351,7 +322,8 @@ install_nemo_config() {
 install_dotfiles() {
     print_header "Copying dotfiles"
     print_step "Creating directories..."
-    mkdir -p "${HOME}/.config/awesome/"
+    mkdir -p "${HOME}/.config/hypr/"
+    mkdir -p "${HOME}/.config/waybar/"
     mkdir -p "${HOME}/.config/alacritty/"
     mkdir -p "${HOME}/.vim/colors/"
     mkdir -p "${HOME}/Documents/BackUp/screenshots"
@@ -359,39 +331,36 @@ install_dotfiles() {
     mkdir -p "${HOME}/Documents/PC"
 
     print_step "Copying config directories..."
-    yes | cp -rf "${SCRIPT_DIR}/.config/" ~
+    local config_dir
+    for config_dir in \
+        BetterDiscord alacritty gtk-3.0 gtk-4.0 hypr keepassxc mako \
+        opencode qt5ct qt6ct rofi systemd uwsm waybar; do
+        cp -rf "${SCRIPT_DIR}/.config/${config_dir}" "${HOME}/.config/"
+    done
     yes | cp -rf "${SCRIPT_DIR}/.oh-my-bash/" ~ 2>/dev/null || true
     yes | cp -rf "${SCRIPT_DIR}/.vim/" ~
-    yes | cp -rf "${SCRIPT_DIR}/.screenlayout/" ~ 2>/dev/null || true
 
     print_step "Copying dotfiles..."
     yes | cp -f \
         "${SCRIPT_DIR}/.bash_profile" \
         "${SCRIPT_DIR}/.tmux.conf" \
-        "${SCRIPT_DIR}/.vimrc" \
-        "${SCRIPT_DIR}/.Xresources" \
-        "${SCRIPT_DIR}/i3lock.sh" ~
+        "${SCRIPT_DIR}/.vimrc" ~
 
     mark_done "dotfiles"
     print_success "Dotfiles copied"
 }
 
-install_i3lock() {
-    print_header "Setting up i3lock"
-    chmod +x "${HOME}/i3lock.sh"
-    print_success "i3lock.sh made executable"
-}
-
 install_default_apps() {
     print_header "Setting default applications"
-    xdg-mime default xdg-open.desktop  *
-    xdg-mime default code.desktop      text/*
+    xdg-mime default code.desktop      text/plain
     xdg-mime default firefox.desktop   text/html
+    xdg-mime default firefox.desktop   x-scheme-handler/http
+    xdg-mime default firefox.desktop   x-scheme-handler/https
     xdg-mime default firefox.desktop   application/pdf
-    xdg-mime default vlc.desktop       video/*
-    xdg-mime default vlc.desktop       audio/*
-    xdg-mime default gimp.desktop      image/*
-    xdg-mime default nemo.desktop      inode/*
+    xdg-mime default vlc.desktop       video/mp4 video/x-matroska
+    xdg-mime default vlc.desktop       audio/mpeg audio/flac
+    xdg-mime default gimp.desktop      image/png image/jpeg
+    xdg-mime default nemo.desktop      inode/directory
     print_success "Default applications set"
 }
 
@@ -409,6 +378,9 @@ install_nvm() {
 
 install_vtop() {
     print_header "Installing vtop"
+    export NVM_DIR="${HOME}/.nvm"
+    # shellcheck source=/dev/null
+    [[ -s "${NVM_DIR}/nvm.sh" ]] && source "${NVM_DIR}/nvm.sh"
     npm install -g vtop
     print_success "vtop installed"
 }
@@ -427,14 +399,6 @@ install_pcloud() {
     read -p "  Log in pCloud and press Enter to continue..."
     read -p "  Enable start up minimised, Sync ~/Documents/PC <-> pCloudDrive/PC, Backup ~/Documents/BackUp and press Enter to continue..."
     print_success "pCloud configured"
-}
-
-install_awesome_const() {
-    print_header "Copying Awesome const file"
-    read -e -p "  Awesome const path (FULL PATH): " awesome_const_path
-    yes | cp -f "$awesome_const_path" "${HOME}/.config/awesome/"
-    mark_done "awesome_const"
-    print_success "Awesome const file copied"
 }
 
 install_discord() {
@@ -476,15 +440,6 @@ install_vscode() {
     print_success "VSCode configured"
 }
 
-install_copyq() {
-    print_header "Setting up CopyQ"
-    copyq &
-    read -p "  Import CopyQ config, set shortcut for WINDOW UNDER MOUSE and press Enter to continue..."
-    killall copyq 2>/dev/null || true
-    mark_done "copyq_setup"
-    print_success "CopyQ configured"
-}
-
 install_firefox() {
     print_header "Setting up Firefox"
     firefox > /dev/null 2>&1 &
@@ -510,13 +465,14 @@ install_steam() {
     print_success "Steam configured"
 }
 
-install_docker_containers() {
-    print_header "Starting Docker containers"
-    cd "$SCRIPT_DIR"
-    docker-compose up -d
-    print_success "Docker containers started"
-    echo -e "  ${DIM}To pull Ollama models:${NC}"
-    echo -e "  ${DIM}  curl http://localhost:11434/api/pull -d '{\"model\": \"qwen3.5:9b\"}'${NC}"
+install_llama_cpp() {
+    print_header "Starting llama.cpp service"
+    mkdir -p "${HOME}/.config/systemd/user"
+    cp -f "${SCRIPT_DIR}/.config/systemd/user/llama-cpp.service" \
+        "${HOME}/.config/systemd/user/"
+    systemctl --user daemon-reload
+    systemctl --user enable --now llama-cpp.service
+    print_success "llama.cpp enabled; the model downloads automatically on first start"
 }
 
 # ==============================================================================
@@ -527,17 +483,13 @@ TASK_NAMES=(
     "Enable multilib"
     "Update system"
     "Install paru"
-    "Install awesome-git"
     "Install all packages"
     "Configure auto login"
-    "Build & install picom"
     "AMD GPU fix (Framework)"
     "Configure Plymouth"
     "Configure power button"
     "Enable Bluetooth"
-    "Configure touchpad"
-    "Add Bulgarian keyboard layout"
-    "Set up Fusuma (gestures)"
+    "Enable Hyprland desktop service"
     "Fix Ctrl+Backspace in terminal"
     "Install Monocraft font"
     "Set static DNS"
@@ -548,39 +500,32 @@ TASK_NAMES=(
     "Configure .bashrc"
     "Configure Nemo"
     "Copy dotfiles"
-    "Set up i3lock"
     "Set default applications"
     "Install nvm + Node.js"
     "Install vtop"
     "Set up Docker"
     "Set up pCloud"
     "Configure WireGuard VPN"
-    "Copy awesome const file"
     "Set up Discord + BetterDiscord"
     "Set up Spotify"
     "Install OpenCode"
     "Set up VSCode"
-    "Set up CopyQ"
     "Set up Firefox"
     "Set up Steam"
-    "Start Docker containers"
+    "Start llama.cpp service"
 )
 
 TASK_CHECKS=(
     check_multilib
     check_system_updated
     check_paru
-    check_awesome
     check_packages
     check_autologin
-    check_picom
     check_amd_gpu
     check_plymouth
     check_power_button
     check_bluetooth
-    check_touchpad
-    check_keyboard_layout
-    check_fusuma
+    check_desktop_services
     check_ctrl_backspace
     check_monocraft
     check_dns
@@ -591,39 +536,32 @@ TASK_CHECKS=(
     check_bashrc
     check_nemo_config
     check_dotfiles
-    check_i3lock
     check_default_apps
     check_nvm
     check_vtop
     check_docker
     check_pcloud
     check_wireguard
-    check_awesome_const
     check_discord
     check_spotify
     check_opencode
     check_vscode
-    check_copyq
     check_firefox
     check_steam
-    check_docker_containers
+    check_llama_cpp
 )
 
 TASK_INSTALLS=(
     install_multilib
     install_system_update
     install_paru
-    install_awesome
     install_packages
     install_autologin
-    install_picom
     install_amd_gpu
     install_plymouth
     install_power_button
     install_bluetooth
-    install_touchpad
-    install_keyboard_layout
-    install_fusuma
+    install_desktop_services
     install_ctrl_backspace
     install_monocraft
     install_dns
@@ -634,25 +572,27 @@ TASK_INSTALLS=(
     install_bashrc
     install_nemo_config
     install_dotfiles
-    install_i3lock
     install_default_apps
     install_nvm
     install_vtop
     install_docker
     install_pcloud
     install_wireguard
-    install_awesome_const
     install_discord
     install_spotify
     install_opencode
     install_vscode
-    install_copyq
     install_firefox
     install_steam
-    install_docker_containers
+    install_llama_cpp
 )
 
 TASK_COUNT=${#TASK_NAMES[@]}
+
+if (( TASK_COUNT != ${#TASK_CHECKS[@]} || TASK_COUNT != ${#TASK_INSTALLS[@]} )); then
+    print_error "Task registry arrays have different lengths"
+    exit 1
+fi
 
 declare -a TASK_STATUS    # 0 = done, 1 = todo
 declare -a TASK_SELECTED  # 0 = unselected, 1 = selected

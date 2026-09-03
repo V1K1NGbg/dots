@@ -1,0 +1,10 @@
+[Unit]
+Description=llama.cpp local inference server
+
+[Service]
+ExecStart=/usr/bin/llama-server --host 127.0.0.1 --port 8080 --hf-repo unsloth/Qwen3.8-27B-GGUF:UD-Q4_K_M --alias qwen3.8:27b --flash-attn on
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

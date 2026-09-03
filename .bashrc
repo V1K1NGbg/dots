@@ -1,32 +1,21 @@
-# #FOR AUTO COMPLETE: (!OH MY BASH SUPPORTS IT OUT OF THE BOX && RESTART TERMINAL!)
-# echo 'set completion-ignore-case On' | sudo tee -a /etc/inputrc
-
-# #FOR CTRL+BCKSPACE to delete last word:
-# echo '"\C-H":"\C-W"' | sudo tee -a /etc/inputrc
-
-# #BASH PROFILE (.bash_profile):
-# if [ -z "$DISPLAY" ] && [ "$XDG_VTNR" = 1 ]; then
-#  exec startx
-# fi
-
-# ---
-
+export OSH="$HOME/.oh-my-bash"
 OSH_THEME="agnoster"
 DISABLE_AUTO_UPDATE="true"
 #ENABLE_CORRECTION="true"
 COMPLETION_WAITING_DOTS="true"
 
-source "$OSH"/oh-my-bash.sh
+if [[ -r "$OSH/oh-my-bash.sh" ]]; then
+  source "$OSH/oh-my-bash.sh"
+fi
 
 echo "UwU" | cowsay -f tux | lolcat --spread=0.5
 
 alias clear="clear && source ~/.bashrc"
 alias notes="code -n ~/pCloudDrive/0Notes.md"
 alias config="code -n ~/dots"
-alias shutdown="shutdown now"
+alias shutdown="systemctl poweroff"
 
 alias lgit="lazygit"
-alias mov-cli="lobster"
 
 hgrep() {
   history | awk '{$1=""; sub(/^[ \t]+/, ""); print}' | grep "$1" --color=always -B "${2:-0}" -A "${3:-0}"
@@ -94,9 +83,6 @@ lastline() {
   printf "\033[?25h"
 }
 
-# fix double type
-xset r rate 220 40
-
 #Fzf
 # eval "$(fzf --bash)"
 # source /usr/share/fzf/completion.bash
@@ -116,8 +102,6 @@ xset r rate 220 40
 
 # _fzf_bash_completion_loading_msg() { echo "${PS1@P}${READLINE_LINE}"; }
 
-setxkbmap -layout us,bg -variant ,bas_phonetic -option 'grp:win_space_toggle'
-
 # complete -d cd
 
 #Ranger
@@ -125,4 +109,4 @@ export VISUAL=vim
 export EDITOR=vim
 
 #Rofi
-export TERMINAL=/usr/bin/alacritty
+export TERMINAL=alacritty
