@@ -51,15 +51,27 @@ is_marked()     { [[ -f "${STATE_DIR}/$1.done" ]]; }
 
 cmd_exists()    { command -v "$1" &>/dev/null; }
 
+# A fresh shell keeps errexit active even though the TUI tests its exit status.
+# Calling a shell function directly in `if` would disable errexit in that function.
+run_task() {
+    bash -e -o pipefail "$SCRIPT_DIR/install.sh" --run-task "$1"
+}
+
 rebuild_initramfs() {
     local kernel_cmdline
 
-    kernel_cmdline=$(tr '\n' ' ' < /etc/kernel/cmdline)
+    kernel_cmdline=$(sudo cat /etc/kernel/cmdline) || return
+    kernel_cmdline=${kernel_cmdline//$'\n'/ }
     kernel_cmdline=${kernel_cmdline% }
+    if [[ ! "$kernel_cmdline" =~ [^[:space:]] ]]; then
+        print_error "Refusing to rebuild with an empty /etc/kernel/cmdline"
+        return 1
+    fi
     sudo install -d -m 0755 /etc/dracut.conf.d
-    printf 'kernel_cmdline="%s"\n' "$kernel_cmdline" \
+    # dracut sources this as shell code; quote literal command-line characters.
+    printf 'kernel_cmdline=%q\n' "$kernel_cmdline" \
         | sudo tee /etc/dracut.conf.d/20-cmdline.conf > /dev/null
-    sudo dracut --force
+    sudo dracut --regenerate-all --force
 }
 
 # Full package set for the graphical installation stage.
@@ -104,9 +116,8 @@ check_multilib()          { grep -q '^\[multilib\]' /etc/pacman.conf; }
 check_system_updated()    { is_marked "system_updated"; }
 check_paru()              { cmd_exists paru; }
 check_packages()          { pacman -Qq "${PACKAGES[@]}" &>/dev/null; }
-check_autologin()         { [[ -f /etc/systemd/system/getty@tty1.service.d/autologin.conf ]]; }
-check_amd_gpu()           { grep -q 'amdgpu.dcdebugmask' /etc/kernel/cmdline 2>/dev/null; }
-check_plymouth()          { grep -q 'splash' /etc/kernel/cmdline 2>/dev/null && [[ -f /etc/dracut.conf.d/plymouth.conf ]]; }
+check_amd_gpu()           { is_marked amd_gpu && grep -q 'amdgpu.dcdebugmask' /etc/kernel/cmdline 2>/dev/null; }
+check_plymouth()          { is_marked plymouth && grep -q 'splash' /etc/kernel/cmdline 2>/dev/null && [[ -f /etc/dracut.conf.d/plymouth.conf ]]; }
 check_power_button()      { grep -q '^HandlePowerKey=ignore' /etc/systemd/logind.conf; }
 check_bluetooth()         { systemctl is-enabled bluetooth.service &>/dev/null; }
 check_desktop_services()  { systemctl is-enabled power-profiles-daemon.service &>/dev/null; }
@@ -117,8 +128,8 @@ check_wireguard()         { nmcli connection show 2>/dev/null | grep -qi wiregua
 check_git_config()        { [[ -n "$(git config --global user.name 2>/dev/null)" ]]; }
 check_gh_auth()           { gh auth status &>/dev/null; }
 check_fingerprint()       { grep -q 'pam_fprintd' /etc/pam.d/sudo 2>/dev/null && grep -q 'pam_fprintd' /etc/pam.d/hyprlock 2>/dev/null && fprintd-list "$USER" 2>/dev/null | grep -q 'right-index-finger'; }
-check_ohmybash()          { [[ -d "${HOME}/.oh-my-bash" ]]; }
-check_bashrc()            { grep -q 'OSH_THEME="agnoster"' "${HOME}/.bashrc" 2>/dev/null; }
+check_ohmybash()          { [[ -f "${HOME}/.oh-my-bash/oh-my-bash.sh" ]]; }
+check_bashrc()            { cmp -s "${SCRIPT_DIR}/.bashrc" "${HOME}/.bashrc"; }
 check_nemo_config()       { dconf read /org/nemo/preferences/bulk-rename-tool 2>/dev/null | grep -q 'bulky'; }
 check_dotfiles()          { [[ -f "${HOME}/.vimrc" && -f "${HOME}/.tmux.conf" && -f "${HOME}/.bash_profile" && -f "${HOME}/.config/hypr/hyprland.lua" && -f "${HOME}/.config/waybar/config.jsonc" && -d "${HOME}/.config/alacritty" ]]; }
 check_default_apps()      { xdg-mime query default text/html 2>/dev/null | grep -q firefox; }
@@ -152,36 +163,26 @@ install_system_update() {
     print_success "System updated"
 }
 
-install_paru() {
+install_paru() (
     print_header "Installing paru"
+    local build_dir
     print_step "Installing base-devel..."
     sudo pacman -S --needed base-devel
     print_step "Cloning paru-git..."
-    git clone https://aur.archlinux.org/paru-git.git /tmp/paru-git
-    cd /tmp/paru-git
+    build_dir=$(mktemp -d /tmp/dots-paru.XXXXXX)
+    trap 'rm -rf -- "$build_dir"' EXIT
+    git clone https://aur.archlinux.org/paru-git.git "$build_dir"
+    cd "$build_dir"
     makepkg -si
-    cd "$SCRIPT_DIR"
-    sudo rm -rf /tmp/paru-git
     print_success "paru installed"
-}
+)
 
 install_packages() {
     print_header "Installing repository packages"
     sudo pacman -S --needed "${REPO_PACKAGES[@]}"
     print_header "Installing AUR-only packages"
     paru -S --needed "${AUR_PACKAGES[@]}"
-    # paru -S sunshine moonlight-qt
     print_success "Packages installed"
-}
-
-install_autologin() {
-    print_header "Configuring auto login"
-    sudo systemctl edit getty@tty1.service --drop-in=autologin --stdin <<'EOF'
-[Service]
-ExecStart=
-ExecStart=-/sbin/agetty -o '-p -f -- \u' --noclear --autologin victor %I %TERM
-EOF
-    print_success "Auto login configured for user: victor"
 }
 
 install_amd_gpu() {
@@ -193,6 +194,7 @@ install_amd_gpu() {
         && sudo sed -i ':a;N;$!ba;s/\n/ /g' /etc/kernel/cmdline
     print_step "Rebuilding UKI..."
     rebuild_initramfs
+    mark_done amd_gpu
     print_success "AMD GPU debug mask set"
 }
 
@@ -205,10 +207,11 @@ install_plymouth() {
         && sudo sed -i ':a;N;$!ba;s/\n/ /g' /etc/kernel/cmdline
     print_step "Configuring dracut for Plymouth..."
     echo 'add_dracutmodules+=" plymouth "' | sudo tee /etc/dracut.conf.d/plymouth.conf > /dev/null
+    print_step "Setting Plymouth theme..."
+    sudo plymouth-set-default-theme hexagon_hud
     print_step "Rebuilding UKI..."
     rebuild_initramfs
-    print_step "Setting Plymouth theme..."
-    sudo plymouth-set-default-theme -R hexagon_hud
+    mark_done plymouth
     print_success "Plymouth configured"
 }
 
@@ -240,7 +243,7 @@ install_monocraft() {
     print_header "Installing Monocraft Nerd Font"
     mkdir -p "${HOME}/.local/share/fonts"
     print_step "Downloading font..."
-    curl -L -o "${HOME}/.local/share/fonts/Monocraft-nerd-fonts-patched.ttc" \
+    curl -fL -o "${HOME}/.local/share/fonts/Monocraft-nerd-fonts-patched.ttc" \
         https://github.com/IdreesInc/Monocraft/releases/download/v4.0/Monocraft-nerd-fonts-patched.ttc
     print_step "Refreshing font cache..."
     fc-cache
@@ -297,37 +300,40 @@ install_fingerprint() {
 
 install_ohmybash() {
     print_header "Installing oh-my-bash"
-    # NOTE: the installer may start a new shell session — that is expected
-    curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh | bash
+    curl -fsSL https://raw.githubusercontent.com/ohmybash/oh-my-bash/master/tools/install.sh | bash -s -- --unattended
+    # Upstream replaces .bashrc, even if the TUI had marked it done.
+    install_bashrc
     print_success "oh-my-bash installed"
 }
 
 install_bashrc() {
     print_header "Configuring .bashrc"
-    print_step "Removing source lines..."
-    grep -v "source" "${HOME}/.bashrc" > /tmp/bashrc_tmp && mv -f /tmp/bashrc_tmp "${HOME}/.bashrc"
-    print_step "Appending dots .bashrc..."
-    cat "${SCRIPT_DIR}/.bashrc" >> "${HOME}/.bashrc"
-    mark_done "bashrc"
+    local backup replacement
+    bash -n "${SCRIPT_DIR}/.bashrc"
+    if ! cmp -s "${SCRIPT_DIR}/.bashrc" "${HOME}/.bashrc"; then
+        if [[ -e "${HOME}/.bashrc" || -L "${HOME}/.bashrc" ]]; then
+            backup=$(mktemp "${HOME}/.bashrc.backup.XXXXXX")
+            cp -p "${HOME}/.bashrc" "$backup"
+            print_step "Saved previous .bashrc to $backup"
+        fi
+        replacement=$(mktemp "${HOME}/.bashrc.install.XXXXXX")
+        install -m 0644 "${SCRIPT_DIR}/.bashrc" "$replacement"
+        mv -f "$replacement" "${HOME}/.bashrc"
+    fi
     print_success ".bashrc configured"
 }
 
 install_nemo_config() {
     print_header "Configuring Nemo"
     dconf load /org/nemo/ < "${SCRIPT_DIR}/nemo_config"
-    mark_done "nemo_config"
     print_success "Nemo configuration loaded"
 }
 
 install_dotfiles() {
     print_header "Copying dotfiles"
     print_step "Creating directories..."
-    mkdir -p "${HOME}/.config/hypr/"
-    mkdir -p "${HOME}/.config/waybar/"
-    mkdir -p "${HOME}/.config/alacritty/"
-    mkdir -p "${HOME}/.vim/colors/"
+    mkdir -p "${HOME}/.config"
     mkdir -p "${HOME}/Documents/BackUp/screenshots"
-    mkdir -p "${HOME}/Documents/BackUp"
     mkdir -p "${HOME}/Documents/PC"
 
     print_step "Copying config directories..."
@@ -337,16 +343,15 @@ install_dotfiles() {
         opencode qt5ct qt6ct rofi systemd uwsm waybar; do
         cp -rf "${SCRIPT_DIR}/.config/${config_dir}" "${HOME}/.config/"
     done
-    yes | cp -rf "${SCRIPT_DIR}/.oh-my-bash/" ~ 2>/dev/null || true
-    yes | cp -rf "${SCRIPT_DIR}/.vim/" ~
+    cp -rf "${SCRIPT_DIR}/.oh-my-bash/" "$HOME/"
+    cp -rf "${SCRIPT_DIR}/.vim/" "$HOME/"
 
     print_step "Copying dotfiles..."
-    yes | cp -f \
+    cp -f \
         "${SCRIPT_DIR}/.bash_profile" \
         "${SCRIPT_DIR}/.tmux.conf" \
         "${SCRIPT_DIR}/.vimrc" ~
 
-    mark_done "dotfiles"
     print_success "Dotfiles copied"
 }
 
@@ -367,7 +372,7 @@ install_default_apps() {
 install_nvm() {
     print_header "Installing nvm + Node.js"
     print_step "Installing nvm..."
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+    curl -fL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
     export NVM_DIR="${HOME}/.nvm"
     # shellcheck source=/dev/null
     [[ -s "${NVM_DIR}/nvm.sh" ]] && source "${NVM_DIR}/nvm.sh"
@@ -411,7 +416,6 @@ install_discord() {
     "${HOME}/Downloads/BetterDiscord-Linux.AppImage" &
     read -p "  Set up BetterDiscord and press Enter to continue..."
     killall Discord 2>/dev/null || true
-    mark_done "discord_setup"
     print_success "Discord + BetterDiscord configured"
 }
 
@@ -484,7 +488,6 @@ TASK_NAMES=(
     "Update system"
     "Install paru"
     "Install all packages"
-    "Configure auto login"
     "AMD GPU fix (Framework)"
     "Configure Plymouth"
     "Configure power button"
@@ -520,7 +523,6 @@ TASK_CHECKS=(
     check_system_updated
     check_paru
     check_packages
-    check_autologin
     check_amd_gpu
     check_plymouth
     check_power_button
@@ -556,7 +558,6 @@ TASK_INSTALLS=(
     install_system_update
     install_paru
     install_packages
-    install_autologin
     install_amd_gpu
     install_plymouth
     install_power_button
@@ -589,7 +590,7 @@ TASK_INSTALLS=(
 
 TASK_COUNT=${#TASK_NAMES[@]}
 
-if (( TASK_COUNT != ${#TASK_CHECKS[@]} || TASK_COUNT != ${#TASK_INSTALLS[@]} )); then
+if (( TASK_COUNT != ${#TASK_CHECKS[@]} )) || (( TASK_COUNT != ${#TASK_INSTALLS[@]} )); then
     print_error "Task registry arrays have different lengths"
     exit 1
 fi
@@ -691,7 +692,6 @@ draw_tui() {
 run_tui() {
     for (( i=0; i<TASK_COUNT; i++ )); do
         TASK_SELECTED[$i]=0
-        TASK_STATUS[$i]=1
     done
 
     refresh_status
@@ -790,27 +790,27 @@ run_tui() {
             tput cnorm
             tput clear
 
-            local failed=()
+            local failed=0
             echo -e "${BOLD}${GREEN}Running selected tasks...${NC}\n"
 
             for (( i=0; i<TASK_COUNT; i++ )); do
                 if (( TASK_SELECTED[i] == 1 )); then
                     echo -e "${BOLD}${BLUE}[$(( i + 1 ))/${TASK_COUNT}] ${TASK_NAMES[$i]}${NC}"
-                    if "${TASK_INSTALLS[$i]}"; then
+                    if run_task "${TASK_INSTALLS[$i]}"; then
                         TASK_STATUS[$i]=0
                     else
+                        TASK_STATUS[$i]=1
                         print_error "Task failed: ${TASK_NAMES[$i]}"
-                        failed+=("${TASK_NAMES[$i]}")
+                        failed=1
+                        print_error "Remaining tasks were not run. Resolve the failure before continuing."
+                        break
                     fi
                     TASK_SELECTED[$i]=0
                 fi
             done
 
             echo
-            if (( ${#failed[@]} > 0 )); then
-                echo -e "${RED}${BOLD}The following tasks failed:${NC}"
-                for t in "${failed[@]}"; do echo -e "  ${RED}✗${NC} ${t}"; done
-            else
+            if (( failed == 0 )); then
                 echo -e "${GREEN}${BOLD}All selected tasks completed successfully!${NC}"
             fi
             read -rp "Press Enter to return to the menu..."
@@ -826,8 +826,23 @@ run_tui() {
 # ==============================================================================
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
-    run_tui
-fi
+    if [[ ${1:-} == --run-task ]]; then
+        # Only registered tasks can be dispatched, including when invoked directly.
+        for task in "${TASK_INSTALLS[@]}"; do
+            if [[ "$task" == "${2:-}" && $# -eq 2 ]]; then
+                set -e -o pipefail
+                "$task"
+                exit 0
+            fi
+        done
+        print_error "Unknown installation task"
+        exit 1
+    elif (( $# > 0 )); then
+        print_error "Usage: ./install.sh"
+        exit 1
+    else
+        run_tui
+    fi
 
 # ==============================================================================
 # REFERENCE (not executed)
