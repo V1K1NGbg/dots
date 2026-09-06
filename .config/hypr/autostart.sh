@@ -2,8 +2,17 @@
 
 set -u
 
+# Serialize invocations and avoid launching duplicate tray/clipboard services.
+exec 9>"${XDG_RUNTIME_DIR:?}/dots-autostart.lock"
+flock -n 9 || exit 0
+
 spawn() {
-    "$@" >/dev/null 2>&1 &
+    if [[ $1 == wl-paste ]]; then
+        pgrep -u "$UID" -f -- "(^|/)$*([[:space:]]|$)" >/dev/null && return
+    else
+        pgrep -u "$UID" -x -- "${1##*/}" >/dev/null && return
+    fi
+    "$@" 9>&- >/dev/null 2>&1 &
 }
 
 spawnsl() {
@@ -20,7 +29,13 @@ systemctl --user start \
     hyprpolkitagent.service \
     hyprsunset.service || true
 
-spawn waybar
+if ! pgrep -u "$UID" -x waybar >/dev/null; then
+    systemd-cat --identifier=dots-waybar waybar 9>&- &
+    (
+        sleep 1
+        hyprctl dispatch 'function() dots.bar_restarted() end'
+    ) 9>&- &
+fi
 spawn nm-applet --indicator
 spawn blueman-applet
 spawn pcloud
@@ -28,9 +43,9 @@ spawn mako
 spawn wl-paste --type text --watch cliphist store
 spawn wl-paste --type image --watch cliphist store
 
-spawnsl spotify
 spawnsl discord
-spawnsl nemo
+spawnsl spotify
 spawnsl alacritty
+spawnsl nemo
 spawnsl code
 spawnsl firefox

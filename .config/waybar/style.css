@@ -19,18 +19,19 @@ window#waybar {
 }
 
 #workspaces {
-  padding: 0 4px;
+  padding: 0;
 }
 
 #workspaces button {
   color: #777777;
-  padding: 0 6px;
-  margin: 4px 1px;
+  padding: 0;
+  margin: 0;
+  background: transparent;
   border-radius: 4px;
 }
 
 #workspaces button.active {
-  background: #67ffeb;
+  background: transparent;
   color: #191919;
 }
 
@@ -38,22 +39,34 @@ window#waybar {
   color: #ff025f;
 }
 
-#workspaces.windows {
-  padding: 0 3px;
-}
-
-#workspaces.windows button.taskbar-window {
+#workspaces .taskbar-window {
   background: transparent;
-  padding: 0 4px;
-  margin: 3px 1px;
+  padding: 0 2px;
+  margin: 3px 0;
   opacity: 0.65;
+  min-width: 16px;
+  border-radius: 4px;
 }
 
-#workspaces.windows button.taskbar-window.active {
-  background: rgba(103, 255, 235, 0.18);
+#workspaces .taskbar-window.active {
+  background: rgba(103, 255, 235, 0.25);
   opacity: 1;
 }
 
 #clock { color: #67ffeb; }
 #battery.warning { color: #ffb247; }
 #battery.critical { color: #ff025f; }
+
+/* Workspace labels are configurable buttons; app icons retain the native
+   Hyprland taskbar module. Both work without patching Waybar. */
+#custom-workspace {
+  padding: 0 4px;
+  margin: 4px 0;
+  border-radius: 4px;
+  color: #aaaaaa;
+}
+#custom-workspace.active {
+  background: #67ffeb;
+  color: #191919;
+}
+#custom-workspace:hover { background: rgba(103, 255, 235, 0.25); }

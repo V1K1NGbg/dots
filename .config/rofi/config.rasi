@@ -1,8 +1,8 @@
 configuration {
-    modi:                       "run,window,calc,clipboard:/home/victor/.config/rofi/clipboard.sh,autocorrector:/home/victor/.config/rofi/autocorrect.sh,media:/home/victor/.config/rofi/media.sh,wifi:/home/victor/.config/rofi/wifi.sh,bluetooth:/home/victor/.config/rofi/bluetooth.sh,power-mode:/home/victor/.config/rofi/power-mode.sh,power:/home/victor/.config/rofi/power.sh";
+    modi:                       "run,window:/home/victor/.config/rofi/windows.py,calc,clipboard:/home/victor/.config/rofi/clipboard.sh,autocorrector:/home/victor/.config/rofi/autocorrect.sh,media:/home/victor/.config/rofi/media.sh,wifi:/home/victor/.config/rofi/wifi.sh,bluetooth:/home/victor/.config/rofi/bluetooth.sh,power-mode:/home/victor/.config/rofi/power-mode.sh,power:/home/victor/.config/rofi/power.sh";
     show-icons:                 false;
     display-run:                "🚀 Apps";
-    display-window:             "▣ Windows";
+    display-window:             "🪟 Windows";
     display-calc:               "🧮 Calculator";
     display-clipboard:          "📋 Clipboard";
     display-autocorrector:      "✍️ Autocorrector";
