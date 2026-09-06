@@ -2,9 +2,7 @@
   "$schema": "https://opencode.ai/config.json",
   "logLevel": "WARN",
   "username": "victor",
-  "model": "llamacpp/qwen3.8:27b",
-  "small_model": "llamacpp/qwen3.8:27b",
-  "enabled_providers": ["llamacpp"],
+  "model": "llamacpp/qwen3.8-27b-uncensored",
   "provider": {
     "llamacpp": {
       "npm": "@ai-sdk/openai-compatible",
@@ -13,12 +11,18 @@
         "baseURL": "http://127.0.0.1:8080/v1"
       },
       "models": {
-        "qwen3.8:27b": {}
+        "qwen3.8-27b-uncensored": {
+          "name": "Qwen3.8 27B Uncensored (local, Q4_K_M)",
+          "tool_call": true,
+          "reasoning": true,
+          "interleaved": { "field": "reasoning_content" },
+          "limit": { "context": 32768, "output": 8192 }
+        }
       }
     }
   },
   "share": "manual",
-  "autoupdate": true,
+  "autoupdate": false,
   "snapshot": true,
   "default_agent": "plan",
   "skills": {

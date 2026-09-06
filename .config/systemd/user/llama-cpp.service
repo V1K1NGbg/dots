@@ -2,7 +2,7 @@
 Description=llama.cpp local inference server
 
 [Service]
-ExecStart=/usr/bin/llama-server --host 127.0.0.1 --port 8080 --hf-repo unsloth/Qwen3.8-27B-GGUF:UD-Q4_K_M --alias qwen3.8:27b --flash-attn on
+ExecStart=/usr/bin/llama-server --host 127.0.0.1 --port 8080 --hf-repo JonathanColetti/Qwen3.8-27B-Uncensored-GGUF --hf-file Qwen3.8-27B-Uncensored-Q4_K_M.gguf --alias qwen3.8-27b-uncensored --ctx-size 32768 --parallel 1 --jinja --reasoning-format deepseek --no-mmproj --flash-attn on
 Restart=on-failure
 RestartSec=5
 

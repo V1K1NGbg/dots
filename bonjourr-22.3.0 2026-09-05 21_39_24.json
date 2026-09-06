@@ -1,7 +1,11 @@
 {
   "about": {
     "browser": "firefox",
-    "version": "20.4.2"
+    "version": "22.3.0"
+  },
+  "advanced": {
+    "altMode": true,
+    "escKey": true
   },
   "showall": true,
   "lang": "en",
@@ -9,16 +13,14 @@
   "favicon": "",
   "tabtitle": "",
   "greeting": "Victor",
+  "greetingsize": "3",
+  "greetingsmode": "auto",
   "pagegap": 0,
   "pagewidth": 2200,
   "time": true,
   "main": true,
-  "dateformat": "eu",
-  "background_blur": 15,
-  "background_bright": 0.8,
-  "background_type": "local",
+  "dateformat": "auto",
   "quicklinks": false,
-  "syncbookmarks": null,
   "textShadow": 0.2,
   "announcements": "major",
   "review": -1,
@@ -29,11 +31,155 @@
     "greetings": false,
     "clock": false
   },
+  "clock": {
+    "size": 2,
+    "ampm": false,
+    "analog": false,
+    "seconds": false,
+    "ampmlabel": false,
+    "worldclocks": false,
+    "timezone": "auto"
+  },
   "linkstyle": "medium",
   "linktitles": true,
   "linkbackgrounds": true,
   "linknewtab": false,
   "linksrow": 6,
+  "linkiconradius": 1.1,
+  "linkgroups": {
+    "on": true,
+    "selected": "Bookmarks Toolbar",
+    "groups": [
+      "Bookmarks Toolbar",
+      "Bookmarks Toolbar"
+    ],
+    "pinned": [],
+    "synced": []
+  },
+  "backgrounds": {
+    "type": "color",
+    "fadein": 600,
+    "blur": 15,
+    "bright": 0.8,
+    "frequency": "hour",
+    "color": "#191919",
+    "urls": "",
+    "images": "bonjourr-images-daylight",
+    "videos": "bonjourr-videos-daylight",
+    "mute": true,
+    "queries": {},
+    "texture": {
+      "type": "none"
+    }
+  },
+  "worldclocks": [
+    {
+      "timezone": "Europe/Sofia"
+    },
+    {
+      "timezone": "Europe/Sofia"
+    }
+  ],
+  "analogstyle": {
+    "face": "none",
+    "hands": "modern",
+    "shape": "round",
+    "border": "#ffff",
+    "background": "#fff2"
+  },
+  "weather": {
+    "city": "Huizen",
+    "unit": "metric",
+    "show_unit": false,
+    "provider": "",
+    "moreinfo": "none",
+    "forecast": "auto",
+    "temperature": "actual",
+    "geolocation": "approximate",
+    "ccode": "NL"
+  },
+  "greetingscustom": {
+    "morning": "",
+    "afternoon": "",
+    "evening": "",
+    "night": ""
+  },
+  "notes": {
+    "on": false,
+    "width": 40,
+    "opacity": 0.1,
+    "align": "left"
+  },
+  "searchbar": {
+    "on": false,
+    "opacity": 0.1,
+    "newtab": false,
+    "suggestions": true,
+    "engine": "default",
+    "request": "",
+    "placeholder": ""
+  },
+  "quotes": {
+    "on": false,
+    "type": "classic",
+    "frequency": "day",
+    "author": false,
+    "last": 1788636958868
+  },
+  "pomodoro": {
+    "on": false,
+    "mode": "pomodoro",
+    "pause": 0,
+    "end": 0,
+    "timeFor": {
+      "pomodoro": 1500,
+      "break": 300,
+      "longbreak": 1200
+    },
+    "focus": false,
+    "sound": true,
+    "volume": 0.7,
+    "alarm": "marimba",
+    "history": []
+  },
+  "font": {
+    "color": "#ffffff",
+    "size": "14",
+    "family": "",
+    "system": true,
+    "weightlist": [],
+    "weight": "300"
+  },
+  "supporters": {
+    "enabled": true,
+    "closed": true,
+    "month": 5
+  },
+  "move": {
+    "selection": "single",
+    "layouts": {
+      "single": {
+        "items": {
+          "time": {
+            "box": "end center",
+            "text": ""
+          },
+          "quicklinks": {
+            "box": "center",
+            "text": ""
+          }
+        },
+        "grid": [
+          [
+            "time"
+          ],
+          [
+            "main"
+          ]
+        ]
+      }
+    }
+  },
   "linksnjllhg": {
     "_id": "linksnjllhg",
     "parent": "Bookmarks Toolbar",
@@ -145,7 +291,10 @@
     "order": 5,
     "title": "Voodoo Packs :: Data & Resource Packs for Minecraft",
     "url": "http://mc.voodoobeard.com/#datapacks",
-    "icon": "1729550238453"
+    "icon": {
+      "type": "auto",
+      "value": "https://services.bonjourr.fr/favicon/blob/http://mc.voodoobeard.com/#datapacks?r=1729550238453"
+    }
   },
   "linksogaenb": {
     "_id": "linksogaenb",
@@ -188,115 +337,5 @@
     "order": 11,
     "title": "edclub",
     "url": "https://www.typingclub.com/sportal/program-3/4637.play"
-  },
-  "linkgroups": {
-    "on": true,
-    "selected": "Bookmarks Toolbar",
-    "groups": [
-      "Bookmarks Toolbar"
-    ],
-    "pinned": [],
-    "synced": []
-  },
-  "clock": {
-    "size": 2,
-    "timezone": "auto",
-    "ampm": false,
-    "analog": false,
-    "seconds": false,
-    "ampmlabel": false,
-    "worldclocks": false
-  },
-  "analogstyle": {
-    "face": "none",
-    "hands": "modern",
-    "shape": "round",
-    "border": "#ffff",
-    "background": "#fff2"
-  },
-  "worldclocks": [
-    {
-      "timezone": "Europe/Sofia",
-      "region": "Delft"
-    },
-    {
-      "timezone": "Europe/Sofia",
-      "region": ""
-    }
-  ],
-  "unsplash": {
-    "every": "hour",
-    "collection": "",
-    "lastCollec": "day",
-    "time": 1746295427549
-  },
-  "weather": {
-    "ccode": "NL",
-    "city": "delft centrum",
-    "unit": "metric",
-    "provider": "",
-    "moreinfo": "none",
-    "forecast": "auto",
-    "temperature": "actual",
-    "geolocation": "approximate"
-  },
-  "notes": {
-    "on": false,
-    "opacity": 0.1,
-    "width": 40,
-    "align": "left"
-  },
-  "searchbar": {
-    "on": false,
-    "opacity": 0.1,
-    "newtab": false,
-    "suggestions": true,
-    "engine": "default",
-    "request": "",
-    "placeholder": ""
-  },
-  "quotes": {
-    "on": false,
-    "author": false,
-    "type": "classic",
-    "frequency": "day",
-    "last": 1746785972046
-  },
-  "font": {
-    "size": "14",
-    "family": "",
-    "system": true,
-    "weightlist": [],
-    "weight": "300"
-  },
-  "supporters": {
-    "enabled": true,
-    "closed": true,
-    "month": 5
-  },
-  "move": {
-    "selection": "single",
-    "layouts": {
-      "single": {
-        "items": {
-          "time": {
-            "box": "end center",
-            "text": ""
-          },
-          "quicklinks": {
-            "box": "center",
-            "text": ""
-          }
-        },
-        "grid": [
-          [
-            "time"
-          ],
-          [
-            "main"
-          ]
-        ]
-      }
-    }
   }
 }

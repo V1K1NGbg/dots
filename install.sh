@@ -82,7 +82,7 @@ readonly -a REPO_PACKAGES=(
     cliphist clang cowsay curl dconf discord docker docker-compose dracut
     fastfetch fd firefox fprintd gimp git github-cli gnome-disk-utility
     go gopls grim highlight htop hypridle hyprland hyprlock hyprpolkitagent hyprsunset
-    jdk21-openjdk jdk8-openjdk keepassxc lazygit less libinput
+    jdk21-openjdk jdk17-openjdk jdk8-openjdk keepassxc lazygit less libinput
     libnotify libqalculate llama-cpp ggml-vulkan lolcat mako
     man-db man-pages meld nano nemo nemo-fileroller networkmanager network-manager-applet nmap
     noto-fonts noto-fonts-cjk noto-fonts-emoji nvtop nwg-displays nwg-look
@@ -101,6 +101,7 @@ readonly -a AUR_PACKAGES=(
     ani-cli
     imgcat
     localsend
+    opencode
     pcloud-drive
     plymouth-theme-hexagon-hud-git
     usbimager
@@ -134,12 +135,11 @@ check_nemo_config()       { dconf read /org/nemo/preferences/bulk-rename-tool 2>
 check_dotfiles()          { [[ -f "${HOME}/.vimrc" && -f "${HOME}/.tmux.conf" && -f "${HOME}/.bash_profile" && -f "${HOME}/.config/hypr/hyprland.lua" && -f "${HOME}/.config/waybar/config.jsonc" && -d "${HOME}/.config/alacritty" ]]; }
 check_default_apps()      { xdg-mime query default text/html 2>/dev/null | grep -q firefox; }
 check_nvm()               { (load_nvm && [[ "$(nvm version default)" != "N/A" ]]) &>/dev/null; }
-check_vtop()              { cmd_exists vtop; }
+check_vtop()              { (load_nvm && nvm use default && cmd_exists vtop) &>/dev/null; }
 check_docker()            { systemctl is-enabled docker.service &>/dev/null; }
 check_pcloud()            { cmd_exists pcloud; }
 check_discord()           { [[ -d "${HOME}/.config/BetterDiscord" ]]; }
 check_spotify()           { is_marked "spotify_setup"; }
-check_opencode()          { is_marked "opencode_setup"; }
 check_vscode()            { is_marked "vscode_setup"; }
 check_firefox()           { is_marked "firefox_setup"; }
 check_steam()             { is_marked "steam_setup"; }
@@ -388,7 +388,8 @@ install_nvm() {
     print_step "Installing nvm..."
     export NVM_DIR="${HOME}/.nvm"
     mkdir -p "$NVM_DIR" || return
-    (set -o pipefail; curl -fL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash) || return
+    # The repository's .bashrc loads NVM; don't let its installer append to it.
+    (set -o pipefail; curl -fL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | PROFILE=/dev/null bash) || return
     load_nvm || return
     print_step "Installing latest Node.js..."
     nvm install node || return
@@ -442,13 +443,6 @@ install_spotify() {
     print_success "Spotify configured"
 }
 
-install_opencode() {
-    print_header "Installing OpenCode"
-    curl -fsSL https://opencode.ai/install | bash
-    mark_done "opencode_setup"
-    print_success "OpenCode installed"
-}
-
 install_vscode() {
     print_header "Setting up VSCode"
     code > /dev/null 2>&1 &
@@ -466,8 +460,7 @@ install_firefox() {
   Import vimium and bonjourr configs
   Fix persistant tabs
   Fix bookmarks layout
-  Set duck duck go as default search engine
-  Add cookies exceptions (google,github,uni, netflix)
+  Add cookies exceptions (google,github,...)
   and finally press Enter to continue..."
     killall firefox 2>/dev/null || true
     mark_done "firefox_setup"
@@ -489,7 +482,8 @@ install_llama_cpp() {
     cp -f "${SCRIPT_DIR}/.config/systemd/user/llama-cpp.service" \
         "${HOME}/.config/systemd/user/"
     systemctl --user daemon-reload
-    systemctl --user enable --now llama-cpp.service
+    systemctl --user enable llama-cpp.service
+    systemctl --user restart llama-cpp.service
     print_success "llama.cpp enabled; the model downloads automatically on first start"
 }
 
@@ -511,8 +505,6 @@ TASK_NAMES=(
     "Install Monocraft font"
     "Set static DNS"
     "Configure Git"
-    "Authenticate GitHub CLI"
-    "Set up fingerprint auth"
     "Install oh-my-bash"
     "Configure .bashrc"
     "Configure Nemo"
@@ -521,15 +513,16 @@ TASK_NAMES=(
     "Install nvm + Node.js"
     "Install vtop"
     "Set up Docker"
+    "Start llama.cpp service"
     "Set up pCloud"
-    "Configure WireGuard VPN"
+    "Authenticate GitHub CLI"
+    "Set up fingerprint auth"
     "Set up Discord + BetterDiscord"
     "Set up Spotify"
-    "Install OpenCode"
     "Set up VSCode"
     "Set up Firefox"
     "Set up Steam"
-    "Start llama.cpp service"
+    "Configure WireGuard VPN"
 )
 
 TASK_CHECKS=(
@@ -546,8 +539,6 @@ TASK_CHECKS=(
     check_monocraft
     check_dns
     check_git_config
-    check_gh_auth
-    check_fingerprint
     check_ohmybash
     check_bashrc
     check_nemo_config
@@ -556,15 +547,16 @@ TASK_CHECKS=(
     check_nvm
     check_vtop
     check_docker
+    check_llama_cpp
     check_pcloud
-    check_wireguard
+    check_gh_auth
+    check_fingerprint
     check_discord
     check_spotify
-    check_opencode
     check_vscode
     check_firefox
     check_steam
-    check_llama_cpp
+    check_wireguard
 )
 
 TASK_INSTALLS=(
@@ -581,8 +573,6 @@ TASK_INSTALLS=(
     install_monocraft
     install_dns
     install_git_config
-    install_gh_auth
-    install_fingerprint
     install_ohmybash
     install_bashrc
     install_nemo_config
@@ -591,15 +581,16 @@ TASK_INSTALLS=(
     install_nvm
     install_vtop
     install_docker
+    install_llama_cpp
     install_pcloud
-    install_wireguard
+    install_gh_auth
+    install_fingerprint
     install_discord
     install_spotify
-    install_opencode
     install_vscode
     install_firefox
     install_steam
-    install_llama_cpp
+    install_wireguard
 )
 
 TASK_COUNT=${#TASK_NAMES[@]}
