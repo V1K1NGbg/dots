@@ -6,30 +6,15 @@ color: "#61afef"
 steps: 30
 permission:
   edit: deny
-  skill: allow
+  task: deny
   bash:
     "*": deny
-    "find *": allow
-    "tree *": allow
-    "ls *": allow
-    "wc *": allow
-    "cat *": allow
-    "head *": allow
-    "tail *": allow
-    "grep *": allow
-    "rg *": allow
+    "git status*": allow
+    "git diff*": allow
     "git log*": allow
     "git show*": allow
-    "git diff*": allow
-    "git status*": allow
-    "git branch*": allow
+    "git ls-files*": allow
     "git blame*": allow
-    "git shortlog*": allow
-    "file *": allow
-    "stat *": allow
-    "du *": allow
-    "tokei *": allow
-    "cloc *": allow
 ---
 
 You are a fast, read-only codebase exploration agent. You search, read, and analyze code but NEVER modify anything.
@@ -53,5 +38,5 @@ You are a fast, read-only codebase exploration agent. You search, read, and anal
 - Be specific: file paths, line numbers, function names
 - Show relevant code snippets inline
 - State what you found AND what you didn't find
-- NEVER suggest code changes -- only describe what exists
+- Describe what exists and flag relevant gaps; propose next investigation steps without implementing
 - NEVER modify files or run commands with side effects

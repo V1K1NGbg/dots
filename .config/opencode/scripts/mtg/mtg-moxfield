@@ -10,8 +10,8 @@ Usage:
   mtg-moxfield --url <moxfield-url>    — Fetch a deck by Moxfield URL
 
 Example:
-  mtg-moxfield HYT9YcG0bEK1UMvmEEXtTA
-  mtg-moxfield --url https://www.moxfield.com/decks/HYT9YcG0bEK1UMvmEEXtTA
+  mtg-moxfield PUBLIC_DECK_ID
+  mtg-moxfield --url https://www.moxfield.com/decks/PUBLIC_DECK_ID
 """
 
 import sys

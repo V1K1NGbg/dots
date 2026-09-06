@@ -1,7 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "logLevel": "WARN",
-  "username": "victor",
   "model": "llamacpp/qwen3.8-27b-uncensored",
   "provider": {
     "llamacpp": {
@@ -15,8 +14,13 @@
           "name": "Qwen3.8 27B Uncensored (local, Q4_K_M)",
           "tool_call": true,
           "reasoning": true,
-          "interleaved": { "field": "reasoning_content" },
-          "limit": { "context": 32768, "output": 8192 }
+          "interleaved": {
+            "field": "reasoning_content"
+          },
+          "limit": {
+            "context": 32768,
+            "output": 8192
+          }
         }
       }
     }
@@ -24,23 +28,19 @@
   "share": "manual",
   "autoupdate": false,
   "snapshot": true,
-  "default_agent": "plan",
+  "default_agent": "build",
   "skills": {
-    "urls": ["https://skillsmp.com/", "https://skills.sh/"],
-    "paths": ["~/.skills", "~/.config/opencode/skills"]
+    "paths": [
+      "~/.skills"
+    ]
   },
   "instructions": [
-    "AGENTS.md",
-    "CLAUDE.md",
     "INSTRUCTIONS.md",
     ".opencode/instructions.md",
     ".github/copilot-instructions.md"
   ],
   "experimental": {
-    "batch_tool": true,
-    "continue_loop_on_deny": true,
-    "mcp_timeout": 30000,
-    "openTelemetry": false
+    "batch_tool": true
   },
   "watcher": {
     "ignore": [
@@ -77,74 +77,11 @@
       "*.swo"
     ]
   },
-  "formatter": {
-    "prettier": {
-      "command": ["npx", "prettier", "--write", "$FILE"],
-      "extensions": [
-        ".js",
-        ".ts",
-        ".jsx",
-        ".tsx",
-        ".css",
-        ".scss",
-        ".json",
-        ".md",
-        ".yaml",
-        ".yml",
-        ".html",
-        ".vue",
-        ".svelte"
-      ]
-    },
-    "black": {
-      "command": ["python3", "-m", "black", "$FILE"],
-      "extensions": [".py"]
-    },
-    "clang-format": {
-      "command": ["clang-format", "-i", "$FILE"],
-      "extensions": [".c", ".cpp", ".h", ".hpp", ".cc"]
-    },
-    "shfmt": {
-      "command": ["shfmt", "-w", "-i", "2", "-ci", "$FILE"],
-      "extensions": [".sh", ".bash", ".zsh"]
-    },
-    "rustfmt": {
-      "command": ["rustfmt", "$FILE"],
-      "extensions": [".rs"]
-    },
-    "gofmt": {
-      "command": ["gofmt", "-w", "$FILE"],
-      "extensions": [".go"]
-    }
-  },
-  "lsp": {
-    "typescript": {
-      "command": ["typescript-language-server", "--stdio"],
-      "extensions": [".ts", ".tsx", ".js", ".jsx"]
-    },
-    "python": {
-      "command": ["pyright-langserver", "--stdio"],
-      "extensions": [".py"]
-    },
-    "rust": {
-      "command": ["rust-analyzer"],
-      "extensions": [".rs"]
-    },
-    "go": {
-      "command": ["gopls", "serve"],
-      "extensions": [".go"]
-    },
-    "clangd": {
-      "command": ["clangd", "--background-index"],
-      "extensions": [".c", ".cpp", ".h", ".hpp", ".cc"]
-    }
-  },
+  "formatter": true,
+  "lsp": true,
   "permission": {
-    "*": "allow",
     "bash": {
       "*": "allow",
-      "rm -rf /*": "deny",
-      "rm -rf /": "deny",
       "rm *": "ask",
       "sudo *": "ask",
       "chmod *": "ask",
@@ -154,7 +91,6 @@
       "dd *": "ask",
       "mkfs *": "ask",
       "mv /*": "ask",
-      "git push *": "ask",
       "git push --force*": "ask",
       "git reset --hard*": "ask",
       "git clean *": "ask",
@@ -184,10 +120,23 @@
       "crontab *": "ask",
       "ssh *": "ask",
       "scp *": "ask",
-      "rsync *": "ask"
+      "rsync *": "ask",
+      "git push*": "ask",
+      "git reset*": "ask",
+      "git restore*": "ask",
+      "git checkout*": "ask",
+      "git branch -D*": "ask",
+      "git branch -d*": "ask",
+      "git commit --amend*": "ask",
+      "gh pr create*": "ask",
+      "gh pr merge*": "ask",
+      "gh pr review*": "ask",
+      "gh issue create*": "ask",
+      "gh issue comment*": "ask",
+      "mkfs*": "deny",
+      "rm -rf /": "deny",
+      "rm -rf /*": "deny"
     },
-    "read": "allow",
-    "write": "allow",
     "edit": "allow",
     "glob": "allow",
     "grep": "allow",
@@ -197,7 +146,6 @@
     "question": "allow",
     "webfetch": "allow",
     "websearch": "allow",
-    "codesearch": "allow",
     "lsp": "allow",
     "skill": "allow",
     "external_directory": "ask",
@@ -206,15 +154,18 @@
   "command": {
     "refactor": {
       "description": "Refactor code for clarity and performance",
-      "template": "Refactor the following code. Explain what you changed and why.\n$ARGUMENTS"
+      "template": "Refactor the following code. Explain what you changed and why.\n$ARGUMENTS",
+      "agent": "build"
     },
     "explain": {
       "description": "Explain code in depth",
-      "template": "Explain the following code in detail -- high-level purpose, data/control flow, design patterns, edge cases, complexity.\n$ARGUMENTS"
+      "template": "Explain the following code in detail -- high-level purpose, data/control flow, design patterns, edge cases, complexity.\n$ARGUMENTS",
+      "agent": "explore"
     },
     "deps": {
-      "description": "Audit and update dependencies",
-      "template": "Audit project dependencies: outdated packages, security vulnerabilities, unused deps, duplicates, license issues.\n$ARGUMENTS"
+      "description": "Audit project dependencies",
+      "template": "Audit project dependencies for outdated versions, known vulnerabilities, and unused or duplicate packages. Use the existing lockfile and package manager. Report evidence and recommended changes; do not upgrade packages.\n$ARGUMENTS",
+      "agent": "research"
     },
     "clean": {
       "description": "Clean up project artifacts",
@@ -223,7 +174,7 @@
     },
     "scaffold": {
       "description": "Scaffold a new component/module/feature",
-      "template": "Create a new $ARGUMENTS following the project's existing patterns, conventions, and file organization. Include test files.",
+      "template": "Create a new $ARGUMENTS following the project’s existing conventions. Add meaningful tests where the behavior warrants them and verify the result.",
       "agent": "build"
     },
     "learn": {
@@ -239,11 +190,11 @@
     "test": {
       "description": "Write or run tests",
       "template": "Write comprehensive tests (happy path, errors, edge cases) for: $ARGUMENTS\n\nUse the project's existing test framework and patterns. Run and fix failures.",
-      "agent": "build"
+      "agent": "tester"
     },
     "commit": {
       "description": "Stage changes and craft a commit message",
-      "template": "Review changes, stage files, and craft a conventional commit message. Ask for confirmation before committing.\n$ARGUMENTS",
+      "template": "Review the current diff and Git status, select only files relevant to the requested change, and create a conventional commit. This command authorizes the commit; do not ask again unless the intended scope is ambiguous. Never amend or push unless explicitly requested.\n$ARGUMENTS",
       "agent": "git"
     },
     "review": {
@@ -264,12 +215,12 @@
     "docker": {
       "description": "Create or optimize Docker configuration",
       "template": "Analyze or create Docker configuration for: $ARGUMENTS\n\nFollow Docker best practices from the devops agent instructions.",
-      "agent": "build"
+      "agent": "devops"
     },
     "migrate": {
       "description": "Plan and execute a migration",
       "template": "Plan and execute migration with rollback strategy: $ARGUMENTS",
-      "agent": "plan"
+      "agent": "build"
     },
     "explore": {
       "description": "Explore and understand a codebase",
@@ -296,11 +247,6 @@
       "template": "Write or improve documentation for: $ARGUMENTS",
       "agent": "docs-writer"
     },
-    "cp": {
-      "description": "Solve a competitive programming problem",
-      "template": "Solve: $ARGUMENTS\n\nRead templates from ~/.config/opencode/scripts/cp/templates.md before implementing.",
-      "agent": "competitive-programming"
-    },
     "devops": {
       "description": "Infrastructure, CI/CD, and deployment",
       "template": "Handle: $ARGUMENTS",
@@ -323,13 +269,8 @@
     },
     "plan": {
       "description": "Think through a problem before implementing",
-      "template": "Think through carefully before acting: $ARGUMENTS\n\nPresent the plan and ask before executing.",
+      "template": "Investigate and produce an actionable plan for: $ARGUMENTS\nDo not implement. Include the affected files, tradeoffs, and validation steps. Ask only for missing information that changes the plan.",
       "agent": "plan"
-    },
-    "init": {
-      "description": "Initialize a new project",
-      "template": "Initialize a new project: $ARGUMENTS\n\nAsk if language/framework unclear. Set up standard tooling, .gitignore, README. Verify it builds.",
-      "agent": "build"
     },
     "pr": {
       "description": "Create a pull request",
@@ -348,7 +289,7 @@
     },
     "mtg": {
       "description": "Build, analyze, or optimize a Commander/EDH deck",
-      "template": "$ARGUMENTS\n\nFollow the deck building workflow in your agent instructions. Use ALL data sources.",
+      "template": "$ARGUMENTS\nUse the relevant live-data helpers. Follow the full deck workflow only for deck-building requests.",
       "agent": "mtg-deck"
     },
     "mtg-card": {
@@ -360,6 +301,26 @@
       "description": "Answer an MTG rules question",
       "template": "Rules question: $ARGUMENTS",
       "agent": "mtg-rules"
+    },
+    "new-project": {
+      "description": "Initialize a new project",
+      "template": "Initialize a new project: $ARGUMENTS\n\nAsk if language/framework unclear. Set up standard tooling, .gitignore, README. Verify it builds.",
+      "agent": "build"
+    },
+    "research": {
+      "description": "Research a question using primary sources",
+      "template": "Research: $ARGUMENTS\nUse primary sources, cite supporting links, and distinguish verified facts from inference.",
+      "agent": "research"
+    },
+    "frontend": {
+      "description": "Build or improve a frontend",
+      "template": "Implement: $ARGUMENTS\nFollow existing UI patterns, verify keyboard accessibility and responsive behavior.",
+      "agent": "frontend"
     }
+  },
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 4096
   }
 }
