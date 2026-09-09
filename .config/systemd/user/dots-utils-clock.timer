@@ -1,0 +1,12 @@
+[Unit]
+Description=Next saved timer or alarm
+
+[Timer]
+# Replaced by time.sh in dots-utils-clock.timer.d/deadline.conf.
+OnCalendar=2099-01-01 00:00:00
+Persistent=true
+AccuracySec=1s
+Unit=dots-utils-clock.service
+
+[Install]
+WantedBy=timers.target

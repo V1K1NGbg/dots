@@ -119,6 +119,7 @@ hl.on("hyprland.start", function()
 end)
 
 -- Utility surfaces should float; normal pCloud windows should tile.
+hl.window_rule({ match = { initial_class = "^dots-files$" }, float = true })
 hl.window_rule({ match = { initial_class = ".*[Pp][Cc]loud.*" }, float = false })
 hl.window_rule({
     match = { initial_class = "(org\\.blueman\\.Manager|[Bb]lueman-manager|[Cc]opy[qQ]|[Pp]inentry.*|[Pp]avucontrol|[Gg]pick|[Kk]ruler|[Ss]xiv|[Ww]pa_gui|[Tt]or [Bb]rowser|[Aa]randr|[Xx]tightvncviewer)" },
@@ -165,7 +166,7 @@ end
 -- Awesome/session controls.
 bind(mod .. " + SHIFT + R", hl.dsp.exec_cmd("hyprctl reload && notify-send 'Hyprland configuration reloaded'"), "Reload Hyprland")
 bind(mod .. " + SHIFT + Q", hl.dsp.exec_cmd("uwsm stop"), "Quit Hyprland")
-bind(mod .. " + S", hl.dsp.exec_cmd("~/.config/rofi/keybinds.sh"), "Show keybinding help")
+bind(mod .. " + S", hl.dsp.exec_cmd("~/.config/rofi/modi/keybinds.sh"), "Show keybinding help")
 
 -- Client focus and workspace browsing.
 bind(mod .. " + SHIFT + Tab", hl.dsp.window.cycle_next({ next = false }), "Focus previous window")
@@ -176,12 +177,12 @@ bind(mod .. " + period", function() dots.browse(1) end, "View next workspace")
 -- Launchers and session utilities.
 bind(mod .. " + Return", hl.dsp.exec_cmd("alacritty"), "Open a terminal")
 bind(mod .. " + B", hl.dsp.exec_cmd("firefox"), "Open a browser")
-bind(mod .. " + E", hl.dsp.exec_cmd("nemo"), "Open the file manager")
+bind(mod .. " + E", hl.dsp.exec_cmd("~/.config/rofi/launcher.sh menu"), "Open the Rofi menu")
 bind(mod .. " + C", hl.dsp.exec_cmd("code"), "Open VS Code")
-bind(mod .. " + R", hl.dsp.exec_cmd("rofi -terminal alacritty -show run"), "Open the run prompt")
+bind(mod .. " + R", hl.dsp.exec_cmd("~/.config/rofi/launcher.sh"), "Open Run (Tab for menu)")
 bind(mod .. " + P", hl.dsp.exec_cmd("grim -g \"$(slurp)\" - | swappy -f -"), "Take a screenshot")
 bind(mod .. " + L", hl.dsp.exec_cmd("hyprlock"), "Lock the screen")
-bind("XF86PowerOff", hl.dsp.exec_cmd("rofi -show power"), "Open the power menu")
+bind("XF86PowerOff", hl.dsp.exec_cmd("~/.config/rofi/launcher.sh power"), "Open the power menu")
 
 -- Window and layout manipulation.
 bind(mod .. " + J", function() dots.swap(1) end, "Swap with the next window")
@@ -237,3 +238,6 @@ bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl --player=spotify,%any previous"
 bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl set 5%+"), "Raise display brightness", { locked = true, repeating = true })
 bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set 5%-"), "Lower display brightness", { locked = true, repeating = true })
 bind("Print", hl.dsp.exec_cmd("grim -g \"$(slurp)\" - | swappy -f -"), "Take a screenshot")
+
+-- Rofi follows the desktop palette; animate only its layer, not other overlays.
+hl.layer_rule({ name = "dots-rofi", match = { namespace = "^rofi$" }, animation = "fade", blur = true, ignore_alpha = 0.5 })

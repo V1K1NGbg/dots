@@ -2,6 +2,7 @@
 
 set -euo pipefail
 
+list_bindings() {
 hyprctl binds | awk '
 function has_bit(mask, bit) {
     return int(mask / bit) % 2
@@ -56,4 +57,13 @@ $1 == "description:" {
 END {
     emit()
 }
-' | rofi -dmenu -i -p "Keybindings" > /dev/null
+'
+}
+
+if [[ ${1:-} == --list ]]; then
+    list_bindings
+else
+    source "$(dirname -- "$0")/common.sh"
+    menu_setup
+    choose Keybindings '' list < <(list_bindings) || :
+fi

@@ -80,16 +80,16 @@ readonly -a REPO_PACKAGES=(
     baobab bash-completion blueman bluez bluez-utils brightnessctl bulky
     capitaine-cursors
     cliphist clang cowsay curl dconf discord docker docker-compose dracut
-    fastfetch fd firefox fprintd gimp git github-cli gnome-disk-utility
+    fastfetch fd firefox fprintd fzf gimp git github-cli gnome-disk-utility
     go gopls grim highlight htop hypridle hyprland hyprlock hyprpolkitagent hyprsunset
     jdk21-openjdk jdk17-openjdk jdk8-openjdk keepassxc lazygit less libinput
-    libnotify libqalculate llama-cpp ggml-vulkan lolcat mako
+    libnotify libpulse libqalculate llama-cpp ggml-vulkan lolcat mako
     man-db man-pages meld nano nemo nemo-fileroller networkmanager network-manager-applet nmap
     noto-fonts noto-fonts-cjk noto-fonts-emoji nvtop nwg-displays nwg-look
     papirus-icon-theme pavucontrol pipewire pipewire-alsa
     pipewire-pulse playerctl plymouth
     poppler power-profiles-daemon prettier
-    prismlauncher pyright python python-black qt5ct qt6ct
+    prismlauncher pyright python python-black jq qt5ct qt6ct
     ranger rofi rofi-calc rust rust-analyzer slurp sof-firmware spotify-launcher steam
     swappy tmux tree typescript-language-server unzip vim
     code vlc vulkan-radeon lib32-vulkan-radeon vulkan-tools
@@ -99,6 +99,7 @@ readonly -a REPO_PACKAGES=(
 
 readonly -a AUR_PACKAGES=(
     ani-cli
+    rofi-blocks-git
     imgcat
     localsend
     opencode
@@ -340,9 +341,28 @@ install_dotfiles() {
     local config_dir
     for config_dir in \
         BetterDiscord alacritty gtk-3.0 gtk-4.0 hypr keepassxc mako \
-        opencode qt5ct qt6ct rofi systemd uwsm waybar; do
+        opencode qt5ct qt6ct systemd uwsm waybar; do
         cp -rf "${SCRIPT_DIR}/.config/${config_dir}" "${HOME}/.config/"
     done
+    systemctl --user disable --now dots-rofi.service 2>/dev/null || :
+    systemctl --user disable --now dots-desktop.service 2>/dev/null || :
+    systemctl --user disable --now desktop-utils.service 2>/dev/null || :
+    systemctl --user disable --now utils.service 2>/dev/null || :
+    systemctl --user disable --now dots-utils.service 2>/dev/null || :
+    systemctl --user stop 'dots-rofi-alert-*.service' 'dots-desktop-alert-*.service' 'desktop-utils-alert-*.service' 'utils-alert-*.service' 'dots-utils-alert-*.service' dots-rofi-ai.service 2>/dev/null || :
+    bash "${SCRIPT_DIR}/scripts/migrate-rofi.sh"
+    local source_file relative
+    while IFS= read -r -d '' source_file; do
+        relative=${source_file#"${SCRIPT_DIR}/"}
+        [[ $relative != */settings.json || ! -f $HOME/$relative ]] || continue
+        mkdir -p "$HOME/${relative%/*}"
+        cp -p "$source_file" "$HOME/$relative"
+    done < <(find "${SCRIPT_DIR}/.config/rofi" -type f -print0)
+    bash "$HOME/.config/rofi/icon-gen/generate.sh" --offline
+    if [[ -f $HOME/.config/rofi/config.rasi ]]; then
+        cp -p "$HOME/.config/rofi/config.rasi" "$HOME/.config/rofi/config.rasi.backup-$(date +%Y%m%d-%H%M%S)"
+        rm -- "$HOME/.config/rofi/config.rasi"
+    fi
     cp -rf "${SCRIPT_DIR}/.oh-my-bash/" "$HOME/"
     cp -rf "${SCRIPT_DIR}/.vim/" "$HOME/"
 
@@ -352,6 +372,20 @@ install_dotfiles() {
         "${SCRIPT_DIR}/.tmux.conf" \
         "${SCRIPT_DIR}/.vimrc" ~
 
+    systemctl --user daemon-reload
+    rm -f -- "$HOME/.config/systemd/user/dots-utils.service" "$HOME/.config/rofi/utils/worker.sh" "$HOME/.config/rofi/modi/tray.sh"
+    systemctl --user daemon-reload
+    bash "$HOME/.config/rofi/modi/time.sh" reconcile
+    if [[ -d $HOME/.config/dots-utils ]]; then
+        mv "$HOME/.config/dots-utils" "$HOME/.config/dots-utils.backup-$(date +%Y%m%d-%H%M%S)"
+    fi
+    local retired backup
+    backup=$(mktemp -d "${HOME}/.config/rofi-layout-backup.XXXXXXXX")
+    for retired in utils icon-gen/icons/LICENSE icon-gen/LICENSE; do
+        [[ -e $HOME/.config/rofi/$retired ]] || continue
+        mkdir -p "$backup/$(dirname "$retired")"
+        mv "$HOME/.config/rofi/$retired" "$backup/$retired"
+    done
     print_success "Dotfiles copied"
 }
 

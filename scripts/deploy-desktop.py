@@ -18,7 +18,7 @@ FILES = [
     ".config/hypr/desktop-core.lua", ".config/hypr/desktop.lua",
     ".config/hypr/autostart.sh", ".config/waybar/config.jsonc",
     ".config/waybar/style.css", ".config/waybar/focus-window.sh",
-    ".config/rofi/config.rasi", ".config/rofi/windows.py",
+    ".config/rofi/modi/windows.sh",
     ".config/hypr/hyprland.lua",  # Install last: Hyprland watches this file.
 ]
 

@@ -10,14 +10,14 @@ get_status() {
 
     if [[ -n "$status" && "$status" != "No players found" ]]; then
         if [[ -n "$title" && -n "$artist" ]]; then
-            echo "🎵 $artist - $title [$status]"
+            echo "$artist - $title [$status]"
         elif [[ -n "$title" ]]; then
-            echo "🎵 $title [$status]"
+            echo "$title [$status]"
         else
-            echo "🎵 $player [$status]"
+            echo "$player [$status]"
         fi
     else
-        echo "🎵 No media playing"
+        echo "No media playing"
     fi
 }
 
@@ -25,9 +25,9 @@ get_volume() {
     local volume
     volume=$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | awk '{printf "%.0f%%", $2 * 100}')
     if [[ -n "$volume" ]]; then
-        echo "🔊 Volume: ${volume}"
+        echo "Volume: ${volume}"
     else
-        echo "🔊 Volume: N/A"
+        echo "Volume: N/A"
     fi
 }
 
@@ -36,33 +36,37 @@ if [[ $# -eq 0 ]]; then
     get_status
     get_volume
     echo "---"
-    echo "⏯️  Play/Pause"
-    echo "⏭️  Next Track"
-    echo "⏮️  Previous Track"
-    echo "🔇  Mute/Unmute"
-    echo "🔉  Volume Down (-5%)"
-    echo "🔊  Volume Up (+5%)"
+    echo "Play/Pause"
+    echo "Next Track"
+    echo "Previous Track"
+    echo "Mute/Unmute"
+    echo "Volume Down (-5%)"
+    echo "Volume Up (+5%)"
+    echo "Audio outputs"
     exit 0
 fi
 
 # Handle menu selection
 case "$1" in
-    "⏯️  Play/Pause")
+    "Audio outputs")
+        bash "$HOME/.config/rofi/launcher.sh" outputs </dev/null >/dev/null 2>&1 &
+        ;;
+    "Play/Pause")
         playerctl --player=spotify,%any play-pause
         ;;
-    "⏭️  Next Track")
+    "Next Track")
         playerctl --player=spotify,%any next
         ;;
-    "⏮️  Previous Track")
+    "Previous Track")
         playerctl --player=spotify,%any previous
         ;;
-    "🔇  Mute/Unmute")
+    "Mute/Unmute")
         wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
         ;;
-    "🔉  Volume Down (-5%)")
+    "Volume Down (-5%)")
         wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
         ;;
-    "🔊  Volume Up (+5%)")
+    "Volume Up (+5%)")
         wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+
         ;;
     *)

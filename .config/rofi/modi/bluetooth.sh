@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if ! command -v bluetoothctl &> /dev/null; then
-    echo "bluetoothctl is not installed. Please install the NixOS bluez package"
+    echo "bluetoothctl is not installed. Install bluez-utils"
     exit 1
 fi
 
@@ -14,9 +14,9 @@ get_bluetooth_status() {
     bt_status=$(get_powered)
     
     if [[ "$bt_status" == "yes" ]]; then
-        echo "🔵 Bluetooth: Enabled"
+        echo "Bluetooth: Enabled"
     else
-        echo "⚫ Bluetooth: Disabled"
+        echo "Bluetooth: Disabled"
     fi
 }
 
@@ -28,21 +28,21 @@ get_connected_devices() {
     if [[ $connected_count -gt 0 ]]; then
         device_names=$(cut -d' ' -f3- <<<"$connected_devices" | paste -sd, -)
         device_names=${device_names//,/, }
-        echo "📱 Connected devices: $connected_count [$device_names]"
+        echo "Connected devices: $connected_count [$device_names]"
     else
-        echo "📱 No devices connected"
+        echo "No devices connected"
     fi
 }
 
 get_paired_devices() {
-    echo "⬅️ Back"
+    echo "Back"
     echo "---"
     bluetoothctl devices Paired | while read -r _ mac name; do
 
         if bluetoothctl info "$mac" | grep -q "Connected: yes"; then
-            echo "🔗 $name (Connected)"
+            echo "Disconnect: $name (Connected)"
         else
-            echo "📲 $name (Paired)"
+            echo "Connect: $name (Paired)"
         fi
     done
 }
@@ -54,10 +54,10 @@ if [[ $# -eq 0 ]]; then
     
     bt_status=$(get_powered)
     if [[ "$bt_status" == "yes" ]]; then
-        echo "⚫ Turn Bluetooth Off"
-        echo "📲 Paired Devices"
+        echo "Turn Bluetooth Off"
+        echo "Paired Devices"
     else
-        echo "🔵 Turn Bluetooth On"
+        echo "Turn Bluetooth On"
     fi
     
     exit 0
@@ -77,14 +77,14 @@ case "$1" in
         # Go back to main menu
         exec "$0"
         ;;
-    🔗*|📲*)
-        if [[ "$1" == 🔗* ]]; then
+    Disconnect:*|Connect:*)
+        if [[ "$1" == Disconnect:* ]]; then
             action=disconnect
-            device_name=${1#🔗 }
+            device_name=${1#Disconnect: }
             device_name=${device_name% (Connected)}
         else
             action=connect
-            device_name=${1#📲 }
+            device_name=${1#Connect: }
             device_name=${device_name% (Paired)}
         fi
         mac=$(bluetoothctl devices Paired | grep -F -- "$device_name" | awk '{print $2}')

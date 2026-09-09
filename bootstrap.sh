@@ -181,7 +181,7 @@ pacstrap -K "$TARGET_ROOT" \
     base linux linux-firmware amd-ucode binutils cryptsetup dracut e2fsprogs \
     git vim sudo networkmanager network-manager-applet \
     hyprland uwsm alacritty waybar mako rofi hypridle hyprpolkitagent hyprsunset \
-    pipewire pipewire-pulse wireplumber \
+    pipewire pipewire-pulse wireplumber libpulse playerctl jq fd fzf curl libnotify \
     xdg-desktop-portal-hyprland xdg-desktop-portal-gtk \
     capitaine-cursors cliphist cowsay lolcat noto-fonts wl-clipboard
 

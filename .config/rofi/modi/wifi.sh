@@ -25,48 +25,48 @@ show_main_menu() {
 
     case "$wifi_state" in
         connected)
-            echo "📶 Connected to: $connection_name"
+            echo "Connected to: $connection_name"
             ;;
         disconnected|connecting)
-            echo "📶 WiFi enabled, $wifi_state"
+            echo "Wi-Fi enabled, $wifi_state"
             ;;
         *)
-            echo "📵 WiFi disabled"
+            echo "Wi-Fi disabled"
             ;;
     esac
 
     echo "---"
     if [[ "$wifi_state" == "unavailable" || "$wifi_state" == "unmanaged" ]]; then
-        echo "📶 Turn WiFi On"
+        echo "Turn Wi-Fi On"
     else
-        echo "📵 Turn WiFi Off"
-        [[ "$wifi_state" == "connected" ]] && echo "🔄 Disconnect"
-        echo "📡 Known Networks"
-        echo "🔒 VPN Menu"
+        echo "Turn Wi-Fi Off"
+        [[ "$wifi_state" == "connected" ]] && echo "Disconnect"
+        echo "Known Networks"
+        echo "VPN Menu"
     fi
 }
 
 get_known_networks() {
-    echo "⬅️ Back"
+    echo "Back"
     echo "---"
     nmcli -t -f NAME,TYPE connection show \
-        | awk -F: '$2 == "802-11-wireless" || $2 == "wifi" { print "📡 " $1 }'
+        | awk -F: '$2 == "802-11-wireless" || $2 == "wifi" { print "Network: " $1 }'
 }
 
 get_vpns() {
     local active_vpns
-    echo "⬅️ Back"
+    echo "Back"
     echo "---"
     active_vpns=$(nmcli -t -f NAME,TYPE connection show --active \
         | awk -F: '/(vpn|wireguard)/ { print $1 }')
     
     if [[ -n "$active_vpns" ]]; then
         while read -r vpn; do
-            echo "🔒 VPN: $vpn (Connected)"
+            echo "VPN: $vpn (Connected)"
         done <<<"$active_vpns"
     else
         nmcli -t -f NAME,TYPE connection show \
-            | awk -F: '/(vpn|wireguard)/ { print "🔒 VPN: " $1 " (Disconnected)" }'
+            | awk -F: '/(vpn|wireguard)/ { print "VPN: " $1 " (Disconnected)" }'
     fi
 }
 
@@ -76,10 +76,10 @@ if [[ $# -eq 0 ]]; then
 fi
 
 case "$1" in
-    *"Turn WiFi Off")
+    *"Turn Wi-Fi Off")
         nmcli radio wifi off
         ;;
-    *"Turn WiFi On")
+    *"Turn Wi-Fi On")
         nmcli radio wifi on
         ;;
     *"Disconnect")
@@ -95,12 +95,12 @@ case "$1" in
     *"Back")
         exec "$0"
         ;;
-    📡*)
-        network_name=${1#📡 }
+    Network:*)
+        network_name=${1#Network: }
         nmcli connection up "$network_name" &>/dev/null
         ;;
-    🔒*)
-        vpn_line=${1#🔒 VPN: }
+    VPN:*)
+        vpn_line=${1#VPN: }
         vpn_name=${vpn_line% (Connected)}
         vpn_name=${vpn_name% (Disconnected)}
         
