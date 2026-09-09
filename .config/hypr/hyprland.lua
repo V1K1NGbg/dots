@@ -114,6 +114,15 @@ hl.animation({ leaf = "workspaces", enabled = true, speed = 5.5, bezier = "fluid
 dots = require("desktop")
 dots.setup()
 
+local function configure_displays(reload)
+    if not os.getenv("HYPRLAND_INSTANCE_SIGNATURE") then return end
+    hl.exec_cmd("bash ~/.config/hypr/monitors.sh --auto" .. (reload and " --reload" or ""))
+end
+hl.on("hyprland.start", function() configure_displays(false) end)
+hl.on("monitor.added", function() configure_displays(false) end)
+hl.on("monitor.removed", function() configure_displays(false) end)
+hl.on("config.reloaded", function() configure_displays(true) end)
+
 hl.on("hyprland.start", function()
     hl.exec_cmd("~/.config/hypr/autostart.sh")
 end)
@@ -199,6 +208,8 @@ bind(mod .. " + Q", hl.dsp.window.close(), "Close window")
 bind(mod .. " + N", dots.minimize, "Minimize window")
 bind(mod .. " + SHIFT + N", dots.restore, "Restore the last minimized window")
 bind(mod .. " + M", hl.dsp.window.fullscreen({ mode = "maximized", action = "toggle" }), "Toggle maximized")
+
+bind(mod .. " + CTRL + P", hl.dsp.exec_cmd("bash ~/.config/rofi/modi/monitors.sh"), "Choose display layout")
 
 -- Monitor focus and client movement. Relative selectors follow Hyprland's
 -- configured monitor order, matching Awesome's focus_relative behavior.

@@ -2,6 +2,86 @@
 
 ## Unreleased
 
+- Remove the bundled font license file, its installer copy and its validation check.
+
+- Replace the monitor controller with Bash and jq, preserving profile identity,
+  saved choices, scaling, rotation, mirroring, serialized hotplug handling and
+  reload behavior. Update startup, Rofi, installer and selective deployment;
+  back up and retire the old Python controller. Tests exercise the Bash code.
+  Laptop validation passed for all five arrangements, Rofi selection, geometry,
+  profile persistence, cancellation and reload behavior. Applied with backups;
+  restored MSI-right. Physical unplug/replug and reboot remain untested.
+
+- Replace the embedded Python font installer with Bash, preserving unrelated
+  INI settings and original backups. Bundle the exact installed console bitmap
+  without a runtime converter, removing the Pillow dependency.
+  Standalone Python scripts remain; the font check now tests the Bash code.
+  Isolated desktop and system checks passed on the laptop, including settings
+  preservation, repeated edits, original backups and byte-identical console fonts.
+
+- Remove the lock screen's reserved error area and reduce the panel to 420×260.
+  Display the latest password or fingerprint failure inside the input field,
+  replacing the placeholder at a bounded font size. Applied with a backup and
+  visually checked both normal and sample-error states on the laptop; the error
+  fits inside the field and fingerprint readiness passes.
+
+- Remove the lock screen's session and fingerprint-ready labels, reduce blur,
+  and reserve separate password/fingerprint error rows below a fixed-width input.
+- Escape closes directly opened Run (Super+R); Run opened from the menu returns
+  there. Tab still opens the menu. Add coverage for both navigation paths and a
+  preview with simultaneous sample authentication errors.
+- Applied the four selected configs with backups. Direct Run Escape, Tab to the
+  menu, and all 12 utility-to-menu routes passed on the laptop. Inspected both
+  error rows together in a disposable preview; no overlap, and fingerprint
+  readiness passed. Actual failed authentication was not triggered.
+
+- Move font configuration into the installer and add a dedicated system-font
+  task; remove the standalone deployment script. Existing installations need no
+  migration, and font downloads are reused.
+- Make Hyprlock a compact 420×340 Rofi-style translucent panel with six-pixel
+  corners, a cyan outline and slightly stronger screenshot blur.
+- Avoid persistent workspace rules: Waybar 0.15 imports those without applying
+  each taskbar's workspace filter, duplicating app groups on startup. Keep all
+  nine custom workspace buttons and create empty workspaces on demand.
+- Start Spotify with Arch's `spotify-launcher` and retain startup command logs
+  in the journal instead of discarding errors.
+- Laptop validation: font installer staging, desktop policy checks, fresh Waybar
+  group membership without reload, and empty workspace creation on both monitors
+  passed. Inspected the compact lock preview; fingerprint readiness passed.
+  Spotify launched successfully. Applied selected configs with backups; a full
+  reboot and physical unlock are still untested. No release tag created.
+
+- Apply Monocraft defaults across fontconfig, GTK 2/3/4, Qt 5/6 and desktop
+  font settings. Add selective deployment with backups, a custom Plymouth theme,
+  a generated console bitmap font and explicit font inclusion in boot images.
+- Applied desktop font settings on the laptop with backups. Font matching, emoji
+  fallback, staged Plymouth configuration, and PSF generation/Unicode-table checks
+  passed. System activation and reboot validation await local sudo authentication.
+
+- Redesign Hyprlock with a blurred, dimmed desktop, translucent charcoal panel,
+  large cyan clock, date, password field, keyboard layout and fingerprint status.
+- Enable native fingerprint scanning alongside password entry. Use Arch's login
+  password PAM stack directly so the legacy hyprlock pam_fprintd entry cannot
+  delay password verification or compete for the sensor. Stop adding that entry
+  in the installer; sudo fingerprint authentication is unchanged.
+- Rendered and inspected a nested lock-screen preview on the laptop; confirmed
+  fingerprint verification starts without keyboard input. Successful password
+  and fingerprint unlocks require the user's physical test. Add targeted backup
+  and deployment plus a disposable nested compositor validation script.
+
+- Move the display picker into `rofi/modi/monitors.sh` using shared menu helpers;
+  keep profile and layout handling in the Hyprland controller.
+
+- Add monitor-specific layout profiles: MSI MAG272QR automatically sits right of
+  the laptop and becomes primary. Gather windows by logical workspace when a
+  layout is selected or a display connects; preserve minimized restore targets.
+- Ask for Right, Left, Top, Bottom or Duplicate in Rofi for unknown displays;
+  remember choices separately from repository defaults. Super+Ctrl+P reopens the
+  picker. Reloads apply profiles without gathering manually relocated windows.
+- Add targeted deployment with backups and monitor policy/live tests. All five
+  arrangements, Rofi selection, and desktop state tests passed on the laptop;
+  visually inspected the picker. Physical unplug/replug remains to be checked.
+
 - Remove the icon license file and the generator dependency on it.
 
 - Remove `rofi/utils` entirely; keep upgrade migration in repository scripts.

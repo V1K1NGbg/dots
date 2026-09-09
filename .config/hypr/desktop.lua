@@ -102,6 +102,7 @@ local function active_workspace()
 end
 
 local function fallback_monitor(monitors)
+    if core.connected(monitors)[state.primary] then return state.primary end
     local active = hl.get_active_monitor()
     local names = core.connected(monitors)
     return active and names[active.name] and active.name or core.primary(monitors)
@@ -428,6 +429,39 @@ local apps = {
     { "(org\\.keepassxc\\.KeePassXC|[Kk]ee[Pp]ass[Xx][Cc])", 7 }, { "[Ss]team", 8 },
 }
 
+-- Called once after a display profile is applied, never on ordinary workspace
+-- changes. Users can still move windows back to the secondary screen.
+function M.set_primary(name, gather)
+    local monitors = hl.get_monitors()
+    if not core.connected(monitors)[name] then return end
+    state.primary = name
+    topology = ""
+    M.reconcile()
+    if gather then
+        local focused = hl.get_active_window()
+        for _, window in ipairs(hl.get_windows()) do
+            local data = meta(window)
+            if data.restore_ws then
+                data.restore_ws = core.workspace(state.bases[name], core.logical(data.restore_ws))
+            end
+            if data.monitor then data.monitor = name end
+            local ws = window.workspace
+            if ws and not ws.special then
+                local destination = core.workspace(state.bases[name], core.logical(ws.id))
+                if destination ~= ws.id then
+                    hl.dispatch(hl.dsp.window.move({ window = window, workspace = destination, follow = false }))
+                end
+            end
+        end
+        if focused and focused.mapped and not meta(focused).minimized then
+            hl.dispatch(hl.dsp.focus({ window = focused }))
+        else
+            hl.dispatch(hl.dsp.focus({ monitor = name }))
+        end
+    end
+    save()
+end
+
 function M.reconcile()
     if reconciling then return end
     local monitors = hl.get_monitors()
@@ -451,14 +485,17 @@ function M.reconcile()
                 local id = base + i
                 workspace_rules[#workspace_rules + 1] = hl.workspace_rule({
                     workspace = tostring(id), monitor = names[name] and name or fallback,
-                    persistent = names[name] or false,
+                    -- Labels already expose all nine logical workspaces. Waybar
+                    -- 0.15 imports persistent rules without ignore-workspaces,
+                    -- duplicating every taskbar in every group on cold startup.
+                    persistent = false,
                     layout = state.modes[id] == "floating" and "dwindle" or state.modes[id] or "dwindle",
                 })
             end
         end
         for _, rule in ipairs(app_rules) do rule:set_enabled(false) end
         app_rules = {}
-        local primary = core.primary(monitors, fallback)
+        local primary = names[state.primary] and state.primary or core.primary(monitors, fallback)
         for _, app in ipairs(apps) do
             app_rules[#app_rules + 1] = hl.window_rule({ match = { initial_class = app[1] }, workspace = tostring(state.bases[primary] + app[2]) })
         end

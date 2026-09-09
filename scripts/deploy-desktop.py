@@ -15,12 +15,14 @@ import subprocess
 import time
 
 FILES = [
+    ".config/hypr/monitors.sh", ".config/hypr/monitors.json",
     ".config/hypr/desktop-core.lua", ".config/hypr/desktop.lua",
     ".config/hypr/autostart.sh", ".config/waybar/config.jsonc",
     ".config/waybar/style.css", ".config/waybar/focus-window.sh",
-    ".config/rofi/modi/windows.sh",
+    ".config/rofi/modi/windows.sh", ".config/rofi/modi/monitors.sh",
     ".config/hypr/hyprland.lua",  # Install last: Hyprland watches this file.
 ]
+RETIRED = ['.config/hypr/monitors.py']
 
 
 def session_env():
@@ -53,7 +55,7 @@ def reload_desktop(env, restoring=False):
 
 def restore(backup, home, env):
     manifest = json.loads((backup / "manifest.json").read_text())
-    for name in FILES:
+    for name in FILES + RETIRED:
         if name not in manifest:
             continue
         destination = home / name
@@ -86,7 +88,7 @@ def main():
     backup = home / "dots-dev" / "backups" / datetime.now().strftime("desktop-%Y%m%d-%H%M%S")
     backup.mkdir(parents=True, mode=0o700)
     manifest = {}
-    for name in FILES:
+    for name in FILES + RETIRED:
         active = home / name
         manifest[name] = active.exists()
         if active.exists():
@@ -100,6 +102,8 @@ def main():
             target = home / name
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source / name, target)
+        for name in RETIRED:
+            (home / name).unlink(missing_ok=True)
         reload_desktop(env)
     except Exception:
         restore(backup, home, env)

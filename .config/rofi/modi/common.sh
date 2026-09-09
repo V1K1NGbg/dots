@@ -134,7 +134,7 @@ rofi_native() (
     trap '[[ -z $child ]] || kill "$child" 2>/dev/null || :' EXIT
     trap 'back=true; [[ -z $child ]] || kill "$child" 2>/dev/null || :' USR1
     trap 'exit 1' TERM INT HUP
-    "${ROFI[@]}" "$@" -kb-cancel '' -kb-mode-next "$keys" -kb-mode-previous '' \
+    "${ROFI[@]}" "$@" -kb-cancel "${ROFI_CANCEL_KEYS:-}" -kb-mode-next "$keys" -kb-mode-previous '' \
         -on-mode-changed "kill -USR1 $owner" 9>&- &
     child=$!
     wait "$child" 2>/dev/null || rc=$?

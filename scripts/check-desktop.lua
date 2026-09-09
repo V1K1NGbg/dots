@@ -127,6 +127,7 @@ hl = {
     layout = { register = function() end },
     dispatch = function(fn) return fn() end,
     workspace_rule = function(rule)
+        assert(not rule.persistent, "Persistent rules bypass Waybar taskbar workspace filters")
         local ws = workspaces[tonumber(rule.workspace)]
         if ws and rule.layout then ws.tiled_layout = rule.layout end
         return { set_enabled = function() end }
@@ -174,4 +175,17 @@ desktop.toggle_bar(); eq(bar_signals, before_signals + 3) -- Explicit show over 
 desktop.toggle_bar(); eq(bar_signals, before_signals + 4)
 a.fullscreen = 0
 emit("window.fullscreen", a); flush(); eq(bar_signals, before_signals + 4) -- Manual hide survives.
+-- Docking gathers matching logical workspaces and minimized destinations.
+active_window = b
+desktop.minimize()
+monitors = { external, laptop }
+desktop.set_primary("DP-4", true)
+eq(a.workspace.id, 4)
+desktop.restore(); eq(b.workspace.id, 3)
+-- Ordinary reconciliation and config application do not gather again.
+active_window = a
+hl.dispatch(hl.dsp.window.move({window=a, workspace=14, follow=false}))
+desktop.set_primary("DP-4", false)
+eq(a.workspace.id, 14)
+desktop.reconcile(); eq(a.workspace.id, 14)
 print("Desktop policy and state tests passed")

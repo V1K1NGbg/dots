@@ -119,17 +119,23 @@ check_system_updated()    { is_marked "system_updated"; }
 check_paru()              { cmd_exists paru; }
 check_packages()          { pacman -Qq "${PACKAGES[@]}" &>/dev/null; }
 check_amd_gpu()           { is_marked amd_gpu && grep -q 'amdgpu.dcdebugmask' /etc/kernel/cmdline 2>/dev/null; }
-check_plymouth()          { is_marked plymouth && grep -q 'splash' /etc/kernel/cmdline 2>/dev/null && [[ -f /etc/dracut.conf.d/plymouth.conf ]]; }
+check_plymouth()          { is_marked plymouth && grep -q 'splash' /etc/kernel/cmdline 2>/dev/null && [[ -f /etc/dracut.conf.d/plymouth.conf && -f /etc/dracut.conf.d/30-monocraft.conf ]]; }
 check_power_button()      { grep -q '^HandlePowerKey=ignore' /etc/systemd/logind.conf; }
 check_bluetooth()         { systemctl is-enabled bluetooth.service &>/dev/null; }
 check_desktop_services()  { systemctl is-enabled power-profiles-daemon.service &>/dev/null; }
 check_ctrl_backspace()    { grep -qF '"\C-H"' /etc/inputrc 2>/dev/null; }
-check_monocraft()         { fc-list 2>/dev/null | grep -qi monocraft; }
+check_monocraft()         { fc-list 2>/dev/null | grep -qi monocraft && [[ -f ${HOME}/.config/fontconfig/conf.d/99-monocraft.conf ]]; }
+check_system_fonts() {
+    check_monocraft && [[ -f /etc/dracut.conf.d/30-monocraft.conf ]] &&
+        grep -q '^Theme=hexagon_hud_monocraft$' /etc/plymouth/plymouthd.conf &&
+        grep -q '^FONT=monocraft$' /etc/vconsole.conf
+}
+
 check_dns()               { grep -q '1.1.1.1' /etc/NetworkManager/conf.d/dns-servers.conf 2>/dev/null; }
 check_wireguard()         { nmcli connection show 2>/dev/null | grep -qi wireguard; }
 check_git_config()        { [[ -n "$(git config --global user.name 2>/dev/null)" ]]; }
 check_gh_auth()           { gh auth status &>/dev/null; }
-check_fingerprint()       { grep -q 'pam_fprintd' /etc/pam.d/sudo 2>/dev/null && grep -q 'pam_fprintd' /etc/pam.d/hyprlock 2>/dev/null && fprintd-list "$USER" 2>/dev/null | grep -q 'right-index-finger'; }
+check_fingerprint()       { grep -q 'pam_fprintd' /etc/pam.d/sudo 2>/dev/null && grep -Eq 'fingerprint:enabled[[:space:]]*=[[:space:]]*true' "$HOME/.config/hypr/hyprlock.conf" 2>/dev/null && fprintd-list "$USER" 2>/dev/null | grep -q 'right-index-finger'; }
 check_ohmybash()          { [[ -f "${HOME}/.oh-my-bash/oh-my-bash.sh" ]]; }
 check_bashrc()            { cmp -s "${SCRIPT_DIR}/.bashrc" "${HOME}/.bashrc"; }
 check_nemo_config()       { dconf read /org/nemo/preferences/bulk-rename-tool 2>/dev/null | grep -q 'bulky'; }
@@ -209,7 +215,8 @@ install_plymouth() {
     print_step "Configuring dracut for Plymouth..."
     echo 'add_dracutmodules+=" plymouth "' | sudo tee /etc/dracut.conf.d/plymouth.conf > /dev/null
     print_step "Setting Plymouth theme..."
-    sudo plymouth-set-default-theme hexagon_hud
+    install_monocraft
+    configure_fonts --system "${HOME}/.local/share/fonts/Monocraft-nerd-fonts-patched.ttc"
     print_step "Rebuilding UKI..."
     rebuild_initramfs
     mark_done plymouth
@@ -240,17 +247,164 @@ install_ctrl_backspace() {
     print_success "Ctrl+Backspace → Ctrl+W configured in /etc/inputrc"
 }
 
+# Shared by the desktop font and system-font installer tasks.
+font_command() {
+    if [[ ${FONT_SYSTEM:-false} == true ]]; then sudo "$@"; else "$@"; fi
+}
+
+font_read() {
+    if font_command test -f "$1"; then font_command cat "$1"; fi
+}
+
+font_install() {
+    local source=$1 target=$2
+    font_command cmp -s "$source" "$target" && return 0
+    if ! grep -Fxq -- "$target" "$FONT_STAGE/backed-up" 2>/dev/null; then
+        if font_command test -e "$target"; then
+            font_command mkdir -p "$FONT_BACKUP${target%/*}"
+            font_command cp -p "$target" "$FONT_BACKUP$target"
+        else
+            printf '%s\n' "$target" | font_command tee -a "$FONT_BACKUP/created-files.txt" >/dev/null
+        fi
+        printf '%s\n' "$target" >> "$FONT_STAGE/backed-up"
+    fi
+    font_command install -Dm644 "$source" "$target"
+    printf 'Updated %s\n' "$target"
+}
+
+# Update one INI key while retaining other sections, settings and comments.
+font_ini() {
+    local target=$1 section=$2 key=$3 value=$4
+    font_read "$target" | awk -v section="$section" -v key="$key" -v value="$value" '
+        function finish() { if (inside && !written) { print key "=" value; written=1 } }
+        /^[[:space:]]*\[/ {
+            finish()
+            name=$0; sub(/^[[:space:]]*\[/, "", name); sub(/\].*$/, "", name)
+            inside=(name==section); if (inside) found=1
+        }
+        {
+            name=$0; sub(/=.*/, "", name); gsub(/^[[:space:]]+|[[:space:]]+$/, "", name)
+            if (inside && index($0,"=") && name==key) {
+                if (!written) print key "=" value
+                written=1; next
+            }
+            print
+        }
+        END { finish(); if (!found) { print "[" section "]"; print key "=" value } }
+    ' > "$FONT_STAGE/settings.ini"
+    font_install "$FONT_STAGE/settings.ini" "$target"
+}
+
+font_desktop() {
+    local family='Monocraft Nerd Font' version key schema value actual
+    [[ $EUID != 0 ]] || { print_error 'Run desktop font setup without sudo'; return 1; }
+    [[ $(fc-match -f '%{family}' "$family") == *"$family"* ]] || {
+        print_error 'Install Monocraft Nerd Font first'; return 1;
+    }
+    font_install "$SCRIPT_DIR/.config/fontconfig/conf.d/99-monocraft.conf" "$HOME/.config/fontconfig/conf.d/99-monocraft.conf"
+    for version in 3.0 4.0; do
+        font_ini "$HOME/.config/gtk-$version/settings.ini" Settings gtk-font-name "$family 10"
+    done
+    { font_read "$HOME/.gtkrc-2.0" | awk '!/^[[:space:]]*gtk-font-name[[:space:]]*=/'; printf 'gtk-font-name="%s 10"\n' "$family"; } > "$FONT_STAGE/gtkrc"
+    font_install "$FONT_STAGE/gtkrc" "$HOME/.gtkrc-2.0"
+    for version in 5 6; do
+        for key in fixed general; do
+            font_ini "$HOME/.config/qt${version}ct/qt${version}ct.conf" Fonts "$key" "\"$family,10,-1,5,50,0,0,0,0,0\""
+        done
+    done
+    while read -r schema key value; do
+        gsettings list-schemas | grep -Fx "$schema" >/dev/null || continue
+        gsettings list-keys "$schema" | grep -Fx "$key" >/dev/null || continue
+        printf '%s %s %s\n' "$schema" "$key" "$(gsettings get "$schema" "$key")" >> "$FONT_BACKUP/gsettings.txt"
+        gsettings set "$schema" "$key" "$value"
+    done <<'SETTINGS'
+org.gnome.desktop.interface font-name Monocraft Nerd Font 10
+org.gnome.desktop.interface document-font-name Monocraft Nerd Font 10
+org.gnome.desktop.interface monospace-font-name Monocraft Nerd Font 10
+org.gnome.desktop.wm.preferences titlebar-font Monocraft Nerd Font Bold 10
+SETTINGS
+    fc-cache -f
+    for family in sans-serif serif monospace Arial 'Adwaita Sans'; do
+        actual=$(fc-match -f '%{family}' "$family")
+        [[ $actual == *'Monocraft Nerd Font'* ]] || { print_error "Font check failed: $family -> $actual"; return 1; }
+        printf '%s -> %s\n' "$family" "$actual"
+    done
+    if command -v makoctl >/dev/null; then makoctl reload || :; fi
+}
+
+font_system() {
+    local source=$1 theme=/usr/share/plymouth/themes/hexagon_hud item
+    local target=/usr/share/plymouth/themes/hexagon_hud_monocraft
+    local font=/usr/local/share/fonts/Monocraft-nerd-fonts-patched.ttc
+    local conf=/etc/fonts/conf.d/99-monocraft.conf console=/usr/share/kbd/consolefonts/monocraft.psf
+    [[ -s $source && -s $SCRIPT_DIR/assets/fonts/monocraft.psf ]] || { print_error 'Missing Monocraft font asset'; return 1; }
+    sed -E 's/Image\.Text\(([^;]*),[[:space:]]*1,[[:space:]]*1,[[:space:]]*1\)/Image.Text(\1, 1, 1, 1, 1, "Monocraft Nerd Font 12")/g' \
+        "$theme/hexagon_hud.script" > "$FONT_STAGE/hexagon_hud.script"
+    [[ $(grep -c 'Monocraft Nerd Font 12' "$FONT_STAGE/hexagon_hud.script") == 5 ]] || {
+        print_error 'Unexpected Plymouth theme: expected five text calls'; return 1;
+    }
+    font_install "$source" "$font"
+    font_install "$SCRIPT_DIR/.config/fontconfig/conf.d/99-monocraft.conf" "$conf"
+    font_install "$SCRIPT_DIR/assets/fonts/monocraft.psf" "$console"
+    { font_read /etc/vconsole.conf | awk '!/^[[:space:]]*FONT[[:space:]]*=/'; printf 'FONT=monocraft\n'; } > "$FONT_STAGE/vconsole.conf"
+    font_install "$FONT_STAGE/vconsole.conf" /etc/vconsole.conf
+    while IFS= read -r -d '' item; do
+        # Install each final file only once, so reruns retain the original backup.
+        [[ $item != "$theme/hexagon_hud.script" ]] || continue
+        font_install "$item" "$target/${item#"$theme/"}"
+    done < <(find "$theme" -type f -print0)
+    font_install "$FONT_STAGE/hexagon_hud.script" "$target/hexagon_hud.script"
+    { sed "s|$theme|$target|g" "$theme/hexagon_hud.plymouth"; printf '\nFont=Monocraft Nerd Font 12\nMonospaceFont=Monocraft Nerd Font 12\n'; } > "$FONT_STAGE/hexagon_hud_monocraft.plymouth"
+    font_install "$FONT_STAGE/hexagon_hud_monocraft.plymouth" "$target/hexagon_hud_monocraft.plymouth"
+    font_ini /etc/plymouth/plymouthd.conf Daemon Theme hexagon_hud_monocraft
+    printf 'install_items+=" %s %s %s /etc/vconsole.conf "\n' "$font" "$conf" "$console" > "$FONT_STAGE/dracut.conf"
+    font_install "$FONT_STAGE/dracut.conf" /etc/dracut.conf.d/30-monocraft.conf
+}
+
+configure_fonts() (
+    set -e -o pipefail
+    local FONT_SYSTEM=false FONT_BACKUP FONT_STAGE parent
+    FONT_STAGE=$(mktemp -d)
+    trap 'rm -rf -- "$FONT_STAGE"' EXIT
+    if [[ ${1:-} == --system ]]; then
+        [[ $# == 2 ]] || { print_error 'System font setup requires the font file'; return 1; }
+        FONT_SYSTEM=true; parent=/var/lib/dots/backups
+    else
+        [[ $# == 0 ]] || { print_error 'Unknown font setup option'; return 1; }
+        parent=$HOME/.local/state/dots/backups
+    fi
+    font_command mkdir -p "$parent"
+    FONT_BACKUP=$(font_command mktemp -d "$parent/fonts.XXXXXXXX")
+    printf 'Backup: %s\n' "$FONT_BACKUP"
+    if $FONT_SYSTEM; then
+        font_system "$2"
+        font_command fc-cache -f
+    else
+        font_desktop
+    fi
+)
+
 install_monocraft() {
     print_header "Installing Monocraft Nerd Font"
     mkdir -p "${HOME}/.local/share/fonts"
-    print_step "Downloading font..."
-    curl -fL -o "${HOME}/.local/share/fonts/Monocraft-nerd-fonts-patched.ttc" \
+    print_step "Downloading font if missing..."
+    [[ -s ${HOME}/.local/share/fonts/Monocraft-nerd-fonts-patched.ttc ]] || curl -fL -o "${HOME}/.local/share/fonts/Monocraft-nerd-fonts-patched.ttc" \
         https://github.com/IdreesInc/Monocraft/releases/download/v4.0/Monocraft-nerd-fonts-patched.ttc
     print_step "Refreshing font cache..."
     fc-cache
     fc-list | grep -i monocraft
-    print_success "Monocraft font installed"
+    configure_fonts
+    print_success "Monocraft font installed and desktop defaults applied"
 }
+
+install_system_fonts() {
+    print_header "Configure Monocraft throughout the system"
+    install_monocraft
+    configure_fonts --system "${HOME}/.local/share/fonts/Monocraft-nerd-fonts-patched.ttc"
+    rebuild_initramfs
+    print_success "System fonts configured; reboot to use the boot and console fonts"
+}
+
 
 install_dns() {
     print_header "Setting static DNS (Cloudflare)"
@@ -294,8 +448,8 @@ install_fingerprint() {
     print_step "Adding fingerprint authentication to PAM..."
     grep -q 'pam_fprintd' /etc/pam.d/sudo 2>/dev/null \
         || sudo sed -i '/#%PAM-1.0/a auth            sufficient      pam_fprintd.so' /etc/pam.d/sudo
-    grep -q 'pam_fprintd' /etc/pam.d/hyprlock 2>/dev/null \
-        || sudo sed -i '1a auth            sufficient      pam_fprintd.so' /etc/pam.d/hyprlock
+    # Hyprlock uses its native fingerprint listener in parallel with password
+    # authentication. Do not add pam_fprintd to its serial PAM stack.
     print_success "Fingerprint authentication configured"
 }
 
@@ -340,10 +494,16 @@ install_dotfiles() {
     print_step "Copying config directories..."
     local config_dir
     for config_dir in \
-        BetterDiscord alacritty gtk-3.0 gtk-4.0 hypr keepassxc mako \
+        BetterDiscord alacritty fontconfig gtk-3.0 gtk-4.0 hypr keepassxc mako \
         opencode qt5ct qt6ct systemd uwsm waybar; do
         cp -rf "${SCRIPT_DIR}/.config/${config_dir}" "${HOME}/.config/"
     done
+    if [[ -f $HOME/.config/hypr/monitors.py ]]; then
+        local monitor_backup
+        monitor_backup=$(mktemp "$HOME/.config/hypr/monitors.py.backup.XXXXXXXX")
+        cp -p "$HOME/.config/hypr/monitors.py" "$monitor_backup"
+        rm -- "$HOME/.config/hypr/monitors.py"
+    fi
     systemctl --user disable --now dots-rofi.service 2>/dev/null || :
     systemctl --user disable --now dots-desktop.service 2>/dev/null || :
     systemctl --user disable --now desktop-utils.service 2>/dev/null || :
@@ -537,6 +697,7 @@ TASK_NAMES=(
     "Enable Hyprland desktop service"
     "Fix Ctrl+Backspace in terminal"
     "Install Monocraft font"
+    "Configure system fonts (desktop, Plymouth, console)"
     "Set static DNS"
     "Configure Git"
     "Install oh-my-bash"
@@ -571,6 +732,7 @@ TASK_CHECKS=(
     check_desktop_services
     check_ctrl_backspace
     check_monocraft
+    check_system_fonts
     check_dns
     check_git_config
     check_ohmybash
@@ -605,6 +767,7 @@ TASK_INSTALLS=(
     install_desktop_services
     install_ctrl_backspace
     install_monocraft
+    install_system_fonts
     install_dns
     install_git_config
     install_ohmybash

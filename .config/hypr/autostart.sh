@@ -12,7 +12,7 @@ spawn() {
     else
         pgrep -u "$UID" -x -- "${1##*/}" >/dev/null && return
     fi
-    "$@" 9>&- >/dev/null 2>&1 &
+    systemd-cat --identifier="dots-autostart-${1##*/}" "$@" 9>&- &
 }
 
 spawnsl() {
@@ -44,7 +44,10 @@ spawn wl-paste --type text --watch cliphist store
 spawn wl-paste --type image --watch cliphist store
 
 spawnsl discord
-spawnsl spotify
+# Arch installs spotify-launcher, not a spotify executable in PATH.
+if ! pgrep -u "$UID" -x spotify >/dev/null; then
+    spawnsl spotify-launcher
+fi
 spawnsl alacritty
 spawnsl nemo
 spawnsl code

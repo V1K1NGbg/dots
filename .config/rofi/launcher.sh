@@ -5,12 +5,13 @@ for module in run files ai time music network power; do source "$ROOT/modi/$modu
 main() {
     exec 9>"$RUNTIME/launcher.lock"; flock -n 9 || return 0
     menu_setup
-    local mode=${1:-run} i rc
+    local mode=${1:-run} run_origin=direct i rc
     while :; do
         rc=0
         case $mode in
-            apps|run) run_menu || rc=$?;;
+            apps|run) run_menu "$run_origin" || rc=$?;;
             menu|home)
+                run_origin=menu
                 choose Menu "$(dashboard)" home < <(home_rows) || return 0
                 i=${CHOICE#key:}
                 if ((i==12)); then mode=run; else mode=${MODES[i]}; fi
@@ -25,6 +26,7 @@ main() {
             clipboard|power-mode) rofi_native Escape -modi "$mode:$ROOT/modi/$mode.sh" -show "$mode" || rc=$?;;
             *) info Rofi 'Unknown page';;
         esac
+        if [[ $mode == run || $mode == apps ]] && [[ $run_origin == direct ]] && ((rc==1)); then return 0; fi
         if ((rc==1 || rc==10)); then mode=menu; continue; fi
         return 0
     done

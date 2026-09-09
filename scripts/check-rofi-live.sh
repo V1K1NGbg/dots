@@ -65,7 +65,7 @@ probe() {
 }
 if [[ ${1:-} == --gallery ]]; then
     for panel in home run power music time outputs calc; do
-        case $panel in home) probe "$panel" cancel Escape;; run) probe "$panel" menu Escape;; *) probe "$panel" closed Escape;; esac
+        case $panel in home) probe "$panel" cancel Escape;; run) probe "$panel" closed Escape;; *) probe "$panel" closed Escape;; esac
     done
     probe timer closed 1 m Escape
     probe spelling closed t e h Escape
@@ -76,7 +76,7 @@ for i in "${!KEYS[@]}"; do probe home "key:$i" "${KEYS[i]}"; done
 probe home key:12 Tab
 probe run menu Tab
 probe run menu f Tab
-probe run menu Escape
+probe run closed Escape
 probe home cancel Escape
 probe home 1 Right Return
 probe typing 1 z Return
