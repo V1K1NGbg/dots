@@ -146,10 +146,10 @@ case ${1:-status} in
     next) next_alarm "$2" "$3" "${4:-$(date +%s)}"; exit;;
     status) clock_read; exit;;
     sound)
-        sound=$(cfg '.sound // empty'); sound=${sound:-$ROOT/sounds/villager-idle1.ogg}
+        sound=$(cfg '.sound // empty')
         trap 'for pid in $(jobs -pr); do kill "$pid" 2>/dev/null || :; done' EXIT
         trap 'exit 0' TERM INT
-        while :; do pw-play "$sound" & wait $! || exit; sleep .5 & wait $! || :; done;;
+        while :; do bash "$ROOT/../hypr/sound.sh" timer "$sound" & wait $! || exit; sleep .5 & wait $! || :; done;;
     alert) alert "$2"; exit;;
 esac
 exec 9>"$STATE/clocks.lock"; flock 9

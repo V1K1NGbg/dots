@@ -2,6 +2,137 @@
 
 ## Unreleased
 
+- Reduce visualizer delay: raise CAVA from 30 to 60fps, lower its noise
+  reduction to 20 and disable its once-per-second wakeup after silence. Draw
+  new peaks immediately upon input; replace 45ms attack/110ms release with
+  immediate attack/35ms release. Restore the earlier small corner tips.
+  Bash continues to control the pipeline; Cairo drawing remains in the native
+  helper. Strict build, immediate-attack/normalization/corner tests, live audio,
+  shared capture, repeated toggles and geometry checks passed. Corner capture
+  reviewed. Applied with backup `~/dots-dev/visualizer-backup.wVczxd3h`.
+  Perceived end-to-end audio/display synchronization is not instrumented.
+
+- Try a native GTK/Cairo layer-shell visualizer in place of Waybar text glyphs.
+  Draw a continuous antialiased spectrum with spatial interpolation, temporal
+  smoothing and pixel-based corner tapering. Share one normalized CAVA capture
+  across all displays. Bash still controls compilation, startup and Super+G;
+  retain the old bars as an environment-selectable fallback. Explicitly list
+  native build dependencies. Strict-warning compilation, native normalization,
+  parser/corner tests and live audio, three toggle cycles, capture cleanup,
+  four 16px surfaces per display and unchanged focus/reserved space passed.
+  Curve/corner screenshots reviewed. Applied with backup
+  `~/dots-dev/visualizer-backup.dM6SSFjF`; left running. No release tag created.
+- Bring CAVA's tapered tips closer to the corners with a four-column taper
+  ending at one glyph step, and add 1px separation between columns. Recalculate
+  column count and distribute remaining spacing to retain the full edge span.
+  Applied with backup `~/dots-dev/visualizer-backup.BayJHtAG`. Offline sizing
+  and taper checks, live music/toggle/cleanup checks, and corner/full-edge
+  screenshot review passed. Left running.
+
+- Increase Hyprland outer gaps from 18px to 24px and inner gaps from 12px to
+  14px. Replace the visualizer's shortened sides with full-length surfaces and
+  a symmetric six-column amplitude taper at every corner. Offline full-scale
+  taper tests and live music/toggle/geometry checks passed; corner and desktop
+  screenshots reviewed. Applied with backups `~/dots-dev/gaps-backup.XEAG0pPT`
+  and `~/dots-dev/visualizer-backup.TADN3ko2`. Left running.
+
+- Increase the Waybar clocks from 10pt to 11pt while preserving the 30px bar
+  height. Let the visualizer's full-width top/bottom strips own the corners;
+  inset each side by 16px at both ends and match its measured spectrum length.
+  Applied with backups `~/dots-dev/clock-size-backup.UKtQGlkK` and
+  `~/dots-dev/visualizer-backup.pacJYh3P`. Clock/corner screenshot reviewed;
+  live checks on both displays confirmed non-overlapping surfaces, unchanged
+  reserved space/focus, music response and clean repeated toggles.
+
+- Restore the original slim 16px cyan visualizer without glow or separated
+  columns. Fill each available edge using measured Pango font advances and
+  subpixel spacing; interpolate 64 CAVA bands instead of capping line length.
+  Normalize 16-bit amplitude values before glyph quantization so system and
+  Spotify volume changes retain similar spectrum heights. Use one persistent
+  awk process per Bash stream; silence remains blank. Explicitly list Pango
+  for its measurement tool. Applied with backup
+  `~/dots-dev/visualizer-backup.PQV9YMaT`. Offline proportional-level, release,
+  silence and sizing tests passed; live music, repeated toggles, cleanup and
+  16px geometry checks passed. Measured 2559.98px text width on a 2560px edge.
+  Quarter-volume system/Spotify/both tests retained mean peaks 8, 8 and 7.85
+  out of 8; restored original volumes. No release tag created.
+
+- Refine the audio visualizer for both occupied and empty desktops: broader
+  separated columns, clear corners, softer cyan and a subtle glow. Increase
+  bottom-layer surfaces to 48px so empty workspaces reveal taller spectra;
+  application windows naturally cover the inner peaks, keeping the effect
+  visible in the existing outer gaps. Reduce column counts to fit live font
+  metrics. Applied with backups `visualizer-backup.4Qybf8Gl` and
+  `visualizer-backup.xtRxi88N` under `~/dots-dev/`. Reviewed screenshots with
+  Spotify open and an empty laptop display. Bash checks and live music,
+  three toggle cycles, capture cleanup, 48px geometry, unchanged focus and
+  reserved-space checks passed. Left running; no release tag created.
+
+- Recognize both `pcloud` and `pcloud.bin` during Hyprland autostart so a second
+  invocation cannot reopen the main window. The laptop's existing start-minimized
+  preference is enabled and was preserved. A fresh compositor launch and repeated
+  autostart both remained windowless in live checks; fresh login is untested.
+- Increase watermark text from 10pt to 15pt (50% larger). Applied selectively
+  with the pCloud fix; backup: `~/dots-dev/pcloud-watermark-backup.1nsj6ku7`.
+  Live surfaces grew from 34px to 50px on both displays; the laptop crop was
+  visually checked for fit and readability.
+
+- Fix Spotify autostart when login precedes DNS readiness by launching the
+  installed client with `--skip-update`; normal launches can still check updates.
+  Start Waybar directly from Hyprland, using a PID-validated helper for readiness,
+  visibility and signals targeted to the main bar. No Waybar service is used;
+  the temporary service was backed up and removed from the laptop at the user's
+  request. Direct startup, restart and bound show/hide actions passed live.
+  Removal backup: `~/dots-dev/startup-fixes-backup.ke3cw1gd`.
+  Spotify's skip-update path passed; fresh login during DNS failure is untested.
+
+- Add an on-demand Hyprland audio visualizer toggled with Super+G. Bash converts
+  CAVA streams into cyan spectra in four 16px outer-gap Waybar strips per
+  monitor, below application windows, with click-through and no reserved space.
+  Use a separate Waybar instance, ignoring top-bar toggle signals, with
+  session-owned systemd cleanup and serialized toggles. Add only CAVA to the
+  installer; no Python visualizer or Python tests. Offline Bash frame handling,
+  scaled/rotated output sizing, config and mocked toggle checks passed.
+  Activated on the laptop on 2026-09-10 with backups in
+  `~/dots-dev/visualizer-backup.DD0zfEkG` and `visualizer-backup.bO5uxuw3`.
+  Live music, registered Super+G binding, three stop/start cycles, CAVA/surface
+  cleanup, four 16px strips per display, unchanged focus/reserved space and
+  narrow edge screenshot checks passed. Fix GTK's 17px minimum by using an
+  11px font; replace per-bar regex parsing with byte-wise Bash substitutions.
+  Add reusable Bash selective deployment and live checks. Physical key/input,
+  real silence, fullscreen, live scaling/hotplug, top-bar toggling and logout
+  checks remain pending. No release tag created.
+
+- Add a faint lower-right “Activate Linux” desktop watermark using the existing
+  Waybar process. Its transparent bottom layer stays below application windows,
+  passes pointer input through, reserves no space and ignores top-bar toggles.
+  No new package or managed application window. Update the config generator and
+  adapt the taskbar startup check for multiple layer surfaces.
+  Activated with backups in `~/dots-dev/desktop-effects-backup.hbkad_vp`.
+  Live checks confirmed bottom-layer placement on both outputs, zero reserved
+  space and persistence through top-bar toggles. Visually inspected the laptop
+  panel crop. Fresh Waybar workspace membership check passed. Physical pointer
+  click-through, reconnect and fresh-login checks remain pending.
+
+- Add Minecraft villager sounds for Hyprland battery low (20%, deny1), battery
+  critical (10%, hurt1), and successful screenshots (accept1, quieter).
+  Both Super+P and Print use a capture helper that stays silent on cancellation
+  or capture failure. Add a session-owned systemd battery timer, with 30-second
+  checks, notifications and threshold repeat suppression; align Waybar colors
+  to 20%/10%. Bundle the audio and source links. Rofi timers and alarms use
+  the shared sound helper with their original idle1 sound and volume, preserving
+  custom sound overrides and the existing repeating alert behavior. Move the
+  original timer asset alongside the other sounds in `hypr/sounds/` and include
+  it in selective Rofi deployment.
+  Activated with the desktop-effects backup above. Arch fixture checks passed
+  for battery thresholds/repeats/charging and screenshot failures. Real PipeWire
+  playback passed for all new cues; the native timer passed delivery, action
+  dismissal and close dismissal with cleanup. Real screenshot selection
+  cancellation and capture into Swappy (fixed test region) passed. Battery
+  units validate and the periodic check exits successfully. Physical audibility
+  and manual shortcut confirmation remain pending; battery discharge and fresh
+  login were not forced. No release tag created.
+
 - Set the current Bonjourr backup's custom CSS to use local Monocraft throughout
   the page, with a monospace fallback. Other backup settings are preserved.
   JSON validation passed; live browser rendering remains untested.

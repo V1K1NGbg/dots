@@ -1,0 +1,12 @@
+[Unit]
+Description=Audio spectrum in the Hyprland outer gaps
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=exec
+Environment=GDK_BACKEND=wayland
+ExecStart=/usr/bin/bash %h/.config/hypr/visualizer.sh --run
+KillMode=control-group
+TimeoutStopSec=3
+UMask=0077

@@ -18,6 +18,7 @@ workspaces = json.loads(subprocess.check_output(['hyprctl', '-j', 'workspaces'],
 expected = {w['name'] for w in workspaces if w['id'] > 0 and w['id'] % 10 in range(1, 10)}
 assert expected, 'Need at least one logical workspace'
 config = json.loads('\n'.join((root / '.config/waybar/config.jsonc').read_text().splitlines()[1:]))
+config = next(bar for bar in config if bar.get('layer') == 'top')
 config.update(start_hidden=True, **{'modules-center': [], 'modules-right': []})
 with tempfile.TemporaryDirectory(prefix='dots-waybar-check.') as folder:
     folder = Path(folder)

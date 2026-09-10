@@ -192,5 +192,5 @@ cmp "$STATE/clocks.json" "$scratch/rename/state/dots-utils/clocks.json"
 jq -e '.weather.city=="Newest" and (has("refresh_seconds")|not)' "$scratch/rename/config/rofi/settings.json" >/dev/null
 [[ $(cat "$scratch/rename/cache/dots-utils/weather") == 'Cached weather' ]]
 printf 'PASS: desktop rename migration without worker settings\n'
-[[ $(head -c 4 "$ROOT/sounds/villager-idle1.ogg") == OggS ]]
+[[ $(head -c 4 "$ROOT/../hypr/sounds/villager-idle1.ogg") == OggS ]]
 printf 'All local Bash checks passed. Locks, systemd, DBus, rendering and audio require Arch live testing.\n'

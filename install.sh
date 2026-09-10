@@ -78,15 +78,15 @@ rebuild_initramfs() {
 readonly -a REPO_PACKAGES=(
     acpi adw-gtk-theme alacritty alsa-utils aspell aspell-en
     baobab bash-completion blueman bluez bluez-utils brightnessctl bulky
-    capitaine-cursors
+    capitaine-cursors cava
     cliphist clang cowsay curl dconf discord docker docker-compose dracut
     fastfetch fd firefox fprintd fzf gimp git github-cli gnome-disk-utility
-    go gopls grim highlight htop hypridle hyprland hyprlock hyprpolkitagent hyprsunset
+    go gopls grim gtk3 gtk-layer-shell highlight htop hypridle hyprland hyprlock hyprpolkitagent hyprsunset
     jdk21-openjdk jdk17-openjdk jdk8-openjdk keepassxc lazygit less libinput
     libnotify libpulse libqalculate llama-cpp ggml-vulkan lolcat mako
     man-db man-pages meld nano nemo nemo-fileroller networkmanager network-manager-applet nmap
     noto-fonts noto-fonts-cjk noto-fonts-emoji nvtop nwg-displays nwg-look
-    papirus-icon-theme pavucontrol pipewire pipewire-alsa
+    pango papirus-icon-theme pavucontrol pipewire pipewire-alsa pkgconf
     pipewire-pulse playerctl plymouth
     poppler power-profiles-daemon prettier
     prismlauncher pyright python python-black jq qt5ct qt6ct

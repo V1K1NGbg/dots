@@ -43,7 +43,7 @@ local function publish_labels()
             end
         end
     end
-    if changed then hl.exec_cmd("pkill -RTMIN+9 -x waybar") end
+    if changed then hl.exec_cmd("bash ~/.config/hypr/waybar.sh refresh") end
 end
 
 local function serialize(value)
@@ -378,7 +378,7 @@ local function sync_bar()
     end
     local visible = state.bar_visible and (#fullscreen == 0 or state.bar_override == true)
     if visible ~= state.bar_applied then
-        hl.exec_cmd("pkill -SIGUSR1 -x waybar")
+        hl.exec_cmd("bash ~/.config/hypr/waybar.sh " .. (visible and "show" or "hide"))
         state.bar_applied = visible
         save()
     end

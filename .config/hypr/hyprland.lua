@@ -189,8 +189,9 @@ bind(mod .. " + B", hl.dsp.exec_cmd("firefox"), "Open a browser")
 bind(mod .. " + E", hl.dsp.exec_cmd("~/.config/rofi/launcher.sh menu"), "Open the Rofi menu")
 bind(mod .. " + C", hl.dsp.exec_cmd("code"), "Open VS Code")
 bind(mod .. " + R", hl.dsp.exec_cmd("~/.config/rofi/launcher.sh"), "Open Run (Tab for menu)")
-bind(mod .. " + P", hl.dsp.exec_cmd("grim -g \"$(slurp)\" - | swappy -f -"), "Take a screenshot")
+bind(mod .. " + P", hl.dsp.exec_cmd("bash ~/.config/hypr/screenshot.sh"), "Take a screenshot")
 bind(mod .. " + L", hl.dsp.exec_cmd("hyprlock"), "Lock the screen")
+bind(mod .. " + G", hl.dsp.exec_cmd("bash ~/.config/hypr/visualizer.sh"), "Toggle edge audio visualizer")
 bind("XF86PowerOff", hl.dsp.exec_cmd("~/.config/rofi/launcher.sh power"), "Open the power menu")
 
 -- Window and layout manipulation.
@@ -248,7 +249,7 @@ bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl --player=spotify,%any next"), "
 bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl --player=spotify,%any previous"), "Play the previous track", { locked = true })
 bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl set 5%+"), "Raise display brightness", { locked = true, repeating = true })
 bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set 5%-"), "Lower display brightness", { locked = true, repeating = true })
-bind("Print", hl.dsp.exec_cmd("grim -g \"$(slurp)\" - | swappy -f -"), "Take a screenshot")
+bind("Print", hl.dsp.exec_cmd("bash ~/.config/hypr/screenshot.sh"), "Take a screenshot")
 
 -- Rofi follows the desktop palette; animate only its layer, not other overlays.
 hl.layer_rule({ name = "dots-rofi", match = { namespace = "^rofi$" }, animation = "fade", blur = true, ignore_alpha = 0.5 })

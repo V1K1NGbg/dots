@@ -56,7 +56,7 @@ def config():
         "modules-right": ["tray", "battery"],
         "clock": {"format": "{:%Y-%m-%d  %H:%M}"},
         "battery": {
-            "states": {"warning": 30, "critical": 15},
+            "states": {"warning": 20, "critical": 10},
             "format": "{capacity}%",
             "format-charging": "{capacity}%",
         },
@@ -64,7 +64,27 @@ def config():
     }
     for number in range(1, 10):
         result.update(workspace(number))
-    return result
+    # A non-interactive desktop layer in the existing Waybar process. Waybar
+    # supports "bottom" (below application windows), not "background".
+    watermark = {
+        "name": "activate-linux",
+        "layer": "bottom",
+        "position": "bottom",
+        "exclusive": False,
+        "passthrough": True,
+        "start_hidden": False,
+        "on-sigusr1": "noop",
+        "margin-bottom": 48,
+        "margin-right": 32,
+        "modules-right": ["custom/activate-linux"],
+        "custom/activate-linux": {
+            "format": '<span size="large">Activate Linux</span>\n'
+                      'Go to Settings to activate Linux.',
+            "justify": "left",
+            "tooltip": False,
+        },
+    }
+    return [result, watermark]
 
 
 def main():

@@ -122,7 +122,11 @@ hl = {
     end,
     on = function(name, fn) events[name] = events[name] or {}; table.insert(events[name], fn) end,
     timer = function(fn) timers[#timers + 1] = fn end,
-    exec_cmd = function(command) if command == "pkill -SIGUSR1 -x waybar" then bar_signals = bar_signals + 1 end end,
+    exec_cmd = function(command)
+        if command == "bash ~/.config/hypr/waybar.sh show" or command == "bash ~/.config/hypr/waybar.sh hide" then
+            bar_signals = bar_signals + 1
+        end
+    end,
     gesture = function() end,
     layout = { register = function() end },
     dispatch = function(fn) return fn() end,

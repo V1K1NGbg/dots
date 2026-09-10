@@ -2,6 +2,152 @@
 
 ##### ***!Disclaimer: the install script is more of a general guideline for installing rather than a concrete script!***
 
+### Edge audio visualizer
+
+**Super+G** toggles a continuous cyan audio spectrum along all four outer edges
+of each display. A native Cairo renderer draws antialiased curves without font
+glyphs, column gaps or stepped heights. The 16px surfaces fit in the 24px outer
+gaps; windows have 14px inner gaps. Each curve spans its available edge and
+tapers near the corners to the earlier small one-step tips.
+Surfaces sit below windows, pass clicks through and reserve no space.
+The top spectrum sits below Waybar's reserved area. Display hotplug is handled
+while running. It starts off at login; stopping it also stops audio capture.
+
+The Bash launcher pipes one shared 64-band CAVA capture into a small C renderer
+using GTK3, Cairo and GTK layer shell. It compiles with Clang on first start or
+after source changes, caching the binary under `~/.cache/dots-visualizer/`.
+Dependencies are listed in the installer (`clang`, `pkgconf`, `gtk3`,
+`gtk-layer-shell`, `cava`); they were already available on the laptop.
+No Python is used. The old Waybar renderer is retained as a fallback.
+
+Peak normalization makes the display similar at different system and Spotify
+volumes, with instant normalization attack and a short release after volume drops. The curves
+represent relative frequency content rather than absolute playback loudness.
+At extremely low levels, capture quantization can affect the shape; silent or
+muted capture remains blank. The visualizer does not change playback volume.
+Spatial interpolation smooths between frequency bands. CAVA runs at 60fps with
+`noise_reduction = 20` and sleep disabled to avoid delayed wakeups. Incoming
+peaks draw immediately, with a short 35ms release instead of a second slow
+rise/fall filter. Geometry follows each layer surface's
+current logical dimensions. Super+T does not hide the visualizer.
+
+Native rendering and placement live in `.config/hypr/visualizer-renderer.c`;
+audio settings are in `visualizer-cava.conf`. The Waybar JSON and stylesheet
+configure only the fallback renderer.
+See the upstream [CAVA configuration](https://github.com/karlstav/cava/blob/master/example_files/config)
+and [GTK layer shell documentation](https://wmww.github.io/gtk-layer-shell/).
+
+Fallback checks: `bash scripts/check-visualizer.sh`. Native headless checks on
+Linux: build with `bash .config/hypr/visualizer.sh --build`, then run the printed
+binary path with `--self-test`. The strict-warning build and native normalization,
+parser and corner geometry checks passed on the laptop on 2026-09-10.
+Live music produced changing nonzero frames. Three stop/start cycles
+passed, leaving no CAVA processes or visualizer surfaces after stopping.
+Both displays have four 16px bottom-layer surfaces; focus and reserved space
+remain unchanged. The continuous curve and corner screenshots were visually
+checked. Only one CAVA capture feeds both displays. Native normalization uses
+the same peak envelope as the previously volume-tested Bash implementation;
+the native self-test checks equal spectra at proportional input amplitudes.
+
+For selective deployment, run the laptop check/sync workflow, install CAVA,
+then run `bash scripts/deploy-visualizer.sh` from the snapshot on the laptop.
+It backs up affected files, merges the binding and reloads Hyprland without
+starting the visualizer. Initial backup: `~/dots-dev/visualizer-backup.DD0zfEkG`;
+before the live fixes: `~/dots-dev/visualizer-backup.bO5uxuw3`.
+Before the design revision: `~/dots-dev/visualizer-backup.4Qybf8Gl`;
+before final spacing: `~/dots-dev/visualizer-backup.xtRxi88N`.
+Before restoring the slim design and adding normalization:
+`~/dots-dev/visualizer-backup.PQV9YMaT`.
+Before switching to native rendering: `~/dots-dev/visualizer-backup.dM6SSFjF`.
+Before the latency/corner revision: `~/dots-dev/visualizer-backup.wVczxd3h`.
+With music playing, `bash scripts/check-visualizer-live.sh` repeats the checks
+and leaves it on. Do not enable the service; the shortcut starts it on demand.
+`bash scripts/check-visualizer-volume-live.sh` temporarily lowers system and
+Spotify volume to test normalization, then restores both settings.
+To compare the old bars, run `systemctl --user set-environment DOTS_VISUALIZER_RENDERER=bars`
+and restart `dots-visualizer.service`. Return to the fluid renderer with
+`systemctl --user unset-environment DOTS_VISUALIZER_RENDERER` and restart again.
+Physical key/click-through checks, real silence, fullscreen coverage, live
+scaling/hotplug, Waybar toggling and logout cleanup remain untested. Diagnostics:
+`journalctl --user -u dots-visualizer.service -b`.
+
+### Desktop startup
+
+The centered clocks use 11pt text, slightly larger than the bar's 10pt default,
+while retaining the existing 30px bar height.
+
+Super+T controls the main bar through `~/.config/hypr/waybar.sh`. Hyprland
+starts it directly, without a Waybar systemd service. The helper tracks and
+validates its PID, waits for surfaces and signal handlers, and restores the
+requested visibility. It can start a missing bar when called. Signals target
+only this process, leaving the edge visualizer alone.
+Restart it with `bash ~/.config/hypr/waybar.sh restart`.
+Diagnostics: `$XDG_RUNTIME_DIR/dots-waybar-control/waybar.log`.
+
+Spotify autostart uses `spotify-launcher --skip-update`, so an updater DNS failure
+at login cannot block the installed client. Launch `spotify-launcher` normally
+when online to allow update checks.
+
+pCloud's autostart check recognizes its running `pcloud.bin` process and avoids
+opening its window with a duplicate launch. Keep pCloud's **Start minimized**
+setting enabled (already enabled on the laptop). Fresh launch and repeated
+startup were checked to remain windowless.
+
+These startup fixes are active on the laptop. To apply them from a future
+snapshot, run `python3 SNAPSHOT/scripts/deploy-startup-fixes.py` in the graphical
+session; it backs up affected files and preserves unrelated active settings.
+
+### Desktop watermark
+
+“Activate Linux” and “Go to Settings to activate Linux.” appear at the lower
+right of each display through the existing Waybar process. The transparent,
+click-through Wayland bottom layer stays below application windows, reserves
+no space and remains visible when the top bar is hidden. It is a desktop layer
+surface, not a managed application window; no package is added.
+
+The watermark uses 15pt text, with a larger title.
+Edit the text and placement in `scripts/generate-waybar.py`, then run
+`python3 scripts/generate-waybar.py`. Styling lives in `.config/waybar/style.css`.
+Active on the laptop. Live checks confirmed bottom-layer placement on both
+outputs, no reserved space, and persistence while toggling the top bar. The
+laptop-panel crop was visually checked. Physical click-through, display reconnect
+and fresh-login checks remain pending.
+
+### Hyprland sounds
+
+Super+P and Print play a quiet villager agreement after successful region capture,
+then open Swappy. Cancelling selection or failing capture stays silent.
+Battery warnings play villager disagreement at 20% and hurt at 10%, only while
+discharging. Waybar uses the same thresholds. Each threshold alerts once until
+capacity recovers above 22% or 12%, respectively; state lasts for the login session.
+Starting below 10% emits only the critical alert. The battery timer checks every
+30 seconds and starts through Hyprland autostart, independently of Waybar visibility.
+
+All four sound files live in `.config/hypr/sounds/`. Sound levels and file choices
+live in `.config/hypr/sound.sh`; playback respects
+output mute and volume. The installer already copies the Hyprland directory and
+user systemd units. Rofi timers and alarms use the same helper with their original villager idle
+sound at the original volume, with their existing repeat behavior. A custom `sound` in Rofi settings
+still overrides that default.
+Run `python3 scripts/check-desktop-sounds.py` for offline simulated-event checks.
+
+Active on the laptop, with backups in
+`~/dots-dev/desktop-effects-backup.hbkad_vp`. The Arch fixture checks passed for
+thresholds, charging, repeat suppression and capture failures. Real PipeWire
+playback, native timer notification delivery and both dismissal paths passed.
+The live screenshot check passed real selection cancellation and real capture
+into Swappy using a fixed test region. Physical audibility and manual shortcut
+confirmation remain pending; actual battery discharge and fresh login were not
+forced for testing.
+
+For future selective updates, run `python3 scripts/laptop-dev.py check` and
+`python3 scripts/laptop-dev.py sync`, then run
+`python3 SNAPSHOT/scripts/deploy-desktop-effects.py` in the graphical session.
+It backs up affected files and merges the screenshot bindings, battery autostart,
+Waybar thresholds and watermark without applying unrelated features.
+Live checks: `python3 SNAPSHOT/scripts/check-screenshot-live.py` and
+`bash SNAPSHOT/scripts/check-clock-live.sh` (also with `--close`).
+
 ### Vimium
 
 Import [vimium-options.json](vimium-options.json) from Vimium's options page

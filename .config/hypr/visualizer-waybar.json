@@ -1,0 +1,73 @@
+[
+  {
+    "name": "dots-visualizer",
+    "position": "bottom",
+    "layer": "bottom",
+    "height": 16,
+    "exclusive": false,
+    "passthrough": true,
+    "on-sigusr1": "noop",
+    "on-sigusr2": "noop",
+    "modules-center": ["custom/spectrum"],
+    "custom/spectrum": {
+      "exec": "bash ~/.config/hypr/visualizer.sh --stream horizontal",
+      "return-type": "json",
+      "format": "{text}",
+      "tooltip": false
+    }
+  },
+  {
+    "name": "dots-visualizer",
+    "position": "top",
+    "layer": "bottom",
+    "height": 16,
+    "exclusive": false,
+    "passthrough": true,
+    "on-sigusr1": "noop",
+    "on-sigusr2": "noop",
+    "modules-center": ["custom/spectrum"],
+    "custom/spectrum": {
+      "exec": "bash ~/.config/hypr/visualizer.sh --stream horizontal",
+      "return-type": "json",
+      "format": "{text}",
+      "rotate": 180,
+      "tooltip": false
+    }
+  },
+  {
+    "name": "dots-visualizer",
+    "position": "left",
+    "layer": "bottom",
+    "width": 16,
+    "exclusive": false,
+    "passthrough": true,
+    "on-sigusr1": "noop",
+    "on-sigusr2": "noop",
+    "modules-center": ["custom/spectrum"],
+    "custom/spectrum": {
+      "exec": "bash ~/.config/hypr/visualizer.sh --stream vertical",
+      "return-type": "json",
+      "format": "{text}",
+      "rotate": 270,
+      "tooltip": false
+    }
+  },
+  {
+    "name": "dots-visualizer",
+    "position": "right",
+    "layer": "bottom",
+    "width": 16,
+    "exclusive": false,
+    "passthrough": true,
+    "on-sigusr1": "noop",
+    "on-sigusr2": "noop",
+    "modules-center": ["custom/spectrum"],
+    "custom/spectrum": {
+      "exec": "bash ~/.config/hypr/visualizer.sh --stream vertical",
+      "return-type": "json",
+      "format": "{text}",
+      "rotate": 90,
+      "tooltip": false
+    }
+  }
+]

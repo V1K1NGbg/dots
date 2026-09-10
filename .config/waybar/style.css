@@ -53,7 +53,7 @@ window#waybar {
   opacity: 1;
 }
 
-#clock { color: #67ffeb; }
+#clock { color: #67ffeb; font-size: 11pt; }
 #battery.warning { color: #ffb247; }
 #battery.critical { color: #ff025f; }
 
@@ -70,3 +70,16 @@ window#waybar {
   color: #191919;
 }
 #custom-workspace:hover { background: rgba(103, 255, 235, 0.25); }
+
+/* Desktop watermark: transparent, click-through, below application windows. */
+window#waybar.activate-linux {
+  background: transparent;
+  color: rgba(248, 248, 242, 0.35);
+  border: none;
+  box-shadow: none;
+}
+
+#custom-activate-linux {
+  padding: 0;
+  font-size: 15pt;
+}

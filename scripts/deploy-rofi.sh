@@ -36,7 +36,7 @@ for cmd in bash jq curl fd fzf alacritty flock timeout busctl rofi pactl wpctl p
 ROFI_PLUGIN_PATH="${XDG_DATA_HOME:-$HOME/.local/share}/rofi/plugins${ROFI_PLUGIN_PATH:+:$ROFI_PLUGIN_PATH}" rofi -no-config -help 2>/dev/null | grep blocks >/dev/null || { printf 'Missing rofi-blocks-git: install with paru -S --needed rofi-blocks-git\n' >&2; exit 1; }
 bash "$source_dir/scripts/check-rofi.sh"
 rofi -no-config -theme "$source_dir/.config/rofi/theme.rasi" -dump-theme >/dev/null
-files=(.config/systemd/user/dots-utils-clock.service .config/systemd/user/dots-utils-clock.timer)
+files=(.config/systemd/user/dots-utils-clock.service .config/systemd/user/dots-utils-clock.timer .config/hypr/sound.sh .config/hypr/sounds/villager-idle1.ogg .config/hypr/sounds/README.md)
 while IFS= read -r -d '' path; do files+=("${path#"$source_dir/"}"); done < <(find "$source_dir/.config/rofi" -type f -print0)
 old=(.config/systemd/user/dots-rofi.service .config/rofi/windows.py .config/systemd/user/dots-utils.service .config/rofi/utils/worker.sh .config/rofi/modi/tray.sh .config/rofi/icon-gen/sources/inbox.svg .config/rofi/icon-gen/icons/inbox.svg)
 old+=(.config/systemd/user/dots-desktop.service)

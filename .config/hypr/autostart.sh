@@ -7,7 +7,11 @@ exec 9>"${XDG_RUNTIME_DIR:?}/dots-autostart.lock"
 flock -n 9 || exit 0
 
 spawn() {
-    if [[ $1 == wl-paste ]]; then
+    if [[ $1 == pcloud ]]; then
+        # AppRun becomes pcloud.bin. A second launch opens its window even when
+        # pCloud's saved "start minimized" preference is enabled.
+        pgrep -u "$UID" -x 'pcloud(\.bin)?' >/dev/null && return
+    elif [[ $1 == wl-paste ]]; then
         pgrep -u "$UID" -f -- "(^|/)$*([[:space:]]|$)" >/dev/null && return
     else
         pgrep -u "$UID" -x -- "${1##*/}" >/dev/null && return
@@ -21,21 +25,16 @@ spawnsl() {
 }
 
 dbus-update-activation-environment --systemd \
-    WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_DESKTOP XDG_SESSION_TYPE
+    WAYLAND_DISPLAY HYPRLAND_INSTANCE_SIGNATURE XDG_CURRENT_DESKTOP XDG_SESSION_DESKTOP XDG_SESSION_TYPE
 systemctl --user import-environment \
-    WAYLAND_DISPLAY XDG_CURRENT_DESKTOP XDG_SESSION_DESKTOP XDG_SESSION_TYPE
+    WAYLAND_DISPLAY HYPRLAND_INSTANCE_SIGNATURE XDG_CURRENT_DESKTOP XDG_SESSION_DESKTOP XDG_SESSION_TYPE
 systemctl --user start \
+    dots-battery.timer \
     hypridle.service \
     hyprpolkitagent.service \
     hyprsunset.service || true
 
-if ! pgrep -u "$UID" -x waybar >/dev/null; then
-    systemd-cat --identifier=dots-waybar waybar 9>&- &
-    (
-        sleep 1
-        hyprctl dispatch 'function() dots.bar_restarted() end'
-    ) 9>&- &
-fi
+bash "$HOME/.config/hypr/waybar.sh" ensure 9>&- &
 spawn nm-applet --indicator
 spawn blueman-applet
 spawn pcloud
@@ -44,10 +43,7 @@ spawn wl-paste --type text --watch cliphist store
 spawn wl-paste --type image --watch cliphist store
 
 spawnsl discord
-# Arch installs spotify-launcher, not a spotify executable in PATH.
-if ! pgrep -u "$UID" -x spotify >/dev/null; then
-    spawnsl spotify-launcher
-fi
+spawnsl spotify-launcher --skip-update
 spawnsl alacritty
 spawnsl nemo
 spawnsl code
