@@ -2,6 +2,13 @@
 
 ##### ***!Disclaimer: the install script is more of a general guideline for installing rather than a concrete script!***
 
+### Vimium
+
+Import [vimium-options.json](vimium-options.json) from Vimium's options page
+using its backup restore control. Export your existing settings first: importing
+replaces the included settings. See [the shortcut and search reference](VIMIUM.md).
+The theme uses the locally installed Monocraft font, with a monospace fallback.
+
 The display picker lives in `.config/rofi/modi/monitors.sh`, using the shared
 Rofi menu helpers. `.config/hypr/monitors.sh` handles profiles and display changes.
 Monitor layouts use Hyprland and Rofi. The MSI MAG272QR is recognized by its full

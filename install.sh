@@ -389,7 +389,7 @@ install_monocraft() {
     mkdir -p "${HOME}/.local/share/fonts"
     print_step "Downloading font if missing..."
     [[ -s ${HOME}/.local/share/fonts/Monocraft-nerd-fonts-patched.ttc ]] || curl -fL -o "${HOME}/.local/share/fonts/Monocraft-nerd-fonts-patched.ttc" \
-        https://github.com/IdreesInc/Monocraft/releases/download/v4.0/Monocraft-nerd-fonts-patched.ttc
+        https://github.com/IdreesInc/Monocraft/releases/download/v4.2.1/Monocraft-nerd-fonts-patched.ttc
     print_step "Refreshing font cache..."
     fc-cache
     fc-list | grep -i monocraft

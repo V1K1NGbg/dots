@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+- Set the current Bonjourr backup's custom CSS to use local Monocraft throughout
+  the page, with a monospace fallback. Other backup settings are preserved.
+  JSON validation passed; live browser rendering remains untested.
+
+- Restyle Vimium hints and its search/tab picker with charcoal, cyan and
+  Monocraft. Limit normal-mode shortcuts to the requested navigation, link,
+  search and tab controls; t opens a new tab and T restores the latest closed
+  tab. Keep 12 search engines,
+  removing Scholar, Wolfram Alpha, MDN, Stack Overflow and all direct launchers.
+  Add a shortcut reference. Local Vimium 2.2.1 parser and query-encoding checks
+  passed; browser visuals and laptop activation remain untested off-network.
+
 - Remove the bundled font license file, its installer copy and its validation check.
 
 - Replace the monitor controller with Bash and jq, preserving profile identity,
