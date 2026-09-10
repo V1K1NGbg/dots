@@ -64,7 +64,28 @@ choose() {
     else
         args+=(-kb-custom-1 Control+r)
     fi
-    CHOICE=$("${args[@]}" "$@" 9>&-) || rc=$?
+    if [[ $kind == home ]]; then
+        # Preserve the icon metadata (including NUL bytes) across the two views.
+        local rows
+        rows=$(mktemp "$RUNTIME/home-rows.XXXXXX") || return 1
+        cat > "$rows"
+        # Rofi always has an internal row. Before navigation, hide its highlight
+        # and disable keyboard acceptance so Enter cannot launch it accidentally.
+        CHOICE=$("${args[@]}" "$@" -no-auto-select -no-hover-select \
+            -theme-str 'element selected.normal { background-color: #242424; border-color: #404040; }' \
+            -kb-row-up '' -kb-row-down '' -kb-row-left '' -kb-row-right '' \
+            -kb-move-char-back Control+b -kb-move-char-forward Control+f \
+            -kb-accept-entry '' -kb-accept-alt '' -kb-accept-custom '' \
+            -kb-accept-custom-alt '' -kb-custom-14 Up,Down,Left,Right \
+            < "$rows" 9>&-) || rc=$?
+        if ((rc==23)); then
+            rc=0
+            CHOICE=$("${args[@]}" "$@" -selected-row 0 < "$rows" 9>&-) || rc=$?
+        fi
+        rm -f -- "$rows"
+    else
+        CHOICE=$("${args[@]}" "$@" 9>&-) || rc=$?
+    fi
     if ((rc==1)); then return 1; fi
     if [[ $kind == home ]] && ((rc>=10 && rc<=22)); then CHOICE=key:$((rc-10)); return; fi
     if ((rc==10)); then CHOICE=refresh; return; fi

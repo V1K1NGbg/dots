@@ -109,6 +109,9 @@ hl.curve("fluid", { type = "bezier", points = { { 0.25, 0.1 }, { 0.25, 1.0 } } }
 hl.animation({ leaf = "windows", enabled = true, speed = 5.0, bezier = "fluid" })
 hl.animation({ leaf = "fade", enabled = true, speed = 4.5, bezier = "fluid" })
 hl.animation({ leaf = "workspaces", enabled = true, speed = 5.5, bezier = "fluid", style = "slide" })
+-- Old desktop moves down; the destination rises from below, in either direction.
+hl.animation({ leaf = "workspacesOut", enabled = true, speed = 5.5, bezier = "fluid", style = "slidevert top" })
+hl.animation({ leaf = "workspacesIn", enabled = true, speed = 5.5, bezier = "fluid", style = "slidevert bottom" })
 
 -- Session behavior lives separately so the visual configuration stays small.
 dots = require("desktop")
@@ -199,7 +202,7 @@ bind(mod .. " + J", function() dots.swap(1) end, "Swap with the next window")
 bind(mod .. " + K", function() dots.swap(-1) end, "Swap with the previous window")
 bind(mod .. " + SHIFT + J", function() dots.resize("+0.05") end, "Grow the current right/down split", { repeating = true })
 bind(mod .. " + SHIFT + K", function() dots.resize("-0.05") end, "Shrink the current right/down split", { repeating = true })
-bind(mod .. " + SHIFT + space", dots.cycle_layout, "Cycle Dwindle, Tile, Fair, and Floating layouts")
+bind(mod .. " + SHIFT + space", dots.cycle_layout, "Cycle Dwindle, Tile, and Fair layouts")
 bind(mod .. " + SHIFT + F", hl.dsp.window.float({ action = "toggle" }), "Toggle floating")
 bind(mod .. " + SHIFT + S", dots.toggle_sticky, "Toggle sticky")
 bind(mod .. " + SHIFT + T", dots.toggle_ontop, "Toggle persistent keep on top")

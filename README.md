@@ -162,6 +162,14 @@ monitor description and automatically placed to the right of the laptop screen.
 The external display becomes primary; existing windows move there while keeping
 logical workspace numbers 1–9. Disconnecting it brings windows back to the laptop.
 
+**Super+1–9** and numbered bar buttons switch directly to the selected desktop.
+The outgoing desktop slides down and the destination rises from below, using
+550ms fluid animations. **Super+, / Super+.** wrap between 1 and 9.
+**Super+Shift+Space** cycles Dwindle → Tile → Fair → Dwindle. Individual
+windows can still be floated with **Super+Shift+F**.
+Apply these settings with `python3 SNAPSHOT/scripts/deploy-workspace-motion.py`;
+check direct switching with `python3 SNAPSHOT/scripts/check-workspace-motion-live.py`.
+
 For an unfamiliar monitor, Rofi asks **Right / Left / Top / Bottom / Duplicate**,
 relative to the laptop screen. The choice applies immediately and is remembered.
 Press **Super+Ctrl+P** to change it later. Escape leaves the layout unchanged.

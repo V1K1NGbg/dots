@@ -163,7 +163,6 @@ desktop.restore(); eq(b.workspace.id, 13)
 active_window = a; active_monitor = laptop; laptop.active_workspace = workspaces[14]
 desktop.cycle_layout(); flush(); eq(workspaces[14].tiled_layout, "master")
 desktop.cycle_layout(); flush(); eq(workspaces[14].tiled_layout, "lua:fair")
-desktop.cycle_layout(); flush(); assert(a.floating)
 desktop.cycle_layout(); flush(); assert(not a.floating); eq(workspaces[14].tiled_layout, "dwindle")
 desktop.magnify(); desktop.toggle_ontop(); desktop.magnify()
 assert(a.floating, "ontop must survive ending magnification")

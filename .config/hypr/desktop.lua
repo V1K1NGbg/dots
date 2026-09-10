@@ -209,34 +209,35 @@ hl.layout.register("fair", {
     end,
 })
 
+-- Migrate saved Floating-layout workspaces without changing manually floated windows.
+function M.retire_floating_layout()
+    for id, mode in pairs(state.modes) do
+        if mode == "floating" then state.modes[id] = "dwindle" end
+    end
+    for _, window in ipairs(hl.get_windows()) do
+        local data = meta(window)
+        if data.layout_float then
+            data.layout_float = nil
+            if data.ontop then data.was_floating = false end
+            if data.magnified then data.magnified.floating = false end
+            if not data.ontop and not data.magnified then float(window, false) end
+        end
+    end
+end
+
 function M.cycle_layout()
     local ws = active_workspace()
     if not ws or ws.special then return end
     local mode = state.modes[ws.id] or ws.tiled_layout
-    local next_mode = ({ dwindle = "master", master = "lua:fair", ["lua:fair"] = "floating", floating = "dwindle" })[mode] or "dwindle"
+    local next_mode = ({ dwindle = "master", master = "lua:fair", ["lua:fair"] = "dwindle" })[mode] or "dwindle"
     if mode == "dwindle" then capture_order(ws) end
     state.modes[ws.id] = next_mode
-    if next_mode == "floating" then
-        for _, window in ipairs(tiled(ws)) do
-            meta(window).layout_float = true
-            float(window, true)
-        end
-    else
-        hl.workspace_rule({ workspace = tostring(ws.id), layout = next_mode })
-        -- Rule refresh is deferred by Hyprland until after this callback.
-        later(function()
-            if mode == "floating" then
-                for _, window in ipairs(hl.get_windows({ workspace = ws })) do
-                    if meta(window).layout_float then
-                        meta(window).layout_float = nil
-                        if not meta(window).ontop then float(window, false) end
-                    end
-                end
-            end
-            if next_mode == "dwindle" then M.rebuild(ws) end
-            save()
-        end)
-    end
+    hl.workspace_rule({ workspace = tostring(ws.id), layout = next_mode })
+    -- Rule refresh is deferred by Hyprland until after this callback.
+    later(function()
+        if next_mode == "dwindle" then M.rebuild(ws) end
+        save()
+    end)
     save()
 end
 
@@ -464,6 +465,7 @@ end
 
 function M.reconcile()
     if reconciling then return end
+    M.retire_floating_layout()
     local monitors = hl.get_monitors()
     local fallback = fallback_monitor(monitors)
     if not fallback then return end
@@ -552,10 +554,6 @@ function M.setup()
     end)
     hl.on("window.open", function(window)
         local ws = window.workspace
-        if ws and state.modes[ws.id] == "floating" and not window.floating then
-            meta(window).layout_float = true
-            float(window, true)
-        end
         if ws and ws.tiled_layout == "dwindle" and state.modes[ws.id] ~= "floating" and not window.floating then
             local id = key(window)
             later(function()

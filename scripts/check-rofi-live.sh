@@ -50,7 +50,7 @@ probe() {
     fi
     for key in "$@"; do
         hyprctl dispatch "hl.dsp.send_shortcut({mods=\"\",key=\"$key\"})" >/dev/null
-        sleep .07
+        sleep .3
         if [[ $key != Escape ]] && [[ $kind == timer || $kind == spelling ]]; then
             sleep .2
             geometry=$(layers | jq -r '.[0]|"\(.x),\(.y) \(.w)x\(.h)"')
@@ -63,6 +63,16 @@ probe() {
     [[ $(cat "$output/result") == "$expected" ]] || { cat "$output/result" >&2; return 1; }
     for attempt in {1..40}; do [[ $(layers | jq length) == 0 ]] && break; sleep .05; done
 }
+if [[ ${1:-} == --home-selection ]]; then
+    probe home cancel Escape
+    probe home cancel Return Escape
+    for arrow in Up Down Left Right; do probe home 0 "$arrow" Return; done
+    probe home 1 Down Right Return
+    probe home key:0 r
+    probe home key:12 Tab
+    printf 'Launcher initial selection, all four first-arrow keys, navigation and shortcuts passed. Screenshots: %s\n' "$output"
+    exit
+fi
 if [[ ${1:-} == --gallery ]]; then
     for panel in home run power music time outputs calc; do
         case $panel in home) probe "$panel" cancel Escape;; run) probe "$panel" closed Escape;; *) probe "$panel" closed Escape;; esac
@@ -78,7 +88,7 @@ probe run menu Tab
 probe run menu f Tab
 probe run closed Escape
 probe home cancel Escape
-probe home 1 Right Return
+probe home 1 Right Right Return
 probe typing 1 z Return
 probe timer closed 1 m Escape
 probe spelling closed t e h Escape

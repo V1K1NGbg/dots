@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+- Open the Rofi launcher tile menu without a highlighted item. The first arrow
+  selects the first tile; subsequent arrows navigate normally. Enter is inactive
+  before navigation; letter shortcuts, Tab and mouse clicks remain available.
+  Live checks passed for initial Enter/Escape, all four first-arrow keys,
+  subsequent navigation and letter/Tab shortcuts; initial screenshot reviewed.
+  Applied with backup `~/dots-dev/rofi-selection-backup.x3i3ceb3`.
+
+- Remove the workspace-travel experiments and restore direct workspace selection
+  and the original 550ms fluid timing. Old desktop windows slide down; new
+  desktop windows rise from below. Keep the three-layout cycle (Dwindle, Tile,
+  Fair), migration of saved Floating layouts and the Vimium configuration.
+  Regression tests, config validation and live direct-switch/reversal/wrap
+  checks passed on eDP-1. Applied with backup
+  `~/dots-dev/workspace-backup.2bup64rt`; original focus restored.
+  Visual motion and external-display checks remain unverified.
+
+- Add native first-result Vimium shortcuts: g1 for Google's I'm Feeling Lucky
+  and d1 for DuckDuckGo's first result. Skip other engines instead of substituting
+  site-scoped web searches. Document usage and import instructions in VIMIUM.md;
+  preserve existing engines and other settings. JSON, keyword uniqueness and
+  query encoding checks passed; browser import and live redirects are untested.
+
 - Reduce visualizer delay: raise CAVA from 30 to 60fps, lower its noise
   reduction to 20 and disable its once-per-second wakeup after silence. Draw
   new peaks immediately upon input; replace 45ms attack/110ms release with

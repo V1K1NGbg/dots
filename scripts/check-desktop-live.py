@@ -34,6 +34,13 @@ def main():
     original_cursor = query("cursorpos")
     original_workspaces = {m["name"]: m["activeWorkspace"]["id"] for m in query("monitors")}
     candidates = [w for w in query("workspaces") if w["windows"] == 0 and w["id"] % 10 in range(1, 10)]
+    # Empty workspaces disappear in Hyprland; include unused logical IDs too.
+    existing = {w["id"] for w in query("workspaces")}
+    for monitor, active in original_workspaces.items():
+        base = active - active % 10
+        for number in range(1, 10):
+            if base + number not in existing:
+                candidates.append({"id": base + number, "monitor": monitor})
     candidates.sort(key=lambda w: (w["monitor"] != "DP-4", -w["id"]))
     if not candidates:
         raise SystemExit("No empty logical workspace available for live tests")
@@ -61,7 +68,7 @@ def main():
             action("dots.rebuild()")
             baseline = geometry()
             for _ in range(2):
-                for _ in range(4):
+                for _ in range(3):
                     action("dots.cycle_layout()")
                 assert geometry() == baseline, f"Dwindle changed after a layout round trip with {count} windows"
             print(f"Dwindle round trips: {count} windows OK", flush=True)
@@ -73,13 +80,13 @@ def main():
         dispatch("hl.dsp.focus({window=" + json.dumps("address:" + windows[0]["address"]) + "})")
         action("dots.swap(1)")
         swapped = geometry()
-        for _ in range(4):
+        for _ in range(3):
             action("dots.cycle_layout()")
         assert geometry() == swapped, "Deliberate swap lost on layout round trip"
         # Cursor and focus must not choose the next reconstruction's root.
         dispatch("hl.dsp.focus({window=" + json.dumps("address:" + clients()[-1]["address"]) + "})")
         dispatch("hl.dsp.cursor.move({x=3000,y=900})")
-        for _ in range(4):
+        for _ in range(3):
             action("dots.cycle_layout()")
         assert geometry() == swapped, "Focus/cursor changed spiral reconstruction"
         print("Deliberate swaps survive; focus/cursor do not change the spiral", flush=True)
@@ -101,11 +108,12 @@ def main():
         print("Minimize/reload/restore, independent sticky/ontop, magnify OK", flush=True)
         for mon in query("monitors"):
             dispatch("hl.dsp.focus({monitor=" + json.dumps(mon["name"]) + "})")
-            action("dots.view(9); dots.browse(1)")
+            action("dots.view(9)")
+            action("dots.browse(1)")
             assert query("activeworkspace")["id"] % 10 == 1
             action("dots.browse(-1)")
             assert query("activeworkspace")["id"] % 10 == 9
-        print("Both monitors wrap 9→1 and 1→9", flush=True)
+        print("Connected monitors wrap 9→1 and 1→9", flush=True)
         errors = subprocess.check_output(["hyprctl", "configerrors"], env=env, text=True).strip()
         assert not errors, errors
     finally:
