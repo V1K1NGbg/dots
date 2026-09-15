@@ -57,9 +57,15 @@ run_task() {
     bash -e -o pipefail "$SCRIPT_DIR/install.sh" --run-task "$1"
 }
 
+install_boot_hook() {
+    sudo install -Dm0644 "$SCRIPT_DIR/system/pacman-hooks/90-dracut-install.hook" \
+        /etc/pacman.d/hooks/90-dracut-install.hook
+}
+
 rebuild_initramfs() {
     local kernel_cmdline
 
+    install_boot_hook || return
     kernel_cmdline=$(sudo cat /etc/kernel/cmdline) || return
     kernel_cmdline=${kernel_cmdline//$'\n'/ }
     kernel_cmdline=${kernel_cmdline% }
@@ -83,17 +89,17 @@ readonly -a REPO_PACKAGES=(
     fastfetch fd firefox fprintd fzf gimp git github-cli gnome-disk-utility
     go gopls grim gtk3 gtk-layer-shell highlight htop hypridle hyprland hyprlock hyprpolkitagent hyprsunset
     jdk21-openjdk jdk17-openjdk jdk8-openjdk keepassxc lazygit less libinput
-    libnotify libpulse libqalculate llama-cpp ggml-vulkan lolcat mako
+    libarchive libnotify libpulse libqalculate llama-cpp ggml-vulkan lolcat mako
     man-db man-pages meld nano nemo nemo-fileroller networkmanager network-manager-applet nmap
     noto-fonts noto-fonts-cjk noto-fonts-emoji nvtop nwg-displays nwg-look
     pango papirus-icon-theme pavucontrol pipewire pipewire-alsa pkgconf
     pipewire-pulse playerctl plymouth
     poppler power-profiles-daemon prettier
-    prismlauncher pyright python python-black jq qt5ct qt6ct
+    prismlauncher pyright python python-black python-pillow jq qt5ct qt6ct
     ranger rofi rofi-calc rust rust-analyzer slurp sof-firmware spotify-launcher steam
     swappy tmux tree typescript-language-server unzip vim
     code vlc vulkan-radeon lib32-vulkan-radeon vulkan-tools
-    waybar wev wget wireplumber wl-clipboard xdg-desktop-portal-gtk
+    waybar wayland wayland-protocols uthash wev wget wireplumber wl-clipboard xdg-desktop-portal-gtk
     xdg-desktop-portal-hyprland xdg-utils zip uwsm
 )
 
@@ -106,6 +112,7 @@ readonly -a AUR_PACKAGES=(
     pcloud-drive
     plymouth-theme-hexagon-hud-git
     usbimager
+    wl_shimeji-git
 )
 
 readonly -a PACKAGES=("${REPO_PACKAGES[@]}" "${AUR_PACKAGES[@]}")
@@ -165,6 +172,7 @@ install_multilib() {
 
 install_system_update() {
     print_header "Updating System"
+    install_boot_hook
     sudo pacman -Syu
     mark_done "system_updated"
     print_success "System updated"
@@ -186,6 +194,7 @@ install_paru() (
 
 install_packages() {
     print_header "Installing repository packages"
+    install_boot_hook
     sudo pacman -S --needed "${REPO_PACKAGES[@]}"
     print_header "Installing AUR-only packages"
     paru -S --needed "${AUR_PACKAGES[@]}"
@@ -357,6 +366,7 @@ font_system() {
     { sed "s|$theme|$target|g" "$theme/hexagon_hud.plymouth"; printf '\nFont=Monocraft Nerd Font 12\nMonospaceFont=Monocraft Nerd Font 12\n'; } > "$FONT_STAGE/hexagon_hud_monocraft.plymouth"
     font_install "$FONT_STAGE/hexagon_hud_monocraft.plymouth" "$target/hexagon_hud_monocraft.plymouth"
     font_ini /etc/plymouth/plymouthd.conf Daemon Theme hexagon_hud_monocraft
+    font_ini /etc/plymouth/plymouthd.conf Daemon DeviceScale 1
     printf 'install_items+=" %s %s %s /etc/vconsole.conf "\n' "$font" "$conf" "$console" > "$FONT_STAGE/dracut.conf"
     font_install "$FONT_STAGE/dracut.conf" /etc/dracut.conf.d/30-monocraft.conf
 }
@@ -547,6 +557,8 @@ install_dotfiles() {
         mv "$HOME/.config/rofi/$retired" "$backup/$retired"
     done
     print_success "Dotfiles copied"
+    bash "${SCRIPT_DIR}/scripts/build-miku-renderer.sh"
+    python3 "${SCRIPT_DIR}/scripts/setup-miku.py"
 }
 
 install_default_apps() {

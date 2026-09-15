@@ -1,0 +1,12 @@
+[Unit]
+Description=Miku desktop companion
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=exec
+ExecStart=/usr/bin/bash %h/.config/hypr/miku.sh --run
+ExecStopPost=-/usr/bin/rm -f %t/dots-miku.sock
+KillMode=control-group
+TimeoutStopSec=3
+UMask=0077

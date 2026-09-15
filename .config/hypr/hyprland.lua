@@ -14,8 +14,8 @@ hl.env("XCURSOR_SIZE", "24")
 
 hl.config({
     general = {
-        gaps_in = 12,
-        gaps_out = 18,
+        gaps_in = 9,
+        gaps_out = 15,
         border_size = 2,
         layout = "dwindle",
         -- Interactive move/resize is deliberately reserved for Super+mouse.
@@ -195,6 +195,7 @@ bind(mod .. " + R", hl.dsp.exec_cmd("~/.config/rofi/launcher.sh"), "Open Run (Ta
 bind(mod .. " + P", hl.dsp.exec_cmd("bash ~/.config/hypr/screenshot.sh"), "Take a screenshot")
 bind(mod .. " + L", hl.dsp.exec_cmd("hyprlock"), "Lock the screen")
 bind(mod .. " + G", hl.dsp.exec_cmd("bash ~/.config/hypr/visualizer.sh"), "Toggle edge audio visualizer")
+bind(mod .. " + SHIFT + M", hl.dsp.exec_cmd("bash ~/.config/hypr/miku.sh"), "Toggle Miku desktop companion")
 bind("XF86PowerOff", hl.dsp.exec_cmd("~/.config/rofi/launcher.sh power"), "Open the power menu")
 
 -- Window and layout manipulation.
