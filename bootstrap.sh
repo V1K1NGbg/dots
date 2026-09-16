@@ -240,6 +240,8 @@ printf 'timeout 3\nconsole-mode max\neditor no\n' \
 
 systemd-machine-id-setup --root="$TARGET_ROOT"
 arch-chroot "$TARGET_ROOT" bootctl --esp-path=/boot install
+install -Dm0644 "$SCRIPT_DIR/system/pacman-hooks/90-dracut-install.hook" \
+    "$TARGET_ROOT/etc/pacman.d/hooks/90-dracut-install.hook"
 arch-chroot "$TARGET_ROOT" dracut --regenerate-all --force
 compgen -G "$TARGET_ROOT/boot/EFI/Linux/*.efi" >/dev/null \
     || fail "dracut did not create a unified kernel image"

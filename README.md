@@ -2,6 +2,58 @@
 
 ##### ***!Disclaimer: the install script is more of a general guideline for installing rather than a concrete script!***
 
+### Miku desktop companion
+
+**Super+Shift+M** starts one small Miku and dismisses the whole group on the
+next press. The full animation pack includes idling, walking, running, dashing,
+lounging, crawling, ceiling and wall movement, jumping, landing, tripping,
+dragging reactions and cloning, with the Miku limit configured to five.
+She starts hidden at login and makes no sound. The binding also appears in
+Super+S shortcut help. On multiple displays, the engine chooses a display
+for the initial Miku. Window-carrying/throwing definitions are included but
+unavailable on Hyprland with this engine; no window integration is installed.
+
+Install `wl_shimeji-git` with Paru and `python-pillow` with Pacman, then run
+`bash scripts/build-miku-renderer.sh` and `python3 scripts/setup-miku.py`.
+The build needs base-devel, git, pkgconf, wayland, wayland-protocols, libarchive
+and uthash; it fetches pinned sources and applies the repository's drag fix.
+The full dotfile installer includes both steps.
+Setup converts all 61 character sprites plus the icon in `assets/miku/` into
+`~/.local/share/dots-miku/prototypes/Miku` (or `$XDG_DATA_HOME/dots-miku/...`).
+It requires no image download or graphical session. It upgrades changed packs
+after successful conversion, keeps the old pack in `dots-miku/backup-*/Miku`
+outside the spawn directory, and skips unchanged reruns. Stop Miku before setup.
+Install the engine and Pillow dependencies before offline setup.
+Source attribution, behavior settings and manual animation commands live in
+[the companion notes](.config/hypr/miku/README.md).
+Change `mascot_scale=0.75` in `overlay.conf` to adjust the roughly 171px height at scale 1,
+then toggle off and on. Do not enable the service or the upstream socket.
+Drag Miku by holding the left mouse button on her; release to drop her.
+Right-click her to clone with the split animation; middle-click removes only
+her. Removing the last Miku stops the service. Super+right-drag continues to
+resize windows. Cloning also happens automatically.
+Miku uses the overlay layer, above normal windows and both visualizer renderers.
+
+When the laptop is reachable, use the usual check/sync workflow, install the
+dependencies, then run `bash scripts/deploy-miku.sh` from the fresh snapshot.
+It backs up the affected configs, adds the binding, reloads Hyprland and leaves
+Miku stopped. It preserves unrelated active settings and the installed checkout.
+Diagnostics: `journalctl --user -u dots-miku.service -b`.
+
+Local checks: `python3 scripts/check-miku.py`. On Arch, exercise actual conversion
+with `python3 scripts/check-miku.py --engine /usr/bin/shimejictl`.
+Toggle/error-path checks, click routing and limits, per-animation removal
+hotspots, conversion of all 62 PNGs with upstream compiler/QOI
+sources, behavior references, and safe pack upgrades passed locally.
+Packaged CLI conversion and live drag regression checks passed on the laptop.
+`python3 scripts/check-miku-drag-live.py` tests upward dragging over empty space
+and a window, both display crossings, release and repeated floor clicks.
+[wl_shimeji upstream](https://github.com/CluelessCatBurger/wl_shimeji/) currently
+lists Hyprland as unsupported due to subsurface clipping. On the laptop, verify
+rendering, the full animation set, cloning limits, cursor tracking, focus and
+click handling, group dismissal, multiple displays/scaling and logout cleanup
+before recording a release.
+
 ### Edge audio visualizer
 
 **Super+G** toggles a continuous cyan audio spectrum along all four outer edges
@@ -153,6 +205,11 @@ Live checks: `python3 SNAPSHOT/scripts/check-screenshot-live.py` and
 Import [vimium-options.json](vimium-options.json) from Vimium's options page
 using its backup restore control. Export your existing settings first: importing
 replaces the included settings. See [the shortcut and search reference](VIMIUM.md).
+Use **b** to go back in tab history and **Shift+B** to go forward.
+In the **o** search bar, press **Down** to select the first suggestion, then
+**Enter** to open it. Vimium does not expose automatic first-result selection
+for this command; `selectFirst` is an internal option rejected by current
+key-mapping validation. The **gt** tab picker selects its first result automatically.
 The theme uses the locally installed Monocraft font, with a monospace fallback.
 
 The display picker lives in `.config/rofi/modi/monitors.sh`, using the shared
@@ -209,6 +266,16 @@ shows the SSH/Hyprland launch command). It tests rendering and sensor readiness
 in a disposable nested compositor. Actual password/fingerprint matches must be
 tested locally; do not send passwords or fingerprint data through chat.
 
+### Automatic boot-image updates
+
+Both installers install `system/pacman-hooks/90-dracut-install.hook` into
+`/etc/pacman.d/hooks/`. It overrides Arch's existing dracut hook to run
+`dracut --regenerate-all --force --uefi` automatically after relevant updates.
+The packaged hook writes an `.img` outside the EFI directory; this setup needs
+the EFI images in `/boot/EFI/Linux/` rebuilt alongside the kernel modules.
+No separate script or service is used. If a rebuild fails during an update,
+resolve the error before rebooting.
+
 ### System fonts
 
 The font is **Monocraft Nerd Font**. In `bash install.sh`, select **Configure
@@ -216,6 +283,8 @@ system fonts (desktop, Plymouth, console)**. This applies desktop font defaults,
 installs the font system-wide, copies the bundled console bitmap, configures the
 Plymouth theme and rebuilds boot images. Font setup uses Bash and standard system
 tools, with no embedded Python or font-conversion dependency.
+Plymouth uses `DeviceScale=1` to keep the animation at its original size instead
+of letting firmware-display detection select a larger scale.
 Existing font files are reused. The font implementation lives in `install.sh`.
 
 Desktop backups are under `~/.local/state/dots/backups/fonts.*`; system backups

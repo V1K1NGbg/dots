@@ -2,6 +2,67 @@
 
 ## Unreleased
 
+- Set Plymouth's native `DeviceScale=1` in the existing system-font setup to
+  avoid oversized automatic scaling on the firmware display during disk unlock.
+  Arch font/configuration checks passed; applying the setting and checking its
+  size on the next boot require local sudo and a reboot.
+
+- Override only the existing pacman dracut hook's rebuild action so kernel
+  updates regenerate the EFI images used by systemd-boot. Install the override
+  from both installers; no separate script, service or mount-check hook.
+  Arch trigger comparison, staged installation and shell syntax checks passed;
+  local sudo activation and a subsequent package transaction remain untested.
+
+- Bring Miku's wall poses closer with a 12-source-pixel contact inset and reduce
+  Hyprland window gaps to 6 inside / 8 outside. Conversion and wall checks passed;
+  reviewed the closer pose and verified both active gap values after reload.
+  Applied with backups `~/dots-dev/miku-backup.aiIiQTaJ` and
+  `~/dots-dev/gaps-backup.68e36uc1`.
+
+- Tighten Miku's wall contact by another four source pixels. Replace the
+  renderer's random near-top respawn after out-of-bounds throws with recovery
+  at the nearest edge; add real-pointer tests for releases beyond both outer
+  displays. Preserve the original bundled PNGs. Conversion and live drag/edge
+  checks passed; applied with backup `~/dots-dev/miku-backup.4swIunyt`.
+
+- Fix Miku dragging with a pinned, service-local renderer patch: preserve the
+  grab offset, use rendered coordinates, and move between displays even when
+  pointer focus stays on the original overlay. Remove the fixed pickup/drop
+  displacement responsible for floor-click jumps. Crop transparent side padding
+  from converted wall sprites to avoid Hyprland squeezing them at screen edges.
+  Conversion and live tests
+  passed for upward dragging over an empty workspace and an application,
+  crossing both displays in both directions, release, and eight floor clicks.
+  Keep a runnable native-pointer regression check and preserve the system package.
+  Visually verified both walls and applied on the laptop with config backup
+  `~/dots-dev/miku-backup.5SmJW21N`; prior assets are in
+  `~/.local/share/dots-miku/backup-9a_2ch9t/Miku`. Mixed-scale displays remain untested.
+
+- Remove the unsupported selectFirst option from Vimium’s o mapping, fixing
+  the import validation error. Document Down then Enter for the first result.
+  Reproduced the error and checked the corrected mappings with the current
+  upstream parser; the earlier check used an older permissive parser.
+  Automatic first-result selection for o remains unavailable through settings.
+
+- Add Vimium b / Shift+B shortcuts for tab history back / forward.
+  JSON and mapping uniqueness checks passed; browser import is untested.
+
+- Add Super+Shift+M to start a small, silent Miku desktop companion and dismiss
+  the entire group, hidden at login. Bundle all 61 character sprites and the
+  icon (about 1.2 MiB), and translate the full original animation definitions
+  for wl_shimeji. Enable cloning with a configured limit of five. Keep window
+  interaction definitions, though they are unavailable on Hyprland.
+  Add offline setup with safe pack upgrades/backups, installer dependencies
+  and selective deployment. Local toggle/error checks, conversion of all PNGs,
+  behavior references, upgrade/rerun/failure checks passed.
+  Explicitly place Miku above the audio visualizer on the Wayland overlay
+  layer; document dragging and manual cloning commands.
+  Right-click starts the clicked Miku's split animation; middle-click removes
+  that Miku. Keep Super+right-drag for window resizing. Stop the renderer when
+  its last mascot is removed. Local click/limit/removal-hotspot checks passed.
+  Laptop deployment, packaged CLI integration and graphical validation are
+  deferred; upstream lists a Hyprland subsurface-clipping compatibility issue.
+
 - Open the Rofi launcher tile menu without a highlighted item. The first arrow
   selects the first tile; subsequent arrows navigate normally. Enter is inactive
   before navigation; letter shortcuts, Tab and mouse clicks remain available.

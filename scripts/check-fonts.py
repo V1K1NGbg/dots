@@ -8,7 +8,7 @@ import tempfile
 
 root = Path(__file__).resolve().parents[1]
 installer = (root / 'install.sh').read_text()
-assert 'DOTS_FONTS_PY' not in installer and 'python-pillow' not in installer
+assert 'DOTS_FONTS_PY' not in installer
 for family in ('sans-serif', 'serif', 'monospace', 'Arial', 'Adwaita Sans'):
     actual = subprocess.check_output(['fc-match', '-f', '%{family}', family], text=True)
     assert 'Monocraft Nerd Font' in actual, (family, actual)
@@ -90,5 +90,6 @@ font_system "$3"
     assert not any(psf[header + 32 * size:header + 33 * size])  # Space is blank.
     assert 'FONT=monocraft' in (staged / 'etc/vconsole.conf').read_text()
     assert 'Theme=hexagon_hud_monocraft' in (staged / 'etc/plymouth/plymouthd.conf').read_text()
+    assert 'DeviceScale=1' in (staged / 'etc/plymouth/plymouthd.conf').read_text()
     assert 'Monocraft-nerd-fonts-patched.ttc' in (staged / 'etc/dracut.conf.d/30-monocraft.conf').read_text()
 print(f'PASS: Bash INI preservation/idempotence/backups, font matching, emoji, Plymouth, {width}x{height} PSF and boot configuration')
