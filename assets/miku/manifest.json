@@ -1,0 +1,12 @@
+{
+  "name": "Shimeji.Miku",
+  "version": "0.0.1",
+  "display_name": "Miku",
+  "description": "Full Miku animation pack; sprites by Canary Yellow",
+  "artist": "Canary Yellow",
+  "programs": "scripts.json",
+  "actions": "actions.json",
+  "behaviors": "behaviors.json",
+  "assets": "assets",
+  "icon": "assets/icon.qoi"
+}

@@ -28,6 +28,7 @@ Usage: sudo ./bootstrap.sh [--disk /dev/DEVICE] [--no-reboot]
 The selected disk is completely erased. Tab completes paths at the disk prompt.
 By default, the Wi-Fi currently connected through iwctl is copied automatically
 from iwd to NetworkManager in the installed OS. No export is needed.
+Boot the standard Arch ISO with copytoram=y so the USB can be removed at the end.
 EOF
 }
 
@@ -66,7 +67,6 @@ cleanup() {
     fi
     return "$status"
 }
-trap cleanup EXIT
 
 copy_network_config() {
     local profile
@@ -79,10 +79,226 @@ copy_network_config() {
     done < <(find "$NETWORK_STAGE" -maxdepth 1 -type f -print0)
 }
 
+# Copy connected personal/open iwd networks using Arch ISO tools.
+copy_iwd_networks() (
+    set -euo pipefail
+    umask 077
+    export LC_ALL=C
+
+    # Decode only the five escapes accepted by iwd keyfiles. Never source credentials.
+    unescape() {
+        local value=$1 char i
+        REPLY=""
+        for (( i=0; i<${#value}; i++ )); do
+            char=${value:i:1}
+            if [[ "$char" == \\ ]]; then
+                i=$((i + 1))
+                case "${value:i:1}" in
+                    s) char=' ' ;; t) char=$'\t' ;; r) char=$'\r' ;;
+                    n) char=$'\n' ;; \\) char='\' ;;
+                    *) fail "invalid escape in iwd profile" ;;
+                esac
+            fi
+            REPLY+=$char
+        done
+    }
+
+    escape() {
+        REPLY=${1//\\/\\\\}
+        REPLY=${REPLY// /\\s}
+        REPLY=${REPLY//$'\t'/\\t}
+        REPLY=${REPLY//$'\r'/\\r}
+        REPLY=${REPLY//$'\n'/\\n}
+    }
+
+    boolean() {
+        case "${1,,}" in
+            true|1) REPLY=true ;; false|0) REPLY=false ;;
+            *) fail "invalid boolean in iwd profile" ;;
+        esac
+    }
+
+    # iwd names files with the literal SSID or = followed by its hex-encoded bytes.
+    profile_hex() {
+        local name=${1##*/}
+        name=${name%.*}
+        if [[ "$name" == =* ]]; then
+            REPLY=${name:1}
+        else
+            REPLY=$(printf '%s' "$name" | od -An -v -tx1 | tr -d ' \n')
+        fi
+        [[ "$REPLY" =~ ^([[:xdigit:]]{2}){1,32}$ ]] || fail "invalid SSID in iwd profile filename"
+        REPLY=${REPLY,,}
+    }
+
+    render_profile() {
+        local profile=$1 hex=$2 type=${1##*.}
+        local line section='' key value hidden psk=''
+        local digest uuid ssid='' label='' char byte i
+        local -A settings=()
+        [[ -f "$profile" && ! -L "$profile" ]] || fail "expected a regular saved iwd profile"
+        [[ "$type" != 8021x ]] || fail "enterprise Wi-Fi is not supported"
+        while IFS= read -r line || [[ -n "$line" ]]; do
+            line=${line%$'\r'}
+            line=${line#"${line%%[!$' \t']*}"}
+            [[ -n "$line" && "$line" != \#* ]] || continue
+            if [[ "$line" =~ ^\[([^][]+)\][[:blank:]]*$ ]]; then
+                section=${BASH_REMATCH[1]}
+            elif [[ -n "$section" && "$line" == *=* ]]; then
+                key=${line%%=*}
+                key=${key%"${key##*[!$' \t']}"}
+                value=${line#*=}
+                value=${value#"${value%%[!$' \t']*}"}
+                case "$section.$key" in
+                    Security.EncryptedSecurity|Security.EncryptedSalt) fail "encrypted iwd credentials are not supported" ;;
+                    Security.Passphrase|Security.PreSharedKey|Settings.Hidden|Settings.AutoConnect) ;;
+                    *) fail "unsupported iwd setting: $section.$key; only basic personal/open Wi-Fi is supported" ;;
+                esac
+                unescape "$value"
+                settings["$section.$key"]=$REPLY
+            else
+                fail "invalid iwd profile syntax"
+            fi
+        done < "$profile"
+
+        boolean "${settings[Settings.AutoConnect]:-true}"
+        boolean "${settings[Settings.Hidden]:-false}"; hidden=$REPLY
+        if [[ "$type" == psk ]]; then
+            if [[ -n "${settings[Security.Passphrase]+present}" ]]; then
+                psk=${settings[Security.Passphrase]}
+                (( ${#psk} >= 8 && ${#psk} <= 63 )) || fail "invalid saved Wi-Fi passphrase length"
+            else
+                psk=${settings[Security.PreSharedKey]:-}
+                [[ "$psk" =~ ^[[:xdigit:]]{64}$ ]] \
+                    || fail "no usable saved Wi-Fi credential; reconnect with iwctl and retry"
+            fi
+        elif [[ -n ${settings[Security.Passphrase]+present}${settings[Security.PreSharedKey]+present} ]]; then
+            fail "unexpected credentials in an open Wi-Fi profile"
+        fi
+
+        for (( i=0; i<${#hex}; i+=2 )); do
+            byte=${hex:i:2}
+            ssid+="$((16#$byte));"
+            if [[ "$byte" != 00 ]]; then
+                printf -v char '%b' "\x$byte"
+                label+=$char
+            fi
+        done
+        [[ "$label" != *[![:print:]]* && -n "$label" ]] || label="Wi-Fi $hex"
+        # A stable custom UUID keeps repeated conversions of the same network consistent.
+        digest=$(printf '%s' "$hex.$type" | sha256sum)
+        uuid=${digest:0:8}-${digest:8:4}-8${digest:13:3}-8${digest:17:3}-${digest:20:12}
+        escape "$label"
+        printf '[connection]\nid=%s\nuuid=%s\ntype=wifi\nautoconnect=true\n\n' "$REPLY" "$uuid"
+        printf '[wifi]\nmode=infrastructure\nssid=%s\nhidden=%s\n' "$ssid" "$hidden"
+        if [[ "$type" == psk ]]; then
+            escape "$psk"
+            printf '\n[wifi-security]\nkey-mgmt=wpa-psk\npsk=%s\npsk-flags=0\n' "$REPLY"
+        fi
+        printf '\n[ipv4]\nmethod=auto\n\n[ipv6]\nmethod=auto\n'
+    }
+
+    local source destination tree path response network token profile hex stage
+    local count=0
+    local -A active=()
+    [[ $# == 2 ]] || fail "copy_iwd_networks requires SOURCE DESTINATION"
+    source=$1 destination=$2
+    tree=$(busctl --system --timeout=10 --list tree net.connman.iwd) \
+        || fail "could not query iwd; connect with iwctl and retry"
+    while IFS= read -r path; do
+        response=$(busctl --system --timeout=10 get-property net.connman.iwd "$path" \
+            net.connman.iwd.Station ConnectedNetwork 2>/dev/null) || continue
+        [[ "$response" =~ ^o\ \"(/[a-zA-Z0-9_/]*)\"$ ]] || fail "unexpected connected-network response from iwd"
+        network=${BASH_REMATCH[1]}
+        [[ "$network" != / ]] || continue
+        # iwd's network object basename is the SSID bytes in hex plus _TYPE.
+        # https://kernel.googlesource.com/pub/scm/network/wireless/iwd/+/master/src/station.c
+        token=${network##*/}
+        [[ "$token" =~ ^([[:xdigit:]]{2}){1,32}_(psk|open|8021x)$ ]] || fail "unsupported iwd network path"
+        active["${token,,}"]=1
+    done <<< "$tree"
+
+    mkdir -p -- "$destination"
+    chmod 0700 "$destination"
+    stage=$(mktemp -d "$destination/.iwd.XXXXXX")
+    trap 'rm -rf -- "$stage"' EXIT
+    shopt -s nullglob
+    for profile in "$source"/*.psk "$source"/*.open "$source"/*.8021x; do
+        profile_hex "$profile"; hex=$REPLY
+        token=${hex}_${profile##*.}
+        [[ -n "${active[$token]:-}" ]] || continue
+        render_profile "$profile" "$hex" > "$stage/iwd-$hex.${profile##*.}.nmconnection"
+        unset 'active[$token]'
+        count=$((count + 1))
+    done
+    (( ${#active[@]} == 0 )) || fail "the connected Wi-Fi has no saved iwd profile; reconnect with iwctl and retry"
+    # Publish only after all selected credentials have been validated.
+    for profile in "$stage"/*.nmconnection; do
+        mv -f -- "$profile" "$destination/${profile##*/}"
+    done
+    printf 'Prepared %d saved iwd Wi-Fi profile(s) for NetworkManager.\n' "$count"
+)
+
 prepare_network_config() {
     NETWORK_STAGE=$(mktemp -d /tmp/dots-network.XXXXXX)
-    bash "$SCRIPT_DIR/scripts/iwd-to-networkmanager.sh" --connected /var/lib/iwd "$NETWORK_STAGE"
+    copy_iwd_networks /var/lib/iwd "$NETWORK_STAGE"
 }
+
+validate_live_media() {
+    local device backing
+    # Check the actual backing store, not just the requested kernel option.
+    [[ $(findmnt -nro FSTYPE /) == overlay &&
+       ,$(findmnt -nro OPTIONS /), == *,lowerdir=/run/archiso/airootfs,* &&
+       $(findmnt -nro FSTYPE -M /run/archiso/copytoram) == tmpfs &&
+       $(findmnt -nro FSTYPE -M /run/archiso/cowspace) == tmpfs ]] \
+        || fail 'Boot the standard Arch ISO with copytoram=y (no persistent overlay).'
+    device=$(findmnt -nro SOURCE -M /run/archiso/airootfs) || fail 'Cannot locate the live root image.'
+    backing=$(losetup -nro BACK-FILE "$device") || fail 'Cannot inspect the live root image.'
+    case "$backing" in
+        /run/archiso/copytoram/airootfs.sfs|/run/archiso/copytoram/airootfs.erofs) ;;
+        *) fail 'The live root image is not backed by RAM; reboot with copytoram=y.' ;;
+    esac
+    # Loop-boot/persistent layouts need their own removal procedure.
+    if mountpoint -q /run/archiso/img_dev; then
+        fail 'Use a directly written Arch ISO USB, not a loop-mounted ISO.'
+    fi
+}
+
+finish_installation() {
+    sync
+    umount -R "$TARGET_ROOT" || fail 'Could not unmount the installed system.'
+    MOUNTED=0
+    cryptsetup close "$CRYPT_NAME" || fail 'Could not close the installed encrypted volume.'
+    CRYPT_OPEN=0
+    validate_live_media
+    cd /
+    if mountpoint -q /run/archiso/bootmnt; then
+        umount /run/archiso/bootmnt || fail 'USB is still busy; do not remove it.'
+    fi
+    printf '\nInstallation complete. Finish setup in Hyprland with:\n'
+    printf '  cd ~/dots && ./install.sh\n'
+    if (( NO_REBOOT == 0 )); then
+        read -r -p 'Remove the USB stick and press Enter to reboot: ' || return 1
+        systemctl reboot
+    else
+        printf 'The installation USB can now be removed. Reboot when ready.\n'
+    fi
+}
+
+validate_target_disk() {
+    local disk=$1 mounts
+    [[ -b "$disk" ]] || fail "not a block device: $disk"
+    [[ "$(lsblk -dno TYPE "$disk")" == "disk" ]] \
+        || fail "select a whole disk, not a partition"
+    mounts=$(lsblk -nrpo MOUNTPOINTS "$disk" | sed '/^$/d') \
+        || fail "could not inspect mounted filesystems on $disk"
+    [[ -z "$mounts" ]] \
+        || fail "the target disk contains mounted filesystems"
+}
+
+# Allow the read-only preflight to be checked without entering the installer.
+if [[ "${BASH_SOURCE[0]}" != "$0" ]]; then return 0; fi
+trap cleanup EXIT
 
 while (( $# > 0 )); do
     case "$1" in
@@ -108,6 +324,7 @@ done
 
 [[ $EUID -eq 0 ]] || fail "run as root"
 [[ -d /sys/firmware/efi ]] || fail "boot the Arch ISO in UEFI mode"
+validate_live_media
 mountpoint -q "$TARGET_ROOT" && fail "$TARGET_ROOT is already mounted"
 [[ ! -e "$CRYPT_DEVICE" ]] || fail "$CRYPT_DEVICE is already open"
 curl -fsSI https://archlinux.org/ >/dev/null \
@@ -119,11 +336,7 @@ if [[ -z "$TARGET_DISK" ]]; then
     read -e -r -i /dev/ -p "Target disk (Tab to complete): " TARGET_DISK
 fi
 
-[[ -b "$TARGET_DISK" ]] || fail "not a block device: $TARGET_DISK"
-[[ "$(lsblk -dno TYPE "$TARGET_DISK")" == "disk" ]] \
-    || fail "select a whole disk, not a partition"
-[[ -z "$(lsblk -nrpo MOUNTPOINTS "$TARGET_DISK" | sed '/^$/d')" ]] \
-    || fail "the target disk contains mounted filesystems"
+validate_target_disk "$TARGET_DISK"
 
 # Catch missing/unsupported credentials before any destructive operation.
 prepare_network_config
@@ -177,13 +390,17 @@ mount -o umask=0077 "$BOOT_PARTITION" "$TARGET_ROOT/boot"
 
 # Only install enough for an encrypted, graphical first boot. install.sh adds
 # the complete package set and all AUR packages from inside Hyprland.
+# Enable multilib before pacstrap synchronizes the fresh system's databases.
+sed -i '/^#\[multilib\]/,/^#Include = \/etc\/pacman.d\/mirrorlist/ s/^#//' /etc/pacman.conf
 pacstrap -K "$TARGET_ROOT" \
     base linux linux-firmware amd-ucode binutils cryptsetup dracut e2fsprogs \
     git vim sudo networkmanager network-manager-applet \
-    hyprland uwsm alacritty waybar mako rofi hypridle hyprpolkitagent hyprsunset \
+    hyprland uwsm alacritty waybar mako rofi hypridle hyprlock hyprpolkitagent hyprsunset \
     pipewire pipewire-pulse wireplumber libpulse playerctl jq fd fzf curl libnotify \
     xdg-desktop-portal-hyprland xdg-desktop-portal-gtk \
     capitaine-cursors cliphist cowsay lolcat noto-fonts wl-clipboard
+
+sed -i '/^#\[multilib\]/,/^#Include = \/etc\/pacman.d\/mirrorlist/ s/^#//' "$TARGET_ROOT/etc/pacman.conf"
 
 genfstab -U "$TARGET_ROOT" > "$TARGET_ROOT/etc/fstab"
 ln -sf /usr/share/zoneinfo/Europe/Amsterdam "$TARGET_ROOT/etc/localtime"
@@ -210,11 +427,14 @@ TARGET_HOME="$TARGET_ROOT/home/$USER_NAME"
 TARGET_REPO="$TARGET_HOME/dots"
 mkdir -p "$TARGET_REPO" "$TARGET_HOME/.config"
 cp -a "$SCRIPT_DIR/." "$TARGET_REPO/"
+arch-chroot "$TARGET_ROOT" bash "/home/$USER_NAME/dots/install.sh" --install-lockscreen
 for config_dir in \
-    alacritty gtk-3.0 gtk-4.0 hypr mako qt5ct qt6ct rofi systemd uwsm waybar; do
-    cp -a "$TARGET_REPO/.config/$config_dir" "$TARGET_HOME/.config/"
+    alacritty gtk-3.0 gtk-4.0 hypr mako miku qt5ct qt6ct rofi systemd uwsm visualizer waybar; do
+    cp -a "$TARGET_REPO/config/.config/$config_dir" "$TARGET_HOME/.config/"
 done
-cp -a "$TARGET_REPO/.bash_profile" "$TARGET_REPO/.bashrc" "$TARGET_HOME/"
+cp -a "$TARGET_REPO/config/.bash_profile" "$TARGET_REPO/config/.bashrc" "$TARGET_HOME/"
+mkdir -p "$TARGET_HOME/.local/share"
+cp -a "$TARGET_REPO/assets/sounds" "$TARGET_HOME/.local/share/dots-sounds"
 
 mkdir -p "$TARGET_ROOT/etc/systemd/system/getty@tty1.service.d"
 cat > "$TARGET_ROOT/etc/systemd/system/getty@tty1.service.d/autologin.conf" <<EOF
@@ -238,22 +458,14 @@ printf 'kernel_cmdline="%s"\n' "$KERNEL_CMDLINE" \
 printf 'timeout 3\nconsole-mode max\neditor no\n' \
     > "$TARGET_ROOT/boot/loader/loader.conf"
 
+arch-chroot "$TARGET_ROOT" bash "/home/$USER_NAME/dots/install.sh" --setup-power
+
 systemd-machine-id-setup --root="$TARGET_ROOT"
 arch-chroot "$TARGET_ROOT" bootctl --esp-path=/boot install
-install -Dm0644 "$SCRIPT_DIR/system/pacman-hooks/90-dracut-install.hook" \
+install -Dm0644 "$SCRIPT_DIR/config/system/pacman-hooks/90-dracut-install.hook" \
     "$TARGET_ROOT/etc/pacman.d/hooks/90-dracut-install.hook"
 arch-chroot "$TARGET_ROOT" dracut --regenerate-all --force
 compgen -G "$TARGET_ROOT/boot/EFI/Linux/*.efi" >/dev/null \
     || fail "dracut did not create a unified kernel image"
 
-sync
-umount -R "$TARGET_ROOT"
-MOUNTED=0
-cryptsetup close "$CRYPT_NAME"
-CRYPT_OPEN=0
-
-printf '\nInstallation complete. Finish setup in Hyprland with:\n'
-printf '  cd ~/dots && ./install.sh\n'
-if (( NO_REBOOT == 0 )); then
-    systemctl reboot
-fi
+finish_installation

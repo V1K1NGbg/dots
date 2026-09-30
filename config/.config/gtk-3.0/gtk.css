@@ -1,0 +1,23 @@
+@define-color theme_bg_color #191919;
+@define-color theme_fg_color #f8f8f2;
+@define-color theme_base_color #191919;
+@define-color theme_text_color #f8f8f2;
+@define-color theme_selected_bg_color #67ffeb;
+@define-color theme_selected_fg_color #191919;
+@define-color insensitive_bg_color #191919;
+@define-color insensitive_fg_color #404040;
+@define-color warning_color #ffb247;
+@define-color error_color #ff025f;
+@define-color success_color #a2f300;
+
+selection,
+*:selected {
+  background-color: #67ffeb;
+  color: #191919;
+}
+
+tooltip {
+  background-color: #191919;
+  color: #f8f8f2;
+  border: 1px solid #35ddff;
+}

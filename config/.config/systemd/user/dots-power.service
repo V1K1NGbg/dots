@@ -1,0 +1,11 @@
+[Unit]
+Description=Apply desktop power-source policy
+PartOf=graphical-session.target
+After=graphical-session.target
+ConditionEnvironment=WAYLAND_DISPLAY
+
+[Service]
+ExecStart=/usr/bin/systemd-inhibit --what=handle-lid-switch --who=dots --why="Hyprland manages the lid" --mode=block /usr/bin/bash %h/.config/hypr/scripts/power.sh watch
+Restart=on-failure
+RestartSec=2
+UMask=0077

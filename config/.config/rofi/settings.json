@@ -1,0 +1,39 @@
+{
+  "ai_url": "http://127.0.0.1:8080/v1/chat/completions",
+  "ai_model": "qwen3.8-27b-uncensored",
+  "ai_timeout": 30,
+  "icon_color": "#67ffeb",
+  "icons": {
+    "files": "folder-search",
+    "ai": "bot",
+    "time": "alarm-clock",
+    "music": "music",
+    "outputs": "volume-2",
+    "window": "panels-top-left",
+    "calc": "calculator",
+    "clipboard": "clipboard",
+    "autocorrector": "spell-check",
+    "wifi": "wifi",
+    "bluetooth": "bluetooth",
+    "power": "power",
+    "power-mode": "zap",
+    "run": "layout-grid"
+  },
+  "exclude": [
+    ".cache",
+    ".local/share/Trash",
+    ".git",
+    "node_modules",
+    "target",
+    "build",
+    "dist",
+    ".venv",
+    "venv",
+    "__pycache__"
+  ],
+  "weather": {
+    "city": "Delft",
+    "latitude": 52.0116,
+    "longitude": 4.3571
+  }
+}

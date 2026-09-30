@@ -1,0 +1,188 @@
+{
+  "about": {
+    "browser": "firefox",
+    "version": "22.3.0"
+  },
+  "advanced": {
+    "altMode": true,
+    "escKey": true
+  },
+  "showall": true,
+  "lang": "en",
+  "dark": "system",
+  "favicon": "👽",
+  "tabtitle": "Home",
+  "greeting": "Victor",
+  "greetingsize": "3",
+  "greetingsmode": "auto",
+  "pagegap": 0,
+  "pagewidth": 2200,
+  "time": true,
+  "main": true,
+  "dateformat": "auto",
+  "quicklinks": false,
+  "textShadow": 0,
+  "announcements": "off",
+  "review": -1,
+  "css": "/* Use the locally installed desktop font throughout Bonjourr. */\n:root {\n  --font-family: \"Monocraft Nerd Font\", \"Monocraft\", monospace !important;\n}\nbody, body * {\n  font-family: \"Monocraft Nerd Font\", \"Monocraft\", monospace !important;\n}",
+  "hide": {
+    "settingsicon": true,
+    "date": false,
+    "greetings": false,
+    "clock": false
+  },
+  "clock": {
+    "size": 2,
+    "ampm": false,
+    "analog": false,
+    "seconds": false,
+    "ampmlabel": false,
+    "ampmposition": "top-left",
+    "worldclocks": false,
+    "timezone": "auto"
+  },
+  "linkstyle": "medium",
+  "linktitles": true,
+  "linkbackgrounds": true,
+  "linknewtab": false,
+  "linksrow": 6,
+  "linkiconradius": 1.1,
+  "linkgroups": {
+    "on": true,
+    "selected": "Bookmarks Toolbar",
+    "groups": [
+      "Bookmarks Toolbar"
+    ],
+    "pinned": [],
+    "synced": []
+  },
+  "backgrounds": {
+    "type": "color",
+    "fadein": 600,
+    "blur": 15,
+    "bright": 0.8,
+    "frequency": "hour",
+    "color": "#191919",
+    "urls": "",
+    "images": "bonjourr-images-daylight",
+    "videos": "bonjourr-videos-daylight",
+    "mute": true,
+    "queries": {},
+    "texture": {
+      "type": "circuitBoard",
+      "color": "#f8f8f2",
+      "opacity": 0.1,
+      "size": 173
+    }
+  },
+  "worldclocks": [
+    {
+      "timezone": "Europe/Sofia"
+    },
+    {
+      "timezone": "Europe/Sofia"
+    }
+  ],
+  "analogstyle": {
+    "face": "none",
+    "hands": "modern",
+    "shape": "round",
+    "border": "#ffff",
+    "background": "#fff2"
+  },
+  "weather": {
+    "city": "Amsterdam",
+    "unit": "metric",
+    "show_unit": true,
+    "provider": "",
+    "moreinfo": "none",
+    "forecast": "auto",
+    "temperature": "actual",
+    "geolocation": "approximate",
+    "ccode": "NL"
+  },
+  "greetingscustom": {
+    "morning": "",
+    "afternoon": "",
+    "evening": "",
+    "night": ""
+  },
+  "notes": {
+    "on": false,
+    "opacity": 0.1,
+    "width": 40,
+    "align": "left",
+    "text": "## Edit this note!\n\n[ ] With markdown titles, lists, and checkboxes\n\n[ ] Learn more on https://bonjourr.fr/docs/overview#notes"
+  },
+  "searchbar": {
+    "on": false,
+    "opacity": 0.1,
+    "newtab": false,
+    "suggestions": true,
+    "engine": "default",
+    "request": "",
+    "placeholder": ""
+  },
+  "quotes": {
+    "on": false,
+    "type": "stoic",
+    "frequency": "day",
+    "author": true,
+    "last": 1789034074547
+  },
+  "pomodoro": {
+    "on": false,
+    "mode": "pomodoro",
+    "pause": 0,
+    "end": 0,
+    "timeFor": {
+      "pomodoro": 1500,
+      "break": 300,
+      "longbreak": 1200
+    },
+    "focus": false,
+    "sound": true,
+    "volume": 0.7,
+    "alarm": "marimba",
+    "history": []
+  },
+  "font": {
+    "color": "#f8f8f2",
+    "size": "14.55",
+    "family": "",
+    "system": true,
+    "weightlist": [],
+    "weight": "500"
+  },
+  "supporters": {
+    "enabled": false,
+    "closed": true,
+    "month": 5,
+    "closedMonth": 9
+  },
+  "move": {
+    "selection": "single",
+    "layouts": {
+      "single": {
+        "items": {
+          "time": {
+            "text": "",
+            "box": "end center"
+          },
+          "quicklinks": {
+            "text": "",
+            "box": "center"
+          }
+        },
+        "grid": [
+          [
+            "time"
+          ],
+          [
+            "main"
+          ]
+        ]
+      }
+    }
+  }
+}

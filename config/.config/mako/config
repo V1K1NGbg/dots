@@ -1,0 +1,10 @@
+font=Monocraft Nerd Font 10
+background-color=#191919ee
+text-color=#f8f8f2
+border-color=#67ffeb
+progress-color=over #a2f300
+border-size=2
+border-radius=10
+padding=12
+default-timeout=5000
+icons=0

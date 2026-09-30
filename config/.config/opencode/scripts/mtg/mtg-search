@@ -1,0 +1,94 @@
+#!/usr/bin/env python3
+"""Search Scryfall for cards matching a query.
+
+Usage: mtg-search <scryfall-query> [--limit N] [--order ORDER]
+Example: mtg-search "t:goblin id<=R legal:commander" --limit 20 --order edhrec
+Example: mtg-search 'o:"draw" o:"whenever" id<=UB legal:commander cmc<=3'
+"""
+
+import sys
+import json
+import time
+import urllib.request
+import urllib.error
+import urllib.parse
+import argparse
+
+MAX_RETRIES = 3
+RETRY_DELAYS = [1, 3, 8]
+
+
+def search_cards(query: str, order: str = "edhrec", limit: int = 20) -> dict:
+    encoded = urllib.parse.quote(query)
+    url = (
+        f"https://api.scryfall.com/cards/search"
+        f"?q={encoded}&order={order}&unique=cards&page=1"
+    )
+
+    req = urllib.request.Request(url, headers={
+        "User-Agent": "MTGAgent/1.0",
+        "Accept": "application/json",
+    })
+
+    for attempt in range(MAX_RETRIES):
+        try:
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                data = json.loads(resp.read().decode())
+            break
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                return {"error": "No cards found", "query": query}
+            if e.code == 429 and attempt < MAX_RETRIES - 1:
+                time.sleep(RETRY_DELAYS[min(attempt, len(RETRY_DELAYS) - 1)])
+                continue
+            return {"error": f"Scryfall returned {e.code}", "query": query}
+        except Exception as e:
+            return {"error": str(e), "query": query}
+    else:
+        return {"error": "Rate limited after retries", "query": query}
+
+    total = data.get("total_cards", 0)
+    cards_raw = data.get("data", [])[:limit]
+
+    cards = []
+    for c in cards_raw:
+        oracle_text = c.get("oracle_text", "")
+        if "card_faces" in c:
+            oracle_text = " // ".join(
+                f.get("oracle_text", "") for f in c["card_faces"]
+            )
+
+        cards.append({
+            "name": c.get("name", ""),
+            "mana_cost": c.get("mana_cost", ""),
+            "cmc": c.get("cmc", 0),
+            "type_line": c.get("type_line", ""),
+            "oracle_text": oracle_text,
+            "color_identity": c.get("color_identity", []),
+            "edhrec_rank": c.get("edhrec_rank"),
+            "legality_commander": c.get("legalities", {}).get("commander", "unknown"),
+        })
+
+    return {
+        "query": query,
+        "total_results": total,
+        "showing": len(cards),
+        "cards": cards,
+    }
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Search Scryfall for cards")
+    parser.add_argument("query", nargs="+", help="Scryfall search query")
+    parser.add_argument("--limit", type=int, default=20, help="Max results (default: 20)")
+    parser.add_argument("--order", default="edhrec",
+                       help="Sort order: edhrec, name, cmc, power, toughness, set, released, usd, eur (default: edhrec)")
+    args = parser.parse_args()
+
+    query = " ".join(args.query)
+    result = search_cards(query, order=args.order, limit=args.limit)
+    print(json.dumps(result, indent=2))
+
+
+if __name__ == "__main__":
+    main()

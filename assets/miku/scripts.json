@@ -1,0 +1,1350 @@
+{
+    "programs": [
+        {
+            "name": 0,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "12001300147A154380000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 1,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "1200130014A0154080000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 2,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "1200130014E0154080000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 3,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "1200130014C0154080000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 4,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "120013001470154180000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 5,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "120013001420154180000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 6,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.cursor.y",
+                "mascot.environment.screen.height"
+            ],
+            "symtab_f": [],
+            "instructions": "1100110112001300140015408000230040000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 7,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "120013001448154380000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 8,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "1200130014A0154180000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 9,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "120013001480154180000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 10,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "120013001480154080000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 11,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "120013001480153F80000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 12,
+            "symtab_l": [
+                "mascot.targetY"
+            ],
+            "symtab_g": [
+                "mascot.anchor.y"
+            ],
+            "symtab_f": [],
+            "instructions": "1000110040000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 13,
+            "symtab_l": [
+                "mascot.targetY"
+            ],
+            "symtab_g": [
+                "mascot.anchor.y"
+            ],
+            "symtab_f": [],
+            "instructions": "1000110043000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 14,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "120013001400150080000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 15,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "120013001400150080001200130014801542800021000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 16,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "120013001400154280000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 17,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "120013001400150080001200130014201541800021000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 18,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "120013001400153F80000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 19,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "120013001420154280000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 20,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "12CD13CC144C153D80000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 21,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "12CD13CC14CC153D80000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 22,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "120013001400154080000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 23,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "120013001400154180000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 24,
+            "symtab_l": [
+                "mascot.footX"
+            ],
+            "symtab_g": [
+                "mascot.environment.cursor.x"
+            ],
+            "symtab_f": [],
+            "instructions": "1000110012001300144815428000210040000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 25,
+            "symtab_l": [
+                "mascot.footX"
+            ],
+            "symtab_g": [
+                "mascot.environment.cursor.x"
+            ],
+            "symtab_f": [],
+            "instructions": "100011001200130014F015418000210040000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 26,
+            "symtab_l": [
+                "mascot.footX"
+            ],
+            "symtab_g": [
+                "mascot.environment.cursor.x"
+            ],
+            "symtab_f": [],
+            "instructions": "100011001200130014F015418000200040000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 27,
+            "symtab_l": [
+                "mascot.footX"
+            ],
+            "symtab_g": [
+                "mascot.environment.cursor.x"
+            ],
+            "symtab_f": [],
+            "instructions": "1000110012001300144815428000200040000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 28,
+            "symtab_l": [
+                "mascot.footX"
+            ],
+            "symtab_g": [
+                "mascot.environment.cursor.x"
+            ],
+            "symtab_f": [],
+            "instructions": "100011001200130014F015418000200043000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 29,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "120013001448154280000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 30,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "1200130014C8154280000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 31,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "120013001400150080000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 32,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.anchor"
+            ],
+            "symtab_f": [
+                "mascot.environment.floor.ison",
+                "mascot.environment.activeie.topborder.ison"
+            ],
+            "instructions": "110070001100700151000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 33,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "1200130014C81542800070001200130014C815428000220020000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 34,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "120013001480153F80000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 35,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.anchor.x",
+                "mascot.environment.workarea.left",
+                "mascot.anchor"
+            ],
+            "symtab_f": [
+                "math.abs",
+                "mascot.environment.floor.ison"
+            ],
+            "instructions": "11001101210070001200130014C015418000410011027001520050000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 36,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.workarea.left"
+            ],
+            "symtab_f": [],
+            "instructions": "11000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 37,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "1200138014BB154480000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 38,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.anchor.x",
+                "mascot.environment.workarea.right",
+                "mascot.anchor"
+            ],
+            "symtab_f": [
+                "math.abs",
+                "mascot.environment.floor.ison"
+            ],
+            "instructions": "11001101210070001200130014C015418000410011027001520050000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 39,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.workarea.right"
+            ],
+            "symtab_f": [],
+            "instructions": "11000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 40,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.cursor.dx"
+            ],
+            "symtab_f": [],
+            "instructions": "11000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 41,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.cursor.dy"
+            ],
+            "symtab_f": [],
+            "instructions": "11000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 42,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "1200130014FA15438000700012001300147A15448000220020000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 43,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "1200130014FA1543800070001200130014C815428000220020000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 44,
+            "symtab_l": [
+                "mascot.lookright"
+            ],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "1000601812001300140015008000120013001480153F80002100620A120013001480153F80000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 45,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.workarea.left",
+                "mascot.environment.workarea.width"
+            ],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "110012001300148015428000200070001101120013001400154380002100220020000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 46,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.workarea.left"
+            ],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "11001200130014C8154280002000700012001300149615438000220020000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 47,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "1200130014A01541800070001200130014A015418000220020000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 48,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.workarea.right"
+            ],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "11001200130014C8154280002100700012001300149615438000220021000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 49,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.workarea.left"
+            ],
+            "symtab_f": [],
+            "instructions": "11000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 50,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.workarea.bottom"
+            ],
+            "symtab_f": [],
+            "instructions": "11001200130014801542800021000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 51,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.workarea.right"
+            ],
+            "symtab_f": [],
+            "instructions": "11000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 52,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.anchor.x",
+                "mascot.environment.activeie.left",
+                "mascot.environment.activeie.width"
+            ],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "11001200130014401540800022001101200070001102220020001200130014801540800023000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 53,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.activeie.bottom"
+            ],
+            "symtab_f": [],
+            "instructions": "11000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 54,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.workarea.top",
+                "mascot.environment.workarea.height"
+            ],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "110012001300148015428000200070001101120013001400154380002100220020000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 55,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.workarea.top"
+            ],
+            "symtab_f": [],
+            "instructions": "11001200130014801542800020000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 56,
+            "symtab_l": [
+                "mascot.lookright"
+            ],
+            "symtab_g": [
+                "mascot.environment.workarea.left",
+                "mascot.environment.workarea.right"
+            ],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "10006014110070001200130014C815428000220020006212110170001200130014C815428000220021000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 57,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.activeie.left",
+                "mascot.environment.activeie.width"
+            ],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "110012001300148015428000200070001101120013001400154380002100220020000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 58,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.activeie.left"
+            ],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "11001200130014C8154280002000700012001300149615438000220020000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 59,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.activeie.right"
+            ],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "11001200130014C8154280002100700012001300149615438000220021000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 60,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.activeie.left"
+            ],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "1100700012001300144815428000220020000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 61,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "12001300144815428000700012001300144815428000220020000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 62,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "1200130014001500800012001300147015418000210070001200130014A015408000220021000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 63,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "120013001400150080001200130014A015418000210070001200130014A015408000220021000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 64,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.activeie.right"
+            ],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "1100700012001300144815428000220021000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 65,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "1200130014701541800070001200130014A015408000220020000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 66,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.activeie.left"
+            ],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "110070001200130014A015418000220020001200130014A01541800020000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 67,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "120013001400150080001200130014A0154080002100700012001300140015408000220021000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 68,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.activeie.right"
+            ],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "110070001200130014A015418000220021001200130014A01541800021000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 69,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "1200130014A015408000700012001300140015408000220020000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 70,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.activeie.top",
+                "mascot.environment.activeie.height"
+            ],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "110012001300148015428000200070001101120013001400154380002100220020000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 71,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.activeie.top"
+            ],
+            "symtab_f": [],
+            "instructions": "11001200130014801542800020000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 72,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "12001300142015418000700012001300142015418000220020000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 73,
+            "symtab_l": [
+                "mascot.lookright"
+            ],
+            "symtab_g": [
+                "mascot.environment.activeie.left",
+                "mascot.environment.activeie.right"
+            ],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "10006014110070001200130014C815428000220020006212110170001200130014C815428000220021000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 74,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.activeie.left",
+                "mascot.environment.activeie.width"
+            ],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "110012001300148015428000200070001101220012001300140015438000210020000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 75,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.activeie.left"
+            ],
+            "symtab_f": [],
+            "instructions": "11000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 76,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.activeie.bottom"
+            ],
+            "symtab_f": [],
+            "instructions": "11001200130014801542800021000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 77,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.activeie.right"
+            ],
+            "symtab_f": [],
+            "instructions": "11000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 78,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.workarea.bottom",
+                "mascot.environment.workarea.height"
+            ],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "110070001101220012001300148015408000230021000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 79,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.activeie.left"
+            ],
+            "symtab_f": [],
+            "instructions": "11000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 80,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.activeie.bottom",
+                "mascot.environment.activeie.height"
+            ],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "110070001101220012001300148015408000230021000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 81,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.activeie.right"
+            ],
+            "symtab_f": [],
+            "instructions": "11000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 82,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.activeie.bottom"
+            ],
+            "symtab_f": [],
+            "instructions": "11001200130014801542800020000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 83,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.workarea.right"
+            ],
+            "symtab_f": [],
+            "instructions": "11001200130014C81543800021000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 84,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.workarea.left"
+            ],
+            "symtab_f": [],
+            "instructions": "11001200130014C81543800020000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 85,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.anchor"
+            ],
+            "symtab_f": [
+                "mascot.environment.ceiling.ison",
+                "mascot.environment.activeie.bottomborder.ison"
+            ],
+            "instructions": "110070001100700151000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 86,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.anchor"
+            ],
+            "symtab_f": [
+                "mascot.environment.workarea.leftborder.ison",
+                "mascot.environment.activeie.rightborder.ison"
+            ],
+            "instructions": "110070001100700151000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 87,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.anchor"
+            ],
+            "symtab_f": [
+                "mascot.environment.workarea.rightborder.ison",
+                "mascot.environment.activeie.leftborder.ison"
+            ],
+            "instructions": "110070001100700151000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 88,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "12001300140015008000120013001480153F800021000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 89,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.anchor",
+                "mascot.anchor.x",
+                "mascot.environment.activeie.left",
+                "mascot.environment.activeie.right"
+            ],
+            "symtab_f": [
+                "mascot.environment.activeie.topborder.ison"
+            ],
+            "instructions": "110070001101110211032000120013001400154080002300400050000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 90,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.anchor",
+                "mascot.anchor.x",
+                "mascot.environment.activeie.left",
+                "mascot.environment.activeie.right"
+            ],
+            "symtab_f": [
+                "mascot.environment.activeie.topborder.ison"
+            ],
+            "instructions": "110070001101110211032000120013001400154080002300430050000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 91,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.anchor.x",
+                "mascot.environment.cursor.x"
+            ],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "11001101110021007000220012001300140015408000230020000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 92,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "700012CD13CC144C153D800040000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 93,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.anchor.x",
+                "mascot.environment.cursor.x"
+            ],
+            "symtab_f": [
+                "math.random"
+            ],
+            "instructions": "11001101110021007000220020000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 94,
+            "symtab_l": [
+                "mascot.gap"
+            ],
+            "symtab_g": [
+                "mascot.environment.cursor.x"
+            ],
+            "symtab_f": [],
+            "instructions": "1100100020000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 95,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.anchor.x",
+                "mascot.environment.cursor.x"
+            ],
+            "symtab_f": [
+                "math.random",
+                "math.min"
+            ],
+            "instructions": "1100110140006024120013001400150080001101110021007000120013001448154380002200700121006216110011012100700012001300144815438000220070010100",
+            "evaluate_once": true
+        },
+        {
+            "name": 96,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.anchor.x",
+                "mascot.environment.cursor.x"
+            ],
+            "symtab_f": [],
+            "instructions": "1100110140000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 97,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "120013001400150080001200130014001542800021000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 98,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "1200130014C0154280000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 99,
+            "symtab_l": [
+                "mascot.lookright"
+            ],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "10006018120013001400150080001200130014A0154180002100620A1200130014A0154180000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 100,
+            "symtab_l": [
+                "mascot.lookright"
+            ],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "1000600C120013001420154180006216120013001400150080001200130014201541800021000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 101,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "120013001400150080001200130014201542800021000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 102,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "120013001400150080001200130014801541800021000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 103,
+            "symtab_l": [],
+            "symtab_g": [],
+            "symtab_f": [],
+            "instructions": "120013001400150080001200130014A01540800021000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 104,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.anchor"
+            ],
+            "symtab_f": [
+                "mascot.environment.floor.ison"
+            ],
+            "instructions": "110070000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 105,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.anchor"
+            ],
+            "symtab_f": [
+                "mascot.environment.floor.ison",
+                "mascot.environment.activeie.topborder.ison"
+            ],
+            "instructions": "110070001100700151000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 106,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.count"
+            ],
+            "symtab_f": [],
+            "instructions": "11001200130014A01540800040000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 107,
+            "symtab_l": [
+                "mascot.lookright"
+            ],
+            "symtab_g": [
+                "mascot.anchor"
+            ],
+            "symtab_f": [
+                "mascot.environment.workarea.rightborder.ison",
+                "mascot.environment.activeie.leftborder.ison",
+                "mascot.environment.workarea.leftborder.ison",
+                "mascot.environment.activeie.rightborder.ison"
+            ],
+            "instructions": "1000600C11007000110070015100620A110070021100700351000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 108,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.anchor"
+            ],
+            "symtab_f": [
+                "mascot.environment.floor.ison"
+            ],
+            "instructions": "1100700052000100",
+            "evaluate_once": true
+        },
+        {
+            "name": 109,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.anchor"
+            ],
+            "symtab_f": [
+                "mascot.environment.ceiling.ison",
+                "mascot.environment.activeie.bottomborder.ison"
+            ],
+            "instructions": "110070001100700151000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 110,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.anchor.x",
+                "mascot.environment.activeie.left",
+                "mascot.environment.activeie.right"
+            ],
+            "symtab_f": [],
+            "instructions": "11001101430011001102400050000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 111,
+            "symtab_l": [
+                "mascot.lookright"
+            ],
+            "symtab_g": [
+                "mascot.anchor"
+            ],
+            "symtab_f": [
+                "mascot.environment.workarea.rightborder.ison",
+                "mascot.environment.workarea.leftborder.ison"
+            ],
+            "instructions": "10006006110070006204110070010100",
+            "evaluate_once": false
+        },
+        {
+            "name": 112,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.anchor"
+            ],
+            "symtab_f": [
+                "mascot.environment.ceiling.ison"
+            ],
+            "instructions": "110070000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 113,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.anchor"
+            ],
+            "symtab_f": [
+                "mascot.environment.activeie.topborder.ison"
+            ],
+            "instructions": "110070000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 114,
+            "symtab_l": [
+                "mascot.lookright"
+            ],
+            "symtab_g": [
+                "mascot.anchor"
+            ],
+            "symtab_f": [
+                "mascot.environment.activeie.leftborder.ison",
+                "mascot.environment.activeie.rightborder.ison"
+            ],
+            "instructions": "10006006110070006204110070010100",
+            "evaluate_once": false
+        },
+        {
+            "name": 115,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.anchor"
+            ],
+            "symtab_f": [
+                "mascot.environment.activeie.bottomborder.ison"
+            ],
+            "instructions": "110070000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 116,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.anchor",
+                "mascot.anchor.x",
+                "mascot.environment.workarea.left",
+                "mascot.environment.workarea.bottom",
+                "mascot.anchor.y",
+                "mascot.environment.workarea.height"
+            ],
+            "symtab_f": [
+                "mascot.environment.workarea.leftborder.ison",
+                "math.abs"
+            ],
+            "instructions": "110070005200110111021200130014C81543800020004000500011031104210070011105120013001480154080002300400050000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 117,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.anchor",
+                "mascot.anchor.x",
+                "mascot.environment.workarea.right",
+                "mascot.environment.workarea.bottom",
+                "mascot.anchor.y",
+                "mascot.environment.workarea.height"
+            ],
+            "symtab_f": [
+                "mascot.environment.workarea.rightborder.ison",
+                "math.abs"
+            ],
+            "instructions": "110070005200110111021200130014C81543800021004300500011031104210070011105120013001480154080002300400050000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 118,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.activeie.visible"
+            ],
+            "symtab_f": [],
+            "instructions": "11000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 119,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.anchor.x",
+                "mascot.environment.activeie.left",
+                "mascot.environment.activeie.bottom",
+                "mascot.anchor.y",
+                "mascot.environment.activeie.height"
+            ],
+            "symtab_f": [
+                "math.abs"
+            ],
+            "instructions": "11001101400011021103210070001104120013001480154080002300400050000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 120,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.anchor.x",
+                "mascot.environment.activeie.right",
+                "mascot.environment.activeie.bottom",
+                "mascot.anchor.y",
+                "mascot.environment.activeie.height"
+            ],
+            "symtab_f": [
+                "math.abs"
+            ],
+            "instructions": "11001101420011021103210070001104120013001480154080002300400050000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 121,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.activeie.bottom",
+                "mascot.anchor.y",
+                "mascot.anchor.x",
+                "mascot.environment.activeie.left"
+            ],
+            "symtab_f": [],
+            "instructions": "11001101120013001480154280002100400011021103400050000100",
+            "evaluate_once": false
+        },
+        {
+            "name": 122,
+            "symtab_l": [],
+            "symtab_g": [
+                "mascot.environment.activeie.bottom",
+                "mascot.anchor.y",
+                "mascot.anchor.x",
+                "mascot.environment.activeie.right"
+            ],
+            "symtab_f": [],
+            "instructions": "11001101120013001480154280002100400011021103420050000100",
+            "evaluate_once": false
+        }
+    ]
+}

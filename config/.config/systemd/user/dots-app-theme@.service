@@ -1,0 +1,11 @@
+[Unit]
+Description=Reapply %i desktop theme after application updates
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bash %h/.config/dots-app-themes/apply.sh %i
+TimeoutStartSec=5min
+# BetterDiscord's CLI may relaunch Discord; leave that client running on exit.
+KillMode=process

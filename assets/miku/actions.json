@@ -1,0 +1,5397 @@
+[
+  {
+    "type": "Embedded",
+    "name": "RemoveMiku",
+    "content": [],
+    "content_count": 0,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": "Dispose",
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Embedded",
+    "name": "Look",
+    "content": [],
+    "content_count": 0,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": "Look",
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Embedded",
+    "name": "Offset",
+    "content": [],
+    "content_count": 0,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": "Offset",
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Stay",
+    "name": "Stand",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime1.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 250
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 1,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Floor"
+  },
+  {
+    "type": "Move",
+    "name": "Walk",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime1b.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": -2,
+            "velocity_y": 0,
+            "duration": 5
+          },
+          {
+            "type": "Frame",
+            "image": "shime2b.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": -2,
+            "velocity_y": 0,
+            "duration": 7
+          },
+          {
+            "type": "Frame",
+            "image": "shime1b.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": -2,
+            "velocity_y": 0,
+            "duration": 5
+          },
+          {
+            "type": "Frame",
+            "image": "shime3b.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": -2,
+            "velocity_y": 0,
+            "duration": 7
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 4,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Floor"
+  },
+  {
+    "type": "Move",
+    "name": "Run",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime49.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": -4,
+            "velocity_y": 0,
+            "duration": 6
+          },
+          {
+            "type": "Frame",
+            "image": "shime50.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": -4,
+            "velocity_y": 0,
+            "duration": 6
+          },
+          {
+            "type": "Frame",
+            "image": "shime51.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": -4,
+            "velocity_y": 0,
+            "duration": 6
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 3,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Floor"
+  },
+  {
+    "type": "Move",
+    "name": "Dash",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime49.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": -8,
+            "velocity_y": 0,
+            "duration": 6
+          },
+          {
+            "type": "Frame",
+            "image": "shime50.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": -8,
+            "velocity_y": 0,
+            "duration": 6
+          },
+          {
+            "type": "Frame",
+            "image": "shime51.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": -8,
+            "velocity_y": 0,
+            "duration": 6
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 3,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Floor"
+  },
+  {
+    "type": "Stay",
+    "name": "Sit",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime11.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 250
+          },
+          {
+            "type": "Frame",
+            "image": "shime15.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 15
+          },
+          {
+            "type": "Frame",
+            "image": "shime16.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 10
+          },
+          {
+            "type": "Frame",
+            "image": "shime17.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 10
+          },
+          {
+            "type": "Frame",
+            "image": "shime16.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 10
+          },
+          {
+            "type": "Frame",
+            "image": "shime17.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 10
+          },
+          {
+            "type": "Frame",
+            "image": "shime16.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 10
+          },
+          {
+            "type": "Frame",
+            "image": "shime17.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 10
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 8,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Floor"
+  },
+  {
+    "type": "Stay",
+    "name": "SitAndLookUp",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime26.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 250
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 1,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Floor"
+  },
+  {
+    "type": "Stay",
+    "name": "SitAndLookAtMouse",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": 6,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime26.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 200
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 1,
+        "hotspots_count": 1
+      },
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime54.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 200
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 1,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 2,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Floor"
+  },
+  {
+    "type": "Animate",
+    "name": "SitAndSpinHeadAction",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime55.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          },
+          {
+            "type": "Frame",
+            "image": "shime27.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 10
+          },
+          {
+            "type": "Frame",
+            "image": "shime28.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 20
+          },
+          {
+            "type": "Frame",
+            "image": "shime29.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 20
+          },
+          {
+            "type": "Frame",
+            "image": "shime28.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 20
+          },
+          {
+            "type": "Frame",
+            "image": "shime29.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 20
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 6,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Floor"
+  },
+  {
+    "type": "Stay",
+    "name": "SitWithLegsUp",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime30.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 112,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 250
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 1,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Floor"
+  },
+  {
+    "type": "Stay",
+    "name": "SitWithLegsDown",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime31.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 112,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 250
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 1,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Floor"
+  },
+  {
+    "type": "Stay",
+    "name": "SitAndDangleLegs",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime31.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 112,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          },
+          {
+            "type": "Frame",
+            "image": "shime32.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 112,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 15
+          },
+          {
+            "type": "Frame",
+            "image": "shime31.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 112,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          },
+          {
+            "type": "Frame",
+            "image": "shime33.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 112,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 15
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 4,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Floor"
+  },
+  {
+    "type": "Stay",
+    "name": "Sprawl",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime20.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 250
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 1,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Floor"
+  },
+  {
+    "type": "Move",
+    "name": "Creep",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime20.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 10
+          },
+          {
+            "type": "Frame",
+            "image": "shime21.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": -2,
+            "velocity_y": 0,
+            "duration": 10
+          },
+          {
+            "type": "Frame",
+            "image": "shime20.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": -2,
+            "velocity_y": 0,
+            "duration": 10
+          },
+          {
+            "type": "Frame",
+            "image": "shime21.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": -1,
+            "velocity_y": 0,
+            "duration": 10
+          },
+          {
+            "type": "Frame",
+            "image": "shime20.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 10
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 5,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Floor"
+  },
+  {
+    "type": "Stay",
+    "name": "GrabCeiling",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime23.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 48,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 250
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 1,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Ceiling"
+  },
+  {
+    "type": "Move",
+    "name": "ClimbCeiling",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime25.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 48,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 16
+          },
+          {
+            "type": "Frame",
+            "image": "shime25.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 48,
+            "velocity_x": -1,
+            "velocity_y": 0,
+            "duration": 4
+          },
+          {
+            "type": "Frame",
+            "image": "shime53.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 48,
+            "velocity_x": -1,
+            "velocity_y": 0,
+            "duration": 4
+          },
+          {
+            "type": "Frame",
+            "image": "shime24.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 48,
+            "velocity_x": -1,
+            "velocity_y": 0,
+            "duration": 4
+          },
+          {
+            "type": "Frame",
+            "image": "shime24.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 48,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 16
+          },
+          {
+            "type": "Frame",
+            "image": "shime24.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 48,
+            "velocity_x": -2,
+            "velocity_y": 0,
+            "duration": 4
+          },
+          {
+            "type": "Frame",
+            "image": "shime53.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 48,
+            "velocity_x": -2,
+            "velocity_y": 0,
+            "duration": 4
+          },
+          {
+            "type": "Frame",
+            "image": "shime25.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 48,
+            "velocity_x": -2,
+            "velocity_y": 0,
+            "duration": 4
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 8,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Ceiling"
+  },
+  {
+    "type": "Stay",
+    "name": "GrabWall",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime12.qoi",
+            "image_right": null,
+            "image_anchor_x": 0,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 250
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 82,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 1,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Wall"
+  },
+  {
+    "type": "Move",
+    "name": "ReachScreenWall",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime12.qoi",
+            "image_right": null,
+            "image_anchor_x": 0,
+            "image_anchor_y": 128,
+            "velocity_x": -8,
+            "velocity_y": 0,
+            "duration": 1
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 82,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 1,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Move",
+    "name": "ClimbWall",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": 12,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime14.qoi",
+            "image_right": null,
+            "image_anchor_x": 0,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 16
+          },
+          {
+            "type": "Frame",
+            "image": "shime14.qoi",
+            "image_right": null,
+            "image_anchor_x": 0,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": -1,
+            "duration": 4
+          },
+          {
+            "type": "Frame",
+            "image": "shime52.qoi",
+            "image_right": null,
+            "image_anchor_x": 0,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": -1,
+            "duration": 4
+          },
+          {
+            "type": "Frame",
+            "image": "shime13.qoi",
+            "image_right": null,
+            "image_anchor_x": 0,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": -1,
+            "duration": 4
+          },
+          {
+            "type": "Frame",
+            "image": "shime13.qoi",
+            "image_right": null,
+            "image_anchor_x": 0,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 16
+          },
+          {
+            "type": "Frame",
+            "image": "shime13.qoi",
+            "image_right": null,
+            "image_anchor_x": 0,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": -2,
+            "duration": 4
+          },
+          {
+            "type": "Frame",
+            "image": "shime52.qoi",
+            "image_right": null,
+            "image_anchor_x": 0,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": -2,
+            "duration": 4
+          },
+          {
+            "type": "Frame",
+            "image": "shime14.qoi",
+            "image_right": null,
+            "image_anchor_x": 0,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": -2,
+            "duration": 4
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 93,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 8,
+        "hotspots_count": 1
+      },
+      {
+        "type": "Animation",
+        "condition": 13,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime14.qoi",
+            "image_right": null,
+            "image_anchor_x": 0,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 16
+          },
+          {
+            "type": "Frame",
+            "image": "shime14.qoi",
+            "image_right": null,
+            "image_anchor_x": 0,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 2,
+            "duration": 4
+          },
+          {
+            "type": "Frame",
+            "image": "shime52.qoi",
+            "image_right": null,
+            "image_anchor_x": 0,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 2,
+            "duration": 4
+          },
+          {
+            "type": "Frame",
+            "image": "shime13.qoi",
+            "image_right": null,
+            "image_anchor_x": 0,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 2,
+            "duration": 4
+          },
+          {
+            "type": "Frame",
+            "image": "shime13.qoi",
+            "image_right": null,
+            "image_anchor_x": 0,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 16
+          },
+          {
+            "type": "Frame",
+            "image": "shime13.qoi",
+            "image_right": null,
+            "image_anchor_x": 0,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 1,
+            "duration": 4
+          },
+          {
+            "type": "Frame",
+            "image": "shime52.qoi",
+            "image_right": null,
+            "image_anchor_x": 0,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 1,
+            "duration": 4
+          },
+          {
+            "type": "Frame",
+            "image": "shime14.qoi",
+            "image_right": null,
+            "image_anchor_x": 0,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 1,
+            "duration": 4
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 93,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 8,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 2,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Wall"
+  },
+  {
+    "type": "Embedded",
+    "name": "FallWithIe",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime34b.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 250
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 1,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {
+      "mascot.IeOffsetX": 14,
+      "mascot.IeOffsetY": 15
+    },
+    "local_variables_count": 2,
+    "embedded_type": "FallWithIE",
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Embedded",
+    "name": "WalkWithIe",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime34b.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": -2,
+            "velocity_y": 0,
+            "duration": 6
+          },
+          {
+            "type": "Frame",
+            "image": "shime35b.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": -2,
+            "velocity_y": 0,
+            "duration": 6
+          },
+          {
+            "type": "Frame",
+            "image": "shime34b.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": -2,
+            "velocity_y": 0,
+            "duration": 6
+          },
+          {
+            "type": "Frame",
+            "image": "shime36b.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": -2,
+            "velocity_y": 0,
+            "duration": 6
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 4,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {
+      "mascot.IeOffsetX": 14,
+      "mascot.IeOffsetY": 15
+    },
+    "local_variables_count": 2,
+    "embedded_type": "WalkWithIE",
+    "loop": false,
+    "condition": null,
+    "border_type": "Floor"
+  },
+  {
+    "type": "Embedded",
+    "name": "RunWithIe",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime34b.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": -8,
+            "velocity_y": 0,
+            "duration": 6
+          },
+          {
+            "type": "Frame",
+            "image": "shime35b.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": -8,
+            "velocity_y": 0,
+            "duration": 6
+          },
+          {
+            "type": "Frame",
+            "image": "shime34b.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": -8,
+            "velocity_y": 0,
+            "duration": 6
+          },
+          {
+            "type": "Frame",
+            "image": "shime36b.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": -8,
+            "velocity_y": 0,
+            "duration": 6
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 4,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {
+      "mascot.IeOffsetX": 14,
+      "mascot.IeOffsetY": 15
+    },
+    "local_variables_count": 2,
+    "embedded_type": "WalkWithIE",
+    "loop": false,
+    "condition": null,
+    "border_type": "Floor"
+  },
+  {
+    "type": "Embedded",
+    "name": "ThrowIe",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime37.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 40
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 1,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {
+      "mascot.InitialVX": 16,
+      "mascot.InitialVY": 17,
+      "mascot.Gravity": 18
+    },
+    "local_variables_count": 3,
+    "embedded_type": "ThrowIE",
+    "loop": false,
+    "condition": null,
+    "border_type": "Floor"
+  },
+  {
+    "type": "Embedded",
+    "name": "Jumping",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime22.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 250
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 1,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {
+      "mascot.VelocityParam": 8
+    },
+    "local_variables_count": 1,
+    "embedded_type": "Jump",
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Embedded",
+    "name": "Falling",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime4.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 250
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 1,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {
+      "mascot.RegistanceX": 20,
+      "mascot.RegistanceY": 21,
+      "mascot.Gravity": 22
+    },
+    "local_variables_count": 3,
+    "embedded_type": "Fall",
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Animate",
+    "name": "Bouncing",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime18.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 4
+          },
+          {
+            "type": "Frame",
+            "image": "shime19.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 4
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 2,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Floor"
+  },
+  {
+    "type": "Animate",
+    "name": "Tripping",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime19.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": -8,
+            "velocity_y": 0,
+            "duration": 8
+          },
+          {
+            "type": "Frame",
+            "image": "shime18.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": -4,
+            "velocity_y": 0,
+            "duration": 4
+          },
+          {
+            "type": "Frame",
+            "image": "shime47.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": -2,
+            "velocity_y": 0,
+            "duration": 4
+          },
+          {
+            "type": "Frame",
+            "image": "shime47.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 10
+          },
+          {
+            "type": "Frame",
+            "image": "shime19.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 104,
+            "velocity_x": -4,
+            "velocity_y": 0,
+            "duration": 4
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 5,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Floor"
+  },
+  {
+    "type": "Embedded",
+    "name": "Pinched",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": 24,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime9.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 1,
+        "hotspots_count": 1
+      },
+      {
+        "type": "Animation",
+        "condition": 25,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime7.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 1,
+        "hotspots_count": 1
+      },
+      {
+        "type": "Animation",
+        "condition": 26,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime48.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 1,
+        "hotspots_count": 1
+      },
+      {
+        "type": "Animation",
+        "condition": 27,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime8.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 1,
+        "hotspots_count": 1
+      },
+      {
+        "type": "Animation",
+        "condition": 28,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime10.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 1,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 5,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": "Dragged",
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Embedded",
+    "name": "Resisting",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime5.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          },
+          {
+            "type": "Frame",
+            "image": "shime6.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          },
+          {
+            "type": "Frame",
+            "image": "shime5.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          },
+          {
+            "type": "Frame",
+            "image": "shime6.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          },
+          {
+            "type": "Frame",
+            "image": "shime48.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 50
+          },
+          {
+            "type": "Frame",
+            "image": "shime5.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          },
+          {
+            "type": "Frame",
+            "image": "shime6.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          },
+          {
+            "type": "Frame",
+            "image": "shime5.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          },
+          {
+            "type": "Frame",
+            "image": "shime6.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          },
+          {
+            "type": "Frame",
+            "image": "shime5.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          },
+          {
+            "type": "Frame",
+            "image": "shime6.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          },
+          {
+            "type": "Frame",
+            "image": "shime5.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          },
+          {
+            "type": "Frame",
+            "image": "shime6.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          },
+          {
+            "type": "Frame",
+            "image": "shime48.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 100
+          },
+          {
+            "type": "Frame",
+            "image": "shime5.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          },
+          {
+            "type": "Frame",
+            "image": "shime6.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          },
+          {
+            "type": "Frame",
+            "image": "shime5.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          },
+          {
+            "type": "Frame",
+            "image": "shime6.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          },
+          {
+            "type": "Frame",
+            "image": "shime5.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          },
+          {
+            "type": "Frame",
+            "image": "shime6.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          },
+          {
+            "type": "Frame",
+            "image": "shime5.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          },
+          {
+            "type": "Frame",
+            "image": "shime6.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          },
+          {
+            "type": "Frame",
+            "image": "shime5.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 2
+          },
+          {
+            "type": "Frame",
+            "image": "shime6.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 2
+          },
+          {
+            "type": "Frame",
+            "image": "shime5.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 2
+          },
+          {
+            "type": "Frame",
+            "image": "shime6.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 2
+          },
+          {
+            "type": "Frame",
+            "image": "shime5.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 2
+          },
+          {
+            "type": "Frame",
+            "image": "shime6.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 2
+          },
+          {
+            "type": "Frame",
+            "image": "shime5.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 2
+          },
+          {
+            "type": "Frame",
+            "image": "shime6.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 2
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 30,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": "Resist",
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Embedded",
+    "name": "PullUpShimeji1",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime1.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 16
+          },
+          {
+            "type": "Frame",
+            "image": "shime38.qoi",
+            "image_right": null,
+            "image_anchor_x": 96,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 4
+          },
+          {
+            "type": "Frame",
+            "image": "shime39.qoi",
+            "image_right": null,
+            "image_anchor_x": 96,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 40
+          },
+          {
+            "type": "Frame",
+            "image": "shime40.qoi",
+            "image_right": null,
+            "image_anchor_x": 96,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 40
+          },
+          {
+            "type": "Frame",
+            "image": "shime41.qoi",
+            "image_right": null,
+            "image_anchor_x": 96,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 40
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 5,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {
+      "mascot.BornX": 97,
+      "mascot.BornY": 98
+    },
+    "local_variables_count": 2,
+    "embedded_type": "Breed",
+    "loop": false,
+    "condition": null,
+    "border_type": "Any",
+    "born_behavior": "PullUp"
+  },
+  {
+    "type": "Animate",
+    "name": "PullUpShimeji2",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime9.qoi",
+            "image_right": null,
+            "image_anchor_x": 32,
+            "image_anchor_y": 128,
+            "velocity_x": 20,
+            "velocity_y": -20,
+            "duration": 1
+          },
+          {
+            "type": "Frame",
+            "image": "shime9.qoi",
+            "image_right": null,
+            "image_anchor_x": 32,
+            "image_anchor_y": 128,
+            "velocity_x": 20,
+            "velocity_y": -10,
+            "duration": 1
+          },
+          {
+            "type": "Frame",
+            "image": "shime9.qoi",
+            "image_right": null,
+            "image_anchor_x": 32,
+            "image_anchor_y": 128,
+            "velocity_x": 20,
+            "velocity_y": -5,
+            "duration": 1
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 3,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Embedded",
+    "name": "Divide1",
+    "content": [
+      {
+        "type": "Animation",
+        "condition": null,
+        "frames": [
+          {
+            "type": "Frame",
+            "image": "shime42.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          },
+          {
+            "type": "Frame",
+            "image": "shime43.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 2
+          },
+          {
+            "type": "Frame",
+            "image": "shime44.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 2
+          },
+          {
+            "type": "Frame",
+            "image": "shime45.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 5
+          },
+          {
+            "type": "Frame",
+            "image": "shime46.qoi",
+            "image_right": null,
+            "image_anchor_x": 64,
+            "image_anchor_y": 128,
+            "velocity_x": 0,
+            "velocity_y": 0,
+            "duration": 20
+          }
+        ],
+        "hotspots": [
+          {
+            "type": "Hotspot",
+            "shape": "Rectangle",
+            "x": 0,
+            "y": 0,
+            "width": 128,
+            "height": 128,
+            "button": "Middle",
+            "behavior": "RemoveMiku"
+          }
+        ],
+        "frame_count": 5,
+        "hotspots_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {
+      "mascot.BornX": 102,
+      "mascot.BornY": 14
+    },
+    "local_variables_count": 2,
+    "embedded_type": "Breed",
+    "loop": false,
+    "condition": null,
+    "border_type": "Any",
+    "born_behavior": "Divided"
+  },
+  {
+    "type": "Sequence",
+    "name": "___INLINED_ACTION_1",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Bouncing",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": 33,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 2,
+    "local_variables": {
+      "mascot.Condition": 32
+    },
+    "local_variables_count": 1,
+    "embedded_type": null,
+    "loop": false,
+    "condition": 32,
+    "border_type": "Any"
+  },
+  {
+    "type": "Select",
+    "name": "___INLINED_ACTION_0",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "___INLINED_ACTION_1",
+        "duration": null,
+        "condition": 32,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "GrabWall",
+        "duration": 30,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 2,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "Fall",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Falling",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "___INLINED_ACTION_0",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 2,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "Dragged",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Pinched",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": true,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "___INLINED_ACTION_2",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "ReachScreenWall",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 36
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Look",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.LookRight": 31
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "GrabWall",
+        "duration": 37,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 3,
+    "local_variables": {
+      "mascot.Condition": 35
+    },
+    "local_variables_count": 1,
+    "embedded_type": null,
+    "loop": false,
+    "condition": 35,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "___INLINED_ACTION_3",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "ReachScreenWall",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 39
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Look",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.LookRight": 34
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "GrabWall",
+        "duration": 37,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 3,
+    "local_variables": {
+      "mascot.Condition": 38
+    },
+    "local_variables_count": 1,
+    "embedded_type": null,
+    "loop": false,
+    "condition": 38,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "___INLINED_ACTION_6",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Bouncing",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": 33,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 2,
+    "local_variables": {
+      "mascot.Condition": 32
+    },
+    "local_variables_count": 1,
+    "embedded_type": null,
+    "loop": false,
+    "condition": 32,
+    "border_type": "Any"
+  },
+  {
+    "type": "Select",
+    "name": "___INLINED_ACTION_5",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "___INLINED_ACTION_6",
+        "duration": null,
+        "condition": 32,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "GrabWall",
+        "duration": 30,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 2,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "___INLINED_ACTION_4",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Falling",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.InitialVX": 40,
+          "mascot.InitialVY": 41
+        },
+        "locals_count": 2
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "___INLINED_ACTION_5",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 2,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Select",
+    "name": "Thrown",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "___INLINED_ACTION_2",
+        "duration": null,
+        "condition": 35,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "___INLINED_ACTION_3",
+        "duration": null,
+        "condition": 38,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "___INLINED_ACTION_4",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 3,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "StandUp",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": 42,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "SitDown",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Sit",
+        "duration": 42,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "LieDown",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Sprawl",
+        "duration": 42,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "SitWhileDanglingLegs",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "SitWithLegsUp",
+        "duration": 5,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "SitWithLegsDown",
+        "duration": 33,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "SitAndDangleLegs",
+        "duration": 43,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "SitWithLegsDown",
+        "duration": 33,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "SitWithLegsUp",
+        "duration": 5,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 5,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "HoldOntoWall",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "GrabWall",
+        "duration": 42,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "FallFromWall",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Offset",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.X": 44
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 2,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "HoldOntoCeiling",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "GrabCeiling",
+        "duration": 42,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "FallFromCeiling",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Offset",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.Y": 11
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 2,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "WalkAlongWorkAreaFloor",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Walk",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 45
+        },
+        "locals_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "RunAlongWorkAreaFloor",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Run",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 45
+        },
+        "locals_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "CrawlAlongWorkAreaFloor",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Creep",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 45
+        },
+        "locals_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "WalkLeftAlongFloorAndSit",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Walk",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 46
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": 47,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Look",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.LookRight": 34
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": 47,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Sit",
+        "duration": 42,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 5,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "WalkRightAlongFloorAndSit",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Walk",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 48
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": 47,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Look",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.LookRight": 31
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": 47,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Sit",
+        "duration": 42,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 5,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "GrabWorkAreaBottomLeftWall",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Walk",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 49
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "ClimbWall",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetY": 50
+        },
+        "locals_count": 1
+      }
+    ],
+    "content_count": 2,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "GrabWorkAreaBottomRightWall",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Walk",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 51
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "ClimbWall",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetY": 50
+        },
+        "locals_count": 1
+      }
+    ],
+    "content_count": 2,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "WalkLeftAndSit",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Run",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 46
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": 47,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Look",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.LookRight": 34
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": 47,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Sit",
+        "duration": 42,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 5,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "WalkRightAndSit",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Run",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 48
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": 47,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Look",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.LookRight": 31
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": 47,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Sit",
+        "duration": 42,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 5,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "WalkAndGrabBottomLeftWall",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Run",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 49
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "ClimbWall",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetY": 50
+        },
+        "locals_count": 1
+      }
+    ],
+    "content_count": 2,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "WalkAndGrabBottomRightWall",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Run",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 51
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "ClimbWall",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetY": 50
+        },
+        "locals_count": 1
+      }
+    ],
+    "content_count": 2,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "JumpFromBottomOfIE",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Jumping",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 52,
+          "mascot.TargetY": 53
+        },
+        "locals_count": 2
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "GrabCeiling",
+        "duration": 33,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 2,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "ClimbHalfwayAlongWall",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "ClimbWall",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetY": 54
+        },
+        "locals_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "ClimbAlongWall",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "ClimbWall",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetY": 55
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Offset",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.Y": 15
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Look",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "ClimbCeiling",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 56
+        },
+        "locals_count": 1
+      }
+    ],
+    "content_count": 4,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "ClimbAlongCeiling",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "ClimbCeiling",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 45
+        },
+        "locals_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "WalkAlongIECeiling",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Walk",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 57
+        },
+        "locals_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "RunAlongIECeiling",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Run",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 57
+        },
+        "locals_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "CrawlAlongIECeiling",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Creep",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 57
+        },
+        "locals_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "SitOnTheLeftEdgeOfIE",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Walk",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 58
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": 33,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Sit",
+        "duration": 42,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 3,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "SitOnTheRightEdgeOfIE",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Walk",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 59
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": 33,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Sit",
+        "duration": 42,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 3,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "JumpFromLeftEdgeOfIE",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Walk",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 60
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": 61,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Falling",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.InitialVX": 62,
+          "mascot.InitialVY": 63
+        },
+        "locals_count": 2
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Bouncing",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 4,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "JumpFromRightEdgeOfIE",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Walk",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 64
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": 61,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Falling",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.InitialVX": 65,
+          "mascot.InitialVY": 63
+        },
+        "locals_count": 2
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Bouncing",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 4,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "WalkLeftAlongIEAndSit",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Run",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 58
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": 33,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Sit",
+        "duration": 42,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 3,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "WalkRightAlongIEAndSit",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Run",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 59
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": 33,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Sit",
+        "duration": 42,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 3,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "WalkLeftAlongIEAndJump",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Run",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 60
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Falling",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.InitialVX": 62,
+          "mascot.InitialVY": 63
+        },
+        "locals_count": 2
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Bouncing",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 3,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "WalkRightAlongIEAndJump",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Run",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 64
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Falling",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.InitialVX": 65,
+          "mascot.InitialVY": 63
+        },
+        "locals_count": 2
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Bouncing",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 3,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "DashIeCeilingLeftEdgeFromJump",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Dash",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 66
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Falling",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.InitialVX": 67,
+          "mascot.InitialVY": 63
+        },
+        "locals_count": 2
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Bouncing",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 3,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "DashIeCeilingRightEdgeFromJump",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Dash",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 68
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Falling",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.InitialVX": 69,
+          "mascot.InitialVY": 63
+        },
+        "locals_count": 2
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Bouncing",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 3,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "HoldOntoIEWall",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "ClimbWall",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetY": 70
+        },
+        "locals_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "ClimbIEWall",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "ClimbWall",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetY": 71
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Offset",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.Y": 15
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Sit",
+        "duration": 1,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": 72,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Walk",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 73
+        },
+        "locals_count": 1
+      }
+    ],
+    "content_count": 5,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "ClimbIEBottom",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "ClimbCeiling",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 74
+        },
+        "locals_count": 1
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "GrabIEBottomLeftWall",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "ClimbCeiling",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 75
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Look",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "ClimbWall",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetY": 76
+        },
+        "locals_count": 1
+      }
+    ],
+    "content_count": 3,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "GrabIEBottomRightWall",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "ClimbCeiling",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 77
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Look",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "ClimbWall",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetY": 76
+        },
+        "locals_count": 1
+      }
+    ],
+    "content_count": 3,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "JumpFromLeftWall",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Jumping",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 36,
+          "mascot.TargetY": 78
+        },
+        "locals_count": 2
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "GrabWall",
+        "duration": 33,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 2,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "JumpFromRightWall",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Jumping",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 39,
+          "mascot.TargetY": 78
+        },
+        "locals_count": 2
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "GrabWall",
+        "duration": 33,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 2,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "JumpOnIELeftWall",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Jumping",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 79,
+          "mascot.TargetY": 80
+        },
+        "locals_count": 2
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "GrabWall",
+        "duration": 33,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 2,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "JumpOnIERightWall",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Jumping",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 81,
+          "mascot.TargetY": 80
+        },
+        "locals_count": 2
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "GrabWall",
+        "duration": 33,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 2,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "ThrowIEFromLeft",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Jumping",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 79,
+          "mascot.TargetY": 82
+        },
+        "locals_count": 2
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "FallWithIe",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "WalkWithIe",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 83
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "ThrowIe",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": 61,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Look",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": 61,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 7,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "ThrowIEFromRight",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Jumping",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 81,
+          "mascot.TargetY": 82
+        },
+        "locals_count": 2
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "FallWithIe",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "WalkWithIe",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 84
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "ThrowIe",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": 61,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Look",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": 61,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 7,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "WalkAndThrowIEFromRight",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Jumping",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 79,
+          "mascot.TargetY": 82
+        },
+        "locals_count": 2
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "FallWithIe",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "RunWithIe",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 83
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "ThrowIe",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": 61,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Look",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": 61,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 7,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "WalkAndThrowIEFromLeft",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Jumping",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 81,
+          "mascot.TargetY": 82
+        },
+        "locals_count": 2
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "FallWithIe",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "RunWithIe",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 84
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "ThrowIe",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": 61,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Look",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Stand",
+        "duration": 61,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 7,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "___INLINED_ACTION_7",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Offset",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.Y": 11
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Falling",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Bouncing",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 3,
+    "local_variables": {
+      "mascot.Condition": 85
+    },
+    "local_variables_count": 1,
+    "embedded_type": null,
+    "loop": false,
+    "condition": 85,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "___INLINED_ACTION_8",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Offset",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.X": 11
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Falling",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Bouncing",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 3,
+    "local_variables": {
+      "mascot.Condition": 86
+    },
+    "local_variables_count": 1,
+    "embedded_type": null,
+    "loop": false,
+    "condition": 86,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "___INLINED_ACTION_9",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Offset",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.X": 88
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Falling",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Bouncing",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 3,
+    "local_variables": {
+      "mascot.Condition": 87
+    },
+    "local_variables_count": 1,
+    "embedded_type": null,
+    "loop": false,
+    "condition": 87,
+    "border_type": "Any"
+  },
+  {
+    "type": "Select",
+    "name": "___INLINED_ACTION_10",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "DashIeCeilingLeftEdgeFromJump",
+        "duration": null,
+        "condition": 89,
+        "locals_overrides": {
+          "mascot.Condition": 89
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "DashIeCeilingRightEdgeFromJump",
+        "duration": null,
+        "condition": 90,
+        "locals_overrides": {
+          "mascot.Condition": 90
+        },
+        "locals_count": 1
+      }
+    ],
+    "content_count": 2,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "ChaseMouse",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "___INLINED_ACTION_7",
+        "duration": null,
+        "condition": 85,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "___INLINED_ACTION_8",
+        "duration": null,
+        "condition": 86,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "___INLINED_ACTION_9",
+        "duration": null,
+        "condition": 87,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "___INLINED_ACTION_10",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Dash",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 91
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Tripping",
+        "duration": null,
+        "condition": 92,
+        "locals_overrides": {
+          "mascot.Condition": 92
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Dash",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 93
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Tripping",
+        "duration": null,
+        "condition": 92,
+        "locals_overrides": {
+          "mascot.Condition": 92
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Dash",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.TargetX": 94,
+          "mascot.Gap": 95
+        },
+        "locals_count": 2
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Look",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.LookRight": 96
+        },
+        "locals_count": 1
+      }
+    ],
+    "content_count": 10,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "SitAndFaceMouse",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "SitAndLookAtMouse",
+        "duration": 72,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Look",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.LookRight": 96
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "SitAndLookAtMouse",
+        "duration": 72,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Look",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.LookRight": 96
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "SitAndLookAtMouse",
+        "duration": 72,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Look",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.LookRight": 96
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "SitAndLookAtMouse",
+        "duration": 72,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Look",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.LookRight": 96
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "SitAndLookAtMouse",
+        "duration": 72,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Look",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.LookRight": 96
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "SitAndLookAtMouse",
+        "duration": 72,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Look",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.LookRight": 96
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "SitAndLookAtMouse",
+        "duration": 72,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Look",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.LookRight": 96
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "SitAndLookAtMouse",
+        "duration": 72,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Look",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.LookRight": 96
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "SitAndLookAtMouse",
+        "duration": 72,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Look",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.LookRight": 96
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "SitAndLookAtMouse",
+        "duration": 72,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Look",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.LookRight": 96
+        },
+        "locals_count": 1
+      }
+    ],
+    "content_count": 20,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "SitAndSpinHead",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "SitAndSpinHeadAction",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 1,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "PullUpShimeji",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "PullUpShimeji1",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "PullUpShimeji2",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Falling",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.InitialVX": 99
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Bouncing",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Sprawl",
+        "duration": 19,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 5,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "PullUp",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Falling",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.InitialVX": 100,
+          "mascot.InitialVY": 101
+        },
+        "locals_count": 2
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Bouncing",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 2,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "Divided",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Falling",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.InitialVX": 100,
+          "mascot.InitialVY": 103
+        },
+        "locals_count": 2
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Bouncing",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 2,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  },
+  {
+    "type": "Sequence",
+    "name": "SplitIntoTwo",
+    "content": [
+      {
+        "type": "ActionReference",
+        "action_name": "Divide1",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Offset",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {
+          "mascot.X": 9
+        },
+        "locals_count": 1
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Look",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      },
+      {
+        "type": "ActionReference",
+        "action_name": "Divided",
+        "duration": null,
+        "condition": null,
+        "locals_overrides": {},
+        "locals_count": 0
+      }
+    ],
+    "content_count": 4,
+    "local_variables": {},
+    "local_variables_count": 0,
+    "embedded_type": null,
+    "loop": false,
+    "condition": null,
+    "border_type": "Any"
+  }
+]

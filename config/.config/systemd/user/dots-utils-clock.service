@@ -1,0 +1,7 @@
+[Unit]
+Description=Deliver due clocks and schedule the next deadline
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bash %h/.config/rofi/modi/time.sh fire
+UMask=0077

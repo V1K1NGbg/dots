@@ -1,0 +1,18 @@
+@define-color window_bg_color #191919;
+@define-color window_fg_color #f8f8f2;
+@define-color view_bg_color #191919;
+@define-color view_fg_color #f8f8f2;
+@define-color accent_bg_color #67ffeb;
+@define-color accent_fg_color #191919;
+@define-color warning_bg_color #ffb247;
+@define-color warning_fg_color #191919;
+@define-color error_bg_color #ff025f;
+@define-color error_fg_color #191919;
+@define-color success_bg_color #a2f300;
+@define-color success_fg_color #191919;
+
+selection,
+*:selected {
+  background-color: #67ffeb;
+  color: #191919;
+}

@@ -1,4 +1,3 @@
-.config/awesome/const.lua
-.config/opencode/style/about.md
-.config/opencode/**/__pycache__/
-.config/opencode/**/*.pyc
+config/.config/opencode/style/about.md
+config/.config/opencode/**/__pycache__/
+config/.config/opencode/**/*.pyc

@@ -1,0 +1,8 @@
+[Unit]
+Description=Check laptop battery every 30 seconds
+PartOf=graphical-session.target
+
+[Timer]
+OnActiveSec=15
+OnUnitActiveSec=30
+AccuracySec=1

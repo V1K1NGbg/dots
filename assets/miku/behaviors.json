@@ -1,0 +1,1121 @@
+{
+    "definitions": [
+        {
+            "name": "RemoveMiku",
+            "action": "RemoveMiku",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 0
+        },
+        {
+            "name": "ChaseMouse",
+            "action": "ChaseMouse",
+            "next_behavior_list": [
+                {
+                    "name": "SitAndFaceMouse",
+                    "frequency": 100
+                }
+            ],
+            "next_behavior_list_count": 1,
+            "hidden": false,
+            "condition": 104,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 10
+        },
+        {
+            "name": "SitAndFaceMouse",
+            "action": "SitAndFaceMouse",
+            "next_behavior_list": [
+                {
+                    "name": "SitAndFaceMouse",
+                    "frequency": 100
+                },
+                {
+                    "name": "SitAndSpinHead",
+                    "frequency": 200
+                },
+                {
+                    "name": "SitWhileDanglingLegs",
+                    "frequency": 100
+                }
+            ],
+            "next_behavior_list_count": 3,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 0
+        },
+        {
+            "name": "SitAndSpinHead",
+            "action": "SitAndSpinHead",
+            "next_behavior_list": [
+                {
+                    "name": "SitAndFaceMouse",
+                    "frequency": 100
+                }
+            ],
+            "next_behavior_list_count": 1,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 0
+        },
+        {
+            "name": "Fall",
+            "action": "Fall",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 0
+        },
+        {
+            "name": "Dragged",
+            "action": "Dragged",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 0
+        },
+        {
+            "name": "Thrown",
+            "action": "Thrown",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 0
+        },
+        {
+            "name": "PullUp",
+            "action": "PullUp",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 0
+        },
+        {
+            "name": "Divided",
+            "action": "Divided",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 0
+        },
+        {
+            "name": "StandUp",
+            "action": "StandUp",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 200
+        },
+        {
+            "name": "SitDown",
+            "action": "SitDown",
+            "next_behavior_list": [
+                {
+                    "name": "SitWhileDanglingLegs",
+                    "frequency": 100
+                },
+                {
+                    "name": "LieDown",
+                    "frequency": 100
+                }
+            ],
+            "next_behavior_list_count": 2,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 200
+        },
+        {
+            "name": "SitWhileDanglingLegs",
+            "action": "SitWhileDanglingLegs",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 0
+        },
+        {
+            "name": "LieDown",
+            "action": "LieDown",
+            "next_behavior_list": [
+                {
+                    "name": "SitDown",
+                    "frequency": 100
+                },
+                {
+                    "name": "CrawlAlongIECeiling",
+                    "frequency": 100
+                },
+                {
+                    "name": "CrawlAlongWorkAreaFloor",
+                    "frequency": 100
+                }
+            ],
+            "next_behavior_list_count": 3,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": false,
+            "frequency": 0
+        },
+        {
+            "name": "SplitIntoTwo",
+            "action": "SplitIntoTwo",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": 106,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 50
+        },
+        {
+            "name": "___CONDITION_0",
+            "action": null,
+            "next_behavior_list": [
+                {
+                    "name": "StandUp",
+                    "frequency": 200
+                },
+                {
+                    "name": "SitDown",
+                    "frequency": 200
+                },
+                {
+                    "name": "SitWhileDanglingLegs",
+                    "frequency": 0
+                },
+                {
+                    "name": "LieDown",
+                    "frequency": 0
+                },
+                {
+                    "name": "SplitIntoTwo",
+                    "frequency": 50
+                }
+            ],
+            "next_behavior_list_count": 5,
+            "hidden": true,
+            "condition": 105,
+            "is_conditioner": true,
+            "next_behavior_list_add": true,
+            "frequency": 0
+        },
+        {
+            "name": "HoldOntoWall",
+            "action": "HoldOntoWall",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "FallFromWall",
+            "action": "FallFromWall",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": 108,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 50
+        },
+        {
+            "name": "___CONDITION_1",
+            "action": null,
+            "next_behavior_list": [
+                {
+                    "name": "HoldOntoWall",
+                    "frequency": 100
+                },
+                {
+                    "name": "FallFromWall",
+                    "frequency": 50
+                }
+            ],
+            "next_behavior_list_count": 2,
+            "hidden": true,
+            "condition": 107,
+            "is_conditioner": true,
+            "next_behavior_list_add": true,
+            "frequency": 0
+        },
+        {
+            "name": "HoldOntoCeiling",
+            "action": "HoldOntoCeiling",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "FallFromCeiling",
+            "action": "FallFromCeiling",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 50
+        },
+        {
+            "name": "___CONDITION_2",
+            "action": null,
+            "next_behavior_list": [
+                {
+                    "name": "HoldOntoCeiling",
+                    "frequency": 100
+                },
+                {
+                    "name": "FallFromCeiling",
+                    "frequency": 50
+                }
+            ],
+            "next_behavior_list_count": 2,
+            "hidden": true,
+            "condition": 109,
+            "is_conditioner": true,
+            "next_behavior_list_add": true,
+            "frequency": 0
+        },
+        {
+            "name": "WalkAlongWorkAreaFloor",
+            "action": "WalkAlongWorkAreaFloor",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "RunAlongWorkAreaFloor",
+            "action": "RunAlongWorkAreaFloor",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "CrawlAlongWorkAreaFloor",
+            "action": "CrawlAlongWorkAreaFloor",
+            "next_behavior_list": [
+                {
+                    "name": "LieDown",
+                    "frequency": 1
+                }
+            ],
+            "next_behavior_list_count": 1,
+            "hidden": false,
+            "condition": 104,
+            "is_conditioner": false,
+            "next_behavior_list_add": false,
+            "frequency": 10
+        },
+        {
+            "name": "WalkLeftAlongFloorAndSit",
+            "action": "WalkLeftAlongFloorAndSit",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "WalkRightAlongFloorAndSit",
+            "action": "WalkRightAlongFloorAndSit",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "GrabWorkAreaBottomLeftWall",
+            "action": "GrabWorkAreaBottomLeftWall",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "GrabWorkAreaBottomRightWall",
+            "action": "GrabWorkAreaBottomRightWall",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "WalkLeftAndSit",
+            "action": "WalkLeftAndSit",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "WalkRightAndSit",
+            "action": "WalkRightAndSit",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "WalkAndGrabBottomLeftWall",
+            "action": "WalkAndGrabBottomLeftWall",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "WalkAndGrabBottomRightWall",
+            "action": "WalkAndGrabBottomRightWall",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "JumpFromBottomOfIE",
+            "action": "JumpFromBottomOfIE",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": 110,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 50
+        },
+        {
+            "name": "PullUpShimeji",
+            "action": "PullUpShimeji",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": 106,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 50
+        },
+        {
+            "name": "___CONDITION_3",
+            "action": null,
+            "next_behavior_list": [
+                {
+                    "name": "WalkAlongWorkAreaFloor",
+                    "frequency": 100
+                },
+                {
+                    "name": "RunAlongWorkAreaFloor",
+                    "frequency": 100
+                },
+                {
+                    "name": "CrawlAlongWorkAreaFloor",
+                    "frequency": 10
+                },
+                {
+                    "name": "WalkLeftAlongFloorAndSit",
+                    "frequency": 100
+                },
+                {
+                    "name": "WalkRightAlongFloorAndSit",
+                    "frequency": 100
+                },
+                {
+                    "name": "GrabWorkAreaBottomLeftWall",
+                    "frequency": 100
+                },
+                {
+                    "name": "GrabWorkAreaBottomRightWall",
+                    "frequency": 100
+                },
+                {
+                    "name": "WalkLeftAndSit",
+                    "frequency": 100
+                },
+                {
+                    "name": "WalkRightAndSit",
+                    "frequency": 100
+                },
+                {
+                    "name": "WalkAndGrabBottomLeftWall",
+                    "frequency": 100
+                },
+                {
+                    "name": "WalkAndGrabBottomRightWall",
+                    "frequency": 100
+                },
+                {
+                    "name": "JumpFromBottomOfIE",
+                    "frequency": 50
+                },
+                {
+                    "name": "PullUpShimeji",
+                    "frequency": 50
+                }
+            ],
+            "next_behavior_list_count": 13,
+            "hidden": true,
+            "condition": 104,
+            "is_conditioner": true,
+            "next_behavior_list_add": true,
+            "frequency": 0
+        },
+        {
+            "name": "ClimbHalfwayAlongWall",
+            "action": "ClimbHalfwayAlongWall",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "ClimbAlongWall",
+            "action": "ClimbAlongWall",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "___CONDITION_4",
+            "action": null,
+            "next_behavior_list": [
+                {
+                    "name": "ClimbHalfwayAlongWall",
+                    "frequency": 100
+                },
+                {
+                    "name": "ClimbAlongWall",
+                    "frequency": 100
+                }
+            ],
+            "next_behavior_list_count": 2,
+            "hidden": true,
+            "condition": 111,
+            "is_conditioner": true,
+            "next_behavior_list_add": true,
+            "frequency": 0
+        },
+        {
+            "name": "ClimbAlongCeiling",
+            "action": "ClimbAlongCeiling",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "___CONDITION_5",
+            "action": null,
+            "next_behavior_list": [
+                {
+                    "name": "ClimbAlongCeiling",
+                    "frequency": 100
+                }
+            ],
+            "next_behavior_list_count": 1,
+            "hidden": true,
+            "condition": 112,
+            "is_conditioner": true,
+            "next_behavior_list_add": true,
+            "frequency": 0
+        },
+        {
+            "name": "WalkAlongIECeiling",
+            "action": "WalkAlongIECeiling",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "RunAlongIECeiling",
+            "action": "RunAlongIECeiling",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "CrawlAlongIECeiling",
+            "action": "CrawlAlongIECeiling",
+            "next_behavior_list": [
+                {
+                    "name": "LieDown",
+                    "frequency": 1
+                }
+            ],
+            "next_behavior_list_count": 1,
+            "hidden": false,
+            "condition": 113,
+            "is_conditioner": false,
+            "next_behavior_list_add": false,
+            "frequency": 10
+        },
+        {
+            "name": "SitOnTheLeftEdgeOfIE",
+            "action": "SitOnTheLeftEdgeOfIE",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "SitOnTheRightEdgeOfIE",
+            "action": "SitOnTheRightEdgeOfIE",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "JumpFromLeftEdgeOfIE",
+            "action": "JumpFromLeftEdgeOfIE",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "JumpFromRightEdgeOfIE",
+            "action": "JumpFromRightEdgeOfIE",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "WalkLeftAlongIEAndSit",
+            "action": "WalkLeftAlongIEAndSit",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "WalkRightAlongIEAndSit",
+            "action": "WalkRightAlongIEAndSit",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "WalkLeftAlongIEAndJump",
+            "action": "WalkLeftAlongIEAndJump",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "WalkRightAlongIEAndJump",
+            "action": "WalkRightAlongIEAndJump",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "DashIeCeilingLeftEdgeFromJump",
+            "action": "DashIeCeilingLeftEdgeFromJump",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 10
+        },
+        {
+            "name": "DashIeCeilingRightEdgeFromJump",
+            "action": "DashIeCeilingRightEdgeFromJump",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 10
+        },
+        {
+            "name": "___CONDITION_6",
+            "action": null,
+            "next_behavior_list": [
+                {
+                    "name": "WalkAlongIECeiling",
+                    "frequency": 100
+                },
+                {
+                    "name": "RunAlongIECeiling",
+                    "frequency": 100
+                },
+                {
+                    "name": "CrawlAlongIECeiling",
+                    "frequency": 10
+                },
+                {
+                    "name": "SitOnTheLeftEdgeOfIE",
+                    "frequency": 100
+                },
+                {
+                    "name": "SitOnTheRightEdgeOfIE",
+                    "frequency": 100
+                },
+                {
+                    "name": "JumpFromLeftEdgeOfIE",
+                    "frequency": 100
+                },
+                {
+                    "name": "JumpFromRightEdgeOfIE",
+                    "frequency": 100
+                },
+                {
+                    "name": "WalkLeftAlongIEAndSit",
+                    "frequency": 100
+                },
+                {
+                    "name": "WalkRightAlongIEAndSit",
+                    "frequency": 100
+                },
+                {
+                    "name": "WalkLeftAlongIEAndJump",
+                    "frequency": 100
+                },
+                {
+                    "name": "WalkRightAlongIEAndJump",
+                    "frequency": 100
+                },
+                {
+                    "name": "DashIeCeilingLeftEdgeFromJump",
+                    "frequency": 10
+                },
+                {
+                    "name": "DashIeCeilingRightEdgeFromJump",
+                    "frequency": 10
+                }
+            ],
+            "next_behavior_list_count": 13,
+            "hidden": true,
+            "condition": 113,
+            "is_conditioner": true,
+            "next_behavior_list_add": true,
+            "frequency": 0
+        },
+        {
+            "name": "HoldOntoIEWall",
+            "action": "HoldOntoIEWall",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "ClimbIEWall",
+            "action": "ClimbIEWall",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "___CONDITION_7",
+            "action": null,
+            "next_behavior_list": [
+                {
+                    "name": "HoldOntoIEWall",
+                    "frequency": 100
+                },
+                {
+                    "name": "ClimbIEWall",
+                    "frequency": 100
+                }
+            ],
+            "next_behavior_list_count": 2,
+            "hidden": true,
+            "condition": 114,
+            "is_conditioner": true,
+            "next_behavior_list_add": true,
+            "frequency": 0
+        },
+        {
+            "name": "ClimbIEBottom",
+            "action": "ClimbIEBottom",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "GrabIEBottomLeftWall",
+            "action": "GrabIEBottomLeftWall",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "GrabIEBottomRightWall",
+            "action": "GrabIEBottomRightWall",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": null,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 100
+        },
+        {
+            "name": "___CONDITION_8",
+            "action": null,
+            "next_behavior_list": [
+                {
+                    "name": "ClimbIEBottom",
+                    "frequency": 100
+                },
+                {
+                    "name": "GrabIEBottomLeftWall",
+                    "frequency": 100
+                },
+                {
+                    "name": "GrabIEBottomRightWall",
+                    "frequency": 100
+                }
+            ],
+            "next_behavior_list_count": 3,
+            "hidden": true,
+            "condition": 115,
+            "is_conditioner": true,
+            "next_behavior_list_add": true,
+            "frequency": 0
+        },
+        {
+            "name": "JumpFromLeftWall",
+            "action": "JumpFromLeftWall",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": 116,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 50
+        },
+        {
+            "name": "JumpFromRightWall",
+            "action": "JumpFromRightWall",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": 117,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 50
+        },
+        {
+            "name": "JumpOnIELeftWall",
+            "action": "JumpOnIELeftWall",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": 119,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 50
+        },
+        {
+            "name": "JumpOnIERightWall",
+            "action": "JumpOnIERightWall",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": 120,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 50
+        },
+        {
+            "name": "ThrowIEFromLeft",
+            "action": "ThrowIEFromLeft",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": 121,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 20
+        },
+        {
+            "name": "ThrowIEFromRight",
+            "action": "ThrowIEFromRight",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": 122,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 20
+        },
+        {
+            "name": "WalkAndThrowIEFromRight",
+            "action": "WalkAndThrowIEFromRight",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": 121,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 20
+        },
+        {
+            "name": "WalkAndThrowIEFromLeft",
+            "action": "WalkAndThrowIEFromLeft",
+            "next_behavior_list": [],
+            "next_behavior_list_count": 0,
+            "hidden": false,
+            "condition": 122,
+            "is_conditioner": false,
+            "next_behavior_list_add": true,
+            "frequency": 20
+        },
+        {
+            "name": "___CONDITION_9",
+            "action": null,
+            "next_behavior_list": [
+                {
+                    "name": "JumpOnIELeftWall",
+                    "frequency": 50
+                },
+                {
+                    "name": "JumpOnIERightWall",
+                    "frequency": 50
+                },
+                {
+                    "name": "ThrowIEFromLeft",
+                    "frequency": 20
+                },
+                {
+                    "name": "ThrowIEFromRight",
+                    "frequency": 20
+                },
+                {
+                    "name": "WalkAndThrowIEFromRight",
+                    "frequency": 20
+                },
+                {
+                    "name": "WalkAndThrowIEFromLeft",
+                    "frequency": 20
+                }
+            ],
+            "next_behavior_list_count": 6,
+            "hidden": true,
+            "condition": 118,
+            "is_conditioner": true,
+            "next_behavior_list_add": true,
+            "frequency": 0
+        }
+    ],
+    "root_behavior_list": [
+        {
+            "name": "RemoveMiku",
+            "frequency": 0
+        },
+        {
+            "name": "ChaseMouse",
+            "frequency": 10
+        },
+        {
+            "name": "SitAndFaceMouse",
+            "frequency": 0
+        },
+        {
+            "name": "SitAndSpinHead",
+            "frequency": 0
+        },
+        {
+            "name": "Fall",
+            "frequency": 0
+        },
+        {
+            "name": "Dragged",
+            "frequency": 0
+        },
+        {
+            "name": "Thrown",
+            "frequency": 0
+        },
+        {
+            "name": "PullUp",
+            "frequency": 0
+        },
+        {
+            "name": "Divided",
+            "frequency": 0
+        },
+        {
+            "name": "___CONDITION_0",
+            "frequency": 0
+        },
+        {
+            "name": "___CONDITION_1",
+            "frequency": 0
+        },
+        {
+            "name": "___CONDITION_2",
+            "frequency": 0
+        },
+        {
+            "name": "___CONDITION_3",
+            "frequency": 0
+        },
+        {
+            "name": "___CONDITION_4",
+            "frequency": 0
+        },
+        {
+            "name": "___CONDITION_5",
+            "frequency": 0
+        },
+        {
+            "name": "___CONDITION_6",
+            "frequency": 0
+        },
+        {
+            "name": "___CONDITION_7",
+            "frequency": 0
+        },
+        {
+            "name": "___CONDITION_8",
+            "frequency": 0
+        },
+        {
+            "name": "JumpFromLeftWall",
+            "frequency": 50
+        },
+        {
+            "name": "JumpFromRightWall",
+            "frequency": 50
+        },
+        {
+            "name": "___CONDITION_9",
+            "frequency": 0
+        }
+    ]
+}

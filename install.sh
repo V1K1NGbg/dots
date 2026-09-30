@@ -1,16 +1,64 @@
 #!/bin/bash
 
-# Pre-requisites (run manually before this script):
+# Setup Live USB
 #   gpg --keyserver-options auto-key-retrieve --verify archlinux.iso.sig
 #   sha256sum archlinux.iso
 #   sudo usbimager
+#   or
+#   sudo dd if=archlinux.iso of=/dev/sdX bs=4M status=progress conv=fsync && sync
 #
-# Extra packages needed before running: git vim firefox less
-#
-# Fetch dots:
-#   git clone https://github.com/V1K1NGbg/dots.git
+# Extra packages needed for this installer: git vim firefox less
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CONFIG_DIR="$SCRIPT_DIR/config"
+
+# Root-only setup shared by the live ISO and desktop installers.
+install_lockscreen() (
+    set -euo pipefail
+    [[ $# == 0 && $EUID == 0 ]] || { echo 'Usage: sudo bash install.sh --install-lockscreen' >&2; exit 1; }
+    source_pam=$CONFIG_DIR/system/pam.d/dots-hyprlock
+    active=/etc/pam.d/dots-hyprlock
+    [[ ! -L $active ]] || { echo 'Refusing symlinked PAM service.' >&2; exit 1; }
+    if [[ -e $active ]]; then
+        cmp -s "$source_pam" "$active" || { echo 'Existing PAM service differs; this installer does not replace it.' >&2; exit 1; }
+        echo 'Dedicated PAM service already installed.'
+        exit
+    fi
+    temporary=$(mktemp /etc/pam.d/dots-hyprlock.XXXXXXXX)
+    trap 'rm -f -- "$temporary"' EXIT
+    install -m0644 "$source_pam" "$temporary"
+    mv -T -- "$temporary" "$active"
+    echo 'Dedicated PAM service installed.'
+)
+
+setup_power() (
+    set -euo pipefail
+    [[ $# == 0 && $EUID == 0 ]] || { echo 'Usage: sudo bash install.sh --setup-power' >&2; exit 1; }
+
+    # Check both destinations before writing either. Identical bootstrap copies are OK.
+    for kind in sleep logind; do
+        target=/etc/systemd/$kind.conf.d/60-dots-power.conf
+        [[ ! -L $target ]] || { echo "Refusing symlink: $target" >&2; exit 1; }
+        if [[ -e $target ]] && ! cmp -s "$CONFIG_DIR/system/$kind/60-dots-power.conf" "$target"; then
+            echo "Existing power policy differs; this installer does not replace it: $target" >&2
+            exit 1
+        fi
+    done
+    for kind in sleep logind; do
+        target=/etc/systemd/$kind.conf.d/60-dots-power.conf
+        [[ -e $target ]] || install -Dm0644 "$CONFIG_DIR/system/$kind/60-dots-power.conf" "$target"
+    done
+    systemctl --root=/ mask hibernate.target hybrid-sleep.target suspend-then-hibernate.target
+    echo 'Initial suspend policy installed; takes effect after reboot.'
+)
+
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+    case "${1:-}" in
+        --install-lockscreen) shift; install_lockscreen "$@"; exit $? ;;
+        --setup-power) shift; setup_power "$@"; exit $? ;;
+    esac
+fi
+
 STATE_DIR="${HOME}/.local/share/archinstaller"
 mkdir -p "$STATE_DIR"
 
@@ -58,14 +106,14 @@ run_task() {
 }
 
 install_boot_hook() {
-    sudo install -Dm0644 "$SCRIPT_DIR/system/pacman-hooks/90-dracut-install.hook" \
+    sudo install -Dm0644 "$CONFIG_DIR/system/pacman-hooks/90-dracut-install.hook" \
         /etc/pacman.d/hooks/90-dracut-install.hook
 }
 
-rebuild_initramfs() {
-    local kernel_cmdline
+rebuild_initramfs() (
+    local kernel_cmdline temporary=""
+    trap '[[ -z "$temporary" ]] || sudo rm -f -- "$temporary"' EXIT
 
-    install_boot_hook || return
     kernel_cmdline=$(sudo cat /etc/kernel/cmdline) || return
     kernel_cmdline=${kernel_cmdline//$'\n'/ }
     kernel_cmdline=${kernel_cmdline% }
@@ -73,22 +121,28 @@ rebuild_initramfs() {
         print_error "Refusing to rebuild with an empty /etc/kernel/cmdline"
         return 1
     fi
-    sudo install -d -m 0755 /etc/dracut.conf.d
+    install_boot_hook || return
+    sudo install -d -m 0755 /etc/dracut.conf.d || return
+    temporary=$(sudo mktemp /etc/dracut.conf.d/20-cmdline.conf.XXXXXXXX) || return
     # dracut sources this as shell code; quote literal command-line characters.
+    # Publish only a complete write, leaving the old boot config intact on error.
     printf 'kernel_cmdline=%q\n' "$kernel_cmdline" \
-        | sudo tee /etc/dracut.conf.d/20-cmdline.conf > /dev/null
+        | sudo tee "$temporary" > /dev/null || return
+    sudo chmod 0644 "$temporary" || return
+    sudo mv -f "$temporary" /etc/dracut.conf.d/20-cmdline.conf || return
+    temporary=""
     sudo dracut --regenerate-all --force
-}
+)
 
 # Full package set for the graphical installation stage.
 readonly -a REPO_PACKAGES=(
     acpi adw-gtk-theme alacritty alsa-utils aspell aspell-en
-    baobab bash-completion blueman bluez bluez-utils brightnessctl bulky
+    baobab bash-completion blueman bluez bluez-utils brightnessctl btop bulky
     capitaine-cursors cava
     cliphist clang cowsay curl dconf discord docker docker-compose dracut
     fastfetch fd firefox fprintd fzf gimp git github-cli gnome-disk-utility
     go gopls grim gtk3 gtk-layer-shell highlight htop hypridle hyprland hyprlock hyprpolkitagent hyprsunset
-    jdk21-openjdk jdk17-openjdk jdk8-openjdk keepassxc lazygit less libinput
+    jdk21-openjdk jdk17-openjdk jdk8-openjdk kdeconnect keepassxc lazygit less libinput
     libarchive libnotify libpulse libqalculate llama-cpp ggml-vulkan lolcat mako
     man-db man-pages meld nano nemo nemo-fileroller networkmanager network-manager-applet nmap
     noto-fonts noto-fonts-cjk noto-fonts-emoji nvtop nwg-displays nwg-look
@@ -121,39 +175,32 @@ readonly -a PACKAGES=("${REPO_PACKAGES[@]}" "${AUR_PACKAGES[@]}")
 # CHECK FUNCTIONS  (return 0 = done, non-zero = not done)
 # ==============================================================================
 
-check_multilib()          { grep -q '^\[multilib\]' /etc/pacman.conf; }
-check_system_updated()    { is_marked "system_updated"; }
 check_paru()              { cmd_exists paru; }
 check_packages()          { pacman -Qq "${PACKAGES[@]}" &>/dev/null; }
 check_amd_gpu()           { is_marked amd_gpu && grep -q 'amdgpu.dcdebugmask' /etc/kernel/cmdline 2>/dev/null; }
 check_plymouth()          { is_marked plymouth && grep -q 'splash' /etc/kernel/cmdline 2>/dev/null && [[ -f /etc/dracut.conf.d/plymouth.conf && -f /etc/dracut.conf.d/30-monocraft.conf ]]; }
-check_power_button()      { grep -q '^HandlePowerKey=ignore' /etc/systemd/logind.conf; }
+check_power_button()      { cmp -s "$CONFIG_DIR/system/logind/60-dots-power.conf" /etc/systemd/logind.conf.d/60-dots-power.conf && cmp -s "$CONFIG_DIR/system/sleep/60-dots-power.conf" /etc/systemd/sleep.conf.d/60-dots-power.conf && [[ $(systemctl show suspend.target -p LoadState --value) == loaded && $(systemctl show hibernate.target -p LoadState --value) == masked ]]; }
 check_bluetooth()         { systemctl is-enabled bluetooth.service &>/dev/null; }
 check_desktop_services()  { systemctl is-enabled power-profiles-daemon.service &>/dev/null; }
 check_ctrl_backspace()    { grep -qF '"\C-H"' /etc/inputrc 2>/dev/null; }
 check_monocraft()         { fc-list 2>/dev/null | grep -qi monocraft && [[ -f ${HOME}/.config/fontconfig/conf.d/99-monocraft.conf ]]; }
-check_system_fonts() {
-    check_monocraft && [[ -f /etc/dracut.conf.d/30-monocraft.conf ]] &&
-        grep -q '^Theme=hexagon_hud_monocraft$' /etc/plymouth/plymouthd.conf &&
-        grep -q '^FONT=monocraft$' /etc/vconsole.conf
-}
-
+check_system_fonts()      { check_monocraft && [[ -f /etc/dracut.conf.d/30-monocraft.conf ]] && grep -q '^Theme=hexagon_hud_monocraft$' /etc/plymouth/plymouthd.conf && grep -q '^FONT=monocraft$' /etc/vconsole.conf; }
 check_dns()               { grep -q '1.1.1.1' /etc/NetworkManager/conf.d/dns-servers.conf 2>/dev/null; }
 check_wireguard()         { nmcli connection show 2>/dev/null | grep -qi wireguard; }
 check_git_config()        { [[ -n "$(git config --global user.name 2>/dev/null)" ]]; }
 check_gh_auth()           { gh auth status &>/dev/null; }
-check_fingerprint()       { grep -q 'pam_fprintd' /etc/pam.d/sudo 2>/dev/null && grep -Eq 'fingerprint:enabled[[:space:]]*=[[:space:]]*true' "$HOME/.config/hypr/hyprlock.conf" 2>/dev/null && fprintd-list "$USER" 2>/dev/null | grep -q 'right-index-finger'; }
+check_fingerprint()       { grep -q 'pam_fprintd' /etc/pam.d/sudo 2>/dev/null && cmp -s "$CONFIG_DIR/system/pam.d/dots-hyprlock" /etc/pam.d/dots-hyprlock && grep -Eq 'pam:module[[:space:]]*=[[:space:]]*dots-hyprlock' "$HOME/.config/hypr/hyprlock.conf" 2>/dev/null && fprintd-list "$USER" 2>/dev/null | grep -q 'right-index-finger'; }
 check_ohmybash()          { [[ -f "${HOME}/.oh-my-bash/oh-my-bash.sh" ]]; }
-check_bashrc()            { cmp -s "${SCRIPT_DIR}/.bashrc" "${HOME}/.bashrc"; }
+check_bashrc()            { cmp -s "${CONFIG_DIR}/.bashrc" "${HOME}/.bashrc"; }
 check_nemo_config()       { dconf read /org/nemo/preferences/bulk-rename-tool 2>/dev/null | grep -q 'bulky'; }
 check_dotfiles()          { [[ -f "${HOME}/.vimrc" && -f "${HOME}/.tmux.conf" && -f "${HOME}/.bash_profile" && -f "${HOME}/.config/hypr/hyprland.lua" && -f "${HOME}/.config/waybar/config.jsonc" && -d "${HOME}/.config/alacritty" ]]; }
-check_default_apps()      { xdg-mime query default text/html 2>/dev/null | grep -q firefox; }
+check_default_apps()      { default_apps check; }
 check_nvm()               { (load_nvm && [[ "$(nvm version default)" != "N/A" ]]) &>/dev/null; }
 check_vtop()              { (load_nvm && nvm use default && cmd_exists vtop) &>/dev/null; }
 check_docker()            { systemctl is-enabled docker.service &>/dev/null; }
 check_pcloud()            { cmd_exists pcloud; }
-check_discord()           { [[ -d "${HOME}/.config/BetterDiscord" ]]; }
-check_spotify()           { is_marked "spotify_setup"; }
+check_discord()           { [[ -f /etc/pacman.d/hooks/95-dots-discord-theme.hook ]]; }
+check_spotify()           { [[ -f /etc/pacman.d/hooks/95-dots-spotify-theme.hook ]]; }
 check_vscode()            { is_marked "vscode_setup"; }
 check_firefox()           { is_marked "firefox_setup"; }
 check_steam()             { is_marked "steam_setup"; }
@@ -162,21 +209,6 @@ check_llama_cpp()         { systemctl --user is-enabled llama-cpp.service &>/dev
 # ==============================================================================
 # INSTALL FUNCTIONS
 # ==============================================================================
-
-install_multilib() {
-    print_header "Enabling multilib"
-    print_step "Uncommenting [multilib] in /etc/pacman.conf..."
-    sudo sed -i '/^#\[multilib\]/,/^#Include = \/etc\/pacman.d\/mirrorlist/ s/^#//' /etc/pacman.conf
-    print_success "multilib enabled"
-}
-
-install_system_update() {
-    print_header "Updating System"
-    install_boot_hook
-    sudo pacman -Syu
-    mark_done "system_updated"
-    print_success "System updated"
-}
 
 install_paru() (
     print_header "Installing paru"
@@ -233,9 +265,9 @@ install_plymouth() {
 }
 
 install_power_button() {
-    print_header "Configuring power button"
-    sudo sed -i 's/#HandlePowerKey=poweroff/HandlePowerKey=ignore/' /etc/systemd/logind.conf
-    print_success "Power button set to ignore"
+    print_header "Configuring suspend power policy"
+    sudo bash "$SCRIPT_DIR/install.sh" --setup-power
+    print_success "Power policy installed; takes effect after reboot"
 }
 
 install_bluetooth() {
@@ -310,7 +342,7 @@ font_desktop() {
     [[ $(fc-match -f '%{family}' "$family") == *"$family"* ]] || {
         print_error 'Install Monocraft Nerd Font first'; return 1;
     }
-    font_install "$SCRIPT_DIR/.config/fontconfig/conf.d/99-monocraft.conf" "$HOME/.config/fontconfig/conf.d/99-monocraft.conf"
+    font_install "$CONFIG_DIR/.config/fontconfig/conf.d/99-monocraft.conf" "$HOME/.config/fontconfig/conf.d/99-monocraft.conf"
     for version in 3.0 4.0; do
         font_ini "$HOME/.config/gtk-$version/settings.ini" Settings gtk-font-name "$family 10"
     done
@@ -353,7 +385,7 @@ font_system() {
         print_error 'Unexpected Plymouth theme: expected five text calls'; return 1;
     }
     font_install "$source" "$font"
-    font_install "$SCRIPT_DIR/.config/fontconfig/conf.d/99-monocraft.conf" "$conf"
+    font_install "$CONFIG_DIR/.config/fontconfig/conf.d/99-monocraft.conf" "$conf"
     font_install "$SCRIPT_DIR/assets/fonts/monocraft.psf" "$console"
     { font_read /etc/vconsole.conf | awk '!/^[[:space:]]*FONT[[:space:]]*=/'; printf 'FONT=monocraft\n'; } > "$FONT_STAGE/vconsole.conf"
     font_install "$FONT_STAGE/vconsole.conf" /etc/vconsole.conf
@@ -397,9 +429,9 @@ configure_fonts() (
 install_monocraft() {
     print_header "Installing Monocraft Nerd Font"
     mkdir -p "${HOME}/.local/share/fonts"
-    print_step "Downloading font if missing..."
-    [[ -s ${HOME}/.local/share/fonts/Monocraft-nerd-fonts-patched.ttc ]] || curl -fL -o "${HOME}/.local/share/fonts/Monocraft-nerd-fonts-patched.ttc" \
-        https://github.com/IdreesInc/Monocraft/releases/download/v4.2.1/Monocraft-nerd-fonts-patched.ttc
+    print_step "Installing bundled font..."
+    install -m0644 "$SCRIPT_DIR/assets/fonts/Monocraft-nerd-fonts-patched.ttc" \
+        "${HOME}/.local/share/fonts/Monocraft-nerd-fonts-patched.ttc"
     print_step "Refreshing font cache..."
     fc-cache
     fc-list | grep -i monocraft
@@ -458,8 +490,8 @@ install_fingerprint() {
     print_step "Adding fingerprint authentication to PAM..."
     grep -q 'pam_fprintd' /etc/pam.d/sudo 2>/dev/null \
         || sudo sed -i '/#%PAM-1.0/a auth            sufficient      pam_fprintd.so' /etc/pam.d/sudo
-    # Hyprlock uses its native fingerprint listener in parallel with password
-    # authentication. Do not add pam_fprintd to its serial PAM stack.
+    sudo bash "$SCRIPT_DIR/install.sh" --install-lockscreen
+    install -Dm0644 "$CONFIG_DIR/.config/hypr/hyprlock.conf" "$HOME/.config/hypr/hyprlock.conf"
     print_success "Fingerprint authentication configured"
 }
 
@@ -474,15 +506,15 @@ install_ohmybash() {
 install_bashrc() {
     print_header "Configuring .bashrc"
     local backup replacement
-    bash -n "${SCRIPT_DIR}/.bashrc"
-    if ! cmp -s "${SCRIPT_DIR}/.bashrc" "${HOME}/.bashrc"; then
+    bash -n "${CONFIG_DIR}/.bashrc"
+    if ! cmp -s "${CONFIG_DIR}/.bashrc" "${HOME}/.bashrc"; then
         if [[ -e "${HOME}/.bashrc" || -L "${HOME}/.bashrc" ]]; then
             backup=$(mktemp "${HOME}/.bashrc.backup.XXXXXX")
             cp -p "${HOME}/.bashrc" "$backup"
             print_step "Saved previous .bashrc to $backup"
         fi
         replacement=$(mktemp "${HOME}/.bashrc.install.XXXXXX")
-        install -m 0644 "${SCRIPT_DIR}/.bashrc" "$replacement"
+        install -m 0644 "${CONFIG_DIR}/.bashrc" "$replacement"
         mv -f "$replacement" "${HOME}/.bashrc"
     fi
     print_success ".bashrc configured"
@@ -490,88 +522,129 @@ install_bashrc() {
 
 install_nemo_config() {
     print_header "Configuring Nemo"
-    dconf load /org/nemo/ < "${SCRIPT_DIR}/nemo_config"
+    dconf load /org/nemo/ < "${CONFIG_DIR}/nemo_config"
     print_success "Nemo configuration loaded"
 }
 
+install_miku_assets() (
+    local source="$SCRIPT_DIR/assets/miku"
+    local data="${XDG_DATA_HOME:-$HOME/.local/share}/dots-miku" target scratch
+    target="$data/prototypes/Miku"
+    [[ -f $source/manifest.json ]] || { print_error 'Bundled Miku pack is missing'; return 1; }
+    [[ ! -L $target && ( ! -e $target || -f $target/manifest.json ) ]] || {
+        print_error "Inspect incomplete or symlinked Miku pack before replacing: $target"
+        return 1
+    }
+    if [[ -d $target ]]; then
+        print_step "Miku pack already installed; leaving it untouched: $target"
+        return
+    fi
+    mkdir -p "$data/prototypes" || return
+    scratch=$(mktemp -d "$data/install.XXXXXXXX") || return
+    trap 'rm -rf -- "$scratch"' EXIT
+    cp -R "$source" "$scratch/Miku" || return
+    mv "$scratch/Miku" "$target" || return
+    print_success "Miku pack installed: $target"
+)
+
 install_dotfiles() {
     print_header "Copying dotfiles"
+    [[ ! -L $HOME/.config ]] || {
+        print_error 'Refusing a symlinked .config parent; inspect it before copying dotfiles.'
+        return 1
+    }
+    local config_dir path backup
+    local -a config_paths=()
+    for config_dir in \
+        BetterDiscord alacritty dots-app-themes fontconfig gtk-3.0 gtk-4.0 hypr keepassxc mako miku \
+        opencode qt5ct qt6ct spicetify systemd uwsm visualizer waybar; do
+        config_paths+=(".config/$config_dir")
+    done
+    # Initial setup can replace defaults created by applications or /etc/skel.
+    # Keep recovery data private and outside the configuration being replaced.
+    backup=$(mktemp -d "$STATE_DIR/dotfiles-backup.XXXXXXXX")
+    printf '%s\n' "${config_paths[@]}" .config/rofi .config/dots-utils \
+        .oh-my-bash .vim .bash_profile .tmux.conf .vimrc > "$backup/paths.txt"
+    while IFS= read -r path; do
+        [[ ! -e $HOME/$path && ! -L $HOME/$path ]] || printf '%s\n' "$path"
+    done < "$backup/paths.txt" > "$backup/existing.txt"
+    tar -cpf "$backup/files.tar" -C "$HOME" -T "$backup/existing.txt"
+    print_step "Recovery archive: $backup/files.tar"
+
+    sudo bash "$SCRIPT_DIR/install.sh" --install-lockscreen
+
     print_step "Creating directories..."
     mkdir -p "${HOME}/.config"
     mkdir -p "${HOME}/Documents/BackUp/screenshots"
     mkdir -p "${HOME}/Documents/PC"
 
     print_step "Copying config directories..."
-    local config_dir
-    for config_dir in \
-        BetterDiscord alacritty fontconfig gtk-3.0 gtk-4.0 hypr keepassxc mako \
-        opencode qt5ct qt6ct systemd uwsm waybar; do
-        cp -rf "${SCRIPT_DIR}/.config/${config_dir}" "${HOME}/.config/"
-    done
-    if [[ -f $HOME/.config/hypr/monitors.py ]]; then
-        local monitor_backup
-        monitor_backup=$(mktemp "$HOME/.config/hypr/monitors.py.backup.XXXXXXXX")
-        cp -p "$HOME/.config/hypr/monitors.py" "$monitor_backup"
-        rm -- "$HOME/.config/hypr/monitors.py"
-    fi
-    systemctl --user disable --now dots-rofi.service 2>/dev/null || :
-    systemctl --user disable --now dots-desktop.service 2>/dev/null || :
-    systemctl --user disable --now desktop-utils.service 2>/dev/null || :
-    systemctl --user disable --now utils.service 2>/dev/null || :
-    systemctl --user disable --now dots-utils.service 2>/dev/null || :
-    systemctl --user stop 'dots-rofi-alert-*.service' 'dots-desktop-alert-*.service' 'desktop-utils-alert-*.service' 'utils-alert-*.service' 'dots-utils-alert-*.service' dots-rofi-ai.service 2>/dev/null || :
-    bash "${SCRIPT_DIR}/scripts/migrate-rofi.sh"
+    tar -cpf - -C "$CONFIG_DIR" "${config_paths[@]}" .oh-my-bash .vim \
+        | tar -xpf - --no-overwrite-dir -C "$HOME"
     local source_file relative
     while IFS= read -r -d '' source_file; do
-        relative=${source_file#"${SCRIPT_DIR}/"}
+        relative=${source_file#"${CONFIG_DIR}/"}
         [[ $relative != */settings.json || ! -f $HOME/$relative ]] || continue
         mkdir -p "$HOME/${relative%/*}"
         cp -p "$source_file" "$HOME/$relative"
-    done < <(find "${SCRIPT_DIR}/.config/rofi" -type f -print0)
-    bash "$HOME/.config/rofi/icon-gen/generate.sh" --offline
-    if [[ -f $HOME/.config/rofi/config.rasi ]]; then
-        cp -p "$HOME/.config/rofi/config.rasi" "$HOME/.config/rofi/config.rasi.backup-$(date +%Y%m%d-%H%M%S)"
-        rm -- "$HOME/.config/rofi/config.rasi"
-    fi
-    cp -rf "${SCRIPT_DIR}/.oh-my-bash/" "$HOME/"
-    cp -rf "${SCRIPT_DIR}/.vim/" "$HOME/"
+    done < <(find "${CONFIG_DIR}/.config/rofi" -type f -print0)
+    bash "$HOME/.config/rofi/icon-gen/generate.sh"
 
     print_step "Copying dotfiles..."
     cp -f \
-        "${SCRIPT_DIR}/.bash_profile" \
-        "${SCRIPT_DIR}/.tmux.conf" \
-        "${SCRIPT_DIR}/.vimrc" ~
+        "${CONFIG_DIR}/.bash_profile" \
+        "${CONFIG_DIR}/.tmux.conf" \
+        "${CONFIG_DIR}/.vimrc" ~
+
+    local sounds="${XDG_DATA_HOME:-$HOME/.local/share}/dots-sounds"
+    install -d "$sounds"
+    install -m0644 "$SCRIPT_DIR"/assets/sounds/* "$sounds/"
 
     systemctl --user daemon-reload
-    rm -f -- "$HOME/.config/systemd/user/dots-utils.service" "$HOME/.config/rofi/utils/worker.sh" "$HOME/.config/rofi/modi/tray.sh"
-    systemctl --user daemon-reload
     bash "$HOME/.config/rofi/modi/time.sh" reconcile
-    if [[ -d $HOME/.config/dots-utils ]]; then
-        mv "$HOME/.config/dots-utils" "$HOME/.config/dots-utils.backup-$(date +%Y%m%d-%H%M%S)"
-    fi
-    local retired backup
-    backup=$(mktemp -d "${HOME}/.config/rofi-layout-backup.XXXXXXXX")
-    for retired in utils icon-gen/icons/LICENSE icon-gen/LICENSE; do
-        [[ -e $HOME/.config/rofi/$retired ]] || continue
-        mkdir -p "$backup/$(dirname "$retired")"
-        mv "$HOME/.config/rofi/$retired" "$backup/$retired"
-    done
     print_success "Dotfiles copied"
     bash "${SCRIPT_DIR}/scripts/build-miku-renderer.sh"
-    python3 "${SCRIPT_DIR}/scripts/setup-miku.py"
+    install_miku_assets
+}
+
+# One table drives both installation and completion checks. These are Arch's
+# native package desktop IDs, including Code OSS and spotify-launcher.
+default_apps() {
+    local action=$1 desktop mime row directory found
+    local -a types directories
+    IFS=: read -ra directories <<< "${XDG_DATA_HOME:-$HOME/.local/share}:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+    while read -r desktop row; do
+        found=0
+        for directory in "${directories[@]}"; do
+            if [[ -f $directory/applications/$desktop ]]; then found=1; break; fi
+        done
+        if (( ! found )); then
+            print_error "Missing application handler: $desktop. Install all packages first."
+            return 1
+        fi
+        read -ra types <<< "$row"
+        if [[ $action == install ]]; then
+            xdg-mime default "$desktop" "${types[@]}" || return
+        else
+            for mime in "${types[@]}"; do
+                [[ $(xdg-mime query default "$mime") == "$desktop" ]] || return 1
+            done
+        fi
+    done <<'DEFAULTS'
+code-oss.desktop text/plain text/markdown application/json application/xml text/xml application/yaml text/yaml application/x-yaml application/x-shellscript text/x-shellscript text/css text/javascript application/javascript text/x-python
+firefox.desktop text/html application/xhtml+xml application/pdf x-scheme-handler/http x-scheme-handler/https
+vlc.desktop video/mp4 video/x-matroska video/webm video/x-msvideo video/quicktime video/mpeg audio/mpeg audio/flac audio/ogg audio/opus audio/x-wav audio/wav audio/aac audio/mp4
+gimp.desktop image/png image/jpeg image/gif image/webp image/tiff image/bmp image/svg+xml
+nemo.desktop inode/directory
+discord.desktop x-scheme-handler/discord
+spotify-launcher.desktop x-scheme-handler/spotify
+DEFAULTS
 }
 
 install_default_apps() {
     print_header "Setting default applications"
-    xdg-mime default code.desktop      text/plain
-    xdg-mime default firefox.desktop   text/html
-    xdg-mime default firefox.desktop   x-scheme-handler/http
-    xdg-mime default firefox.desktop   x-scheme-handler/https
-    xdg-mime default firefox.desktop   application/pdf
-    xdg-mime default vlc.desktop       video/mp4 video/x-matroska
-    xdg-mime default vlc.desktop       audio/mpeg audio/flac
-    xdg-mime default gimp.desktop      image/png image/jpeg
-    xdg-mime default nemo.desktop      inode/directory
+    default_apps install || return
+    check_default_apps || return
     print_success "Default applications set"
 }
 
@@ -627,26 +700,61 @@ install_pcloud() {
     print_success "pCloud configured"
 }
 
+install_app_theme() {
+    local app=$1 package=$1 user hook
+    case $app in
+        discord|spotify) ;;
+        *) print_error "Unsupported app theme: $app (use discord or spotify)"; return 2 ;;
+    esac
+    [[ $app != spotify ]] || package=spotify-launcher
+    user=$(id -un)
+    [[ $user =~ ^[a-z_][a-z0-9_-]*$ ]] || {
+        print_error 'Unsupported username for the application theme hook.'
+        return 1
+    }
+    [[ -f $HOME/.config/dots-app-themes/apply.sh &&
+       -f $HOME/.config/systemd/user/dots-app-theme@.service ]] || {
+        print_error 'Run Copy dotfiles before application theme setup.'
+        return 1
+    }
+    hook="$STATE_DIR/$app-theme.hook"
+    sed -e "s/@APP@/$app/g" -e "s/@PACKAGE@/$package/g" -e "s/@USER@/$user/g" \
+        "$CONFIG_DIR/system/pacman-hooks/95-dots-app-theme.hook" > "$hook"
+    sudo install -Dm0644 "$hook" "/etc/pacman.d/hooks/95-dots-$app-theme.hook"
+    systemctl --user daemon-reload
+    systemctl --user start "dots-app-theme@$app.service"
+}
+
 install_discord() {
     print_header "Setting up Discord + BetterDiscord"
-    discord > /dev/null 2>&1 &
-    read -p "  Log in Discord and press Enter to continue..."
-    xdg-open https://betterdiscord.app/ &
-    read -p "  Download BetterDiscord installer and press Enter to continue..."
-    chmod +x "${HOME}/Downloads/BetterDiscord-Linux.AppImage"
-    "${HOME}/Downloads/BetterDiscord-Linux.AppImage" &
-    read -p "  Set up BetterDiscord and press Enter to continue..."
-    killall Discord 2>/dev/null || true
-    print_success "Discord + BetterDiscord configured"
+    local settings="$HOME/.config/BetterDiscord/data/stable/themes.json" temporary backup
+    mkdir -p "${settings%/*}"
+    temporary=$(mktemp "${settings}.XXXXXXXX")
+    if [[ -f $settings ]]; then
+        backup=$(mktemp "$STATE_DIR/discord-themes.XXXXXXXX.json")
+        cp -p "$settings" "$backup"
+        jq '.["Neutron Nova"] = true' "$settings" > "$temporary"
+    else
+        printf '%s\n' '{"Neutron Nova": true}' > "$temporary"
+    fi
+    mv "$temporary" "$settings"
+    # First launch downloads the user-owned app before BetterDiscord can patch it.
+    if ! pgrep -u "$UID" -x '[Dd]iscord' >/dev/null; then
+        discord >/dev/null 2>&1 &
+    fi
+    read -rp '  Wait for Discord to finish opening, then press Enter to apply its theme...'
+    install_app_theme discord
+    print_success "Automatic BetterDiscord setup enabled; account login remains yours"
 }
 
 install_spotify() {
-    print_header "Setting up Spotify"
-    spotify-launcher > /dev/null 2>&1 &
-    read -p "  Log in Spotify, disable change song notification and press Enter to continue..."
-    killall spotify-launcher 2>/dev/null || true
-    mark_done "spotify_setup"
-    print_success "Spotify configured"
+    print_header "Setting up Spotify + Spicetify"
+    install_app_theme spotify
+    # The first normal launch creates Spotify's prefs; no scripted account login.
+    if ! pgrep -u "$UID" -x spotify >/dev/null; then
+        spotify-launcher >/dev/null 2>&1 &
+    fi
+    print_success "Automatic Spicetify setup enabled with the desktop Ziro theme"
 }
 
 install_vscode() {
@@ -663,7 +771,7 @@ install_firefox() {
     firefox > /dev/null 2>&1 &
     read -p "  Log in Firefox
   Sync settings
-  Import vimium and bonjourr configs
+  Import vimium-options.json and bonjourr.json from ~/dots/config/
   Fix persistant tabs
   Fix bookmarks layout
   Add cookies exceptions (google,github,...)
@@ -685,7 +793,7 @@ install_steam() {
 install_llama_cpp() {
     print_header "Starting llama.cpp service"
     mkdir -p "${HOME}/.config/systemd/user"
-    cp -f "${SCRIPT_DIR}/.config/systemd/user/llama-cpp.service" \
+    cp -f "${CONFIG_DIR}/.config/systemd/user/llama-cpp.service" \
         "${HOME}/.config/systemd/user/"
     systemctl --user daemon-reload
     systemctl --user enable llama-cpp.service
@@ -698,13 +806,11 @@ install_llama_cpp() {
 # ==============================================================================
 
 TASK_NAMES=(
-    "Enable multilib"
-    "Update system"
     "Install paru"
     "Install all packages"
     "AMD GPU fix (Framework)"
     "Configure Plymouth"
-    "Configure power button"
+    "Configure suspend power policy"
     "Enable Bluetooth"
     "Enable Hyprland desktop service"
     "Fix Ctrl+Backspace in terminal"
@@ -725,7 +831,7 @@ TASK_NAMES=(
     "Authenticate GitHub CLI"
     "Set up fingerprint auth"
     "Set up Discord + BetterDiscord"
-    "Set up Spotify"
+    "Set up Spotify + Spicetify"
     "Set up VSCode"
     "Set up Firefox"
     "Set up Steam"
@@ -733,8 +839,6 @@ TASK_NAMES=(
 )
 
 TASK_CHECKS=(
-    check_multilib
-    check_system_updated
     check_paru
     check_packages
     check_amd_gpu
@@ -768,8 +872,6 @@ TASK_CHECKS=(
 )
 
 TASK_INSTALLS=(
-    install_multilib
-    install_system_update
     install_paru
     install_packages
     install_amd_gpu
@@ -818,7 +920,7 @@ declare -a TASK_SELECTED  # 0 = unselected, 1 = selected
 
 TUI_CURSOR=0
 TUI_SCROLL=0
-TUI_VISIBLE_ROWS=15
+TUI_VISIBLE_ROWS=0
 TUI_LAST_MSG=""
 
 refresh_status() {
@@ -834,11 +936,27 @@ refresh_status() {
     echo -ne "\r\033[K"  # clear line
 }
 
-draw_tui() {
+tui_size() {
     local term_rows
-    term_rows=$(tput lines 2>/dev/null || echo 24)
-    TUI_VISIBLE_ROWS=$(( term_rows - 9 ))
-    (( TUI_VISIBLE_ROWS < 5 )) && TUI_VISIBLE_ROWS=5
+    term_rows=$(tput lines 2>/dev/null) || term_rows=24
+    [[ $term_rows =~ ^[1-9][0-9]*$ ]] || term_rows=24
+    # Five header lines, four footer lines, and one spare cursor line.
+    TUI_VISIBLE_ROWS=$(( term_rows - 10 ))
+    (( TASK_COUNT <= TUI_VISIBLE_ROWS )) || TUI_VISIBLE_ROWS=$(( TUI_VISIBLE_ROWS - 1 ))
+    (( TUI_VISIBLE_ROWS <= TASK_COUNT )) || TUI_VISIBLE_ROWS=$TASK_COUNT
+    if (( TUI_VISIBLE_ROWS < 1 )); then TUI_VISIBLE_ROWS=0; return; fi
+    (( TUI_SCROLL <= TASK_COUNT - TUI_VISIBLE_ROWS )) || TUI_SCROLL=$(( TASK_COUNT - TUI_VISIBLE_ROWS ))
+    (( TUI_SCROLL <= TUI_CURSOR )) || TUI_SCROLL=$TUI_CURSOR
+    (( TUI_CURSOR < TUI_SCROLL + TUI_VISIBLE_ROWS )) || TUI_SCROLL=$(( TUI_CURSOR - TUI_VISIBLE_ROWS + 1 ))
+}
+
+draw_tui() {
+    tui_size
+    if (( TUI_VISIBLE_ROWS == 0 )); then
+        tput clear
+        printf 'Resize terminal (12+ rows); Q quits.'
+        return
+    fi
 
     local done_count=0 selected_count=0
     for (( i=0; i<TASK_COUNT; i++ )); do
@@ -911,6 +1029,7 @@ run_tui() {
     refresh_status
 
     trap 'tput cnorm; tput clear' EXIT
+    trap 'draw_tui' WINCH
 
     tput civis  # hide cursor
 
@@ -920,7 +1039,11 @@ run_tui() {
 
         # Read key input
         local key seq1 seq2
-        IFS= read -rsn1 key
+        IFS= read -rsn1 key || continue
+        if (( TUI_VISIBLE_ROWS == 0 )); then
+            [[ ${key,,} != q ]] || break
+            continue
+        fi
 
         if [[ "$key" == $'\x1b' ]]; then
             IFS= read -rsn1 -t 0.1 seq1
@@ -1058,81 +1181,3 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
         run_tui
     fi
 fi
-
-# ==============================================================================
-# REFERENCE (not executed)
-# ==============================================================================
-
-# !!! ONLY FOR NVIDIA GPU'S (NOT SUPPORTED) !!!
-# # install nvidia drivers (https://wiki.archlinux.org/title/NVIDIA)
-# paru -S nvidia-open nvidia-utils nvidia-settings
-# # install requirements for gpu enabling/disabling gpu
-# paru -S envycontrol
-# # change to integrated
-# sudo envycontrol -s integrated
-
-# # cursor !OLD!
-# vim .Xresources
-# #Xcursor.theme: capitaine-cursors
-# #Xcursor.size: 24
-# # RESTART XORG
-
-# # gtk !OLD!
-# vim ~/.config/gtk-3.0/settings.ini
-# #gtk-application-prefer-dark-theme=1
-
-# # feh !OLD!
-# feh --bg-scale ${imageurl}
-
-# # fix monitor setup !OLD!
-# # arandr to setup ONLY LAPTOP
-# autorandr --save laptop
-# autorandr --default laptop
-# # arandr to setup EXTEND LAPTOP
-# autorandr --save laptop_external
-# # # arandr to setup DUPLICATE LAPTOP
-# # autorandr --save laptop_duplicate
-
-# # generate ranger config !OLD!
-# ranger --copy-config=all
-# vim .config/ranger/rc.conf
-# # set show_hidden true
-# # set colorscheme jungle
-
-# # copy gnome-terminal !OLD!
-# # export
-# dconf dump /org/gnome/terminal/ > gnome_terminal_settings.txt
-# #copy contents (https://gist.github.com/V1K1NGbg/28d6098e4013ca7b904453cf96c671cd)
-# #import
-# dconf load /org/gnome/terminal/ < gnome_terminal_settings.txt
-# rm gnome_terminal_settings.txt
-
-# # install fzf-tab-completion !OLD!
-# # git clone https://github.com/lincheney/fzf-tab-completion
-
-# # download custom commands !OLD!
-# # lastline
-# git clone https://gist.github.com/V1K1NGbg/50f618cf392ad0ea85f398e1ca5fe24f a && sudo chmod +x a/lastline && sudo mv a/* /usr/bin && rm -rf a
-
-# # docker old setup !OLD!
-# cd dots
-# mkdir ~/docker_data/pihole/etc-pihole
-# mkdir ~/docker_data/pihole/etc-dnsmasq.d
-# mkdir ~/docker_data/portainer
-# ./docker_setup.sh
-
-# # cloudflare-warp !OLD!
-# sudo systemctl enable warp-svc
-# sudo systemctl start warp-svc
-# warp-cli registration new
-
-# Useful commands:
-#   paru -Qqen > pkglist.txt               # list installed packages
-#   xrandr --output eDP-1 --brightness 0.5 # change brightness
-#   redshift -P -O 4500 / redshift -x      # color temperature
-#   gpg --keyserver-options auto-key-retrieve --verify archlinux.iso.sig
-#
-# Ollama model pull examples (after docker containers are running):
-#   curl http://localhost:11434/api/pull -d '{"model": "qwen3:8b"}'
-#   curl http://localhost:11434/api/pull -d '{"model": "qwen3:14b"}'
-#   curl http://localhost:11434/api/pull -d '{"model": "qwen3:32b"}'
