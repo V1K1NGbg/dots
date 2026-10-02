@@ -39,12 +39,26 @@ power_lock() {
 }
 
 power_idle() {
-    [[ $(power_source) == battery ]] || return 0
+    [[ ! -f $POWER_STATE/caffeine && $(power_source) == "$1" ]] || return 0
     power_lock || return
     # Power may have changed while the locker acquired the session.
-    [[ $(power_source) == battery ]] || return 0
-    power_dpms disable
+    [[ ! -f $POWER_STATE/caffeine && $(power_source) == "$1" ]] || return 0
+    power_suspend
 }
+
+power_caffeine() (
+    umask 077; mkdir -p "$POWER_STATE"
+    exec 8>"$POWER_STATE/lock"; flock -x 8
+    if [[ -f $POWER_STATE/caffeine ]]; then
+        # Reset inactivity before allowing automatic actions again.
+        systemctl --user restart hypridle.service || return
+        rm -f -- "$POWER_STATE/caffeine"
+    else
+        touch "$POWER_STATE/caffeine"
+        power_dpms enable || return
+        rm -f -- "$POWER_STATE/lid-blanked" "$POWER_STATE/lid-suspended"
+    fi
+)
 
 power_suspend() {
     local capability
@@ -81,6 +95,7 @@ power_lid() (
     local lid external
     umask 077; mkdir -p "$POWER_STATE"
     exec 8>"$POWER_STATE/lock"; flock -x 8
+    [[ ! -f $POWER_STATE/caffeine ]] || return 0
     lid=$(power_lid_state)
     external=$(power_external) || return
     if [[ $lid == open || $external == true ]]; then
@@ -135,7 +150,8 @@ power_watch() {
 if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
     set -euo pipefail
     case ${1:-} in
-        idle) power_idle;;
+        idle) power_idle "${2:-battery}";;
+        caffeine) power_caffeine;;
         resume) power_resume;;
         lock) power_lock;;
         suspend) power_suspend;;
@@ -143,6 +159,6 @@ if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
         lid-state) power_lid_state;;
         power-changed) power_changed;;
         watch) power_watch;;
-        *) printf 'Usage: power.sh idle|resume|lock|suspend|lid|lid-state|power-changed|watch\n' >&2; exit 2;;
+        *) printf 'Usage: power.sh idle [battery|ac]|caffeine|resume|lock|suspend|lid|lid-state|power-changed|watch\n' >&2; exit 2;;
     esac
 fi

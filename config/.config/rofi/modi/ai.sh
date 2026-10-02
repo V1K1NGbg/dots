@@ -1,14 +1,75 @@
 #!/usr/bin/env bash
 # Sourced by launcher.sh; uses the shared menu helpers.
 ai_menu() (
-    prompt 'Ask AI' 'One question · short local answer' || return
-    [[ -n $ANSWER ]] || return
-    error=$(printf '%s' "$ANSWER" | "$ROOT/modi/ai.sh" start 2>&1) || { info 'Ask AI' "$error"; return; }
-    trap '"$ROOT/modi/ai.sh" cancel-running >/dev/null 2>&1 || :' EXIT
-    live_menu ai
+    local mode=new label='' question error path rc action
+    local attachment selection
+    attachment=$(mktemp "$RUNTIME/ai-attachment.XXXXXX") || return
+    selection=$(mktemp "$RUNTIME/ai-selection.XXXXXX") || { rm -f -- "$attachment"; return 1; }
+    trap '
+        "$ROOT/modi/ai.sh" cancel-running >/dev/null 2>&1 || :
+        rm -f -- "$attachment" "$attachment.next" "$selection" "$RUNTIME/ai-action"
+    ' EXIT
+    while :; do
+        if [[ $mode == new ]]; then
+            choose 'Ask AI' "${label:+Attached: $label · }Short local answers" list <<< $'Ask a question\nExplain clipboard\nSummarize clipboard\nTranslate clipboard\nRewrite clipboard\nAdd file\nRemove attachment' || return 1
+            case $CHOICE in
+                0)
+                    prompt 'Ask AI' "${label:+Attached: $label · }What would you like to know?" || continue
+                    question=$ANSWER;;
+                1|2|3|4)
+                    action=$CHOICE
+                    if ! wl-paste --no-newline --type text 2> "$selection" | python3 "$ROOT/modi/ai-request.py" text - > "$attachment.next" 2>> "$selection"; then
+                        info 'Clipboard' "$(cat "$selection")" || :; continue
+                    fi
+                    choose 'Use clipboard' "$(head -c 1200 "$attachment.next")" list <<< $'Use this text\nBack' || continue
+                    [[ $CHOICE == 0 ]] || continue
+                    case $action in
+                        1) question='Explain this text.';;
+                        2) question='Summarize this text.';;
+                        3) prompt 'Translate clipboard' 'Translate into which language?' || continue
+                           [[ -n $ANSWER ]] || continue
+                           question="Translate this text into $ANSWER.";;
+                        4) prompt 'Rewrite clipboard' 'How should it read? e.g. clearer, shorter, more formal' || continue
+                           [[ -n $ANSWER ]] || continue
+                           question="Rewrite this text: $ANSWER.";;
+                    esac
+                    mv -f -- "$attachment.next" "$attachment"
+                    label=Clipboard;;
+                5)
+                    : > "$selection"
+                    files_menu "$selection" || continue
+                    IFS= read -r -d '' path < "$selection" || continue
+                    if ! python3 "$ROOT/modi/ai-request.py" text "$path" > "$attachment.next" 2> "$selection"; then
+                        info 'Add file' "$(cat "$selection")" || :; continue
+                    fi
+                    mv -f -- "$attachment.next" "$attachment"
+                    label=${path##*/}
+                    continue;;
+                6) : > "$attachment"; label=''; continue;;
+                *) continue;;
+            esac
+        elif [[ $mode == followup ]]; then
+            if ! prompt 'Follow-up' 'Ask about the previous answer or attached text'; then mode=view; continue; fi
+            question=$ANSWER
+        fi
+        if [[ $mode != view ]]; then
+            [[ -n $question ]] || continue
+            if ! error=$(printf '%s' "$question" | "$ROOT/modi/ai.sh" start "$mode" "$attachment" "$label" 2>&1); then
+                info 'Ask AI' "$error" || :; continue
+            fi
+        fi
+        rm -f -- "$RUNTIME/ai-action"
+        rc=0; live_menu ai || rc=$?
+        action=''; [[ ! -f $RUNTIME/ai-action ]] || read -r action < "$RUNTIME/ai-action"
+        case $action in
+            followup) mode=followup;;
+            new) mode=new; label=''; : > "$attachment";;
+            *) return "$rc";;
+        esac
+    done
 )
 ai_live() {
-    local event name last='' job status
+    local event name value last='' job status message
     trap '"$ROOT/modi/ai.sh" cancel-running >/dev/null 2>&1 || :' EXIT
     trap 'exit 0' TERM INT HUP
     while :; do
@@ -16,18 +77,26 @@ ai_live() {
         status=$(jq -r '.status//"error"' <<<"$job")
         if [[ $job != "$last" ]]; then
             case $status in
-                running) live_page 'Ask AI' 'Working locally…' '["Cancel"]';;
-                done) live_page 'Ask AI' "$(jq -r .answer <<<"$job")" '["Copy answer"]';;
-                *) live_page 'Ask AI' "$(jq -r '.error//"Request failed"' <<<"$job")" '["Close"]';;
+                running)
+                    message=$(jq -r '.answer//""' <<<"$job")
+                    live_page 'Ask AI' "${message:-Working locally…}" '["Cancel"]';;
+                done) live_page 'Ask AI' "$(jq -r .answer <<<"$job")" '["Copy answer","Follow-up","New question","Close"]';;
+                *) live_page 'Ask AI' "$(jq -r '.error//"Request failed"' <<<"$job")" '["New question","Close"]';;
             esac
             last=$job
         fi
         if IFS= read -r -t .15 event; then
             name=$(jq -r .name <<<"$event")
+            value=$(jq -r '.value//""' <<<"$event")
             case $name in
-                'select entry'|'execute custom input')
-                    if [[ $status == done ]]; then jq -jr .answer <<<"$job" | wl-copy; fi
-                    return;;
+                'select entry')
+                    case $value in
+                        'Copy answer') [[ $status != done ]] || jq -jr .answer <<<"$job" | wl-copy;;
+                        'Follow-up') [[ $status == done ]] || continue
+                            printf 'followup\n' > "$RUNTIME/ai-action"; return;;
+                        'New question') printf 'new\n' > "$RUNTIME/ai-action"; return;;
+                        Cancel|Close) return;;
+                    esac;;
             esac
         else
             # Bash returns 1 for EOF and >128 for the short timeout.
@@ -38,7 +107,7 @@ ai_live() {
 
 # Sourcing defines the menu; direct execution handles the background request.
 if [[ ${BASH_SOURCE[0]} != "$0" ]]; then return 0; fi
-# systemd owns the request process and cancels curl with it. No PID files or RPC.
+# systemd owns and cancels the streaming request. No PID files or RPC.
 set -euo pipefail
 source "$(dirname -- "$0")/common.sh"
 if [[ ${1:-status} == live ]]; then ai_live; exit; fi
@@ -57,30 +126,9 @@ case ${1:-status} in
     start)
         if systemctl --user is-active --quiet dots-rofi-ai.service; then printf 'Cancel the current request first\n' >&2; exit 1; fi
         deadline=$(cfg .ai_timeout); [[ $deadline =~ ^[0-9]+$ ]] && ((deadline>0 && deadline<=3600)) || { printf 'ai_timeout must be 1–3600 seconds\n' >&2; exit 1; }
-        question=$(cat); [[ -n $question && ${#question} -le 8000 ]] || { printf 'Enter 1–8000 characters\n' >&2; exit 1; }
-        jq -n --arg question "$question" '{status:"running",question:$question}' | atomic "$RUNTIME/ai.json"
+        python3 "$ROOT/modi/ai-request.py" prepare "$RUNTIME/ai.json" "${2:-new}" "${3:-}" "${4:-}"
         systemd-run --user --collect --quiet --unit=dots-rofi-ai --property="RuntimeMaxSec=$((deadline+5))" "$0" run 9>&- || { printf '{"status":"error","error":"Could not start request"}\n' | atomic "$RUNTIME/ai.json"; exit 1; };;
     run)
-        start=$(date +%s)
-        trap 'rm -f -- "$RUNTIME/ai-response.sse" "$RUNTIME/ai-error"' EXIT
-        # Streaming lets the server detect curl disconnecting on Cancel. Keep
-        # the UI unchanged: assemble and validate one answer after completion.
-        request=$(jq --arg model "$(cfg .ai_model)" '{model:$model,messages:[{role:"system",content:"Answer directly in one to three short sentences. No preamble. No reasoning. If unsure, say so."},{role:"user",content:.question}],max_tokens:128,temperature:0.2,stream:true,cache_prompt:true,chat_template_kwargs:{enable_thinking:false},reasoning_budget:0}' "$RUNTIME/ai.json")
-        if curl -NfsS --connect-timeout 3 --max-time "$(cfg .ai_timeout)" -H 'Content-Type: application/json' --data-binary "$request" "$(cfg .ai_url)" > "$RUNTIME/ai-response.sse" 2> "$RUNTIME/ai-error"; then
-            if result=$(jq -Rse --argjson seconds "$(( $(date +%s)-start ))" '
-              split("\n") | map(select(startswith("data:")) | ltrimstr("data:") | ltrimstr(" ") | rtrimstr("\r")) |
-              if last!="[DONE]" then error("Model stream ended before completion") else .[:-1] end |
-              map(fromjson) |
-              reduce .[] as $part ({content:"",reasoning_content:""};
-                if $part.error!=null then error($part.error.message//"Model stream returned an error")
-                else .content+=($part.choices[0].delta.content//"") |
-                     .reasoning_content+=($part.choices[0].delta.reasoning_content//"") end) |
-              if ((.reasoning_content//"")|length)>0 or ((.content//"")|contains("<think>")) then error("Model generated reasoning despite the no-thinking request")
-              elif ((.content//"")|length)==0 then error("Model returned no answer")
-              else {status:"done",answer:.content,seconds:$seconds} end' "$RUNTIME/ai-response.sse" 2> "$RUNTIME/ai-error"); then
-                printf '%s\n' "$result" | atomic "$RUNTIME/ai.json"; exit 0
-            fi
-        fi
-        jq -n --arg error "$(cat "$RUNTIME/ai-error")" '{status:"error",error:($error+" · The local model may be unavailable or busy.")}' | atomic "$RUNTIME/ai.json";;
+        printf '%s' "$CONFIG" | python3 "$ROOT/modi/ai-request.py" run "$RUNTIME/ai.json";;
     *) exit 2;;
 esac

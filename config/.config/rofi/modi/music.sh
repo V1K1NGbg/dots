@@ -30,12 +30,12 @@ outputs_menu() {
     done
 }
 music_menu() {
-    local message command=()
+    local message selected=0 command=()
     while :; do
         message=$(playerctl --player=spotify,%any metadata -f '{{artist}} — {{title}}' 2>/dev/null || printf 'No media playing')
         message=${message:-Nothing playing}
         message+=$'\n'$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null | awk '{printf "Volume %d%%", $2*100; if ($3 ~ /MUTED/) printf " · muted"; print ""}' || :)
-        choose Music "$message" list -selected-row 0 <<< $'Play / Pause\nNext track\nPrevious track\nMute / Unmute\nVolume −5%\nVolume +5%\nAudio outputs' || return
+        choose Music "$message" list -selected-row "$selected" <<< $'Play / Pause\nNext track\nPrevious track\nMute / Unmute\nVolume −5%\nVolume +5%\nAudio outputs' || return
         [[ $CHOICE == refresh ]] && continue
         if [[ $CHOICE == 6 ]]; then outputs_menu; return $?; fi
         case $CHOICE in
@@ -47,6 +47,7 @@ music_menu() {
         if ! message=$("${command[@]}" 2>&1); then
             info Music "${message:-Media action failed.}" || :; return 10
         fi
+        if [[ $CHOICE == 4 || $CHOICE == 5 ]]; then selected=$CHOICE; continue; fi
         return
     done
 }
