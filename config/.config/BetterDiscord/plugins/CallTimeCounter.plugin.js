@@ -2,7 +2,7 @@
  * @name CallTimeCounter
  * @author QWERT, KingGamingYT
  * @description Shows how much time you are in a voice chat.
- * @version 1.0.1
+ * @version 1.0.2
  */ 
 
 const { Data, Webpack, React, Patcher, DOM, UI, Utils, ContextMenu } = BdApi;
@@ -81,7 +81,7 @@ const voiceTimerCSS =
         text-decoration: underline;
     }
     .voiceTimer {
-        margin-top: 8px;
+        margin-top: 4px;
     }
 
 `

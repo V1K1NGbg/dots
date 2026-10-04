@@ -105,6 +105,44 @@ run_task() {
     bash -e -o pipefail "$SCRIPT_DIR/install.sh" --run-task "$1"
 }
 
+installer_windows() {
+    [[ -n ${HYPRLAND_INSTANCE_SIGNATURE:-} ]] || return 0
+    local result
+    if [[ $1 == stop ]]; then
+        hyprctl dispatch 'function()
+            if dots_installer_windows then
+                for _, hook in ipairs(dots_installer_windows) do hook:remove() end
+                dots_installer_windows = nil
+            end
+        end' >/dev/null
+        return
+    fi
+    result=$(hyprctl dispatch 'function()
+        local terminal = hl.get_active_window()
+        assert(terminal and terminal.class:lower() == "alacritty",
+            "Start the installer from the focused Alacritty window")
+        if dots_installer_windows then
+            for _, hook in ipairs(dots_installer_windows) do hook:remove() end
+        end
+        local apps = { code = true, ["com.microsoft.vscode"] = true,
+            firefox = true, ["org.mozilla.firefox"] = true,
+            discord = true, spotify = true, steam = true }
+        local function place(window)
+            if not window or not terminal.mapped or not terminal.workspace then return end
+            local class = window.class:lower()
+            if (apps[class] or class:find("pcloud", 1, true))
+                and window.workspace ~= terminal.workspace then
+                hl.dispatch(hl.dsp.window.move({ window = window,
+                    workspace = terminal.workspace, follow = false }))
+            end
+        end
+        dots_installer_windows = {
+            hl.on("window.open", place), hl.on("window.active", place),
+        }
+    end') || return
+    [[ $result == ok ]] || { print_error "$result"; return 1; }
+}
+
 install_boot_hook() {
     sudo install -Dm0644 "$CONFIG_DIR/system/pacman-hooks/90-dracut-install.hook" \
         /etc/pacman.d/hooks/90-dracut-install.hook
@@ -152,7 +190,7 @@ readonly -a REPO_PACKAGES=(
     prismlauncher pyright python python-black python-pillow jq qt5ct qt6ct
     ranger rofi rofi-calc rust rust-analyzer slurp sof-firmware spotify-launcher steam
     swappy tmux tree typescript-language-server unzip vim
-    code vlc vulkan-radeon lib32-vulkan-radeon vulkan-tools
+    vlc vulkan-radeon lib32-vulkan-radeon vulkan-tools
     waybar wayland wayland-protocols uthash wev wget wireplumber wl-clipboard xdg-desktop-portal-gtk
     xdg-desktop-portal-hyprland xdg-utils zip uwsm
 )
@@ -161,11 +199,11 @@ readonly -a AUR_PACKAGES=(
     ani-cli
     rofi-blocks-git
     imgcat
-    localsend
     opencode
     pcloud-drive
     plymouth-theme-hexagon-hud-git
     usbimager
+    visual-studio-code-bin
     wl_shimeji-git
 )
 
@@ -339,7 +377,7 @@ font_ini() {
 font_desktop() {
     local family='Monocraft Nerd Font' version key schema value actual
     [[ $EUID != 0 ]] || { print_error 'Run desktop font setup without sudo'; return 1; }
-    [[ $(fc-match -f '%{family}' "$family") == *"$family"* ]] || {
+    [[ $(fc-match -f '%{family}' Monocraft) == Monocraft ]] || {
         print_error 'Install Monocraft Nerd Font first'; return 1;
     }
     font_install "$CONFIG_DIR/.config/fontconfig/conf.d/99-monocraft.conf" "$HOME/.config/fontconfig/conf.d/99-monocraft.conf"
@@ -365,9 +403,9 @@ org.gnome.desktop.interface monospace-font-name Monocraft Nerd Font 10
 org.gnome.desktop.wm.preferences titlebar-font Monocraft Nerd Font Bold 10
 SETTINGS
     fc-cache -f
-    for family in sans-serif serif monospace Arial 'Adwaita Sans'; do
+    for family in 'Monocraft Nerd Font' sans-serif serif monospace Arial 'Adwaita Sans'; do
         actual=$(fc-match -f '%{family}' "$family")
-        [[ $actual == *'Monocraft Nerd Font'* ]] || { print_error "Font check failed: $family -> $actual"; return 1; }
+        [[ $actual == Monocraft ]] || { print_error "Font check failed: $family -> $actual"; return 1; }
         printf '%s -> %s\n' "$family" "$actual"
     done
     if command -v makoctl >/dev/null; then makoctl reload || :; fi
@@ -556,7 +594,7 @@ install_dotfiles() {
     local config_dir path backup
     local -a config_paths=()
     for config_dir in \
-        BetterDiscord alacritty dots-app-themes fontconfig gtk-3.0 gtk-4.0 hypr keepassxc mako miku \
+        BetterDiscord alacritty dots-app-themes fontconfig garden gtk-3.0 gtk-4.0 hypr keepassxc mako miku \
         opencode qt5ct qt6ct spicetify systemd uwsm visualizer waybar; do
         config_paths+=(".config/$config_dir")
     done
@@ -608,7 +646,7 @@ install_dotfiles() {
 }
 
 # One table drives both installation and completion checks. These are Arch's
-# native package desktop IDs, including Code OSS and spotify-launcher.
+# package desktop IDs, including visual-studio-code-bin and spotify-launcher.
 default_apps() {
     local action=$1 desktop mime row directory found
     local -a types directories
@@ -631,7 +669,8 @@ default_apps() {
             done
         fi
     done <<'DEFAULTS'
-code-oss.desktop text/plain text/markdown application/json application/xml text/xml application/yaml text/yaml application/x-yaml application/x-shellscript text/x-shellscript text/css text/javascript application/javascript text/x-python
+com.microsoft.VSCode.desktop text/plain text/markdown application/json application/xml text/xml application/yaml text/yaml application/x-yaml application/x-shellscript text/x-shellscript text/css text/javascript application/javascript text/x-python application/x-code-workspace
+com.microsoft.VSCode.UrlHandler.desktop x-scheme-handler/vscode
 firefox.desktop text/html application/xhtml+xml application/pdf x-scheme-handler/http x-scheme-handler/https
 vlc.desktop video/mp4 video/x-matroska video/webm video/x-msvideo video/quicktime video/mpeg audio/mpeg audio/flac audio/ogg audio/opus audio/x-wav audio/wav audio/aac audio/mp4
 gimp.desktop image/png image/jpeg image/gif image/webp image/tiff image/bmp image/svg+xml
@@ -749,7 +788,7 @@ install_discord() {
 
 install_spotify() {
     print_header "Setting up Spotify + Spicetify"
-    install_app_theme spotify
+    install_app_theme spotify || return
     # The first normal launch creates Spotify's prefs; no scripted account login.
     if ! pgrep -u "$UID" -x spotify >/dev/null; then
         spotify-launcher >/dev/null 2>&1 &
@@ -758,10 +797,20 @@ install_spotify() {
 }
 
 install_vscode() {
+    local result
     print_header "Setting up VSCode"
     code > /dev/null 2>&1 &
     read -p "  Log in VSCode, sync settings, WAIT FOR THE SYNC TO FINISH, and press Enter to continue..."
-    killall code 2>/dev/null || true
+    # Request normal window closure so VS Code can finish saving and prompt if needed.
+    result=$(hyprctl dispatch 'function()
+        for _, window in ipairs(hl.get_windows()) do
+            local class = window.class:lower()
+            if class == "code" or class == "com.microsoft.vscode" then
+                hl.dispatch(hl.dsp.window.close({ window = window }))
+            end
+        end
+    end') || return
+    [[ $result == ok ]] || { print_error "$result"; return 1; }
     mark_done "vscode_setup"
     print_success "VSCode configured"
 }
@@ -772,9 +821,10 @@ install_firefox() {
     read -p "  Log in Firefox
   Sync settings
   Import vimium-options.json and bonjourr.json from ~/dots/config/
+  Fix New Tab Override (https://online.bonjourr.fr/)
   Fix persistant tabs
   Fix bookmarks layout
-  Add cookies exceptions (google,github,...)
+  Add cookies exceptions (google,github,bonjourr,...)
   and finally press Enter to continue..."
     killall firefox 2>/dev/null || true
     mark_done "firefox_setup"
@@ -924,7 +974,7 @@ TUI_VISIBLE_ROWS=0
 TUI_LAST_MSG=""
 
 refresh_status() {
-    local label="${1:-Checking installation status}"
+    local label="${1:-Checking installation status}" i
     for (( i=0; i<TASK_COUNT; i++ )); do
         echo -ne "\r${CYAN}${label}${NC} [${i}/${TASK_COUNT}]  "
         if "${TASK_CHECKS[$i]}" 2>/dev/null; then
@@ -958,7 +1008,7 @@ draw_tui() {
         return
     fi
 
-    local done_count=0 selected_count=0
+    local done_count=0 selected_count=0 i
     for (( i=0; i<TASK_COUNT; i++ )); do
         (( TASK_STATUS[i]   == 0 )) && (( done_count++ ))     || true
         (( TASK_SELECTED[i] == 1 )) && (( selected_count++ )) || true
@@ -1022,20 +1072,23 @@ draw_tui() {
 }
 
 run_tui() {
+    local i
+    installer_windows start || return
+    export DOTS_INSTALLER_WINDOWS_ACTIVE=1
+    trap 'installer_windows stop; tput cnorm; tput clear' EXIT
     for (( i=0; i<TASK_COUNT; i++ )); do
         TASK_SELECTED[$i]=0
     done
 
     refresh_status
 
-    trap 'tput cnorm; tput clear' EXIT
     trap 'draw_tui' WINCH
 
     tput civis  # hide cursor
 
     while true; do
-        TUI_LAST_MSG=""
         draw_tui
+        TUI_LAST_MSG=""
 
         # Read key input
         local key seq1 seq2
@@ -1127,6 +1180,9 @@ run_tui() {
             tput cnorm
             tput clear
 
+            # Closing an app can resize this terminal. Do not redraw the menu
+            # over task prompts or interrupt the selected-task loop.
+            trap ':' WINCH
             local failed=0
             echo -e "${BOLD}${GREEN}Running selected tasks...${NC}\n"
 
@@ -1153,6 +1209,7 @@ run_tui() {
             read -rp "Press Enter to return to the menu..."
 
             refresh_status "Refreshing"
+            trap 'draw_tui' WINCH
             tput civis
         fi
     done
@@ -1168,6 +1225,10 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
         for task in "${TASK_INSTALLS[@]}"; do
             if [[ "$task" == "${2:-}" && $# -eq 2 ]]; then
                 set -e -o pipefail
+                if [[ ${DOTS_INSTALLER_WINDOWS_ACTIVE:-0} != 1 ]]; then
+                    installer_windows start
+                    trap 'installer_windows stop' EXIT
+                fi
                 "$task"
                 exit 0
             fi

@@ -2,14 +2,16 @@
 /* background */
 .main-home-homeHeader,
 .main-entityHeader-backgroundColor,
-.main-actionBarBackground-background {
+.main-actionBarBackground-background,
+.playlist-playlist-actionBarBackground-background {
   display: none;
 }
 .main-topBar-overlay {
-  background-color: var(--spice-main);
+  background: var(--spice-main) !important;
 }
 .main-topBar-background {
   opacity: 1 !important;
+  background: var(--spice-main) !important;
 }
 * {
   box-shadow: none !important;
@@ -25,7 +27,7 @@
 .main-navBar-navBarLinkActive,
 .main-collectionLinkButton-selected,
 .main-rootlist-rootlistItemLinkActive {
-  color: var(--spice-shadow) !important;
+  color: var(--spice-text) !important;
   background: var(--spice-selected-row) !important;
 }
 .main-navBar-navBarLink,
@@ -111,15 +113,25 @@
   height: 20px;
   width: 20px;
 }
+.main-nowPlayingBar-center .playback-bar {
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+/* Keep Ziro's full-width seek bar, but reserve real space for both times. */
+.main-nowPlayingBar-center .playback-progressbar-container {
+  flex: 0;
+  width: 0;
+}
 .playback-bar__progress-time-elapsed,
 .main-playbackBarRemainingTime-container {
   color: var(--spice-subtext);
-  position: absolute;
-  margin-bottom: 30px;
-  right: 266px;
-}
-.playback-bar__progress-time-elapsed {
-  right: 308px;
+  position: static;
+  margin: 0;
+  flex: none;
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 .playback-bar__progress-time-elapsed::after {
   content: '  /';
@@ -282,7 +294,7 @@
 .oaNVBli46GtVjaQKB15g,
 .marketplace-tabBar-active,
 .lyrics-tabBar-active {
-  color: var(--spice-shadow);
+  color: var(--spice-text);
   background: var(--spice-tab-active) !important;
 }
 .JdlKTdpMquftpMwwegZo,
@@ -313,7 +325,7 @@
   height: 36px;
 }
 .marketplace-header__right {
-  position: fixed;
+  position: static;
 }
 .marketplace-settings-button {
   padding: 12px 12px 8px;
@@ -348,15 +360,10 @@
 }
 .main-entityHeader-background {
   transform: none !important;
-  margin-top: 64px;
   border-radius: var(--br-1);
 }
 .main-entityHeader-overlay {
   background: none;
-}
-.main-entityHeader-withBackgroundImage,
-.main-entityHeader-withBackgroundImage + div {
-  transform: translateY(64px);
 }
 /* tracklist */
 .main-trackList-trackList .JUa6JJNj7R_Y3i4P8YUX {
@@ -376,7 +383,7 @@
   background-color: var(--spice-tab-active) !important;
 }
 .main-trackList-selected * {
-  color: var(--spice-shadow) !important;
+  color: var(--spice-text) !important;
 }
 .main-trackList-selected .main-trackList-playingIcon,
 .main-trackList-selected .main-tag-container {
@@ -467,11 +474,6 @@ input:checked ~ .x-toggle-indicatorWrapper .x-toggle-indicator {
 .npv-main-container .npv-cross-fade-image {
   border-radius: calc(var(--br-1) * 3);
 }
-.npv-main-container .playback-bar__progress-time-elapsed,
-.npv-main-container .main-playbackBarRemainingTime-container {
-  margin-bottom: -125px;
-  margin-right: -86px;
-}
 .npv-up-next {
   background: var(--spice-card) !important;
   border: none !important;
@@ -493,6 +495,11 @@ input:checked ~ .x-toggle-indicatorWrapper .x-toggle-indicator {
 .lyrics-lyricsContainer-LyricsBackground {
   background-image: none;
 }
+.lyrics-lyrics-contentContainer .lyrics-lyrics-contentWrapper {
+  font-size: clamp(20px, 2vw, 28px) !important;
+  font-weight: 400;
+  line-height: 1.6;
+}
 .jixVGx,
 .euRuBv {
   color: var(--spice-text);
@@ -512,4 +519,30 @@ input:checked ~ .x-toggle-indicatorWrapper .x-toggle-indicator {
 }
 body, button, input, textarea {
   font-family: "Monocraft Nerd Font", monospace !important;
+}
+
+/* Modern Spotify buttons use Encore tokens instead of Ziro's old classes. */
+.encore-dark-theme,
+.encore-dark-theme .encore-base-set {
+  --background-base: var(--spice-main);
+  --background-highlight: var(--spice-card);
+  --background-press: var(--spice-selected-row);
+  --background-elevated-base: var(--spice-card);
+  --background-elevated-highlight: var(--spice-button-disabled);
+  --text-base: var(--spice-text);
+  --text-subdued: var(--spice-subtext);
+  --text-bright-accent: var(--spice-button);
+  --essential-bright-accent: var(--spice-button);
+}
+[data-testid="control-button-playpause"] > span,
+[data-testid="play-button"] > span {
+  background: var(--spice-button);
+  color: var(--spice-main);
+}
+[data-testid="control-button-playpause"]:hover > span,
+[data-testid="play-button"]:hover > span {
+  background: var(--spice-button-active);
+}
+.main-trackList-trackListRow.main-trackList-selected {
+  box-shadow: inset 3px 0 var(--spice-button) !important;
 }

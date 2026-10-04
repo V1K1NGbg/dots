@@ -1,0 +1,13 @@
+[Unit]
+Description=Persistent ASCII bonsai and night sky
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=exec
+Environment=GDK_BACKEND=wayland
+ExecStart=/usr/bin/bash %h/.config/garden/control.sh --run
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=5
+UMask=0077

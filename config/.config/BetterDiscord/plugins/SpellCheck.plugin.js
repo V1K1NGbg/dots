@@ -2,7 +2,7 @@
  * @name SpellCheck
  * @author DevilBro
  * @authorId 278543574059057154
- * @version 1.7.2
+ * @version 1.7.4
  * @description Adds a Spell Check to all Message Inputs. Select a Word and Right Click it to add it to your Dictionary
  * @invite Jx3TjNS
  * @donate https://www.paypal.me/MircoWittrien
@@ -224,9 +224,12 @@ module.exports = (_ => {
 								BDFDB.ContextMenuUtils.createItem(BDFDB.LibraryComponents.MenuItems.MenuItem, {
 									label: this.labels.context_spellcheck,
 									id: BDFDB.ContextMenuUtils.createItemId(this.name, "add-to-spellcheck"),
-									hint: _ => BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.MenuItems.MenuHint, {
-										hint: word
-									}),
+									leadingAccessory: {
+										type: "icon",
+										icon: _ => BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.MenuItems.MenuHint, {
+											hint: word
+										})
+									},
 									action: _ => this.addToOwnDictionary(word)
 								}),
 								BDFDB.ContextMenuUtils.createItem(BDFDB.LibraryComponents.MenuItems.MenuSeparator, {}),

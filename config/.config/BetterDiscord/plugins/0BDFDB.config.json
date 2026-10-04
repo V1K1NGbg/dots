@@ -1,14 +1,65 @@
 {
 	"all": {
+		"ClassModuleCache": {
+			"AccountDetailsButtons": "484555",
+			"AppMount": "300923",
+			"AppOuter": "349805",
+			"Avatar": "185864",
+			"Button": "211182",
+			"ChannelTextArea": "495088",
+			"ChannelTextAreaButton": "257100",
+			"ChannelTextAreaCharCounter": "412028",
+			"ChatWindow": "999900",
+			"Flex": "859510",
+			"FlowerStar": "719639",
+			"GifFavoriteButton": "47299",
+			"GuildFolder": "327580",
+			"GuildItem": "260727",
+			"GuildsWrapper": "987566",
+			"Input": "151167",
+			"ItemLayerContainer": "38112",
+			"Margins": "221851",
+			"Menu": "798819",
+			"Message": "13673",
+			"MessageBody": "318626",
+			"MessageToolbarExtras": "798743",
+			"MessageToolbarItems": "738745",
+			"MessagesPopoutTabBar": "113164",
+			"Modal": "268814",
+			"ModalNew": "592551",
+			"ModalSub": "978843",
+			"NameTag": "646810",
+			"Notice": "934966",
+			"NoticePlatform": "971656",
+			"PeoplesNowPlayingMember": "942813",
+			"Scroller": "6095",
+			"Select": "980148",
+			"SettingsItems": "715965",
+			"Slider": "9761",
+			"Text": "607226",
+			"Tooltip": "233680",
+			"TooltipGuild": "785332",
+			"UserHeaderUsername": "956495",
+			"UserPopoutBody": "211450",
+			"UserSummaryItem": "76145"
+		},
+		"ModuleIdCache": {
+			"ChannelTextAreaButtons": "123583",
+			"ChannelTextAreaEditor": "392553",
+			"DiscordTag": "297413",
+			"Embed": "175671",
+			"EmojiPickerListRow": "267889",
+			"Menu": "980707",
+			"MessageButtons": "891496",
+			"MessageContent": "438729",
+			"MessageReply": "891496",
+			"Messages": "891496"
+		},
 		"changeLogs": {
-			"BDFDB": "4.4.4",
-			"GameActivityToggle": "1.2.6",
-			"ImageUtilities": "5.6.5",
-			"PluginRepo": "2.5.8",
-			"SpellCheck": "1.7.2",
+			"BDFDB": "4.5.7",
+			"SpellCheck": "1.7.4",
 			"SplitLargeMessages": "1.8.7",
-			"ThemeRepo": "2.5.8",
-			"Translator": "2.7.8"
+			"Translator": "2.8.6"
 		},
 		"choices": {
 			"toastPosition": "right"
@@ -21,8 +72,8 @@
 			"useChromium": false
 		},
 		"hashes": {
-			"0BDFDB.data.json": "cfd4ed60e294c2311bcde34da2b94e946ae5a491",
-			"0BDFDB.raw.css": "b204f8d3ab7090c27feeabf93286b9f634ddfe2e"
+			"0BDFDB.data.json": "abf4f6ceeb265f24f5d3e70520a65a9148c40b06",
+			"0BDFDB.raw.css": "1410ee461b2c28dcd8775dc6d32e575a93e84c04"
 		}
 	}
 }

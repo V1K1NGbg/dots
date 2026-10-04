@@ -1,175 +1,7 @@
 {
     "currentVersionInfo": {
-        "version": "2.1.6",
+        "version": "2.1.15",
         "hasShownChangelog": true
-    },
-    "settings": {
-        "modules": {
-            "servers": {
-                "enabled": true,
-                "enhanceLayout": true,
-                "enter": {
-                    "packSlug": "olDays",
-                    "animationKey": "containerSlip"
-                },
-                "exit": {
-                    "packSlug": "olDays",
-                    "animationKey": "containerSlip"
-                }
-            },
-            "channels": {
-                "enabled": true,
-                "enter": {
-                    "packSlug": "olDays",
-                    "animationKey": "containerSlip"
-                },
-                "exit": {
-                    "packSlug": "olDays",
-                    "animationKey": "containerSlip"
-                }
-            },
-            "settings": {
-                "enabled": true,
-                "enter": {
-                    "packSlug": "olDays",
-                    "animationKey": "containerSlip"
-                },
-                "exit": {
-                    "packSlug": "olDays",
-                    "animationKey": "containerSlip"
-                }
-            },
-            "layers": {
-                "enabled": true,
-                "enter": {
-                    "packSlug": "preinstalled",
-                    "animationKey": "scale"
-                },
-                "exit": {
-                    "packSlug": "preinstalled",
-                    "animationKey": "scale"
-                }
-            },
-            "tooltips": {
-                "enabled": true,
-                "enter": {
-                    "packSlug": "olDays",
-                    "animationKey": "revealScale"
-                },
-                "exit": {
-                    "packSlug": "olDays",
-                    "animationKey": "revealScale"
-                }
-            },
-            "popouts": {
-                "enabled": true,
-                "enter": {
-                    "packSlug": "olDays",
-                    "animationKey": "revealScale"
-                },
-                "exit": {
-                    "packSlug": "olDays",
-                    "animationKey": "revealScale"
-                }
-            },
-            "contextMenu": {
-                "enabled": true,
-                "enter": {
-                    "packSlug": "olDays",
-                    "animationKey": "revealScale"
-                },
-                "exit": {
-                    "packSlug": "olDays",
-                    "animationKey": "revealScale"
-                }
-            },
-            "messages": {
-                "enabled": true,
-                "enter": {
-                    "packSlug": "olDays",
-                    "animationKey": "revealSlip"
-                },
-                "exit": {
-                    "packSlug": "olDays",
-                    "animationKey": "revealSlip"
-                }
-            },
-            "channelList": {
-                "enabled": true,
-                "enter": {
-                    "packSlug": "preinstalled",
-                    "animationKey": "slip"
-                },
-                "exit": {
-                    "packSlug": "preinstalled",
-                    "animationKey": "slip"
-                }
-            },
-            "modals": {
-                "enabled": true,
-                "enter": {
-                    "packSlug": "preinstalled",
-                    "animationKey": "slip"
-                },
-                "exit": {
-                    "packSlug": "preinstalled",
-                    "animationKey": "slip"
-                }
-            },
-            "modalsBackdrop": {
-                "enabled": true,
-                "enter": {
-                    "packSlug": "preinstalled",
-                    "animationKey": "backdropSolid"
-                },
-                "exit": {
-                    "packSlug": "preinstalled",
-                    "animationKey": "backdropSolid"
-                }
-            },
-            "membersSidebar": {
-                "enabled": true,
-                "enter": {
-                    "packSlug": null,
-                    "animationKey": null
-                },
-                "exit": {
-                    "packSlug": null,
-                    "animationKey": null
-                }
-            },
-            "threadSidebar": {
-                "enabled": true,
-                "enter": {
-                    "packSlug": null,
-                    "animationKey": null
-                },
-                "exit": {
-                    "packSlug": null,
-                    "animationKey": null
-                }
-            },
-            "threadSidebarSwitch": {
-                "enabled": true,
-                "enter": {
-                    "packSlug": "preinstalled",
-                    "animationKey": "fade"
-                },
-                "exit": {
-                    "packSlug": "preinstalled",
-                    "animationKey": "fade"
-                }
-            }
-        },
-        "general": {
-            "quickPreview": true,
-            "disableHints": false,
-            "suppressErrors": "none",
-            "prioritizeAnimationSmoothness": true,
-            "cacheUserSettingsSections": true,
-            "preloadLayers": true,
-            "switchCooldownDuration": 1000
-        }
     },
     "prompts": {
         "hardwareAcceleration": false
@@ -181,42 +13,48 @@
                     "filename": "olDays.pack.json",
                     "thumbnailSrc": "https://i.imgur.com/Zmzwona.png",
                     "name": "Ol' Days",
+                    "version": "1.1.1",
                     "author": "arg0NNY",
-                    "version": "1.1.0",
                     "description": "An accurate port of all the animations from BetterAnimations V1, reproducing all their beauty, and all their flaws too.",
                     "invite": "M8DBtcZjXD",
-                    "authorLink": "https://github.com/arg0NNY",
+                    "authorLink": "https://github.com/okdevme/BetterAnimationsPacks",
                     "donate": "https://boosty.to/arg0nny/donate",
                     "official": true,
-                    "hash": 8322720962056025,
-                    "size": 21026,
+                    "hash": 4615589489415744,
+                    "size": 21200,
                     "history": {
+                        "1.1.0": {
+                            "hash": 8322720962056025
+                        },
                         "1.0.0": {
                             "hash": 7616929500973968
                         }
                     },
-                    "updatedAt": "2025-08-05T12:59:16.157Z",
+                    "updatedAt": "2026-06-04T20:42:20.418Z",
                     "createdAt": "2025-07-30T19:30:07.988Z"
                 },
                 {
                     "filename": "pureFade.pack.json",
                     "thumbnailSrc": "https://i.imgur.com/MkCpJa6.jpeg",
                     "name": "Pure Fade",
-                    "version": "1.1.0",
+                    "version": "1.1.1",
                     "author": "arg0NNY",
                     "description": "A collection of transparency switch animations from BetterAnimations with a true fade transition — eliminating the slight flicker of the background at the cost of lacking support for transparent Discord themes.",
                     "invite": "M8DBtcZjXD",
-                    "authorLink": "https://github.com/arg0NNY",
+                    "authorLink": "https://github.com/okdevme/BetterAnimationsPacks",
                     "donate": "https://boosty.to/arg0nny/donate",
                     "official": true,
-                    "hash": 7161450505921098,
-                    "size": 6515,
+                    "hash": 2841317390468723,
+                    "size": 6689,
                     "history": {
+                        "1.1.0": {
+                            "hash": 7161450505921098
+                        },
                         "1.0.0": {
                             "hash": 263818792456494
                         }
                     },
-                    "updatedAt": "2025-08-05T12:59:16.157Z",
+                    "updatedAt": "2026-06-04T20:42:20.418Z",
                     "createdAt": "2025-07-30T21:23:31.322Z"
                 }
             ],
@@ -230,11 +68,180 @@
         "sort": "newest",
         "visited": true,
         "known": [
-            "pureFade.pack.json",
-            "olDays.pack.json"
+            "olDays.pack.json",
+            "pureFade.pack.json"
         ]
     },
+    "settingsMode": "simple",
     "configVersion": 2,
+    "settings": {
+        "modules": {
+            "servers": {
+                "enabled": true,
+                "enhanceLayout": true,
+                "enter": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "drawer"
+                },
+                "exit": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "drawer"
+                }
+            },
+            "channels": {
+                "enabled": true,
+                "enter": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "drawer"
+                },
+                "exit": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "drawer"
+                }
+            },
+            "settings": {
+                "enabled": true,
+                "enter": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "drawer"
+                },
+                "exit": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "drawer"
+                }
+            },
+            "layers": {
+                "enabled": true,
+                "enter": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "slide"
+                },
+                "exit": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "slide"
+                }
+            },
+            "tooltips": {
+                "enabled": true,
+                "enter": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "slip"
+                },
+                "exit": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "slip"
+                }
+            },
+            "popouts": {
+                "enabled": true,
+                "enter": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "drawer"
+                },
+                "exit": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "drawer"
+                }
+            },
+            "contextMenu": {
+                "enabled": true,
+                "enter": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "drawer"
+                },
+                "exit": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "drawer"
+                }
+            },
+            "messages": {
+                "enabled": true,
+                "enter": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "slide"
+                },
+                "exit": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "slide"
+                }
+            },
+            "channelList": {
+                "enabled": true,
+                "enter": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "slide"
+                },
+                "exit": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "slide"
+                }
+            },
+            "modals": {
+                "enabled": true,
+                "enter": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "scale"
+                },
+                "exit": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "scale"
+                }
+            },
+            "modalsBackdrop": {
+                "enabled": true,
+                "enter": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "backdropGrayscale"
+                },
+                "exit": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "backdropGrayscale"
+                }
+            },
+            "membersSidebar": {
+                "enabled": true,
+                "enter": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "fade"
+                },
+                "exit": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "fade"
+                }
+            },
+            "threadSidebar": {
+                "enabled": true,
+                "enter": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "fade"
+                },
+                "exit": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "fade"
+                }
+            },
+            "threadSidebarSwitch": {
+                "enabled": true,
+                "enter": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "slide"
+                },
+                "exit": {
+                    "packSlug": "preinstalled",
+                    "animationKey": "slide"
+                }
+            }
+        },
+        "general": {
+            "quickPreview": true,
+            "disableHints": false,
+            "suppressErrors": "none",
+            "prioritizeAnimationSmoothness": true,
+            "cacheUserSettingsSections": true,
+            "preloadLayers": true,
+            "switchCooldownDuration": 1000
+        }
+    },
     "packs": {
         "preinstalled": {
             "configVersion": 2,
@@ -242,9 +249,5 @@
                 "entries": []
             }
         }
-    },
-    "library": {
-        "sort": "default"
-    },
-    "settingsMode": "simple"
+    }
 }

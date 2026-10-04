@@ -151,6 +151,8 @@ copy_iwd_networks() (
                 value=${value#"${value%%[!$' \t']*}"}
                 case "$section.$key" in
                     Security.EncryptedSecurity|Security.EncryptedSalt) fail "encrypted iwd credentials are not supported" ;;
+                    # iwd caches SAE values derived from the passphrase; NetworkManager regenerates them.
+                    Security.SAE-PT-Group19|Security.SAE-PT-Group20) continue ;;
                     Security.Passphrase|Security.PreSharedKey|Settings.Hidden|Settings.AutoConnect) ;;
                     *) fail "unsupported iwd setting: $section.$key; only basic personal/open Wi-Fi is supported" ;;
                 esac
@@ -253,7 +255,7 @@ validate_live_media() {
        $(findmnt -nro FSTYPE -M /run/archiso/cowspace) == tmpfs ]] \
         || fail 'Boot the standard Arch ISO with copytoram=y (no persistent overlay).'
     device=$(findmnt -nro SOURCE -M /run/archiso/airootfs) || fail 'Cannot locate the live root image.'
-    backing=$(losetup -nro BACK-FILE "$device") || fail 'Cannot inspect the live root image.'
+    backing=$(losetup --list --noheadings --raw --output BACK-FILE "$device") || fail 'Cannot inspect the live root image.'
     case "$backing" in
         /run/archiso/copytoram/airootfs.sfs|/run/archiso/copytoram/airootfs.erofs) ;;
         *) fail 'The live root image is not backed by RAM; reboot with copytoram=y.' ;;

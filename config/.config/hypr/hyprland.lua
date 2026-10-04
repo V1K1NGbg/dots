@@ -90,6 +90,8 @@ hl.config({
     },
     cursor = {
         inactive_timeout = 5,
+        -- Keep the pointer in place when menus close and window focus returns.
+        no_warps = true,
     },
     misc = {
         disable_hyprland_logo = true,
@@ -112,6 +114,12 @@ hl.animation({ leaf = "workspaces", enabled = true, speed = 5.5, bezier = "fluid
 -- Old desktop moves down; the destination rises from below, in either direction.
 hl.animation({ leaf = "workspacesOut", enabled = true, speed = 5.5, bezier = "fluid", style = "slidevert top" })
 hl.animation({ leaf = "workspacesIn", enabled = true, speed = 5.5, bezier = "fluid", style = "slidevert bottom" })
+
+-- Layer timings are shared; only Rofi gets the small zoom below.
+hl.animation({ leaf = "layersIn", enabled = true, speed = 3, bezier = "fluid" })
+hl.animation({ leaf = "layersOut", enabled = true, speed = 2, bezier = "fluid" })
+hl.animation({ leaf = "fadeLayersIn", enabled = true, speed = 3, bezier = "fluid" })
+hl.animation({ leaf = "fadeLayersOut", enabled = true, speed = 2, bezier = "fluid" })
 
 -- Session behavior lives separately so the visual configuration stays small.
 dots = require("lua.desktop")
@@ -198,6 +206,7 @@ bind(mod .. " + R", hl.dsp.exec_cmd("~/.config/rofi/launcher.sh"), "Open Run (Ta
 bind(mod .. " + P", hl.dsp.exec_cmd("bash ~/.config/hypr/scripts/screenshot.sh"), "Take a screenshot")
 bind(mod .. " + L", hl.dsp.exec_cmd("hyprlock"), "Lock the screen")
 bind(mod .. " + G", hl.dsp.exec_cmd("bash ~/.config/visualizer/control.sh"), "Toggle edge audio visualizer")
+bind(mod .. " + SHIFT + G", hl.dsp.exec_cmd("bash ~/.config/garden/control.sh --toggle"), "Freeze or resume the garden")
 bind(mod .. " + SHIFT + M", hl.dsp.exec_cmd("bash ~/.config/miku/control.sh"), "Toggle Miku desktop companion")
 bind("XF86PowerOff", hl.dsp.exec_cmd("bash ~/.config/hypr/scripts/power.sh suspend"), "Lock and suspend", { locked = true })
 
@@ -258,5 +267,5 @@ bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl set 5%+"), "Raise dis
 bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set 5%-"), "Lower display brightness", { locked = true, repeating = true })
 bind("Print", hl.dsp.exec_cmd("bash ~/.config/hypr/scripts/screenshot.sh"), "Take a screenshot")
 
--- Rofi follows the desktop palette; animate only its layer, not other overlays.
-hl.layer_rule({ name = "dots-rofi", match = { namespace = "^rofi$" }, animation = "fade", blur = true, ignore_alpha = 0.5 })
+-- Rofi follows the desktop palette with a subtle zoom and fade.
+hl.layer_rule({ name = "dots-rofi", match = { namespace = "^rofi$" }, animation = "popin 95%", blur = true, ignore_alpha = 0.5 })

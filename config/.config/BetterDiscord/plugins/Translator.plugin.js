@@ -2,7 +2,7 @@
  * @name Translator
  * @author DevilBro
  * @authorId 278543574059057154
- * @version 2.7.8
+ * @version 2.8.6
  * @description Allows you to translate incoming and your outgoing Messages within Discord
  * @invite Jx3TjNS
  * @donate https://www.paypal.me/MircoWittrien
@@ -56,7 +56,7 @@ module.exports = (_ => {
 		stop () {}
 		getSettingsPanel () {
 			let template = document.createElement("template");
-			template.innerHTML = `<div style="color: var(--text-primary); font-size: 16px; font-weight: 300; white-space: pre; line-height: 22px;">The Library Plugin needed for ${this.name} is missing.\nPlease click <a style="font-weight: 500;">Download Now</a> to install it.</div>`;
+			template.innerHTML = `<div style="color: var(--text-strong); font-size: 16px; font-weight: 300; white-space: pre; line-height: 22px;">The Library Plugin needed for ${this.name} is missing.\nPlease click <a style="font-weight: 500;">Download Now</a> to install it.</div>`;
 			template.content.firstElementChild.querySelector("a").addEventListener("click", this.downloadLibrary);
 			return template.content.firstElementChild;
 		}
@@ -320,6 +320,15 @@ module.exports = (_ => {
 				languages: googleLanguages,
 				key: "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 			},
+			oaicompat: {
+				name: "OAI Compatible",
+				auto: true,
+				funcName: "openAiCompatibleTranslate",
+				languages: googleLanguages,
+				key: "sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+				endpoint: "https://api.openai.com/v1/chat/completions",
+				model: "gpt-3.5-turbo"
+			},
 			itranslate: {
 				name: "iTranslate",
 				auto: true,
@@ -463,9 +472,12 @@ module.exports = (_ => {
 							label: translated ? this.labels.context_messageuntranslateoption : this.labels.context_messagetranslateoption,
 							disabled: isTranslating,
 							id: BDFDB.ContextMenuUtils.createItemId(this.name, translated ? "untranslate-message" : "translate-message"),
-							icon: _ => BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.MenuItems.MenuIcon, {
-								icon: translated ? translateIconUntranslate : translateIcon
-							}),
+							leadingAccessory: {
+								type: "icon",
+								icon: _ => BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.MenuItems.MenuIcon, {
+									icon: translated ? translateIconUntranslate : translateIcon
+								})
+							},
 							action: _ => this.translateMessage(e.instance.props.message, e.instance.props.channel)
 						}));
 					}
@@ -498,7 +510,70 @@ module.exports = (_ => {
 						
 						settingsItems.push(BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.SettingsPanelList, {
 							title: "Own Auth Keys:",
-							children: Object.keys(translationEngines).filter(key => translationEngines[key].key).map(key => BDFDB.ReactUtils.createElement("div", {
+							children: Object.keys(translationEngines).filter(key => translationEngines[key].key).map(key => key === "oaicompat" ? BDFDB.ReactUtils.createElement("div", {
+								className: BDFDB.disCN.marginbottom8,
+								children: [
+									BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.FormTitle.Title, {
+										className: BDFDB.disCN.marginbottom8,
+										tag: BDFDB.LibraryComponents.FormTitle.Tags.H5,
+										children: translationEngines[key].name || "OAI Compatible"
+									}),
+									BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.CollapseContainer, {
+										title: "custom",
+										collapseStates: collapseStates,
+										children: [
+											// API Key
+											BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.FormTitle.Title, {
+												className: BDFDB.disCN.marginbottom8,
+												tag: BDFDB.LibraryComponents.FormTitle.Tags.H5,
+												children: "API Key:"
+											}),
+											BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.TextInput, {
+												className: BDFDB.disCN.marginbottom8,
+												placeholder: translationEngines[key].key,
+												value: authKeys[key] && authKeys[key].key,
+												onChange: value => {
+													if (!authKeys[key]) authKeys[key] = {};
+													authKeys[key].key = (value || "").trim();
+													BDFDB.DataUtils.save(authKeys, this, "authKeys");
+												}
+											}),
+											// API Endpoint
+											BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.FormTitle.Title, {
+												className: BDFDB.disCN.marginbottom8,
+												tag: BDFDB.LibraryComponents.FormTitle.Tags.H5,
+												children: "API Endpoint:"
+											}),
+											BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.TextInput, {
+												className: BDFDB.disCN.marginbottom8,
+												placeholder: translationEngines[key].endpoint,
+												value: authKeys[key] && authKeys[key].endpoint,
+												onChange: value => {
+													if (!authKeys[key]) authKeys[key] = {};
+													authKeys[key].endpoint = (value || "").trim();
+													BDFDB.DataUtils.save(authKeys, this, "authKeys");
+												}
+											}),
+											// Model ID
+											BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.FormTitle.Title, {
+												className: BDFDB.disCN.marginbottom8,
+												tag: BDFDB.LibraryComponents.FormTitle.Tags.H5,
+												children: "Model ID:"
+											}),
+											BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.TextInput, {
+												className: BDFDB.disCN.marginbottom8,
+												placeholder: translationEngines[key].model,
+												value: authKeys[key] && authKeys[key].model,
+												onChange: value => {
+													if (!authKeys[key]) authKeys[key] = {};
+													authKeys[key].model = (value || "").trim();
+													BDFDB.DataUtils.save(authKeys, this, "authKeys");
+												}
+											})
+										]
+									})
+								]
+							}) : BDFDB.ReactUtils.createElement("div", {
 								className: BDFDB.disCN.marginbottom8,
 								children: [
 									BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.Flex, {
@@ -741,12 +816,15 @@ module.exports = (_ => {
 					children.splice(index > -1 ? index + 1 : 0, 0, BDFDB.ContextMenuUtils.createItem(BDFDB.LibraryComponents.MenuItems.MenuItem, {
 						label: translated ? this.labels.context_messageuntranslateoption : this.labels.context_messagetranslateoption,
 						id: BDFDB.ContextMenuUtils.createItemId(this.name, translated ? "untranslate-message" : "translate-message"),
-						hint: hint && (_ => BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.MenuItems.MenuHint, {
+						icon: hint && (_ => BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.MenuItems.MenuHint, {
 							hint: hint
 						})),
-						icon: _ => BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.MenuItems.MenuIcon, {
-							icon: translated ? translateIconUntranslate : translateIcon
-						}),
+						leadingAccessory: {
+							type: "icon",
+							icon: _ => BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.MenuItems.MenuIcon, {
+								icon: translated ? translateIconUntranslate : translateIcon
+							})
+						},
 						disabled: !translated && isTranslating,
 						action: _ => this.translateMessage(e.instance.props.message, e.instance.props.channel)
 					}));
@@ -766,9 +844,12 @@ module.exports = (_ => {
 					children.splice(index > -1 ? index + 1 : 0, 0, BDFDB.ContextMenuUtils.createItem(BDFDB.LibraryComponents.MenuItems.MenuGroup, {
 						children: BDFDB.ContextMenuUtils.createItem(BDFDB.LibraryComponents.MenuItems.MenuItem, {
 							id: BDFDB.ContextMenuUtils.createItemId(this.name, "search-translation"),
-							icon: _ => BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.MenuItems.MenuIcon, {
-								icon: translateIcon
-							}),
+							leadingAccessory: {
+								type: "icon",
+								icon: _ => BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.MenuItems.MenuIcon, {
+									icon: translateIcon
+								})
+							},
 							disabled: isTranslating,
 							label: this.labels.context_translator,
 							persisting: true,
@@ -1079,7 +1160,6 @@ module.exports = (_ => {
 			}
 
 			getLanguageChoice (direction, place, channelId) {
-				this.setLanguages();
 				let choice;
 				let channel = channelId && BDFDB.LibraryStores.ChannelStore.getChannel(channelId);
 				let guildId = channel ? (channel.guild_id ? channel.guild_id : "@me") : null;
@@ -1268,19 +1348,19 @@ module.exports = (_ => {
 						"q": encodeURIComponent(data.text)
 					}
 				}, (error, response, body) => {
-					if (!error && body && response.statusCode == 200) {
+					if (!error && body && response && response.statusCode == 200) {
 						try {
 							body = JSON.parse(body);
 							if (!data.specialCase && body.src && body.src && languages[body.src]) {
 								data.input.name = languages[body.src].name;
 								data.input.ownlang = languages[body.src].ownlang;
 							}
-							callback(body.sentences.map(n => n && n.trans).filter(n => n).join(""));
+							callback(body.sentences.map(n => n && n.trans).filter(n => n).join("").replace(/\?client\=gtx/g, ""));
 						}
 						catch (err) {callback("");}
 					}
 					else {
-						if (response.statusCode == 429) BDFDB.NotificationUtils.toast(`${this.labels.toast_translating_failed}. ${this.labels.toast_translating_tryanother}. ${this.labels.error_hourlylimit}`, {
+						if (response && response.statusCode == 429) BDFDB.NotificationUtils.toast(`${this.labels.toast_translating_failed}. ${this.labels.toast_translating_tryanother}. ${this.labels.error_hourlylimit}`, {
 							type: "danger",
 							position: "center"
 						});
@@ -1394,7 +1474,7 @@ module.exports = (_ => {
 				`;
 
 				const requestData = {
-					model: "deepseek-chat",
+					model: "deepseek-v4-flash",
 					messages: [{
 						role: "system",
 						content: "You are a senior bilingual localization specialist"
@@ -1420,22 +1500,104 @@ module.exports = (_ => {
 							let translatedText = body.choices[0].message.content;
 							translatedText = translatedText.replace(/\[NEWLINE\]/g, '\n');
 							callback(translatedText);
-						} catch (err) {
+						}
+						catch (err) {
 							console.error("DeepSeek translation error:", err);
 							callback("");
 						}
-					} else {
+						
+					}
+					else {
 						if (response.statusCode == 401 || response.statusCode == 403) {
 							BDFDB.NotificationUtils.toast(`${this.labels.toast_translating_failed}. ${this.labels.toast_translating_tryanother}. ${this.labels.error_keyoutdated}`, {
 								type: "danger",
 								position: "center"
 							});
-						} else if (response.statusCode == 429) {
+						}
+						else if (response.statusCode == 429) {
 							BDFDB.NotificationUtils.toast(`${this.labels.toast_translating_failed}. ${this.labels.toast_translating_tryanother}. ${this.labels.error_dailylimit}`, {
 								type: "danger",
 								position: "center"
 							});
-						} else {
+						}
+						else {
+							BDFDB.NotificationUtils.toast(`${this.labels.toast_translating_failed}. ${this.labels.toast_translating_tryanother}. ${this.labels.error_serverdown}`, {
+								type: "danger",
+								position: "center"
+							});
+						}
+						callback("");
+					}
+				});
+			}
+			
+			openAiCompatibleTranslate(data, callback) {
+				const apiKey = authKeys.oaicompat && authKeys.oaicompat.key || "";
+				const apiEndpoint = authKeys.oaicompat && authKeys.oaicompat.endpoint || translationEngines.oaicompat.endpoint;
+				const modelId = authKeys.oaicompat && authKeys.oaicompat.model || translationEngines.oaicompat.model;
+
+				const translationPrompt = `
+				You are a professional localization expert. Translate the following ${data.input.auto ? "" : data.input.name + " "}content to ${data.output.name} following these rules:
+				1. Return ONLY the translation without any explanations
+				2. Use natural, fluent language
+				3. Maintain consistent terminology for technical/game terms
+				4. Preserve the original tone and style
+				5. Use concise sentence structures
+				6. Handle numbers/units/proper nouns correctly
+				7. Use community-approved expressions for game content
+				8. Convert [NEWLINE] markers to actual line breaks (don't show them literally)
+
+				Text to translate:
+				${data.text.replace(/\n/g, " [NEWLINE] ").replace(/\s+/g, " ")}
+				`;
+
+				const requestData = {
+					model: modelId,
+					messages: [{
+						role: "system",
+						content: "You are a senior bilingual localization specialist"
+					}, {
+						role: "user",
+						content: translationPrompt
+					}],
+					temperature: 0.2,
+					top_p: 0.8
+				};
+
+				BDFDB.LibraryRequires.request(apiEndpoint, {
+					method: "post",
+					headers: {
+						"Content-Type": "application/json",
+						"Authorization": `Bearer ${apiKey}`
+					},
+					body: JSON.stringify(requestData)
+				}, (error, response, body) => {
+					if (!error && body && response.statusCode == 200) {
+						try {
+							body = JSON.parse(body);
+							let translatedText = body.choices[0].message.content;
+							translatedText = translatedText.replace(/\[NEWLINE\]/g, '\n');
+							callback(translatedText);
+						}
+						catch (err) {
+							console.error("OpenAI Compatible translation error:", err);
+							callback("");
+						}
+					}
+					else {
+						if (response.statusCode == 401 || response.statusCode == 403) {
+							BDFDB.NotificationUtils.toast(`${this.labels.toast_translating_failed}. ${this.labels.toast_translating_tryanother}. ${this.labels.error_keyoutdated}`, {
+								type: "danger",
+								position: "center"
+							});
+						}
+						else if (response.statusCode == 429) {
+							BDFDB.NotificationUtils.toast(`${this.labels.toast_translating_failed}. ${this.labels.toast_translating_tryanother}. ${this.labels.error_dailylimit}`, {
+								type: "danger",
+								position: "center"
+							});
+						}
+						else {
 							BDFDB.NotificationUtils.toast(`${this.labels.toast_translating_failed}. ${this.labels.toast_translating_tryanother}. ${this.labels.error_serverdown}`, {
 								type: "danger",
 								position: "center"
@@ -1602,7 +1764,8 @@ module.exports = (_ => {
 						if (!error && body && response.statusCode == 200) {
 							try {
 								langCode = JSON.parse(body)["langCode"];
-							} catch (err) {
+							}
+							catch (err) {
 								langCode = "en";
 							}
 						}

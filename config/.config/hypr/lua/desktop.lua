@@ -409,7 +409,8 @@ function M.magnify()
 end
 
 local apps = {
-    { "[Cc]ode", 1 }, { "[Ff]irefox", 2 }, { "[Aa]lacritty", 3 },
+    { "(com\\.microsoft\\.VSCode|[Cc]ode)", 1 },
+    { "[Ff]irefox", 2 }, { "[Aa]lacritty", 3 },
     { "[Nn]emo", 4 }, { "[Dd]iscord", 5 }, { "[Ss]potify", 6 },
     { "(org\\.keepassxc\\.KeePassXC|[Kk]ee[Pp]ass[Xx][Cc])", 7 }, { "[Ss]team", 8 },
 }
