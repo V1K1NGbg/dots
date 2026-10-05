@@ -137,7 +137,7 @@ def check_files():
             require('\0' not in text, 'NUL in text input')
             require(not re.search(r'^(?:<<<<<<< |=======\s*$|>>>>>>> )', text, re.M), 'unresolved merge conflict')
             if path.suffix in ('.json', '.jsonc'):
-                (jsonc if path.suffix == '.jsonc' else strict_json)(text)
+                (jsonc if path.suffix == '.jsonc' or '/Code - OSS/User/' in name else strict_json)(text)
             elif path.suffix == '.toml':
                 tomllib.loads(text)
             elif path.suffix == '.svg' or text.lstrip().startswith('<?xml'):
@@ -186,7 +186,7 @@ local function record(name, value) calls[#calls+1] = {name, value} end
 local function dispatcher(name)
     return function(value) return function() record(name, value) end end
 end
-local methods = {'setup','browse','swap','resize','cycle_layout','toggle_sticky',
+local methods = {'setup','browse','swap','resize','mouse','cycle_layout','toggle_sticky',
     'toggle_ontop','toggle_bar','minimize','restore','view','move'}
 local desktop = {}
 for _,name in ipairs(methods) do desktop[name] = function(value) record('dots.'..name, value) end end
@@ -260,7 +260,7 @@ def check_bindings():
         'CTRL + P': 'exec:bash ~/.config/rofi/modi/monitors.sh',
         'semicolon': 'focus:monitor=+1', 'apostrophe': 'focus:monitor=-1',
         'SHIFT + semicolon': 'window.move:monitor=-1', 'SHIFT + apostrophe': 'window.move:monitor=+1',
-        'mouse:272': 'window.drag:nil', 'mouse:273': 'window.resize:nil',
+        'mouse:272': 'dots.mouse:drag', 'mouse:273': 'dots.mouse:resize',
         'bracketleft': 'click:key=mouse:272,mods=,state=down;click:key=mouse:272,mods=,state=up',
         'bracketright': 'click:key=mouse:273,mods=,state=down;click:key=mouse:273,mods=,state=up',
     }
@@ -702,6 +702,8 @@ def registry(args):
                            ('ai',''),('icons','bash jq'),('current-power','bash jq')):
         add('source/'+name, [PYTHON,'-B',str(SCRIPT),'--worker',name], required, 'source validation / isolated fixtures')
     add('source/desktop', ['lua','scripts/check-desktop.lua'], 'lua', 'compositor policy model')
+    add('source/vscode-backup', [PYTHON, '-B', 'test/check-vscode-backup.py'], '',
+        'private config export/install fixtures; no personal editor data')
     for group, key in (('fast','FAST'),('arch','ARCH'),('live','LIVE')):
         for name, command, required, effect in legacy[key]:
             if group == 'arch' and name == 'desktop': continue

@@ -21,7 +21,7 @@ files_menu() (
 )
 files_pick() (
     destination=${1:-}
-    header='Home · Enter opens in VS Code · Esc returns to Menu'
+    header='Home · Enter opens in Code · Esc returns to Menu'
     cd -- "$HOME" || exit
     args=(fd --hidden --no-ignore --type f --type d --type l --print0)
     if [[ -n $destination ]]; then

@@ -124,7 +124,8 @@ installer_windows() {
         if dots_installer_windows then
             for _, hook in ipairs(dots_installer_windows) do hook:remove() end
         end
-        local apps = { code = true, ["com.microsoft.vscode"] = true,
+        local apps = { code = true, ["code-oss"] = true, ["code - oss"] = true,
+            ["com.visualstudio.code.oss"] = true, ["com.visualstudio.codeoss"] = true,
             firefox = true, ["org.mozilla.firefox"] = true,
             discord = true, spotify = true, steam = true }
         local function place(window)
@@ -176,7 +177,7 @@ rebuild_initramfs() (
 readonly -a REPO_PACKAGES=(
     acpi adw-gtk-theme alacritty alsa-utils aspell aspell-en
     baobab bash-completion blueman bluez bluez-utils brightnessctl btop bulky
-    capitaine-cursors cava
+    capitaine-cursors cava code
     cliphist clang cowsay curl dconf discord docker docker-compose dracut
     fastfetch fd firefox fprintd fzf gimp git github-cli gnome-disk-utility
     go gopls grim gtk3 gtk-layer-shell highlight htop hypridle hyprland hyprlock hyprpolkitagent hyprsunset
@@ -203,7 +204,6 @@ readonly -a AUR_PACKAGES=(
     pcloud-drive
     plymouth-theme-hexagon-hud-git
     usbimager
-    visual-studio-code-bin
     wl_shimeji-git
 )
 
@@ -231,7 +231,7 @@ check_fingerprint()       { grep -q 'pam_fprintd' /etc/pam.d/sudo 2>/dev/null &&
 check_ohmybash()          { [[ -f "${HOME}/.oh-my-bash/oh-my-bash.sh" ]]; }
 check_bashrc()            { cmp -s "${CONFIG_DIR}/.bashrc" "${HOME}/.bashrc"; }
 check_nemo_config()       { dconf read /org/nemo/preferences/bulk-rename-tool 2>/dev/null | grep -q 'bulky'; }
-check_dotfiles()          { [[ -f "${HOME}/.vimrc" && -f "${HOME}/.tmux.conf" && -f "${HOME}/.bash_profile" && -f "${HOME}/.config/hypr/hyprland.lua" && -f "${HOME}/.config/waybar/config.jsonc" && -d "${HOME}/.config/alacritty" ]]; }
+check_dotfiles()          { [[ -f "${HOME}/.vimrc" && -f "${HOME}/.tmux.conf" && -f "${HOME}/.bash_profile" && -f "${HOME}/.config/hypr/hyprland.lua" && -f "${HOME}/.config/waybar/config.jsonc" && -d "${HOME}/.config/alacritty" && -f "${HOME}/.config/Code - OSS/dots-profiles.json" && -f "${HOME}/.vscode-oss/argv.json" ]]; }
 check_default_apps()      { default_apps check; }
 check_nvm()               { (load_nvm && [[ "$(nvm version default)" != "N/A" ]]) &>/dev/null; }
 check_vtop()              { (load_nvm && nvm use default && cmd_exists vtop) &>/dev/null; }
@@ -239,7 +239,7 @@ check_docker()            { systemctl is-enabled docker.service &>/dev/null; }
 check_pcloud()            { cmd_exists pcloud; }
 check_discord()           { [[ -f /etc/pacman.d/hooks/95-themeapply-discord.hook ]]; }
 check_spotify()           { [[ -f /etc/pacman.d/hooks/95-themeapply-spotify.hook ]]; }
-check_vscode()            { is_marked "vscode_setup"; }
+check_code()              { cmd_exists code && is_marked "code_config"; }
 check_firefox()           { is_marked "firefox_setup"; }
 check_steam()             { is_marked "steam_setup"; }
 check_llama_cpp()         { systemctl --user is-enabled llama-cpp.service &>/dev/null; }
@@ -598,6 +598,7 @@ install_dotfiles() {
         opencode qt5ct qt6ct spicetify systemd themeapply uwsm visualizer waybar; do
         config_paths+=(".config/$config_dir")
     done
+    config_paths+=(".config/Code - OSS" ".vscode-oss/argv.json")
     # Initial setup can replace defaults created by applications or /etc/skel.
     # Keep recovery data private and outside the configuration being replaced.
     backup=$(mktemp -d "$STATE_DIR/dotfiles-backup.XXXXXXXX")
@@ -646,7 +647,7 @@ install_dotfiles() {
 }
 
 # One table drives both installation and completion checks. These are Arch's
-# package desktop IDs, including visual-studio-code-bin and spotify-launcher.
+# package desktop IDs, including code and spotify-launcher.
 default_apps() {
     local action=$1 desktop mime row directory found
     local -a types directories
@@ -669,8 +670,8 @@ default_apps() {
             done
         fi
     done <<'DEFAULTS'
-com.microsoft.VSCode.desktop text/plain text/markdown application/json application/xml text/xml application/yaml text/yaml application/x-yaml application/x-shellscript text/x-shellscript text/css text/javascript application/javascript text/x-python application/x-code-workspace
-com.microsoft.VSCode.UrlHandler.desktop x-scheme-handler/vscode
+code-oss.desktop text/plain text/markdown application/json application/xml text/xml application/yaml text/yaml application/x-yaml application/x-shellscript text/x-shellscript text/css text/javascript application/javascript text/x-python application/x-code-workspace application/x-code-oss-workspace
+code-oss-url-handler.desktop x-scheme-handler/code-oss
 firefox.desktop text/html application/xhtml+xml application/pdf x-scheme-handler/http x-scheme-handler/https
 vlc.desktop video/mp4 video/x-matroska video/webm video/x-msvideo video/quicktime video/mpeg audio/mpeg audio/flac audio/ogg audio/opus audio/x-wav audio/wav audio/aac audio/mp4
 gimp.desktop image/png image/jpeg image/gif image/webp image/tiff image/bmp image/svg+xml
@@ -796,23 +797,11 @@ install_spotify() {
     print_success "Automatic Spicetify setup enabled with the desktop Ziro theme"
 }
 
-install_vscode() {
-    local result
-    print_header "Setting up VSCode"
-    code > /dev/null 2>&1 &
-    read -p "  Log in VSCode, sync settings, WAIT FOR THE SYNC TO FINISH, and press Enter to continue..."
-    # Request normal window closure so VS Code can finish saving and prompt if needed.
-    result=$(hyprctl dispatch 'function()
-        for _, window in ipairs(hl.get_windows()) do
-            local class = window.class:lower()
-            if class == "code" or class == "com.microsoft.vscode" then
-                hl.dispatch(hl.dsp.window.close({ window = window }))
-            end
-        end
-    end') || return
-    [[ $result == ok ]] || { print_error "$result"; return 1; }
-    mark_done "vscode_setup"
-    print_success "VSCode configured"
+install_code() {
+    print_header "Setting up Code"
+    python3 "$SCRIPT_DIR/backup-vscode.py" --install --config-dir "$HOME" || return
+    mark_done "code_config"
+    print_success "Code configured"
 }
 
 install_firefox() {
@@ -882,7 +871,7 @@ TASK_NAMES=(
     "Set up fingerprint auth"
     "Set up Discord + BetterDiscord"
     "Set up Spotify + Spicetify"
-    "Set up VSCode"
+    "Set up Code"
     "Set up Firefox"
     "Set up Steam"
     "Configure WireGuard VPN"
@@ -915,7 +904,7 @@ TASK_CHECKS=(
     check_fingerprint
     check_discord
     check_spotify
-    check_vscode
+    check_code
     check_firefox
     check_steam
     check_wireguard
@@ -948,7 +937,7 @@ TASK_INSTALLS=(
     install_fingerprint
     install_discord
     install_spotify
-    install_vscode
+    install_code
     install_firefox
     install_steam
     install_wireguard

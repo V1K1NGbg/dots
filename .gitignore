@@ -1,3 +1,4 @@
 config/.config/opencode/style/about.md
 config/.config/opencode/**/__pycache__/
 config/.config/opencode/**/*.pyc
+/backups/

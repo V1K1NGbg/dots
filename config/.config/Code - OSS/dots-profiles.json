@@ -1,0 +1,31 @@
+[
+  {
+    "extensions": [
+      "bazelbuild.vscode-bazel@0.15.1",
+      "golang.go@0.56.1",
+      "jaszhix.theme-monokaimega@4.0.5",
+      "ms-vscode-remote.remote-ssh@0.128.0",
+      "ms-vscode-remote.remote-ssh-edit@0.87.0",
+      "ms-vscode.remote-explorer@0.5.0",
+      "ms-vscode.remote-server@1.5.3",
+      "tyriar.luna-paint@0.18.0"
+    ],
+    "location": "",
+    "name": null
+  },
+  {
+    "extensions": [],
+    "location": "builtin/agents",
+    "name": "Agents",
+    "useDefaultFlags": {
+      "extensions": true,
+      "keybindings": true,
+      "languageModels": true,
+      "mcp": true,
+      "prompts": true,
+      "settings": true,
+      "snippets": true,
+      "tasks": true
+    }
+  }
+]

@@ -1,0 +1,74 @@
+{
+  "extensionsIdentifiers/disabled": {
+    "target": 1,
+    "value": "[{\"id\":\"github.copilot-chat\"}]"
+  },
+  "remote.explorerType": {
+    "target": 0,
+    "value": "tunnel,ssh-remote"
+  },
+  "tabs-list-width-horizontal": {
+    "target": 0,
+    "value": "133"
+  },
+  "terminal.hidden": {
+    "target": 0,
+    "value": "[{\"id\":\"terminal\",\"isHidden\":false},{\"id\":\"workbench.panel.repl.view\",\"isHidden\":false,\"order\":0}]"
+  },
+  "views.customizations": {
+    "target": 0,
+    "value": "{\"viewContainerLocations\":{\"workbench.views.service.panel.3c4e906b-e8ce-412b-bde6-5934fd8aac42\":1},\"viewLocations\":{\"workbench.panel.repl.view\":\"workbench.views.service.panel.3c4e906b-e8ce-412b-bde6-5934fd8aac42\"},\"viewContainerBadgeEnablementStates\":{\"workbench.view.extension.test\":false,\"workbench.panel.chat\":false}}"
+  },
+  "workbench.activity.pinnedViewlets2": {
+    "target": 0,
+    "value": "[{\"id\":\"workbench.view.explorer\",\"pinned\":true,\"visible\":false,\"order\":0},{\"id\":\"workbench.view.search\",\"pinned\":true,\"visible\":false,\"order\":1},{\"id\":\"workbench.view.scm\",\"pinned\":true,\"visible\":false,\"order\":2},{\"id\":\"workbench.view.debug\",\"pinned\":true,\"visible\":false,\"order\":3},{\"id\":\"workbench.view.remote\",\"pinned\":true,\"visible\":false,\"order\":4},{\"id\":\"workbench.view.extensions\",\"pinned\":true,\"visible\":false,\"order\":4},{\"id\":\"workbench.view.extension.test\",\"pinned\":false,\"visible\":false,\"order\":6},{\"id\":\"workbench.view.extension.references-view\",\"pinned\":true,\"visible\":false,\"order\":7},{\"id\":\"workbench.view.extension.codexViewContainer\",\"pinned\":true,\"visible\":false,\"order\":8},{\"id\":\"workbench.view.voiceTranscriptsContainer\",\"pinned\":true,\"visible\":false,\"order\":10},{\"id\":\"workbench.view.sync\",\"pinned\":true,\"visible\":false},{\"id\":\"workbench.view.editSessions\",\"pinned\":true,\"visible\":false}]"
+  },
+  "workbench.activityBar.location": {
+    "target": 0,
+    "value": "default"
+  },
+  "workbench.auxiliarybar.pinnedPanels": {
+    "target": 0,
+    "value": "[{\"id\":\"workbench.panel.chat\",\"pinned\":false,\"visible\":false,\"order\":1},{\"id\":\"workbench.view.extension.codexSecondaryViewContainer\",\"pinned\":true,\"visible\":false,\"order\":101}]"
+  },
+  "workbench.explorer.views.state.hidden": {
+    "target": 0,
+    "value": "[{\"id\":\"outline\",\"isHidden\":false},{\"id\":\"timeline\",\"isHidden\":false},{\"id\":\"workbench.explorer.openEditorsView\",\"isHidden\":true},{\"id\":\"workbench.explorer.emptyView\",\"isHidden\":false},{\"id\":\"workbench.explorer.fileView\",\"isHidden\":false},{\"id\":\"npm\",\"isHidden\":true},{\"id\":\"bazelWorkspace\",\"isHidden\":false},{\"id\":\"go.explorer\",\"isHidden\":false},{\"id\":\"go.package.outline\",\"isHidden\":false}]"
+  },
+  "workbench.panel.alignment": {
+    "target": 0,
+    "value": "center"
+  },
+  "workbench.panel.chat.hidden": {
+    "target": 0,
+    "value": "[{\"id\":\"workbench.panel.chat.view.copilot\",\"isHidden\":false},{\"id\":\"workbench.panel.chat.updateRequired\",\"isHidden\":false}]"
+  },
+  "workbench.panel.pinnedPanels": {
+    "target": 0,
+    "value": "[{\"id\":\"workbench.panel.markers\",\"pinned\":true,\"visible\":false,\"order\":0},{\"id\":\"workbench.panel.output\",\"pinned\":true,\"visible\":false,\"order\":1},{\"id\":\"workbench.panel.repl\",\"pinned\":true,\"visible\":false,\"order\":2},{\"id\":\"terminal\",\"pinned\":true,\"visible\":false,\"order\":3},{\"id\":\"workbench.views.service.panel.3c4e906b-e8ce-412b-bde6-5934fd8aac42\",\"pinned\":true,\"visible\":false},{\"id\":\"workbench.panel.testResults\",\"pinned\":true,\"visible\":false,\"order\":3},{\"id\":\"~remote.forwardedPortsContainer\",\"pinned\":true,\"visible\":false,\"order\":5},{\"id\":\"refactorPreview\",\"pinned\":true,\"visible\":false}]"
+  },
+  "workbench.panel.testResults.state.hidden": {
+    "target": 0,
+    "value": "[{\"id\":\"workbench.panel.testResults.view\",\"isHidden\":false}]"
+  },
+  "workbench.view.extension.codexSecondaryViewContainer.state.hidden": {
+    "target": 0,
+    "value": "[{\"id\":\"chatgpt.sidebarSecondaryView\",\"isHidden\":false}]"
+  },
+  "workbench.view.extension.test.state.hidden": {
+    "target": 0,
+    "value": "[{\"id\":\"workbench.view.testing\",\"isHidden\":false},{\"id\":\"workbench.view.testCoverage\",\"isHidden\":false},{\"id\":\"go.test.profile\",\"isHidden\":false}]"
+  },
+  "workbench.view.extensions.state.hidden": {
+    "target": 0,
+    "value": "[{\"id\":\"workbench.views.extensions.marketplaceAccess\",\"isHidden\":false},{\"id\":\"workbench.views.extensions.installed\",\"isHidden\":false},{\"id\":\"workbench.views.extensions.searchOutdated\",\"isHidden\":false},{\"id\":\"workbench.views.extensions.workspaceRecommendations\",\"isHidden\":false},{\"id\":\"workbench.views.extensions.popular\",\"isHidden\":false},{\"id\":\"workbench.views.extensions.searchRecentlyUpdated\",\"isHidden\":false},{\"id\":\"workbench.views.extensions.otherRecommendations\",\"isHidden\":false},{\"id\":\"extensions.recommendedList\",\"isHidden\":false},{\"id\":\"workbench.views.extensions.enabled\",\"isHidden\":true},{\"id\":\"workbench.views.mcp.installed\",\"isHidden\":false},{\"id\":\"workbench.views.mcp.default.marketplace\",\"isHidden\":false},{\"id\":\"workbench.views.mcp.default.welcomeView\",\"isHidden\":false},{\"id\":\"workbench.views.extensions.disabled\",\"isHidden\":true},{\"id\":\"workbench.views.agentPlugins.installed\",\"isHidden\":false},{\"id\":\"workbench.views.agentPlugins.default.marketplace\",\"isHidden\":true},{\"id\":\"workbench.views.extensions.marketplace\",\"isHidden\":false},{\"id\":\"workbench.views.extensions.searchInstalled\",\"isHidden\":false},{\"id\":\"workbench.views.extensions.searchEnabled\",\"isHidden\":false},{\"id\":\"workbench.views.extensions.searchDisabled\",\"isHidden\":false},{\"id\":\"workbench.views.extensions.searchBuiltin\",\"isHidden\":false},{\"id\":\"workbench.views.extensions.searchWorkspaceUnsupported\",\"isHidden\":false},{\"id\":\"workbench.views.extensions.builtinFeatureExtensions\",\"isHidden\":false},{\"id\":\"workbench.views.extensions.builtinThemeExtensions\",\"isHidden\":false},{\"id\":\"workbench.views.extensions.builtinProgrammingLanguageExtensions\",\"isHidden\":false},{\"id\":\"workbench.views.extensions.untrustedUnsupportedExtensions\",\"isHidden\":false},{\"id\":\"workbench.views.extensions.untrustedPartiallySupportedExtensions\",\"isHidden\":false},{\"id\":\"workbench.views.extensions.virtualUnsupportedExtensions\",\"isHidden\":false},{\"id\":\"workbench.views.extensions.virtualPartiallySupportedExtensions\",\"isHidden\":false},{\"id\":\"workbench.views.extensions.deprecatedExtensions\",\"isHidden\":false},{\"id\":\"workbench.views.extensions.restartRequired\",\"isHidden\":false},{\"id\":\"workbench.views.agentPlugins.marketplace\",\"isHidden\":false},{\"id\":\"workbench.views.mcp.marketplace\",\"isHidden\":false},{\"id\":\"workbench.views.mcp.welcomeView\",\"isHidden\":false},{\"id\":\"workbench.views.extensions.local.installed\",\"isHidden\":false},{\"id\":\"workbench.views.extensions.remote.installed\",\"isHidden\":false}]"
+  },
+  "workbench.view.remote.state.hidden": {
+    "target": 0,
+    "value": "[{\"id\":\"remoteTargets\",\"isHidden\":false},{\"id\":\"~remote.helpPanel\",\"isHidden\":false}]"
+  },
+  "workbench.views.service.panel.3c4e906b-e8ce-412b-bde6-5934fd8aac42.state.hidden": {
+    "target": 0,
+    "value": "[{\"id\":\"workbench.panel.repl.view\",\"isHidden\":false}]"
+  }
+}

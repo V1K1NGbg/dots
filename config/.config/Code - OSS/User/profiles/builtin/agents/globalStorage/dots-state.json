@@ -1,0 +1,22 @@
+{
+  "terminal.hidden": {
+    "target": 0,
+    "value": "[{\"id\":\"terminal\",\"isHidden\":false}]"
+  },
+  "workbench.agentsession.auxiliarybar.pinnedPanels": {
+    "target": 0,
+    "value": "[{\"id\":\"workbench.view.agentSessions.changesContainer\",\"pinned\":true,\"visible\":false,\"order\":10},{\"id\":\"workbench.sessions.auxiliaryBar.filesContainer\",\"pinned\":true,\"visible\":false,\"order\":11}]"
+  },
+  "workbench.agentsession.panel.pinnedPanels": {
+    "target": 0,
+    "value": "[{\"id\":\"workbench.panel.output\",\"pinned\":true,\"visible\":false,\"order\":1},{\"id\":\"terminal\",\"pinned\":true,\"visible\":false,\"order\":3}]"
+  },
+  "workbench.panel.output.hidden": {
+    "target": 0,
+    "value": "[{\"id\":\"workbench.panel.output\",\"isHidden\":false}]"
+  },
+  "workbench.sessions.auxiliaryBar.filesContainer.hidden": {
+    "target": 0,
+    "value": "[{\"id\":\"sessions.files.explorer\",\"isHidden\":false},{\"id\":\"sessions.files.explorer.empty\",\"isHidden\":false}]"
+  }
+}

@@ -201,7 +201,7 @@ bind(mod .. " + Return", hl.dsp.exec_cmd("alacritty"), "Open a terminal")
 bind(mod .. " + B", hl.dsp.exec_cmd("firefox"), "Open a browser")
 bind(mod .. " + SHIFT + P", hl.dsp.exec_cmd("kdeconnect-app"), "Open phone connection")
 bind(mod .. " + E", hl.dsp.exec_cmd("~/.config/rofi/launcher.sh menu"), "Open the Rofi menu")
-bind(mod .. " + C", hl.dsp.exec_cmd("code"), "Open VS Code")
+bind(mod .. " + C", hl.dsp.exec_cmd("code"), "Open Code")
 bind(mod .. " + R", hl.dsp.exec_cmd("~/.config/rofi/launcher.sh"), "Open Run (Tab for menu)")
 bind(mod .. " + P", hl.dsp.exec_cmd("bash ~/.config/hypr/scripts/screenshot.sh"), "Take a screenshot")
 bind(mod .. " + L", hl.dsp.exec_cmd("hyprlock"), "Lock the screen")
@@ -252,8 +252,8 @@ for i = 1, 9 do
     bind(mod .. " + SHIFT + " .. i, function() dots.move(i) end, "Move window to workspace " .. i)
 end
 
-bind(mod .. " + mouse:272", hl.dsp.window.drag(), "Move window with the mouse", { mouse = true })
-bind(mod .. " + mouse:273", hl.dsp.window.resize(), "Resize window with the mouse", { mouse = true })
+bind(mod .. " + mouse:272", function() dots.mouse("drag") end, "Move window with the mouse", { mouse = true })
+bind(mod .. " + mouse:273", function() dots.mouse("resize") end, "Resize window with the mouse", { mouse = true })
 
 -- PipeWire volume and MPRIS media controls.
 bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+"), "Raise volume", { locked = true, repeating = true })

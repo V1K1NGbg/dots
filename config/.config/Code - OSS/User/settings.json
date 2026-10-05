@@ -1,0 +1,19 @@
+{
+    "files.autoSave": "afterDelay",
+    "go.toolsEnvVars": {
+        "GOPACKAGESDRIVER": "${workspaceFolder}/nebazel/tools/gopackagesdriver.sh"
+    },
+    "workbench.colorTheme": "Monokai Mega",
+    "workbench.startupEditor": "none",
+    "git.confirmSync": false,
+    "debug.onTaskErrors": "debugAnyway",
+    "redhat.telemetry.enabled": false,
+    "editor.largeFileOptimizations": false,
+    "workbench.editorLargeFileConfirmation": 20,
+    "diffEditor.maxComputationTime": 0,
+    "explorer.confirmDelete": false,
+    "git.enableSmartCommit": true,
+    "terminal.integrated.initialHint": false,
+    "workbench.experimental.modernUI": false,
+    "security.workspace.trust.untrustedFiles": "newWindow"
+}

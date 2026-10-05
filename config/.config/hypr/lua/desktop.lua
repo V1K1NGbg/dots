@@ -18,6 +18,9 @@ local workspace_rules = {}
 local app_rules = {}
 local history = {}
 local normalize_pending = false
+local rebuild_pending = {}
+local mouse_active = false
+local mouse_window
 local topology = ""
 local labels = {}
 local label_directory = runtime and signature and (runtime .. "/dots-waybar-" .. signature)
@@ -149,7 +152,10 @@ end
 
 local function capture_order(ws)
     local windows = tiled(ws)
-    for i, window in ipairs(windows) do meta(window).order = i end
+    for i, window in ipairs(windows) do
+        local data = meta(window)
+        data.order, data.order_workspace = i, ws.id
+    end
     return windows
 end
 
@@ -157,8 +163,15 @@ local function ordered(ws)
     local windows = tiled(ws)
     table.sort(windows, function(a, b)
         local x, y = meta(a).order or math.huge, meta(b).order or math.huge
+        if x ~= y then return x < y end
+        x, y = meta(a).arrival_order or math.huge, meta(b).arrival_order or math.huge
         return x < y or (x == y and a.stable_id < b.stable_id)
     end)
+    for i, window in ipairs(windows) do
+        local data = meta(window)
+        data.order, data.order_workspace = i, ws.id
+        data.arrival_order = nil
+    end
     return windows
 end
 
@@ -166,7 +179,7 @@ end
 -- swaps, fullscreen and grouping remain compositor operations.
 function M.rebuild(ws)
     ws = ws or active_workspace()
-    if not ws or ws.special or ws.tiled_layout ~= "dwindle" or rebuilding then return end
+    if not ws or ws.special or ws.tiled_layout ~= "dwindle" or rebuilding or mouse_active then return end
     local windows = ordered(ws)
     if #windows == 0 then return end
     local focused = hl.get_active_window()
@@ -182,7 +195,6 @@ function M.rebuild(ws)
             hl.dispatch(hl.dsp.layout("preselect " .. core.split_direction(i)))
         end
         float(window, false)
-        meta(window).order = i
     end
     hl.dispatch(hl.dsp.layout("preselect none"))
     rebuilding = false
@@ -192,6 +204,39 @@ function M.rebuild(ws)
         hl.dispatch(hl.dsp.focus({ workspace = original_id }))
     end
     save()
+end
+
+local function schedule_rebuild(id)
+    if not id or id <= 0 or rebuilding or rebuild_pending[id] then return end
+    rebuild_pending[id] = true
+    -- Moves and workspace rules settle after their event callback. Batch a
+    -- dock/undock burst and resolve the workspace again; it may be gone by then.
+    later(function()
+        rebuild_pending[id] = nil
+        if mouse_active then schedule_rebuild(id); return end
+        local ws = hl.get_workspace(id)
+        if ws then M.rebuild(ws) end
+    end, 150)
+end
+
+function M.mouse(action)
+    -- Native mouse dispatchers request a second invocation on button release.
+    -- Keep using that lifecycle, but postpone repairs until the drag has ended.
+    if mouse_active then
+        local window = mouse_window
+        hl.dispatch(hl.dsp.window[action]())
+        mouse_active, mouse_window = false, nil
+        if action == "drag" and window and window.mapped and not window.floating and window.workspace then
+            capture_order(window.workspace)
+        end
+    else
+        mouse_active = true
+        mouse_window = hl.get_active_window()
+        if action == "drag" and mouse_window and not mouse_window.floating and mouse_window.workspace then
+            schedule_rebuild(mouse_window.workspace.id)
+        end
+        hl.dispatch(hl.dsp.window[action]())
+    end
 end
 
 hl.layout.register("fair", {
@@ -204,6 +249,10 @@ hl.layout.register("fair", {
             return x < y or (x == y and a.index < b.index)
         end)
         for i, target in ipairs(targets) do
+            if target.window and target.window.workspace then
+                local data = meta(target.window)
+                data.order, data.order_workspace = i, target.window.workspace.id
+            end
             target:place(core.fair_cell(i, #ctx.targets, ctx.area))
         end
     end,
@@ -409,7 +458,7 @@ function M.magnify()
 end
 
 local apps = {
-    { "(com\\.microsoft\\.VSCode|[Cc]ode)", 1 },
+    { "(com\\.visualstudio\\.(code\\.oss|CodeOSS)|[Cc]ode(-[Oo][Ss][Ss]| - OSS)?)", 1 },
     { "[Ff]irefox", 2 }, { "[Aa]lacritty", 3 },
     { "[Nn]emo", 4 }, { "[Dd]iscord", 5 }, { "[Ss]potify", 6 },
     { "(org\\.keepassxc\\.KeePassXC|[Kk]ee[Pp]ass[Xx][Cc])", 7 }, { "[Ss]team", 8 },
@@ -530,19 +579,28 @@ function M.setup()
     hl.on("monitor.added", schedule_reconcile)
     hl.on("monitor.removed", schedule_reconcile)
     hl.on("workspace.created", schedule_reconcile)
-    hl.on("window.move_to_workspace", function(window)
-        if window and window.monitor and meta(window).sticky then
-            meta(window).monitor = window.monitor.name
+    hl.on("window.move_to_workspace", function(window, ws)
+        if window then
+            ws = ws or window.workspace
+            local data = meta(window)
+            if not window.floating or mouse_window == window then schedule_rebuild(data.order_workspace) end
+            if ws and not ws.special then
+                if data.order_workspace ~= ws.id then
+                    data.arrival_order = data.order or data.arrival_order
+                    data.order = nil
+                end
+                data.order_workspace = ws.id
+                if not window.floating or mouse_window == window then schedule_rebuild(ws.id) end
+                -- The window's monitor may still be the source during this event.
+                if data.sticky and ws.monitor then data.monitor = ws.monitor.name end
+            end
         end
         schedule_reconcile()
     end)
     hl.on("window.open", function(window)
         local ws = window.workspace
         if ws and ws.tiled_layout == "dwindle" and not window.floating then
-            local id = key(window)
-            later(function()
-                if find(id) then M.rebuild(ws) end
-            end)
+            schedule_rebuild(ws.id)
         end
         reassert_top()
         save()
@@ -576,6 +634,7 @@ function M.setup()
     hl.on("window.fullscreen", function() later(sync_bar) end)
     hl.on("window.close", function(window)
         local ws = window.workspace
+        if ws and not window.floating then schedule_rebuild(ws.id) end
         state.windows[key(window)] = nil
         later(function()
             if ws then previous_focus(ws.id) end
