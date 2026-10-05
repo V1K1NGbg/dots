@@ -41,9 +41,6 @@ systemctl --user start \
     hyprsunset.service || true
 
 bash "$HOME/.config/hypr/scripts/waybar.sh" ensure 9>&- &
-spawn nm-applet --indicator
-spawn blueman-applet
-command -v kdeconnect-indicator >/dev/null && spawn kdeconnect-indicator
 spawn pcloud
 spawn mako
 spawn wl-paste --type text --watch cliphist store

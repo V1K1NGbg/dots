@@ -7,7 +7,7 @@ app=${1:?Usage: apply.sh discord|spotify}
 case $app in discord|spotify) ;; *) echo "Unsupported app theme: $app (use discord or spotify)" >&2; exit 2 ;; esac
 config=${XDG_CONFIG_HOME:-$HOME/.config}
 data=${XDG_DATA_HOME:-$HOME/.local/share}
-state=${XDG_STATE_HOME:-$HOME/.local/state}/dots-app-themes
+state=${XDG_STATE_HOME:-$HOME/.local/state}/themeapply
 mkdir -p "$state"
 exec 9>"$state/$app.lock"
 flock -n 9 || exit 0
@@ -61,7 +61,7 @@ curl --fail --location --silent --show-error --max-time 180 "$url" -o "$scratch/
 printf '%s  %s\n' "${digest#sha256:}" "$scratch/tool.tar.gz" | sha256sum --check --status
 mkdir "$scratch/tool"
 tar -xzf "$scratch/tool.tar.gz" --no-same-owner -C "$scratch/tool"
-tool=$data/dots-app-themes/$app
+tool=$data/themeapply/$app
 mkdir -p "$tool"
 cp -R "$scratch/tool/." "$tool/"
 

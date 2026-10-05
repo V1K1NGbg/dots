@@ -7,4 +7,4 @@ Target = @PACKAGE@
 [Action]
 Description = Reapply @APP@ theme for @USER@
 When = PostTransaction
-Exec = /usr/bin/systemctl --user --machine=@USER@@.host --no-block start dots-app-theme@@APP@.service
+Exec = /usr/bin/systemctl --user --machine=@USER@@.host --no-block start themeapply@@APP@.service

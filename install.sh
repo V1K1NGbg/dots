@@ -237,8 +237,8 @@ check_nvm()               { (load_nvm && [[ "$(nvm version default)" != "N/A" ]]
 check_vtop()              { (load_nvm && nvm use default && cmd_exists vtop) &>/dev/null; }
 check_docker()            { systemctl is-enabled docker.service &>/dev/null; }
 check_pcloud()            { cmd_exists pcloud; }
-check_discord()           { [[ -f /etc/pacman.d/hooks/95-dots-discord-theme.hook ]]; }
-check_spotify()           { [[ -f /etc/pacman.d/hooks/95-dots-spotify-theme.hook ]]; }
+check_discord()           { [[ -f /etc/pacman.d/hooks/95-themeapply-discord.hook ]]; }
+check_spotify()           { [[ -f /etc/pacman.d/hooks/95-themeapply-spotify.hook ]]; }
 check_vscode()            { is_marked "vscode_setup"; }
 check_firefox()           { is_marked "firefox_setup"; }
 check_steam()             { is_marked "steam_setup"; }
@@ -594,8 +594,8 @@ install_dotfiles() {
     local config_dir path backup
     local -a config_paths=()
     for config_dir in \
-        BetterDiscord alacritty dots-app-themes fontconfig garden gtk-3.0 gtk-4.0 hypr keepassxc mako miku \
-        opencode qt5ct qt6ct spicetify systemd uwsm visualizer waybar; do
+        BetterDiscord alacritty fontconfig garden gtk-3.0 gtk-4.0 hypr keepassxc mako miku \
+        opencode qt5ct qt6ct spicetify systemd themeapply uwsm visualizer waybar; do
         config_paths+=(".config/$config_dir")
     done
     # Initial setup can replace defaults created by applications or /etc/skel.
@@ -751,17 +751,17 @@ install_app_theme() {
         print_error 'Unsupported username for the application theme hook.'
         return 1
     }
-    [[ -f $HOME/.config/dots-app-themes/apply.sh &&
-       -f $HOME/.config/systemd/user/dots-app-theme@.service ]] || {
+    [[ -f $HOME/.config/themeapply/apply.sh &&
+       -f $HOME/.config/systemd/user/themeapply@.service ]] || {
         print_error 'Run Copy dotfiles before application theme setup.'
         return 1
     }
-    hook="$STATE_DIR/$app-theme.hook"
+    hook="$STATE_DIR/themeapply-$app.hook"
     sed -e "s/@APP@/$app/g" -e "s/@PACKAGE@/$package/g" -e "s/@USER@/$user/g" \
-        "$CONFIG_DIR/system/pacman-hooks/95-dots-app-theme.hook" > "$hook"
-    sudo install -Dm0644 "$hook" "/etc/pacman.d/hooks/95-dots-$app-theme.hook"
+        "$CONFIG_DIR/system/pacman-hooks/95-themeapply.hook" > "$hook"
+    sudo install -Dm0644 "$hook" "/etc/pacman.d/hooks/95-themeapply-$app.hook"
     systemctl --user daemon-reload
-    systemctl --user start "dots-app-theme@$app.service"
+    systemctl --user start "themeapply@$app.service"
 }
 
 install_discord() {
