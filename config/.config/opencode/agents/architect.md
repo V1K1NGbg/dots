@@ -1,20 +1,21 @@
 ---
 description: Designs system architecture, APIs, and technical solutions
 mode: subagent
-temperature: 0.3
 color: "#35ddff"
 steps: 40
-permission:
-  edit: deny
-  task: deny
-  bash:
-    "*": deny
-    "git status*": allow
-    "git diff*": allow
-    "git log*": allow
-    "git show*": allow
-    "git ls-files*": allow
-    "git blame*": allow
+permissions:
+  - {"action": "edit", "resource": "*", "effect": "deny"}
+  - {"action": "subagent", "resource": "*", "effect": "deny"}
+  - {"action": "shell", "resource": "*", "effect": "deny"}
+  - {"action": "shell", "resource": "git status*", "effect": "allow"}
+  - {"action": "shell", "resource": "git diff*", "effect": "allow"}
+  - {"action": "shell", "resource": "git log*", "effect": "allow"}
+  - {"action": "shell", "resource": "git show*", "effect": "allow"}
+  - {"action": "shell", "resource": "git ls-files*", "effect": "allow"}
+  - {"action": "shell", "resource": "git blame*", "effect": "allow"}
+  - {"action": "shell", "resource": "git *--output*", "effect": "deny"}
+  - {"action": "shell", "resource": "git *--ext-diff*", "effect": "deny"}
+  - {"action": "shell", "resource": "git *--textconv*", "effect": "deny"}
 ---
 
 Design a solution grounded in the existing system and the user's constraints. Inspect relevant entry points, interfaces, data models, and operational requirements first.

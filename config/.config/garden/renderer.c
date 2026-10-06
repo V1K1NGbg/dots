@@ -20,7 +20,7 @@
 
 typedef struct { guint32 seed; gint64 created; double seconds; } Tree;
 typedef struct { char glyph; unsigned char color; } Cell;
-typedef struct { double x, y, phase, speed; char glyph; } Star;
+typedef struct { double x, y, phase, speed; int blinks; char glyph; } Star;
 typedef struct { double x, y, dx, dy; } Flight;
 typedef struct {
     GtkWidget *window;
@@ -199,6 +199,19 @@ static Flight flight(guint32 seed, gboolean comet) {
         direction * (0.16 + unit(seed + 3) * 0.28), 0.08 + unit(seed + 4) * 0.20};
 }
 
+static double star_alpha(Star *star, double time) {
+    double phase = time * star->speed + star->phase;
+    if (phase >= star->blinks * 2 * G_PI) {
+        star->x = g_random_double();
+        star->y = g_random_double();
+        star->blinks = g_random_int_range(1, 6);
+        /* Move while invisible, then fade in at the new position. */
+        star->phase = -time * star->speed;
+        phase = 0;
+    }
+    return 0.62 * pow((1 - cos(phase)) / 2, 2);
+}
+
 #ifndef GARDEN_TEST
 static GPtrArray *surfaces;
 static gboolean preview, frozen;
@@ -245,7 +258,7 @@ static void init_art(Surface *s) {
     s->tree_hour = -1;
     for (int i = 0; i < STARS; i++)
         s->stars[i] = (Star){g_random_double(), g_random_double(), g_random_double_range(0, 2 * G_PI),
-            g_random_double_range(0.35, 1.1), ".+*"[g_random_int_range(0, 3)]};
+            g_random_double_range(0.35, 1.1), g_random_int_range(1, 6), ".+*"[g_random_int_range(0, 3)]};
     s->meteor_at = 2;
     s->sky_seed = g_random_int();
     s->meteor_seed = g_random_int();
@@ -354,9 +367,9 @@ static void paint(Surface *s, cairo_t *cr, double width, double height, double t
     milky_way(s, cr, (int)width, (int)height);
     for (int i = 0; i < STARS; i++) {
         Star *star = &s->stars[i];
-        double x = fmod(star->x + time * 0.00009 * (1 + i % 3), 1) * width;
-        double y = fmod(star->y + time * 0.00002 * (1 + i % 2), 1) * height;
-        double alpha = 0.14 + 0.48 * pow((sin(time * star->speed + star->phase) + 1) / 2, 2);
+        double alpha = star_alpha(star, time);
+        double x = star->x * width;
+        double y = star->y * height;
         glyph(s, cr, star->glyph, x, y, i % 9 == 0 ? 5 : 0, alpha);
     }
     space(s, cr, width, height, time);

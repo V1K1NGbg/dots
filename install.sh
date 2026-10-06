@@ -294,10 +294,7 @@ install_plymouth() {
     print_step "Configuring dracut for Plymouth..."
     echo 'add_dracutmodules+=" plymouth "' | sudo tee /etc/dracut.conf.d/plymouth.conf > /dev/null
     print_step "Setting Plymouth theme..."
-    install_monocraft
-    configure_fonts --system "${HOME}/.local/share/fonts/Monocraft-nerd-fonts-patched.ttc"
-    print_step "Rebuilding UKI..."
-    rebuild_initramfs
+    install_system_fonts
     mark_done plymouth
     print_success "Plymouth configured"
 }
@@ -377,10 +374,10 @@ font_ini() {
 font_desktop() {
     local family='Monocraft Nerd Font' version key schema value actual
     [[ $EUID != 0 ]] || { print_error 'Run desktop font setup without sudo'; return 1; }
-    [[ $(fc-match -f '%{family}' Monocraft) == Monocraft ]] || {
+    font_install "$CONFIG_DIR/.config/fontconfig/conf.d/99-monocraft.conf" "$HOME/.config/fontconfig/conf.d/99-monocraft.conf"
+    [[ $(fc-match -f '%{family}' "$family") == "$family" ]] || {
         print_error 'Install Monocraft Nerd Font first'; return 1;
     }
-    font_install "$CONFIG_DIR/.config/fontconfig/conf.d/99-monocraft.conf" "$HOME/.config/fontconfig/conf.d/99-monocraft.conf"
     for version in 3.0 4.0; do
         font_ini "$HOME/.config/gtk-$version/settings.ini" Settings gtk-font-name "$family 10"
     done
@@ -405,7 +402,7 @@ SETTINGS
     fc-cache -f
     for family in 'Monocraft Nerd Font' sans-serif serif monospace Arial 'Adwaita Sans'; do
         actual=$(fc-match -f '%{family}' "$family")
-        [[ $actual == Monocraft ]] || { print_error "Font check failed: $family -> $actual"; return 1; }
+        [[ $actual == 'Monocraft Nerd Font' ]] || { print_error "Font check failed: $family -> $actual"; return 1; }
         printf '%s -> %s\n' "$family" "$actual"
     done
     if command -v makoctl >/dev/null; then makoctl reload || :; fi
@@ -467,11 +464,12 @@ configure_fonts() (
 install_monocraft() {
     print_header "Installing Monocraft Nerd Font"
     mkdir -p "${HOME}/.local/share/fonts"
-    print_step "Installing bundled font..."
+    # Keep master's v4.0 glyphs and metrics; later releases change terminal spacing.
+    print_step "Installing bundled Monocraft Nerd Font v4.0..."
     install -m0644 "$SCRIPT_DIR/assets/fonts/Monocraft-nerd-fonts-patched.ttc" \
         "${HOME}/.local/share/fonts/Monocraft-nerd-fonts-patched.ttc"
     print_step "Refreshing font cache..."
-    fc-cache
+    fc-cache -f
     fc-list | grep -i monocraft
     configure_fonts
     print_success "Monocraft font installed and desktop defaults applied"
@@ -479,8 +477,9 @@ install_monocraft() {
 
 install_system_fonts() {
     print_header "Configure Monocraft throughout the system"
+    # An older system rule can override the new user rule during desktop checks.
+    configure_fonts --system "$SCRIPT_DIR/assets/fonts/Monocraft-nerd-fonts-patched.ttc"
     install_monocraft
-    configure_fonts --system "${HOME}/.local/share/fonts/Monocraft-nerd-fonts-patched.ttc"
     rebuild_initramfs
     print_success "System fonts configured; reboot to use the boot and console fonts"
 }

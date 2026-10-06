@@ -3,9 +3,8 @@ description: UI/UX development, accessibility, responsive design, and frontend b
 mode: subagent
 color: "#67ffeb"
 steps: 60
-temperature: 0.2
-permission:
-  edit: allow
+permissions:
+  - {"action": "edit", "resource": "*", "effect": "allow"}
 ---
 
 You are a senior frontend engineer. Modern web development, accessibility, and user experience.

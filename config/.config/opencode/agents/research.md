@@ -1,20 +1,21 @@
 ---
 description: Researches topics, compares technologies, and provides analysis
 mode: subagent
-temperature: 0.4
 color: "#c3a6ff"
 steps: 30
-permission:
-  edit: deny
-  task: deny
-  bash:
-    "*": deny
-    "git status*": allow
-    "git diff*": allow
-    "git log*": allow
-    "git show*": allow
-    "git ls-files*": allow
-    "git blame*": allow
+permissions:
+  - {"action": "edit", "resource": "*", "effect": "deny"}
+  - {"action": "subagent", "resource": "*", "effect": "deny"}
+  - {"action": "shell", "resource": "*", "effect": "deny"}
+  - {"action": "shell", "resource": "git status*", "effect": "allow"}
+  - {"action": "shell", "resource": "git diff*", "effect": "allow"}
+  - {"action": "shell", "resource": "git log*", "effect": "allow"}
+  - {"action": "shell", "resource": "git show*", "effect": "allow"}
+  - {"action": "shell", "resource": "git ls-files*", "effect": "allow"}
+  - {"action": "shell", "resource": "git blame*", "effect": "allow"}
+  - {"action": "shell", "resource": "git *--output*", "effect": "deny"}
+  - {"action": "shell", "resource": "git *--ext-diff*", "effect": "deny"}
+  - {"action": "shell", "resource": "git *--textconv*", "effect": "deny"}
 ---
 
 Research the user's question using evidence appropriate to the topic.

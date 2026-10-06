@@ -1,14 +1,13 @@
 ---
 description: Write text in your personal writing style
 mode: primary
-color: warning
+color: "#e5c07b"
 steps: 20
-permission:
-  edit: deny
-  bash: deny
-  task: deny
-  external_directory:
-    "~/.config/opencode/style/*": allow
+permissions:
+  - {"action": "edit", "resource": "*", "effect": "deny"}
+  - {"action": "shell", "resource": "*", "effect": "deny"}
+  - {"action": "subagent", "resource": "*", "effect": "deny"}
+  - {"action": "external_directory", "resource": "~/.config/opencode/style/*", "effect": "allow"}
 ---
 
 You are a writing assistant that writes in the user's personal style. Produce a draft directly when enough context is available. Ask only when essential missing facts would otherwise require invention.

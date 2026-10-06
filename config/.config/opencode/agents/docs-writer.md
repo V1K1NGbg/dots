@@ -1,12 +1,11 @@
 ---
 description: Writes and improves documentation, READMEs, and technical writing
 mode: subagent
-temperature: 0.3
 color: "#a2f300"
 steps: 40
-permission:
-  edit: allow
-  task: deny
+permissions:
+  - {"action": "edit", "resource": "*", "effect": "allow"}
+  - {"action": "subagent", "resource": "*", "effect": "deny"}
 ---
 
 Write documentation that matches the implemented behavior and its intended audience. Read relevant source, existing docs, and project conventions before editing.

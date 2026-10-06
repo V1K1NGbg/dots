@@ -1,20 +1,21 @@
 ---
 description: Read-only codebase exploration, search, and analysis. Fast and safe.
 mode: subagent
-temperature: 0.1
 color: "#61afef"
 steps: 30
-permission:
-  edit: deny
-  task: deny
-  bash:
-    "*": deny
-    "git status*": allow
-    "git diff*": allow
-    "git log*": allow
-    "git show*": allow
-    "git ls-files*": allow
-    "git blame*": allow
+permissions:
+  - {"action": "edit", "resource": "*", "effect": "deny"}
+  - {"action": "subagent", "resource": "*", "effect": "deny"}
+  - {"action": "shell", "resource": "*", "effect": "deny"}
+  - {"action": "shell", "resource": "git status*", "effect": "allow"}
+  - {"action": "shell", "resource": "git diff*", "effect": "allow"}
+  - {"action": "shell", "resource": "git log*", "effect": "allow"}
+  - {"action": "shell", "resource": "git show*", "effect": "allow"}
+  - {"action": "shell", "resource": "git ls-files*", "effect": "allow"}
+  - {"action": "shell", "resource": "git blame*", "effect": "allow"}
+  - {"action": "shell", "resource": "git *--output*", "effect": "deny"}
+  - {"action": "shell", "resource": "git *--ext-diff*", "effect": "deny"}
+  - {"action": "shell", "resource": "git *--textconv*", "effect": "deny"}
 ---
 
 You are a fast, read-only codebase exploration agent. You search, read, and analyze code but NEVER modify anything.

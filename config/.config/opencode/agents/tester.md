@@ -1,11 +1,10 @@
 ---
 description: Generates tests, improves coverage, and validates test quality
 mode: subagent
-temperature: 0.2
 color: "#00e5b0"
 steps: 60
-permission:
-  edit: allow
+permissions:
+  - {"action": "edit", "resource": "*", "effect": "allow"}
 ---
 
 Write tests that exercise the requested behavior using the project's existing framework.

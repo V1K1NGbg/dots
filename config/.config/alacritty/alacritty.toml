@@ -37,26 +37,25 @@ WINIT_UNIX_BACKEND = "wayland"
 size = 10
 
 [font.bold]
-family = "Monocraft"
+family = "Monocraft Nerd Font"
 style = "Bold"
 
 [font.bold_italic]
-family = "Monocraft"
+family = "Monocraft Nerd Font"
 style = "Bold Italic"
 
 [font.italic]
-family = "Monocraft"
+family = "Monocraft Nerd Font"
 style = "Italic"
 
 [font.normal]
-family = "Monocraft"
+family = "Monocraft Nerd Font"
 style = "Regular"
 
 [font.offset]
 x = 0
-# Trim the bundled font's extra vertical spacing at size 10.
-y = -2
+y = 0
 
 [window]
 dynamic_padding = true
-opacity = 0.85
+opacity = 0.7

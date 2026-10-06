@@ -1,47 +1,48 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "logLevel": "WARN",
   "model": "llamacpp/qwen3.8-27b-uncensored",
-  "provider": {
+  "providers": {
     "llamacpp": {
-      "npm": "@ai-sdk/openai-compatible",
       "name": "llama.cpp",
-      "options": {
-        "baseURL": "http://127.0.0.1:8080/v1"
-      },
       "models": {
         "qwen3.8-27b-uncensored": {
           "name": "Qwen3.8 27B Uncensored (local, Q4_K_M)",
-          "tool_call": true,
-          "reasoning": true,
-          "interleaved": {
-            "field": "reasoning_content"
-          },
           "limit": {
             "context": 32768,
             "output": 8192
+          },
+          "capabilities": {
+            "tools": true,
+            "input": [
+              "text"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "compatibility": {
+            "reasoningField": "reasoning_content"
           }
         }
+      },
+      "package": "@opencode/ai/providers/openai-compatible",
+      "settings": {
+        "baseURL": "http://127.0.0.1:8080/v1"
       }
     }
   },
   "share": "manual",
-  "autoupdate": false,
-  "snapshot": true,
+  "update": "disable",
+  "snapshots": true,
   "default_agent": "build",
-  "skills": {
-    "paths": [
-      "~/.skills"
-    ]
-  },
+  "skills": [
+    "~/.skills"
+  ],
   "instructions": [
     "INSTRUCTIONS.md",
     ".opencode/instructions.md",
     ".github/copilot-instructions.md"
   ],
-  "experimental": {
-    "batch_tool": true
-  },
   "watcher": {
     "ignore": [
       "node_modules/**",
@@ -78,88 +79,81 @@
     ]
   },
   "formatter": true,
-  "lsp": true,
-  "permission": {
-    "bash": {
-      "*": "allow",
-      "rm *": "ask",
-      "sudo *": "ask",
-      "chmod *": "ask",
-      "chown *": "ask",
-      "kill *": "ask",
-      "pkill *": "ask",
-      "dd *": "ask",
-      "mkfs *": "ask",
-      "mv /*": "ask",
-      "git push --force*": "ask",
-      "git reset --hard*": "ask",
-      "git clean *": "ask",
-      "docker rm *": "ask",
-      "docker rmi *": "ask",
-      "docker system prune*": "ask",
-      "curl * | bash": "ask",
-      "curl * | sh": "ask",
-      "wget * | bash": "ask",
-      "wget * | sh": "ask",
-      "shutdown*": "deny",
-      "reboot*": "deny",
-      "systemctl stop*": "ask",
-      "systemctl disable*": "ask",
-      "iptables *": "ask",
-      "ip6tables *": "ask",
-      "mount *": "ask",
-      "umount *": "ask",
-      "fdisk *": "deny",
-      "parted *": "deny",
-      "npm publish*": "ask",
-      "cargo publish*": "ask",
-      "pip install*": "ask",
-      "apt install*": "ask",
-      "apt remove*": "ask",
-      "pacman -R*": "ask",
-      "crontab *": "ask",
-      "ssh *": "ask",
-      "scp *": "ask",
-      "rsync *": "ask",
-      "git push*": "ask",
-      "git reset*": "ask",
-      "git restore*": "ask",
-      "git checkout*": "ask",
-      "git branch -D*": "ask",
-      "git branch -d*": "ask",
-      "git commit --amend*": "ask",
-      "gh pr create*": "ask",
-      "gh pr merge*": "ask",
-      "gh pr review*": "ask",
-      "gh issue create*": "ask",
-      "gh issue comment*": "ask",
-      "mkfs*": "deny",
-      "rm -rf /": "deny",
-      "rm -rf /*": "deny"
-    },
-    "edit": "allow",
-    "glob": "allow",
-    "grep": "allow",
-    "list": "allow",
-    "task": "allow",
-    "todowrite": "allow",
-    "question": "allow",
-    "webfetch": "allow",
-    "websearch": "allow",
-    "lsp": "allow",
-    "skill": "allow",
-    "external_directory": "ask",
-    "doom_loop": "ask"
-  },
-  "command": {
+  "permissions": [
+    {"action": "shell", "resource": "*", "effect": "allow"},
+    {"action": "shell", "resource": "rm *", "effect": "ask"},
+    {"action": "shell", "resource": "sudo *", "effect": "ask"},
+    {"action": "shell", "resource": "chmod *", "effect": "ask"},
+    {"action": "shell", "resource": "chown *", "effect": "ask"},
+    {"action": "shell", "resource": "kill *", "effect": "ask"},
+    {"action": "shell", "resource": "pkill *", "effect": "ask"},
+    {"action": "shell", "resource": "dd *", "effect": "ask"},
+    {"action": "shell", "resource": "mkfs *", "effect": "ask"},
+    {"action": "shell", "resource": "mv /*", "effect": "ask"},
+    {"action": "shell", "resource": "git push --force*", "effect": "ask"},
+    {"action": "shell", "resource": "git reset --hard*", "effect": "ask"},
+    {"action": "shell", "resource": "git clean *", "effect": "ask"},
+    {"action": "shell", "resource": "docker rm *", "effect": "ask"},
+    {"action": "shell", "resource": "docker rmi *", "effect": "ask"},
+    {"action": "shell", "resource": "docker system prune*", "effect": "ask"},
+    {"action": "shell", "resource": "curl * | bash", "effect": "ask"},
+    {"action": "shell", "resource": "curl * | sh", "effect": "ask"},
+    {"action": "shell", "resource": "wget * | bash", "effect": "ask"},
+    {"action": "shell", "resource": "wget * | sh", "effect": "ask"},
+    {"action": "shell", "resource": "shutdown*", "effect": "deny"},
+    {"action": "shell", "resource": "reboot*", "effect": "deny"},
+    {"action": "shell", "resource": "systemctl stop*", "effect": "ask"},
+    {"action": "shell", "resource": "systemctl disable*", "effect": "ask"},
+    {"action": "shell", "resource": "iptables *", "effect": "ask"},
+    {"action": "shell", "resource": "ip6tables *", "effect": "ask"},
+    {"action": "shell", "resource": "mount *", "effect": "ask"},
+    {"action": "shell", "resource": "umount *", "effect": "ask"},
+    {"action": "shell", "resource": "fdisk *", "effect": "deny"},
+    {"action": "shell", "resource": "parted *", "effect": "deny"},
+    {"action": "shell", "resource": "npm publish*", "effect": "ask"},
+    {"action": "shell", "resource": "cargo publish*", "effect": "ask"},
+    {"action": "shell", "resource": "pip install*", "effect": "ask"},
+    {"action": "shell", "resource": "apt install*", "effect": "ask"},
+    {"action": "shell", "resource": "apt remove*", "effect": "ask"},
+    {"action": "shell", "resource": "pacman -R*", "effect": "ask"},
+    {"action": "shell", "resource": "crontab *", "effect": "ask"},
+    {"action": "shell", "resource": "ssh *", "effect": "ask"},
+    {"action": "shell", "resource": "scp *", "effect": "ask"},
+    {"action": "shell", "resource": "rsync *", "effect": "ask"},
+    {"action": "shell", "resource": "git push*", "effect": "ask"},
+    {"action": "shell", "resource": "git reset*", "effect": "ask"},
+    {"action": "shell", "resource": "git restore*", "effect": "ask"},
+    {"action": "shell", "resource": "git checkout*", "effect": "ask"},
+    {"action": "shell", "resource": "git branch -D*", "effect": "ask"},
+    {"action": "shell", "resource": "git branch -d*", "effect": "ask"},
+    {"action": "shell", "resource": "git commit --amend*", "effect": "ask"},
+    {"action": "shell", "resource": "gh pr create*", "effect": "ask"},
+    {"action": "shell", "resource": "gh pr merge*", "effect": "ask"},
+    {"action": "shell", "resource": "gh pr review*", "effect": "ask"},
+    {"action": "shell", "resource": "gh issue create*", "effect": "ask"},
+    {"action": "shell", "resource": "gh issue comment*", "effect": "ask"},
+    {"action": "shell", "resource": "mkfs*", "effect": "deny"},
+    {"action": "shell", "resource": "rm -rf /", "effect": "deny"},
+    {"action": "shell", "resource": "rm -rf /*", "effect": "deny"},
+    {"action": "edit", "resource": "*", "effect": "allow"},
+    {"action": "glob", "resource": "*", "effect": "allow"},
+    {"action": "grep", "resource": "*", "effect": "allow"},
+    {"action": "subagent", "resource": "*", "effect": "deny"},
+    {"action": "question", "resource": "*", "effect": "allow"},
+    {"action": "webfetch", "resource": "*", "effect": "allow"},
+    {"action": "websearch", "resource": "*", "effect": "allow"},
+    {"action": "skill", "resource": "*", "effect": "allow"},
+    {"action": "external_directory", "resource": "*", "effect": "ask"}
+  ],
+  "commands": {
     "refactor": {
       "description": "Refactor code for clarity and performance",
-      "template": "Refactor the following code. Explain what you changed and why.\n$ARGUMENTS",
+      "template": "Refactor only the requested code while preserving observable behavior and public interfaces unless a change is explicitly requested. Prefer existing helpers and simpler code; avoid speculative abstractions. Run focused checks and explain the material changes.\n$ARGUMENTS",
       "agent": "build"
     },
     "explain": {
       "description": "Explain code in depth",
-      "template": "Explain the following code in detail -- high-level purpose, data/control flow, design patterns, edge cases, complexity.\n$ARGUMENTS",
+      "template": "Explain the requested code using its actual callers and data flow. Start with its purpose, then cover the details relevant to the question. Use file references and a small example where useful; scale depth to the request.\n$ARGUMENTS",
       "agent": "explore"
     },
     "deps": {
@@ -169,7 +163,7 @@
     },
     "clean": {
       "description": "Clean up project artifacts",
-      "template": "Clean up build artifacts, caches, and ignored files. Ask before each destructive operation.\n$ARGUMENTS",
+      "template": "Inspect build artifacts, caches, and ignored files relevant to: $ARGUMENTS\nList exact cleanup targets and use a dry run where available. Preserve source, credentials, user data, and unfamiliar files. Obtain approval for concrete destructive targets unless the user already explicitly authorized those targets; then execute and verify.",
       "agent": "build"
     },
     "scaffold": {
@@ -189,7 +183,7 @@
     },
     "test": {
       "description": "Write or run tests",
-      "template": "Write comprehensive tests (happy path, errors, edge cases) for: $ARGUMENTS\n\nUse the project's existing test framework and patterns. Run and fix failures.",
+      "template": "Add or run the smallest useful tests for: $ARGUMENTS\nFollow existing test conventions and check observable behavior, important boundaries, and realistic failure cases. For a bug, show the regression test catches the original behavior when feasible. Run focused checks, investigate failures, and report validation limits.",
       "agent": "tester"
     },
     "commit": {
@@ -199,7 +193,7 @@
     },
     "review": {
       "description": "Review code for bugs, security, and best practices",
-      "template": "Review the following code thoroughly. Follow the review process in your agent instructions.\n$ARGUMENTS",
+      "template": "Review the requested changes without editing: $ARGUMENTS\nIf no scope is given, inspect staged, unstaged, and relevant untracked changes. Trace affected callers and report actionable correctness, security, or regression findings with severity, file:line, triggering conditions, impact, and a concise fix. Lead with findings; do not invent issues or demand stylistic rewrites.",
       "agent": "code-reviewer"
     },
     "perf": {
@@ -209,7 +203,7 @@
     },
     "security": {
       "description": "Run a security audit",
-      "template": "Security audit (OWASP methodology): $ARGUMENTS",
+      "template": "Review the security of: $ARGUMENTS\nInspect the relevant trust boundaries and trace untrusted input to sensitive operations. Report evidenced vulnerabilities and prerequisites; distinguish confirmed issues from hypotheses. Keep the review read-only and do not probe live targets or access secrets.",
       "agent": "security"
     },
     "docker": {
@@ -259,7 +253,7 @@
     },
     "pdf": {
       "description": "Read and analyse PDF files",
-      "template": "Read and analyse: $ARGUMENTS\n\nUse `pdftotext \"<path>\" -` to extract text. Do NOT open .pdf files directly.",
+      "template": "Read and analyse: $ARGUMENTS\nUse the PDF-capable read tool or pdftotext for extraction. Inspect rendered pages when charts, scans, or layout matter. Cite page numbers and distinguish extracted content from inference; do not interpret PDF bytes as plain text.",
       "agent": "build"
     },
     "fix": {
@@ -269,7 +263,7 @@
     },
     "plan": {
       "description": "Think through a problem before implementing",
-      "template": "Investigate and produce an actionable plan for: $ARGUMENTS\nDo not implement. Include the affected files, tradeoffs, and validation steps. Ask only for missing information that changes the plan.",
+      "template": "Investigate and produce an actionable plan for: $ARGUMENTS\nResolve discoverable facts from the project first; ask about consequential missing requirements or tradeoffs. Include the behavior and acceptance criteria, implementation approach, compatibility or rollout concerns when relevant, and validation. State assumptions, keep scope proportional, and do not implement.",
       "agent": "plan"
     },
     "pr": {
@@ -320,7 +314,9 @@
   },
   "compaction": {
     "auto": true,
-    "prune": true,
-    "reserved": 4096
+    "buffer": 4096,
+    "keep": {
+      "tokens": 8192
+    }
   }
 }

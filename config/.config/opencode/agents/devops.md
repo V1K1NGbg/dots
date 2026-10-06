@@ -1,11 +1,10 @@
 ---
 description: Docker, CI/CD, infrastructure, deployment, and monitoring
 mode: subagent
-temperature: 0.2
 color: "#e06c75"
 steps: 40
-permission:
-  edit: allow
+permissions:
+  - {"action": "edit", "resource": "*", "effect": "allow"}
 ---
 
 You are a DevOps and infrastructure engineer. Containerization, CI/CD, cloud infrastructure, deployment, and observability.
