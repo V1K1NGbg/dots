@@ -25,15 +25,32 @@ monitor_choose() {
     printf '%s\n' "$@" | bash "$MONITOR_ROOT/../../rofi/modi/monitors.sh" --choose "$title" 8>&-
 }
 monitor_positions() {
-    jq -cn --arg layout "$1" --argjson internal "$2" --argjson external "$3" '
+    jq -cn --arg layout "$1" --argjson internal "$2" --argjson external "$3" \
+      --argjson monitors "$4" --argjson profiles "$5" '
       def nearest:
         floor as $f | if .-$f==0.5 then (if $f%2==0 then $f else $f+1 end) else round end;
       def size:
         (if (.transform//0)%2==1 then [.height,.width] else [.width,.height] end) as $s
         | [$s[] / .scale | nearest];
-      ($internal|size) as $i | ($external|size) as $e |
-      {right:[0,0,$i[0],0],left:[$e[0],0,0,0],top:[0,$e[1],0,0],
-       bottom:[0,0,0,$i[1]],duplicate:[0,0,0,0]}[$layout] // error("Unknown layout")'
+      def rectangle:
+        size as $s | . + {x:0,y:0,w:$s[0],h:$s[1],mirrorOf:"none"};
+      # Reflow every extended screen, using logical dimensions for occupied space.
+      ([$internal|rectangle|.mirrorOf=(if $layout=="duplicate" then $external.name else "none" end)]
+        + if $layout=="duplicate" then [$external|rectangle] else [] end) as $base |
+      reduce ($monitors[] | select(.name!=$internal.name and (.disabled//false|not)
+        and (.name==$external.name or (.mirrorOf//"none")=="none")
+        and (.name!=$external.name or $layout!="duplicate"))) as $monitor ($base;
+        ($monitor|rectangle) as $m |
+        (if $m.name==$external.name then $layout else $profiles[$m.description].layout//"right" end) as $side |
+        # Only screens crossing the new display row/column can block placement.
+        [ .[] | select(.mirrorOf=="none" and .y<$m.h and .y+.h>0) ] as $row |
+        [ .[] | select(.mirrorOf=="none" and .x<$m.w and .x+.w>0) ] as $column |
+        (if $side=="left" then [($row|map(.x)|min)-$m.w,0]
+         elif $side=="top" then [0,($column|map(.y)|min)-$m.h]
+         elif $side=="bottom" then [0,($column|map(.y+.h)|max)]
+         else [($row|map(.x+.w)|max),0] end) as $p |
+        . + [$m + {x:$p[0],y:$p[1]}]) |
+      .[1:]+.[0:1] | map(del(.w,.h))'
 }
 monitor_rule() {
     local monitor=$1 position=$2 mirror=${3:-} name width height refresh scale transform mode
@@ -45,23 +62,24 @@ monitor_rule() {
         "$(monitor_lua_string "$position")" "$scale" "$transform" "$(monitor_lua_string "$mirror")"
 }
 monitor_apply() {
-    local internal=$1 external=$2 layout=$3 gather=${4:-true} positions a b mirror='' first second live names tries command
-    positions=$(monitor_positions "$layout" "$internal" "$external") || return
-    a=$(jq -r '.[0:2]|map(tostring)|join("x")' <<<"$positions") || return
-    b=$(jq -r '.[2:4]|map(tostring)|join("x")' <<<"$positions") || return
-    first=$(jq -r '.name' <<<"$internal"); second=$(jq -r '.name' <<<"$external")
-    [[ $layout != duplicate ]] || mirror=$second
-    command=$(monitor_rule "$external" "$b") || return
-    command+="; $(monitor_rule "$internal" "$a" "$mirror")" || return
+    local internal=$1 external=$2 layout=$3 gather=$4 profiles=$5 positions monitor position mirror second live names tries command=''
+    live=$(monitor_query) || return
+    positions=$(monitor_positions "$layout" "$internal" "$external" "$live" "$profiles") || return
+    second=$(jq -r '.name' <<<"$external")
+    while IFS= read -r monitor; do
+        position=$(jq -r '[.x,.y]|map(tostring)|join("x")' <<<"$monitor") || return
+        mirror=$(jq -r 'if .mirrorOf=="none" then "" else .mirrorOf end' <<<"$monitor") || return
+        command+="${command:+; }$(monitor_rule "$monitor" "$position" "$mirror")" || return
+    done < <(jq -c '.[]' <<<"$positions")
     monitor_dispatch "$command" || return
     for ((tries=0; tries<50; tries++)); do
         live=$(monitor_query) || return
-        names=$(jq -c --arg a "$first" --arg b "$second" '[.[]|select(.name==$a or .name==$b)]' <<<"$live") || return
-        [[ $(jq length <<<"$names") == 2 ]] || return 2 # Unplugged during selection.
-        if jq -e --arg a "$first" --arg b "$second" --arg layout "$layout" --argjson p "$positions" '
-          (map(select(.name==$a))[0]) as $i | (map(select(.name==$b))[0]) as $e |
-          if $layout=="duplicate" then ($i.mirrorOf==$b or $i.mirrorOf==($e.id|tostring))
-          else $i.mirrorOf=="none" and $e.mirrorOf=="none" and [$i.x,$i.y,$e.x,$e.y]==$p end' <<<"$names" >/dev/null; then
+        names=$(jq -c 'map(.name)' <<<"$live") || return
+        jq -e --argjson names "$names" 'all(.[]; .name as $name | $names|index($name)!=null)' <<<"$positions" >/dev/null || return 2 # Unplugged during selection.
+        if jq -e --argjson expected "$positions" '
+          INDEX(.name) as $live | all($expected[]; . as $p | $live[$p.name] as $m |
+            if $p.mirrorOf!="none" then ($m.mirrorOf==$p.mirrorOf or $m.mirrorOf==($live[$p.mirrorOf].id|tostring))
+            else $m.mirrorOf=="none" and [$m.x,$m.y]==[$p.x,$p.y] end)' <<<"$live" >/dev/null; then
             monitor_dispatch "dots.set_primary($(monitor_lua_string "$second"), $gather)"
             return
         fi
@@ -149,11 +167,12 @@ monitor_main() (
             [[ $first != null && $second != null ]] || continue
             gather=true
             if $auto && [[ $(jq -c '.topology' <<<"$previous") == "$topology" ]]; then gather=false; fi
-            rc=0; monitor_apply "$first" "$second" "$layout" "$gather" || rc=$?
+            rc=0; monitor_apply "$first" "$second" "$layout" "$gather" "$profiles" || rc=$?
             ((rc!=2)) || continue
             ((rc==0)) || exit "$rc"
             if $selected; then
                 saved=$(jq -c --arg id "$(jq -r '.description' <<<"$monitor")" --arg layout "$layout" '.[$id]={layout:$layout}' <<<"$saved")
+                profiles=$(jq -c --argjson saved "$saved" '.+$saved' <<<"$profiles")
                 mkdir -p "${MONITOR_SAVED%/*}"
                 temporary=$(mktemp "$MONITOR_SAVED.XXXXXXXX")
                 printf '%s\n' "$saved" > "$temporary"; mv -- "$temporary" "$MONITOR_SAVED"; temporary=''
@@ -165,7 +184,12 @@ monitor_main() (
     mv -- "$temporary" "$runtime"; temporary=''
 )
 if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
-    set -Eeo pipefail
-    trap 'rc=$?; notify-send "Display configuration failed" "Display layout could not be applied; see the session log." || :; exit "$rc"' ERR
+    set -uo pipefail
+    # Report once after the fail-fast subshell, not from every nested ERR trap.
     monitor_main "$@"
+    rc=$?
+    if ((rc!=0)); then
+        notify-send "Display configuration failed" "Display layout could not be applied; see the session log." || :
+    fi
+    exit "$rc"
 fi

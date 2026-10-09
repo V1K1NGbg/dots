@@ -1,0 +1,26 @@
+/* Vibrancy supplies the single 70% tint behind these transparent surfaces. */
+body,
+.monaco-workbench,
+.monaco-workbench .part,
+.monaco-workbench .part > .content,
+.monaco-workbench .part > .title,
+.monaco-workbench .editor-container,
+.monaco-workbench .editor-group-container,
+.monaco-workbench .tabs-container,
+.monaco-workbench .tab,
+.monaco-workbench .monaco-breadcrumbs,
+.monaco-workbench .monaco-editor,
+.monaco-workbench .monaco-editor-background,
+.monaco-workbench .monaco-editor .margin,
+.monaco-workbench .monaco-list-rows,
+.monaco-workbench .pane-body,
+.monaco-workbench .terminal-outer-container,
+.monaco-workbench .xterm-viewport,
+.monaco-workbench .xterm-rows,
+.monaco-workbench .notebookOverlay {
+    background-color: transparent !important;
+}
+
+.monaco-workbench .tab.active {
+    background-color: rgba(103, 255, 235, 0.12) !important;
+}

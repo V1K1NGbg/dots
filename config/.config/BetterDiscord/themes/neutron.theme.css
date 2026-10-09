@@ -55,10 +55,13 @@ $$ | \$$ |$$$$$$$$\ \$$$$$$  |   $$ |   $$ |  $$ | $$$$$$  |$$ | \$$ |      $$ |
 
 /* Match the terminal, launcher and bar in Discord's dark mode. */
 .theme-dark {
-    --background-primary: #191919;
-    --background-secondary: #242424;
-    --background-secondary-alt: #191919;
-    --background-tertiary: #191919;
+    --background-primary: transparent;
+    --background-secondary: transparent;
+    --background-secondary-alt: transparent;
+    --background-tertiary: transparent;
+    --background-base-lowest: transparent;
+    --background-base-lower: transparent;
+    --background-base-low: transparent;
     --text-normal: #f8f8f2;
     --text-muted: #aaaaaa;
     --header-primary: #f8f8f2;
@@ -67,4 +70,13 @@ $$ | \$$ |$$$$$$$$\ \$$$$$$  |   $$ |   $$ |  $$ | $$$$$$  |$$ | \$$ |      $$ |
     --interactive-normal: #f8f8f2;
     --interactive-hover: #67ffeb;
     --interactive-active: #67ffeb;
+}
+
+/* Paint the tint once; Neutron already clears the main panels. */
+html, body {
+    background: transparent !important;
+}
+
+#app-mount {
+    background: rgba(25, 25, 25, 0.7) !important;
 }

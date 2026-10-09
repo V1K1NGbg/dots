@@ -1,0 +1,36 @@
+/* Tint once at the window root so nested toolbars do not compound the alpha. */
+#main-window {
+    background: rgba(25, 25, 25, 0.7) !important;
+    --lwt-accent-color: transparent !important;
+    --lwt-accent-color-inactive: transparent !important;
+    --toolbar-bgcolor: transparent !important;
+    --toolbar-background-color: transparent !important;
+    --toolbox-background-color: transparent !important;
+    --toolbox-background-color-inactive: transparent !important;
+    --sidebar-background-color: transparent !important;
+    --tabpanel-background-color: transparent !important;
+}
+
+body,
+#navigator-toolbox,
+#titlebar,
+#toolbar-menubar,
+#TabsToolbar,
+#nav-bar,
+#PersonalToolbar,
+#sidebar-container,
+#sidebar-box,
+sidebar-main,
+#appcontent,
+#tabbrowser-tabpanels,
+.browserContainer,
+browser {
+    appearance: none !important;
+    background: transparent !important;
+}
+
+/* Keep dropdowns readable when they overlap page content. */
+#urlbar-background,
+.browserContainer > findbar {
+    background: #191919 !important;
+}

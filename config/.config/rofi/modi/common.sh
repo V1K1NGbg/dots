@@ -117,7 +117,7 @@ dashboard() {
     weather=${weather% · updated *}
     dashboard_row "$(date +%H:%M)" "$(date '+%a, %d %b')" POWER "$battery"
     dashboard_row CPU "$cpu" RAM "$memory"
-    dashboard_row TEMP "$network" WEATHER "$weather"
+    dashboard_row TEMP "$temperature" WEATHER "$weather"
 }
 # Monospaced columns use the available panel width, with a narrow-screen wrap.
 # Count before escaping so names containing markup characters keep their spacing.

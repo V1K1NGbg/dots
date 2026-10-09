@@ -1,0 +1,6 @@
+/* Site backgrounds belong to the page; only Firefox's own start pages change. */
+@-moz-document url("about:blank"), url("about:newtab"), url("about:home") {
+    :root, body, #root, .outer-wrapper {
+        background: transparent !important;
+    }
+}

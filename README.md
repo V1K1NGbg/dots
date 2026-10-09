@@ -23,3 +23,10 @@ sudo bash bootstrap.sh
 cd dots
 bash install.sh
 ```
+
+0. Back up installed settings:
+
+```sh
+bash backup.sh
+git diff
+```

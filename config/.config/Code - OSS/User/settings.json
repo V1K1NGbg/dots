@@ -4,6 +4,15 @@
         "GOPACKAGESDRIVER": "${workspaceFolder}/nebazel/tools/gopackagesdriver.sh"
     },
     "workbench.colorTheme": "Monokai Mega",
+    "window.titleBarStyle": "custom",
+    "vscode_vibrancy.type": "transparent",
+    "vscode_vibrancy.opacity": 0.7,
+    "vscode_vibrancy.backgroundOverride": "#191919",
+    "vscode_vibrancy.theme": "Custom theme (use imports)",
+    "vscode_vibrancy.disableColorCustomizations": true,
+    "workbench.colorCustomizations": {
+        "terminal.background": "#00000000"
+    },
     "workbench.startupEditor": "none",
     "git.confirmSync": false,
     "debug.onTaskErrors": "debugAnyway",

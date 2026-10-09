@@ -181,7 +181,7 @@ readonly -a REPO_PACKAGES=(
     cliphist clang cowsay curl dconf discord docker docker-compose dracut
     fastfetch fd firefox fprintd fzf gimp git github-cli gnome-disk-utility
     go gopls grim gtk3 gtk-layer-shell highlight htop hypridle hyprland hyprlock hyprpolkitagent hyprsunset
-    jdk21-openjdk jdk17-openjdk jdk8-openjdk kdeconnect keepassxc lazygit less libinput
+    imagemagick jdk21-openjdk jdk17-openjdk jdk8-openjdk keepassxc lazygit less libinput
     libarchive libnotify libpulse libqalculate llama-cpp ggml-vulkan lolcat mako
     man-db man-pages meld nano nemo nemo-fileroller networkmanager network-manager-applet nmap
     noto-fonts noto-fonts-cjk noto-fonts-emoji nvtop nwg-displays nwg-look
@@ -190,7 +190,7 @@ readonly -a REPO_PACKAGES=(
     poppler power-profiles-daemon prettier
     prismlauncher pyright python python-black python-pillow jq qt5ct qt6ct
     ranger rofi rofi-calc rust rust-analyzer slurp sof-firmware spotify-launcher steam
-    swappy tmux tree typescript-language-server unzip vim
+    swappy tesseract tesseract-data-eng tesseract-data-bul tmux tree typescript-language-server unzip vim
     vlc vulkan-radeon lib32-vulkan-radeon vulkan-tools
     waybar wayland wayland-protocols uthash wev wget wireplumber wl-clipboard xdg-desktop-portal-gtk
     xdg-desktop-portal-hyprland xdg-utils zip uwsm
@@ -200,6 +200,7 @@ readonly -a AUR_PACKAGES=(
     ani-cli
     rofi-blocks-git
     imgcat
+    localsend
     opencode
     pcloud-drive
     plymouth-theme-hexagon-hud-git
@@ -231,16 +232,16 @@ check_fingerprint()       { grep -q 'pam_fprintd' /etc/pam.d/sudo 2>/dev/null &&
 check_ohmybash()          { [[ -f "${HOME}/.oh-my-bash/oh-my-bash.sh" ]]; }
 check_bashrc()            { cmp -s "${CONFIG_DIR}/.bashrc" "${HOME}/.bashrc"; }
 check_nemo_config()       { dconf read /org/nemo/preferences/bulk-rename-tool 2>/dev/null | grep -q 'bulky'; }
-check_dotfiles()          { [[ -f "${HOME}/.vimrc" && -f "${HOME}/.tmux.conf" && -f "${HOME}/.bash_profile" && -f "${HOME}/.config/hypr/hyprland.lua" && -f "${HOME}/.config/waybar/config.jsonc" && -d "${HOME}/.config/alacritty" && -f "${HOME}/.config/Code - OSS/dots-profiles.json" && -f "${HOME}/.vscode-oss/argv.json" ]]; }
+check_dotfiles()          { [[ -f "${HOME}/.vimrc" && -f "${HOME}/.tmux.conf" && -f "${HOME}/.bash_profile" && -f "${HOME}/.config/hypr/hyprland.lua" && -f "${HOME}/.config/waybar/config.jsonc" && -d "${HOME}/.config/alacritty" && -f "${HOME}/.config/Code - OSS/User/settings.json" ]]; }
 check_default_apps()      { default_apps check; }
 check_nvm()               { (load_nvm && [[ "$(nvm version default)" != "N/A" ]]) &>/dev/null; }
 check_vtop()              { (load_nvm && nvm use default && cmd_exists vtop) &>/dev/null; }
 check_docker()            { systemctl is-enabled docker.service &>/dev/null; }
 check_pcloud()            { cmd_exists pcloud; }
+check_vscode()            { is_marked vscode_transparency && code --list-extensions 2>/dev/null | grep -qx 'illixion.vscode-vibrancy-continued'; }
 check_discord()           { [[ -f /etc/pacman.d/hooks/95-themeapply-discord.hook ]]; }
 check_spotify()           { [[ -f /etc/pacman.d/hooks/95-themeapply-spotify.hook ]]; }
-check_code()              { cmd_exists code && is_marked "code_config"; }
-check_firefox()           { is_marked "firefox_setup"; }
+check_firefox()           { is_marked "firefox_setup" && is_marked firefox_transparency; }
 check_steam()             { is_marked "steam_setup"; }
 check_llama_cpp()         { systemctl --user is-enabled llama-cpp.service &>/dev/null; }
 
@@ -597,7 +598,7 @@ install_dotfiles() {
         opencode qt5ct qt6ct spicetify systemd themeapply uwsm visualizer waybar; do
         config_paths+=(".config/$config_dir")
     done
-    config_paths+=(".config/Code - OSS" ".vscode-oss/argv.json")
+    config_paths+=(".config/Code - OSS")
     # Initial setup can replace defaults created by applications or /etc/skel.
     # Keep recovery data private and outside the configuration being replaced.
     backup=$(mktemp -d "$STATE_DIR/dotfiles-backup.XXXXXXXX")
@@ -619,6 +620,16 @@ install_dotfiles() {
     print_step "Copying config directories..."
     tar -cpf - -C "$CONFIG_DIR" "${config_paths[@]}" .oh-my-bash .vim \
         | tar -xpf - --no-overwrite-dir -C "$HOME"
+    # Vibrancy reads literal filesystem paths; it does not expand $HOME or ~.
+    local code_settings="$HOME/.config/Code - OSS/User/settings.json" temporary
+    temporary=$(mktemp "${code_settings}.XXXXXXXX")
+    jq --arg css "$HOME/.config/Code - OSS/User/transparency.css" \
+        '.["vscode_vibrancy.imports"] = [$css]' "$code_settings" > "$temporary"
+    mv "$temporary" "$code_settings"
+    if [[ -f $HOME/.mozilla/firefox/profiles.ini || -f ${XDG_CONFIG_HOME:-$HOME/.config}/mozilla/firefox/profiles.ini ]]; then
+        bash "$HOME/.config/themeapply/firefox.sh"
+        mark_done firefox_transparency
+    fi
     local source_file relative
     while IFS= read -r -d '' source_file; do
         relative=${source_file#"${CONFIG_DIR}/"}
@@ -786,6 +797,22 @@ install_discord() {
     print_success "Automatic BetterDiscord setup enabled; account login remains yours"
 }
 
+install_vscode() {
+    print_header "Setting up VS Code background transparency"
+    local css="$HOME/.config/Code - OSS/User/transparency.css"
+    [[ -f $css ]] && jq -e --arg css "$css" \
+        '.["vscode_vibrancy.imports"] | index($css) != null' \
+        "$HOME/.config/Code - OSS/User/settings.json" >/dev/null || {
+        print_error 'Run Copy dotfiles before VS Code transparency setup.'
+        return 1
+    }
+    code --install-extension illixion.vscode-vibrancy-continued --force
+    code
+    read -rp '  In VS Code run "Reload Vibrancy" from F1, authorize its file patch, fully restart VS Code, then press Enter...'
+    mark_done vscode_transparency
+    print_success 'VS Code configured; run Reload Vibrancy again after editor updates'
+}
+
 install_spotify() {
     print_header "Setting up Spotify + Spicetify"
     install_app_theme spotify || return
@@ -794,13 +821,6 @@ install_spotify() {
         spotify-launcher >/dev/null 2>&1 &
     fi
     print_success "Automatic Spicetify setup enabled with the desktop Ziro theme"
-}
-
-install_code() {
-    print_header "Setting up Code"
-    python3 "$SCRIPT_DIR/backup-vscode.py" --install --config-dir "$HOME" || return
-    mark_done "code_config"
-    print_success "Code configured"
 }
 
 install_firefox() {
@@ -815,6 +835,8 @@ install_firefox() {
   Add cookies exceptions (google,github,bonjourr,...)
   and finally press Enter to continue..."
     killall firefox 2>/dev/null || true
+    bash "$HOME/.config/themeapply/firefox.sh"
+    mark_done firefox_transparency
     mark_done "firefox_setup"
     print_success "Firefox configured"
 }
@@ -868,9 +890,9 @@ TASK_NAMES=(
     "Set up pCloud"
     "Authenticate GitHub CLI"
     "Set up fingerprint auth"
+    "Set up VS Code background transparency"
     "Set up Discord + BetterDiscord"
     "Set up Spotify + Spicetify"
-    "Set up Code"
     "Set up Firefox"
     "Set up Steam"
     "Configure WireGuard VPN"
@@ -901,9 +923,9 @@ TASK_CHECKS=(
     check_pcloud
     check_gh_auth
     check_fingerprint
+    check_vscode
     check_discord
     check_spotify
-    check_code
     check_firefox
     check_steam
     check_wireguard
@@ -934,9 +956,9 @@ TASK_INSTALLS=(
     install_pcloud
     install_gh_auth
     install_fingerprint
+    install_vscode
     install_discord
     install_spotify
-    install_code
     install_firefox
     install_steam
     install_wireguard

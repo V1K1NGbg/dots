@@ -21,3 +21,21 @@ tooltip {
   color: #f8f8f2;
   border: 1px solid #35ddff;
 }
+
+/* One tinted surface; clearing child backgrounds avoids stacking their alpha. */
+window.nemo-window:not(.nemo-desktop-window) {
+  background: rgba(25, 25, 25, 0.7);
+}
+
+.nemo-window:not(.nemo-desktop-window) paned,
+.nemo-window:not(.nemo-desktop-window) notebook,
+.nemo-window:not(.nemo-desktop-window) notebook > header,
+.nemo-window:not(.nemo-desktop-window) scrolledwindow,
+.nemo-window:not(.nemo-desktop-window) viewport,
+.nemo-window:not(.nemo-desktop-window) .view:not(:selected),
+.nemo-window:not(.nemo-desktop-window) .sidebar,
+.nemo-window:not(.nemo-desktop-window) toolbar,
+.nemo-window:not(.nemo-desktop-window) menubar,
+.nemo-window:not(.nemo-desktop-window) statusbar {
+  background: transparent;
+}

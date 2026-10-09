@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/file.h>
+#include <time.h>
 #include <unistd.h>
 
 #define COLS 81
@@ -22,12 +23,14 @@ typedef struct { guint32 seed; gint64 created; double seconds; } Tree;
 typedef struct { char glyph; unsigned char color; } Cell;
 typedef struct { double x, y, phase, speed; int blinks; char glyph; } Star;
 typedef struct { double x, y, dx, dy; } Flight;
+typedef struct { double night, dusk; } Atmosphere;
 typedef struct {
     GtkWidget *window;
     GdkMonitor *monitor;
     cairo_surface_t *glyphs[GLYPHS], *tree, *milky_way;
     double cw, ch;
     gint64 tree_hour;
+    Atmosphere tree_atmosphere;
     Star stars[STARS];
     double meteor_at;
     guint32 sky_seed, meteor_seed;
@@ -41,6 +44,24 @@ static guint32 hash(guint32 x) {
     return x ^ (x >> 16);
 }
 static double unit(guint32 x) { return hash(x) / 4294967296.0; }
+
+static double smooth(double value) {
+    value = CLAMP(value, 0, 1);
+    return value * value * (3 - 2 * value);
+}
+
+static Atmosphere atmosphere(int minute) {
+    double dawn = smooth((minute - 6 * 60) / 120.0);
+    double dusk = smooth((minute - 18 * 60) / 120.0);
+    return (Atmosphere){1 - dawn + dusk, 4 * dusk * (1 - dusk)};
+}
+
+static int local_minute(void) {
+    time_t now = time(NULL);
+    struct tm local;
+    if (!localtime_r(&now, &local)) return 0;
+    return local.tm_hour * 60 + local.tm_min;
+}
 
 static void put(Cell cells[ROWS][COLS], int x, int y, char glyph, int color) {
     if (x >= 0 && x < COLS && y >= 0 && y < ROWS - 3 &&
@@ -187,6 +208,13 @@ static double event_phase(double time, double period, double start, double durat
     return phase >= 0 && phase < duration ? phase / duration : -1;
 }
 
+static double firefly_alpha(double time, int index, double night) {
+    double phase = event_phase(time, 45, 10, 12);
+    if (phase < 0) return 0;
+    double blink = (1 - cos(time * (1.2 + index * 0.13) + index * 2)) / 2;
+    return night * 0.65 * sin(phase * G_PI) * blink * blink;
+}
+
 /* Choose a path once per event, so redraws never move it to a new location. */
 static Flight flight(guint32 seed, gboolean comet) {
     double direction = unit(seed) < 0.5 ? -1 : 1;
@@ -215,6 +243,7 @@ static double star_alpha(Star *star, double time) {
 #ifndef GARDEN_TEST
 static GPtrArray *surfaces;
 static gboolean preview, frozen;
+static int atmosphere_minute;
 static guint animation_timer;
 static double frozen_time;
 static char *frozen_path;
@@ -227,10 +256,19 @@ static const double colors[][3] = {
     {0.50, 0.65, 0.90}, {0.72, 0.55, 0.90}, {0.87, 0.56, 0.72}
 };
 
-static void glyph(Surface *s, cairo_t *cr, char c, double x, double y, int color, double alpha) {
+static void tinted_glyph(Surface *s, cairo_t *cr, char c, double x, double y,
+                         int color, double alpha, Atmosphere mood) {
     if (c < 32 || c > 126 || c == ' ') return;
-    cairo_set_source_rgba(cr, colors[color][0], colors[color][1], colors[color][2], alpha);
+    double day = 1 - mood.night;
+    cairo_set_source_rgba(cr,
+        colors[color][0] * (1 + day * 0.04) + mood.dusk * 0.08,
+        colors[color][1] * (1 + day * 0.03) - mood.dusk * 0.02,
+        colors[color][2] * (1 - day * 0.03) - mood.dusk * 0.06, alpha);
     cairo_mask_surface(cr, s->glyphs[c - 32], round(x), round(y));
+}
+
+static void glyph(Surface *s, cairo_t *cr, char c, double x, double y, int color, double alpha) {
+    tinted_glyph(s, cr, c, x, y, color, alpha, (Atmosphere){1, 0});
 }
 
 static void init_art(Surface *s) {
@@ -264,14 +302,15 @@ static void init_art(Surface *s) {
     s->meteor_seed = g_random_int();
 }
 
-static void cache_tree(Surface *s, double width, double height) {
+static void cache_tree(Surface *s, double width, double height, Atmosphere mood) {
     gint64 hour = (gint64)(tree.seconds / 3600);
     /* The mature trunk/canopy spans about 32 rows; blank grid rows and the
        pot should not count toward its half-screen height. Fit narrow outputs. */
     double scale = MIN(width * 0.90 / (COLS * s->cw), height * 0.50 / (32 * s->ch));
     int tw = MAX(1, (int)round(COLS * s->cw * scale));
     int th = MAX(1, (int)round(ROWS * s->ch * scale));
-    if (s->tree && s->tree_hour == hour && cairo_image_surface_get_width(s->tree) == tw &&
+    if (s->tree && s->tree_hour == hour && s->tree_atmosphere.night == mood.night &&
+        s->tree_atmosphere.dusk == mood.dusk && cairo_image_surface_get_width(s->tree) == tw &&
         cairo_image_surface_get_height(s->tree) == th) return;
     if (s->tree) cairo_surface_destroy(s->tree);
     s->tree = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, (int)(COLS * s->cw), (int)(ROWS * s->ch));
@@ -280,7 +319,7 @@ static void cache_tree(Surface *s, double width, double height) {
     garden(&tree, cells);
     /* Keep every gap transparent, including spaces inside the pot. */
     for (int y = 0; y < ROWS; y++) for (int x = 0; x < COLS; x++)
-        glyph(s, cr, cells[y][x].glyph, x * s->cw, y * s->ch, cells[y][x].color, 0.9);
+        tinted_glyph(s, cr, cells[y][x].glyph, x * s->cw, y * s->ch, cells[y][x].color, 0.9, mood);
     cairo_destroy(cr);
     cairo_surface_t *scaled = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, tw, th);
     cr = cairo_create(scaled);
@@ -292,9 +331,10 @@ static void cache_tree(Surface *s, double width, double height) {
     cairo_surface_destroy(s->tree);
     s->tree = scaled;
     s->tree_hour = hour;
+    s->tree_atmosphere = mood;
 }
 
-static void milky_way(Surface *s, cairo_t *cr, int width, int height) {
+static void milky_way(Surface *s, cairo_t *cr, int width, int height, double alpha) {
     if (!s->milky_way || cairo_image_surface_get_width(s->milky_way) != width ||
         cairo_image_surface_get_height(s->milky_way) != height) {
         if (s->milky_way) cairo_surface_destroy(s->milky_way);
@@ -318,7 +358,7 @@ static void milky_way(Surface *s, cairo_t *cr, int width, int height) {
         cairo_destroy(band);
     }
     cairo_set_source_surface(cr, s->milky_way, 0, 0);
-    cairo_paint(cr);
+    cairo_paint_with_alpha(cr, alpha);
 }
 
 static void streak(Surface *s, cairo_t *cr, double width, double height,
@@ -334,14 +374,14 @@ static void streak(Surface *s, cairo_t *cr, double width, double height,
             alpha * (1 - i / (double)tail));
 }
 
-static void space(Surface *s, cairo_t *cr, double width, double height, double time) {
+static void space(Surface *s, cairo_t *cr, double width, double height, double time, double night) {
     /* Comets traverse the upper sky for 18 seconds every four minutes. */
     double comet = event_phase(time, 240, 20, 18);
     if (comet >= 0) {
         guint32 cycle = (guint32)fmod(floor(time / 240), 4294967296.0);
         Flight path = flight(hash(s->sky_seed ^ cycle ^ 0xc04e7), TRUE);
         double fade = MIN(1, MIN(comet, 1 - comet) * 8);
-        streak(s, cr, width, height, path, comet, 19, '@', fade * 0.8);
+        streak(s, cr, width, height, path, comet, 19, '@', fade * 0.8 * night);
     }
     /* A twelve-second meteor shower every five minutes. */
     double shower = event_phase(time, 300, 50, 12);
@@ -356,38 +396,53 @@ static void space(Surface *s, cairo_t *cr, double width, double height, double t
             if (path.dx * direction.dx < 0) path.x = 1 - path.x;
             path.dx = direction.dx; path.dy = direction.dy;
             double progress = fmod(clock, 1.5) / 1.5;
-            streak(s, cr, width, height, path, progress, 9, '*', 1 - progress);
+            streak(s, cr, width, height, path, progress, 9, '*', (1 - progress) * night);
         }
     }
 }
 
 static void paint(Surface *s, cairo_t *cr, double width, double height, double time) {
-    cairo_set_source_rgb(cr, 25.0 / 255, 25.0 / 255, 25.0 / 255);
+    Atmosphere mood = atmosphere(atmosphere_minute);
+    double day = 1 - mood.night;
+    cairo_set_source_rgb(cr, (25 + day * 3 + mood.dusk * 6) / 255,
+        (25 + day * 6 + mood.dusk * 1) / 255, (25 + day * 5 + mood.dusk * 4) / 255);
     cairo_paint(cr);
-    milky_way(s, cr, (int)width, (int)height);
+    if (mood.night > 0) milky_way(s, cr, (int)width, (int)height, mood.night);
     for (int i = 0; i < STARS; i++) {
         Star *star = &s->stars[i];
         double alpha = star_alpha(star, time);
         double x = star->x * width;
         double y = star->y * height;
-        glyph(s, cr, star->glyph, x, y, i % 9 == 0 ? 5 : 0, alpha);
+        glyph(s, cr, star->glyph, x, y, i % 9 == 0 ? 5 : 0, alpha * mood.night);
     }
-    space(s, cr, width, height, time);
+    if (mood.night > 0) space(s, cr, width, height, time, mood.night);
     if (time >= s->meteor_at) {
         double age = time - s->meteor_at;
         if (age < 1.5) {
-            streak(s, cr, width, height, flight(s->meteor_seed, FALSE), age / 1.5, 9, '*', 1 - age / 1.5);
+            streak(s, cr, width, height, flight(s->meteor_seed, FALSE), age / 1.5, 9, '*',
+                (1 - age / 1.5) * mood.night);
         } else {
             s->meteor_at = time + g_random_double_range(8, 20);
             s->meteor_seed = g_random_int();
         }
     }
-    cache_tree(s, width, height);
+    cache_tree(s, width, height, mood);
     double x = round((width - cairo_image_surface_get_width(s->tree)) / 2);
     /* Match the Activate Linux watermark's 48px bottom margin. */
     double y = round(height - MIN(48.0, height * 0.05) - cairo_image_surface_get_height(s->tree));
     cairo_set_source_surface(cr, s->tree, x, y);
     cairo_paint(cr);
+    for (int i = 0; i < 6; i++) {
+        double alpha = firefly_alpha(time, i, mood.night);
+        if (alpha <= 0) continue;
+        guint32 key = hash(tree.seed + i * 197 + 901);
+        double fx = x + (0.2 + unit(key) * 0.6 + sin(time * 0.23 + i) * 0.025) *
+            cairo_image_surface_get_width(s->tree);
+        double fy = y + (0.25 + unit(key + 1) * 0.65 + cos(time * 0.19 + i) * 0.025) *
+            cairo_image_surface_get_height(s->tree);
+        cairo_set_source_rgba(cr, 0.78, 0.82, 0.43, alpha);
+        cairo_mask_surface(cr, s->glyphs['.' - 32], round(fx), round(fy));
+    }
 }
 
 static gboolean draw(GtkWidget *widget, cairo_t *cr, gpointer data) {
@@ -450,6 +505,7 @@ static void remove_monitor(GdkDisplay *display, GdkMonitor *monitor, gpointer un
 static gboolean tick(gpointer unused) {
     (void)unused;
     gint64 now = g_get_monotonic_time();
+    atmosphere_minute = local_minute();
     if (!preview) tree.seconds += elapsed(now, last_tick);
     last_tick = now;
     if (!preview && elapsed(now, last_save) >= 60) {
@@ -476,6 +532,7 @@ static void mode_changed(GFileMonitor *monitor, GFile *file, GFile *other,
         g_source_remove(animation_timer);
         animation_timer = 0;
     } else {
+        atmosphere_minute = local_minute();
         started = now - (gint64)(frozen_time * G_USEC_PER_SEC);
         animation_timer = g_timeout_add(67, tick, NULL);
     }
@@ -495,6 +552,7 @@ static gboolean stop(gpointer unused) {
 }
 
 int main(int argc, char **argv) {
+    atmosphere_minute = local_minute();
     preview = argc >= 3 && !strcmp(argv[1], "--preview");
     if (preview) {
         char *end;

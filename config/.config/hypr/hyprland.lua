@@ -148,6 +148,8 @@ hl.window_rule({
     float = true,
 })
 hl.window_rule({ match = { title = "^(Open File|Save File|Save As|Authentication Required|Event Tester)$" }, float = true })
+-- Spotify's native surface is opaque; its whole window is the agreed exception.
+hl.window_rule({ match = { class = "^([Ss]potify|com\\.spotify\\.Client)$" }, opacity = "0.7 override 0.7 override 0.7 override" })
 
 local mod = "SUPER"
 
@@ -199,11 +201,12 @@ bind(mod .. " + period", function() dots.browse(1) end, "View next workspace")
 -- Launchers and session utilities.
 bind(mod .. " + Return", hl.dsp.exec_cmd("alacritty"), "Open a terminal")
 bind(mod .. " + B", hl.dsp.exec_cmd("firefox"), "Open a browser")
-bind(mod .. " + SHIFT + P", hl.dsp.exec_cmd("kdeconnect-app"), "Open phone connection")
+bind(mod .. " + CTRL + P", hl.dsp.exec_cmd("localsend"), "Open phone connection")
 bind(mod .. " + E", hl.dsp.exec_cmd("~/.config/rofi/launcher.sh menu"), "Open the Rofi menu")
 bind(mod .. " + C", hl.dsp.exec_cmd("code"), "Open Code")
 bind(mod .. " + R", hl.dsp.exec_cmd("~/.config/rofi/launcher.sh"), "Open Run (Tab for menu)")
 bind(mod .. " + P", hl.dsp.exec_cmd("bash ~/.config/hypr/scripts/screenshot.sh"), "Take a screenshot")
+bind(mod .. " + SHIFT + P", hl.dsp.exec_cmd("bash ~/.config/hypr/scripts/screenshot.sh --ocr"), "Copy text from screen (English/Bulgarian)")
 bind(mod .. " + L", hl.dsp.exec_cmd("hyprlock"), "Lock the screen")
 bind(mod .. " + G", hl.dsp.exec_cmd("bash ~/.config/visualizer/control.sh"), "Toggle edge audio visualizer")
 bind(mod .. " + SHIFT + G", hl.dsp.exec_cmd("bash ~/.config/garden/control.sh --toggle"), "Freeze or resume the garden")
@@ -226,7 +229,7 @@ bind(mod .. " + N", dots.minimize, "Minimize window")
 bind(mod .. " + SHIFT + N", dots.restore, "Restore the last minimized window")
 bind(mod .. " + M", hl.dsp.window.fullscreen({ mode = "maximized", action = "toggle" }), "Toggle maximized")
 
-bind(mod .. " + CTRL + P", hl.dsp.exec_cmd("bash ~/.config/rofi/modi/monitors.sh"), "Choose display layout")
+bind(mod .. " + CTRL + SHIFT + P", hl.dsp.exec_cmd("bash ~/.config/rofi/modi/monitors.sh"), "Choose display layout")
 
 -- Monitor focus and client movement. Relative selectors follow Hyprland's
 -- configured monitor order, matching Awesome's focus_relative behavior.
@@ -266,6 +269,7 @@ bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl --player=spotify,%any previous"
 bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl set 5%+"), "Raise display brightness", { locked = true, repeating = true })
 bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set 5%-"), "Lower display brightness", { locked = true, repeating = true })
 bind("Print", hl.dsp.exec_cmd("bash ~/.config/hypr/scripts/screenshot.sh"), "Take a screenshot")
+bind("SHIFT + Print", hl.dsp.exec_cmd("bash ~/.config/hypr/scripts/screenshot.sh --ocr"), "Copy text from screen (English/Bulgarian)")
 
 -- Rofi follows the desktop palette with a subtle zoom and fade.
 hl.layer_rule({ name = "dots-rofi", match = { namespace = "^rofi$" }, animation = "popin 95%", blur = true, ignore_alpha = 0.5 })

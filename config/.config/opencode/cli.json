@@ -4,11 +4,17 @@
     "name": "system",
     "mode": "system"
   },
+  "session": {
+    "sidebar": "hide"
+  },
   "scroll": {
     "speed": 3,
     "acceleration": true
   },
   "diffs": {
     "view": "auto"
+  },
+  "tabs": {
+    "mode": "off"
   }
 }

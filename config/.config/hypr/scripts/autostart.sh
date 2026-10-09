@@ -15,7 +15,7 @@ spawn() {
         pgrep -u "$UID" -x spotify >/dev/null && return
     elif [[ $1 == discord ]]; then
         pgrep -u "$UID" -x '[Dd]iscord' >/dev/null && return
-    elif [[ $1 == wl-paste || $1 == kdeconnect-indicator ]]; then
+    elif [[ $1 == wl-paste ]]; then
         pgrep -u "$UID" -f -- "(^|/)$*([[:space:]]|$)" >/dev/null && return
     else
         pgrep -u "$UID" -x -- "${1##*/}" >/dev/null && return

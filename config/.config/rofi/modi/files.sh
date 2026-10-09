@@ -26,7 +26,7 @@ files_pick() (
     args=(fd --hidden --no-ignore --type f --type d --type l --print0)
     if [[ -n $destination ]]; then
         args=(fd --hidden --no-ignore --type f --print0)
-        header='Add file to AI · Enter attaches · Esc returns to AI'
+        header='Add text or image to AI · Enter attaches · Esc returns to AI'
     fi
     while IFS= read -r pattern; do args+=(--exclude "$pattern"); done < <(cfg '.exclude[]')
     selected=$(mktemp "$RUNTIME/files-selected.XXXXXX"); trap 'rm -f -- "$selected"' EXIT
