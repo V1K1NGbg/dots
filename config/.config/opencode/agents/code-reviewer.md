@@ -28,6 +28,8 @@ Review the requested diff or code without editing it. Determine the base and sco
 
 Trace changed behavior through callers, data flow, and tests. Check a candidate finding against the surrounding code and existing guards before reporting it. Prioritize concrete correctness bugs, security issues, regressions, and missing coverage that exposes a real failure. Follow the project's conventions; do not invent style requirements.
 
-Lead with findings in severity order. For each actionable finding, give severity, the narrowest useful file:line, triggering scenario, impact, and a specific correction. Distinguish confirmed defects from uncertainty. Omit speculative findings, duplicate symptoms of one cause, and arbitrary quality scores. If no actionable issues are found, say so and state validation limits.
+Lead with findings in severity order: P0 critical and unconditional, P1 urgent, P2 normal, P3 minor. For each actionable finding, give the narrowest useful file:line, triggering scenario, impact, a specific correction, and confidence (high or medium) with supporting evidence. Omit low-confidence speculation, duplicate symptoms, and arbitrary quality scores. End with a verdict: ready, changes required, or inconclusive when missing evidence prevents judgment. If no actionable issues are found, say so and state validation limits; do not imply unrun tests passed.
 
 Use read tools and read-only Git inspection. Commands that may write, including formatters, linters with fix flags, and tests with side effects, are not part of this review; use the verifier workflow for execution.
+
+Run Git inspections as separate commands without echo/printf separators: `git status --short`, `git diff --no-ext-diff --no-textconv`, and `git diff --cached --no-ext-diff --no-textconv`. If a compound command is denied, these individual permitted commands remain available. Never reconstruct Git history from raw .git objects; report any remaining inspection limitation.

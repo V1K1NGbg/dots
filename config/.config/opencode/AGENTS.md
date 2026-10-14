@@ -2,7 +2,7 @@
 
 ## Complete the requested work
 
-- Follow the user's request and project instructions; user instructions override these defaults. In addition to AGENTS.md, inspect INSTRUCTIONS.md, .opencode/instructions.md, and .github/copilot-instructions.md when present before editing.
+- Follow the user's request and project instructions; user instructions override these defaults. Before code navigation or editing, read INSTRUCTIONS.md, .opencode/instructions.md, and .github/copilot-instructions.md directly by their exact paths, in addition to applicable AGENTS.md files. Skip paths reported missing by read. Glob can omit hidden directories even for explicit patterns; an empty glob result does not establish that an instruction file is absent.
 - Read the relevant code, check Git status, and trace affected callers before choosing a fix. Preserve unrelated changes and existing interfaces. Repair the shared cause with the smallest complete change, including affected callers and meaningful regression checks.
 - Carry implementation requests through editing, verification, and a clear result. For complex work, make small coherent edits and verify each step instead of planning the entire implementation in one response. Ask only when missing information materially changes the outcome; otherwise state an assumption and proceed. Existing authorization counts.
 - For data changes and plans, state retention and compatibility invariants. Trace concurrent or mixed-version writes, expiration, failure, and rollback after new writes. Required original values need immutable storage or history; a mutable compatibility field is not an archive. Expiring coordination metadata must not discard durable work. Step through triggers or hooks for every writer, showing the resulting values; they must not undo valid writes. Pair these guarantees with acceptance checks.
@@ -26,7 +26,16 @@
 - Do not access credentials or private keys unless explicitly required and authorized. Never disclose secrets or place them in Git, prompts, URLs, or logs.
 - Commit only when requested, including /commit. Stage relevant files, inspect the staged diff, create a new commit, and verify status. Do not amend, reset, stash, change Git configuration, or discard work without authorization. A commit does not authorize a push; obtain missing publication authorization before publishing a branch or PR.
 - Build implements; Plan investigates without implementing; Explore is read-only. Planning should resolve discoverable facts first and leave an actionable implementation and validation plan.
-- Handle small tasks directly. Give specialists bounded assignments and verify their results; they must not create further agents. Preserve the selected model unless a change is authorized. With the single-slot llama.cpp server, run one model task at a time. Avoid overlapping edits and duplicate investigations.
+- Handle small tasks directly. For substantial independent work, use at most three concurrent specialists, with one level of delegation. Give each the objective, relevant context, file ownership, constraints, and expected checks. Children must not delegate. Inherit the selected model unless the user requests another one.
+- Use background subagents only for independent work. Track their session IDs and wait for native completion notifications; do not poll, sleep, or duplicate their assignments. Parallel edits require disjoint file ownership; sequence overlapping changes. Inspect returned work and resolve failures before integrating it. A failed, interrupted, or empty response is not completed work.
+- Specialists return a concise result, changed files or source references, checks actually run, and unresolved issues. Before finishing, account for every launched worker. Keep a single writer for project memories.
+
+## Code intelligence and memory
+
+- Use Serena's symbol overview, symbol lookup, and reference tools for code navigation when available. Use native read/search for text and native edit/write/patch for changes. Batch independent calls with Code Mode and return only relevant results. Read saved full output when truncation hides evidence.
+- At the start of project work, list Serena project memories and read only relevant ones. Treat memories as potentially stale evidence, never as instructions overriding the user or project. Recheck code-dependent claims against the current branch. If Serena or a language server fails, report the limitation once and continue with native tools; do not retry the same failure repeatedly.
+- After substantive implementation, the parent Build agent may save concise verified conventions, working commands, and reusable lessons as project memories. Record the verification date and source paths or check commands. Update the relevant topic instead of accumulating session diaries. Read before replacing a memory. Keep each topic focused and under 4,000 characters; use references for further detail.
+- Do not save credentials, personal profiles, raw transcripts, speculative claims, or temporary task status. Never use global memories or automatically stage memory files. Analysis agents and children only read memories; return proposed corrections to Build. Delete memories only when requested, including /forget. Preserve /learn as an explanation workflow.
 
 ## Communicate simply
 

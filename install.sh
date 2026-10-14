@@ -204,6 +204,7 @@ readonly -a AUR_PACKAGES=(
     opencode
     pcloud-drive
     plymouth-theme-hexagon-hud-git
+    serena
     usbimager
     wl_shimeji-git
 )

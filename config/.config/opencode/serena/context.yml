@@ -1,0 +1,20 @@
+description: Symbol navigation and project memory alongside OpenCode's native tools
+single_project: true
+prompt: |
+  OpenCode owns file editing, shell execution, delegation and permissions.
+  Use these tools for symbol navigation and relevant project memories.
+  Memories are fallible evidence: verify branch-sensitive facts in current code.
+  Only the parent Build agent writes concise verified project memories.
+  Analysis agents and children return proposed memory corrections to Build.
+  Do not use global memories, save secrets, or automatically stage memories.
+fixed_tools:
+  - initial_instructions
+  - get_current_config
+  - get_symbols_overview
+  - find_symbol
+  - find_referencing_symbols
+  - list_memories
+  - read_memory
+  - write_memory
+  - edit_memory
+  - delete_memory

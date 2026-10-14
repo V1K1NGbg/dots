@@ -211,7 +211,7 @@ bind(mod .. " + L", hl.dsp.exec_cmd("hyprlock"), "Lock the screen")
 bind(mod .. " + G", hl.dsp.exec_cmd("bash ~/.config/visualizer/control.sh"), "Toggle edge audio visualizer")
 bind(mod .. " + SHIFT + G", hl.dsp.exec_cmd("bash ~/.config/garden/control.sh --toggle"), "Freeze or resume the garden")
 bind(mod .. " + SHIFT + M", hl.dsp.exec_cmd("bash ~/.config/miku/control.sh"), "Toggle Miku desktop companion")
-bind("XF86PowerOff", hl.dsp.exec_cmd("bash ~/.config/hypr/scripts/power.sh suspend"), "Lock and suspend", { locked = true })
+-- logind handles power-key taps/holds; hypridle locks before suspend.
 
 -- Window and layout manipulation.
 bind(mod .. " + J", function() dots.swap(1) end, "Swap with the next window")

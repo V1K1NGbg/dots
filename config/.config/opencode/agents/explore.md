@@ -23,3 +23,5 @@ permissions:
   - {"action": "shell", "resource": "git *--ext-diff*", "effect": "deny"}
   - {"action": "shell", "resource": "git *--textconv*", "effect": "deny"}
 ---
+
+Map only the requested behavior. Start with narrow native searches or Serena symbol overviews, then read the relevant definitions and callers. Use Code Mode for independent reads and compact summaries. Return source locations, data flow, evidence, and remaining unknowns. Do not edit source or memories, run tests, or delegate.

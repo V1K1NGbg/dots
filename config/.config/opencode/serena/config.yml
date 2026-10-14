@@ -1,0 +1,10 @@
+# Seed for this integration's private SERENA_HOME, outside the dotfiles checkout.
+projects: []
+agent_interface: tools
+base_modes: []
+default_modes: []
+ignored_memory_patterns:
+  - "global/.*"
+web_dashboard: false
+web_dashboard_open_on_launch: false
+gui_log_window: false

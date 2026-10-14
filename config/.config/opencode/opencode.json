@@ -1,6 +1,5 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "llamacpp/qwen3.8-27b-uncensored",
   "providers": {
     "llamacpp": {
       "name": "llama.cpp",
@@ -137,9 +136,37 @@
     {"action": "webfetch", "resource": "*", "effect": "allow"},
     {"action": "websearch", "resource": "*", "effect": "allow"},
     {"action": "skill", "resource": "*", "effect": "allow"},
+    {"action": "serena_*", "resource": "*", "effect": "deny"},
+    {"action": "serena_initial_instructions", "resource": "*", "effect": "allow"},
+    {"action": "serena_get_current_config", "resource": "*", "effect": "allow"},
+    {"action": "serena_get_symbols_overview", "resource": "*", "effect": "allow"},
+    {"action": "serena_find_symbol", "resource": "*", "effect": "allow"},
+    {"action": "serena_find_referencing_symbols", "resource": "*", "effect": "allow"},
+    {"action": "serena_list_memories", "resource": "*", "effect": "allow"},
+    {"action": "serena_read_memory", "resource": "*", "effect": "allow"},
     {"action": "external_directory", "resource": "*", "effect": "ask"}
   ],
   "commands": {
+    "memory": {
+      "description": "Inspect relevant project memories",
+      "agent": "explore",
+      "template": "List and inspect relevant Serena project memories: $ARGUMENTS\nWith no arguments, list names and a concise description. Treat memories as fallible evidence; do not write or delete them."
+    },
+    "remember": {
+      "description": "Save or correct a verified project memory",
+      "agent": "build",
+      "template": "Save or correct this project fact using Serena: $ARGUMENTS\nRead the relevant existing memory first, verify code-dependent claims, and record evidence and date. Use focused project topics, not global memories; omit secrets and transient task status. Report the memory name."
+    },
+    "forget": {
+      "description": "Delete explicitly selected project memories",
+      "agent": "build",
+      "template": "Delete the Serena project memories explicitly selected by: $ARGUMENTS\nList names first. If the selection is ambiguous or empty, ask before deleting. This command authorizes deletion of the selected memories. Do not delete global memories or source files. Report exactly what was deleted."
+    },
+    "handoff": {
+      "description": "Summarize the current task for continuation",
+      "agent": "plan",
+      "template": "Produce a concise continuation brief for the current work. Include objective, active corrections, decisions, authorization boundaries, completed and pending work, worker session IDs and file ownership, exact checks and results, relevant memory names, blockers and next action. Do not edit files, start workers, or describe unverified work as complete.\n$ARGUMENTS"
+    },
     "refactor": {
       "description": "Refactor code for clarity and performance",
       "template": "Refactor only the requested code while preserving observable behavior and public interfaces unless a change is explicitly requested. Prefer existing helpers and simpler code; avoid speculative abstractions. Run focused checks and explain the material changes.\n$ARGUMENTS",
@@ -182,13 +209,13 @@
     },
     "commit": {
       "description": "Stage changes and craft a commit message",
-      "template": "Review the current diff and Git status, select only files relevant to the requested change, and create a conventional commit. This command authorizes the commit; do not ask again unless the intended scope is ambiguous. Never amend or push unless explicitly requested.\n$ARGUMENTS",
+      "template": "Review Git status, both diffs and the authorized scope, then create coherent conventional commits in dependency order when independent changes warrant a split. Preserve unrelated staged and unstaged work. This command authorizes commits; ask only if scope or safe grouping is ambiguous. Never amend or push unless requested.\n$ARGUMENTS",
       "agent": "git"
     },
     "review": {
       "description": "Review code for bugs, security, and best practices",
-      "template": "Review the requested changes without editing: $ARGUMENTS\nIf no scope is given, inspect staged, unstaged, and relevant untracked changes. Trace affected callers and report actionable correctness, security, or regression findings with severity, file:line, triggering conditions, impact, and a concise fix. Lead with findings; do not invent issues or demand stylistic rewrites.",
-      "agent": "code-reviewer"
+      "template": "Review without editing: $ARGUMENTS\nDetermine the base and scope first. With no arguments, cover staged, unstaged and relevant untracked changes. Follow the review coordinator workflow and return deduplicated P0–P3 findings, evidence, confidence and a verdict.",
+      "agent": "review"
     },
     "perf": {
       "description": "Profile and optimize performance",
@@ -307,10 +334,26 @@
     }
   },
   "compaction": {
-    "auto": true,
-    "buffer": 4096,
-    "keep": {
-      "tokens": 8192
+    "auto": true
+  },
+  "experimental": {
+    "subagent_depth": 1
+  },
+  "mcp": {
+    "servers": {
+      "serena": {
+        "type": "local",
+        "command": [
+          "bash",
+          "{env:HOME}/.config/opencode/scripts/serena.sh"
+        ],
+        "disabled": false,
+        "codemode": true,
+        "timeout": {
+          "startup": 120000,
+          "execution": 60000
+        }
+      }
     }
   }
 }
