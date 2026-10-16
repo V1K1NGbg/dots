@@ -1,7 +1,6 @@
 ---
 description: Reviews code for bugs, security, performance, and best practices
 mode: subagent
-color: "#ff025f"
 steps: 30
 permissions:
   - {"action": "edit", "resource": "*", "effect": "deny"}

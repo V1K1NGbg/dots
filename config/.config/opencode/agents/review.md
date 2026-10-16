@@ -1,7 +1,6 @@
 ---
 description: Coordinates an evidence-based read-only review
 mode: primary
-color: "#ff025f"
 steps: 60
 permissions:
   - {"action": "edit", "resource": "*", "effect": "deny"}

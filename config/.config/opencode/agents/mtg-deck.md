@@ -1,7 +1,6 @@
 ---
 description: MTG Commander deck builder. Uses live online data from Scryfall, EDHREC, Moxfield, and Commander Spellbook to build, analyze, and optimize EDH decks.
 mode: primary
-color: "#35ddff"
 steps: 200
 permissions:
   - {"action": "edit", "resource": "*", "effect": "deny"}

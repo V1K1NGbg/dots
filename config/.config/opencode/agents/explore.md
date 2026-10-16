@@ -1,7 +1,6 @@
 ---
 description: Read-only codebase exploration, search, and analysis. Fast and safe.
 mode: subagent
-color: "#61afef"
 steps: 30
 permissions:
   - {"action": "edit", "resource": "*", "effect": "deny"}

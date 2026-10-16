@@ -1,7 +1,6 @@
 ---
 description: Performs comprehensive security audits, vulnerability assessments, and threat modeling
 mode: subagent
-color: "#ff6b9d"
 steps: 40
 permissions:
   - {"action": "edit", "resource": "*", "effect": "deny"}

@@ -1,7 +1,6 @@
 ---
 description: Optimizes code for speed, memory, and efficiency
 mode: subagent
-color: "#9359ff"
 steps: 40
 permissions:
   - {"action": "edit", "resource": "*", "effect": "allow"}

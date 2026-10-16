@@ -1,7 +1,6 @@
 ---
 description: Verifies that changes actually work. Independent testing and validation.
 mode: subagent
-color: "#e5c07b"
 steps: 30
 permissions:
   - {"action": "edit", "resource": "*", "effect": "deny"}

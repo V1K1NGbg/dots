@@ -16,12 +16,21 @@ UPDATED_CONFIG_FILES=(
     .config/hypr/scripts/screenshot.sh
     .config/opencode/AGENTS.md
     .config/opencode/agents/architect.md
-    .config/opencode/agents/build.md
     .config/opencode/agents/code-reviewer.md
+    .config/opencode/agents/debugger.md
+    .config/opencode/agents/devops.md
+    .config/opencode/agents/docs-writer.md
     .config/opencode/agents/explore.md
-    .config/opencode/agents/plan.md
+    .config/opencode/agents/frontend.md
+    .config/opencode/agents/git.md
+    .config/opencode/agents/mtg-deck.md
+    .config/opencode/agents/mtg-rules.md
+    .config/opencode/agents/optimizer.md
     .config/opencode/agents/research.md
+    .config/opencode/agents/review.md
     .config/opencode/agents/security.md
+    .config/opencode/agents/style.md
+    .config/opencode/agents/tester.md
     .config/opencode/agents/verifier.md
     .config/opencode/cli.json
     .config/opencode/opencode.json
@@ -36,7 +45,11 @@ UPDATED_CONFIG_FILES=(
     .config/themeapply/firefox/userChrome.css
     .config/themeapply/firefox/userContent.css
 )
-RETIRED_CONFIG_FILE=.config/rofi/modi/ai-request.py
+RETIRED_CONFIG_FILES=(
+    .config/rofi/modi/ai-request.py
+    .config/opencode/agents/build.md
+    .config/opencode/agents/plan.md
+)
 
 update_files() (
     set -euo pipefail
@@ -44,7 +57,12 @@ update_files() (
     local repo=$1 home_dir=$2 path target parent backup temporary=''
     trap 'rm -f -- "$temporary"' EXIT
 
-    for path in "${UPDATED_CONFIG_FILES[@]}" "$RETIRED_CONFIG_FILE"; do
+    for path in "${UPDATED_CONFIG_FILES[@]}"; do
+        [[ -f $repo/config/$path ]] || {
+            printf 'Missing update source: %s\n' "$repo/config/$path" >&2; exit 1
+        }
+    done
+    for path in "${UPDATED_CONFIG_FILES[@]}" "${RETIRED_CONFIG_FILES[@]}"; do
         target=$home_dir/$path
         [[ ! -e $target || -f $target ]] || {
             printf 'Expected a regular file: %s\n' "$target" >&2; exit 1
@@ -59,9 +77,6 @@ update_files() (
                 printf 'Expected a directory: %s\n' "$parent" >&2; exit 1
             }
         done
-        [[ $path == "$RETIRED_CONFIG_FILE" || -f $repo/config/$path ]] || {
-            printf 'Missing update source: %s\n' "$repo/config/$path" >&2; exit 1
-        }
     done
 
     # Prepare the only generated config before replacing any installed files.
@@ -74,12 +89,13 @@ update_files() (
     backup=$(mktemp -d "$home_dir/.local/share/archinstaller/update-20261009.XXXXXXXX")
     : > "$backup/existing.txt"
     : > "$backup/created.txt"
-    for path in "${UPDATED_CONFIG_FILES[@]}" "$RETIRED_CONFIG_FILE"; do
+    for path in "${UPDATED_CONFIG_FILES[@]}" "${RETIRED_CONFIG_FILES[@]}"; do
         if [[ -f $home_dir/$path ]]; then
             printf '%s\n' "$path" >> "$backup/existing.txt"
-        elif [[ $path != "$RETIRED_CONFIG_FILE" ]]; then
-            printf '%s\n' "$path" >> "$backup/created.txt"
         fi
+    done
+    for path in "${UPDATED_CONFIG_FILES[@]}"; do
+        [[ -f $home_dir/$path ]] || printf '%s\n' "$path" >> "$backup/created.txt"
     done
     tar -cpf "$backup/files.tar" -C "$home_dir" -T "$backup/existing.txt"
     mv -- "$temporary" "$backup/code-settings.json"
@@ -97,7 +113,9 @@ update_files() (
         mv -f -- "$temporary" "$target"
         temporary=''
     done
-    rm -f -- "$home_dir/$RETIRED_CONFIG_FILE"
+    for path in "${RETIRED_CONFIG_FILES[@]}"; do
+        rm -f -- "$home_dir/$path"
+    done
     # Garden's build helper compares mtimes against the existing cached binary.
     touch "$home_dir/.config/garden/renderer.c"
 )

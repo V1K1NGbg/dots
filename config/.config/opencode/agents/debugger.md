@@ -1,7 +1,6 @@
 ---
 description: Deep debugger that systematically finds and fixes bugs
 mode: primary
-color: "#e06c75"
 steps: 60
 permissions:
   - {"action": "edit", "resource": "*", "effect": "allow"}

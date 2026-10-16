@@ -1,7 +1,6 @@
 ---
 description: Write text in your personal writing style
 mode: primary
-color: "#e5c07b"
 steps: 20
 permissions:
   - {"action": "edit", "resource": "*", "effect": "deny"}

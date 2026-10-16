@@ -1,7 +1,6 @@
 ---
 description: MTG Rules Judge. Answers rules questions using live Scryfall data, official rulings, and the Comprehensive Rules. Never uses internal knowledge for rules answers.
 mode: subagent
-color: "#35ddff"
 steps: 100
 permissions:
   - {"action": "edit", "resource": "*", "effect": "deny"}

@@ -1,7 +1,6 @@
 ---
 description: Git operations, branch management, commit crafting, and history analysis
 mode: subagent
-color: "#f97316"
 steps: 30
 permissions:
   - {"action": "edit", "resource": "*", "effect": "deny"}

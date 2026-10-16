@@ -1,7 +1,6 @@
 ---
 description: Writes and improves documentation, READMEs, and technical writing
 mode: subagent
-color: "#a2f300"
 steps: 40
 permissions:
   - {"action": "edit", "resource": "*", "effect": "allow"}

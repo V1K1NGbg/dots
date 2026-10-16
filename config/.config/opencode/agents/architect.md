@@ -1,7 +1,6 @@
 ---
 description: Designs system architecture, APIs, and technical solutions
 mode: subagent
-color: "#35ddff"
 steps: 40
 permissions:
   - {"action": "edit", "resource": "*", "effect": "deny"}

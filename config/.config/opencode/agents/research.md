@@ -1,7 +1,6 @@
 ---
 description: Researches topics, compares technologies, and provides analysis
 mode: subagent
-color: "#c3a6ff"
 steps: 30
 permissions:
   - {"action": "edit", "resource": "*", "effect": "deny"}

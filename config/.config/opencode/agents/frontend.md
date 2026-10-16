@@ -1,7 +1,6 @@
 ---
 description: UI/UX development, accessibility, responsive design, and frontend best practices
 mode: subagent
-color: "#67ffeb"
 steps: 60
 permissions:
   - {"action": "edit", "resource": "*", "effect": "allow"}

@@ -1,7 +1,6 @@
 ---
 description: Generates tests, improves coverage, and validates test quality
 mode: subagent
-color: "#00e5b0"
 steps: 60
 permissions:
   - {"action": "edit", "resource": "*", "effect": "allow"}

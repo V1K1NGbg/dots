@@ -1,7 +1,6 @@
 ---
 description: Docker, CI/CD, infrastructure, deployment, and monitoring
 mode: subagent
-color: "#e06c75"
 steps: 40
 permissions:
   - {"action": "edit", "resource": "*", "effect": "allow"}
