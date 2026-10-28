@@ -56,6 +56,35 @@ function M.split_direction(index)
     return index % 2 == 0 and "right" or "down"
 end
 
+-- The rebuild's Dwindle result is a chain: window i+1 splits the region of
+-- window i, so each window sits directly across the previous split and every
+-- later window still lives inside the region that split created. Removing a
+-- window lets its sibling subtree inherit the parent box, which re-lays the
+-- subtree out and can break that chain while keeping the reading order.
+-- Verify the rectangles still form the chain; split ratios are free.
+function M.canonical_chain(windows)
+    local delta
+    for index = 1, #windows - 1 do
+        local head, tail = windows[index], windows[index + 1]
+        local horizontal = M.split_direction(index + 1) == "right"
+        local d, p = horizontal and "x" or "y", horizontal and "y" or "x"
+        -- The next window starts across the split; the gap is uniform.
+        local gap = tail.at[d] - head.at[d] - head.size[d]
+        if gap < -1 or (delta and math.abs(gap - delta) > 2) then return false end
+        delta = delta or gap
+        -- The later windows together span the head's extent across the split.
+        local near, far = tail.at[p], tail.at[p] + tail.size[p]
+        for i = index + 2, #windows do
+            near = math.min(near, windows[i].at[p])
+            far = math.max(far, windows[i].at[p] + windows[i].size[p])
+        end
+        if math.abs(near - head.at[p]) > 2 or math.abs(far - head.at[p] - head.size[p]) > 2 then
+            return false
+        end
+    end
+    return true
+end
+
 function M.visual_order(windows)
     table.sort(windows, function(a, b)
         if a.at.x ~= b.at.x then return a.at.x < b.at.x end

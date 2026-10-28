@@ -39,9 +39,6 @@ backup() (
         relative=${name#config/}
         target=$root/$name
         case $relative in
-            # These exports belonged to the retired Code helper, not live settings.
-            '.config/Code - OSS/'*'/dots-state.json'|'.config/Code - OSS/dots-profiles.json')
-                printf 'Skipped export: %s\n' "$name"; continue ;;
             system/pam.d/dots-hyprlock) base=$etc_dir; source=pam.d/dots-hyprlock ;;
             system/logind/60-dots-power.conf) base=$etc_dir; source=systemd/logind.conf.d/60-dots-power.conf ;;
             system/sleep/60-dots-power.conf) base=$etc_dir; source=systemd/sleep.conf.d/60-dots-power.conf ;;

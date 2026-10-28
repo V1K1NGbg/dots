@@ -203,7 +203,7 @@ bind(mod .. " + Return", hl.dsp.exec_cmd("alacritty"), "Open a terminal")
 bind(mod .. " + B", hl.dsp.exec_cmd("firefox"), "Open a browser")
 bind(mod .. " + CTRL + P", hl.dsp.exec_cmd("localsend"), "Open phone connection")
 bind(mod .. " + E", hl.dsp.exec_cmd("~/.config/rofi/launcher.sh menu"), "Open the Rofi menu")
-bind(mod .. " + C", hl.dsp.exec_cmd("code"), "Open Code")
+bind(mod .. " + C", hl.dsp.exec_cmd("code"), "Open VS Code")
 bind(mod .. " + R", hl.dsp.exec_cmd("~/.config/rofi/launcher.sh"), "Open Run (Tab for menu)")
 bind(mod .. " + P", hl.dsp.exec_cmd("bash ~/.config/hypr/scripts/screenshot.sh"), "Take a screenshot")
 bind(mod .. " + SHIFT + P", hl.dsp.exec_cmd("bash ~/.config/hypr/scripts/screenshot.sh --ocr"), "Copy text from screen (English/Bulgarian)")
@@ -253,6 +253,7 @@ bind(mod .. " + bracketright", click("mouse:273"), "Right-click the pointer")
 for i = 1, 9 do
     bind(mod .. " + " .. i, function() dots.view(i) end, "View workspace " .. i)
     bind(mod .. " + SHIFT + " .. i, function() dots.move(i) end, "Move window to workspace " .. i)
+    bind(mod .. " + CTRL + " .. i, function() dots.toggle_co_view(i) end, "Also view workspace " .. i)
 end
 
 bind(mod .. " + mouse:272", function() dots.mouse("drag") end, "Move window with the mouse", { mouse = true })

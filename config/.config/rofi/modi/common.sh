@@ -133,8 +133,9 @@ dashboard_row() {
 }
 live_menu() {
     local command height args=()
-    case $1 in ai) height=680;; time) if [[ ${2:-timer} == timer ]]; then height=280; else height=400; fi;; *) height=580;; esac
+    case $1 in ai) height=0;; time) if [[ ${2:-timer} == timer ]]; then height=280; else height=400; fi;; *) height=580;; esac
     ((height<=HEIGHT)) || height=$HEIGHT
+    # Automatic height lets Rofi relayout the answer on every streamed update.
     args+=(-theme-str "window { height: ${height}px; }")
     [[ $1 != ai && $1 != time ]] || args+=(-theme-str 'listview { scrollbar: false; }')
     [[ $1 != ai ]] || args+=(-theme-str 'entry { enabled: false; }')

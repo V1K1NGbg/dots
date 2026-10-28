@@ -12,13 +12,16 @@ if state_path then
     end
 end
 state.version = 1
+state.merges = state.merges or {}
 local rebuilding = false
 local reconciling = false
+local merging = false
 local workspace_rules = {}
 local app_rules = {}
 local history = {}
 local normalize_pending = false
 local rebuild_pending = {}
+local rebuild_deferred = {}
 local mouse_active = false
 local mouse_window
 local topology = ""
@@ -30,9 +33,15 @@ local function publish_labels()
     local changed = false
     for _, monitor in ipairs(hl.get_monitors()) do
         if monitor.name:match("^[%w_-]+$") then
+            local ws = monitor.active_workspace
+            local merged = {}
+            if ws then
+                for home, host in pairs(state.merges) do
+                    if host == ws.id then merged[core.logical(home)] = true end
+                end
+            end
             for number = 1, 9 do
-                local ws = monitor.active_workspace
-                local active = ws and core.logical(ws.id) == number
+                local active = ws and (core.logical(ws.id) == number or merged[number])
                 local value = string.format('{"text":"%d","class":"%s","tooltip":"Workspace %d"}\n', number, active and "active" or "inactive", number)
                 local path = label_directory .. "/" .. monitor.name .. "-" .. number .. ".json"
                 if labels[path] ~= value then
@@ -78,6 +87,15 @@ local function later(fn, delay)
     hl.timer(fn, { timeout = delay or 30, type = "oneshot" })
 end
 
+-- A plain (single-stop) border color, as a config string; nil for anything
+-- the mask cannot round-trip, which simply leaves it off.
+local function border_color(name)
+    local colors = hl.get_config(name).colors
+    local argb = colors and #colors == 1 and tonumber(colors[1])
+    if not argb then return end
+    return string.format("rgba(%06X%02X)", argb & 0xFFFFFF, argb >> 24)
+end
+
 local function key(window)
     return tostring(window.stable_id)
 end
@@ -93,6 +111,19 @@ local function find(id)
         if key(window) == id then return window end
     end
 end
+
+-- Move the pointer to a window's midpoint. Guarded so closing or hidden
+-- windows cannot pull the cursor to a stale rectangle.
+local function center_cursor_on(window)
+    if not window or not window.mapped or not window.monitor then return end
+    local at, size = window.at, window.size
+    if not at or not size or size.x <= 0 or size.y <= 0 then return end
+    hl.dispatch(hl.dsp.cursor.move({ x = at.x + size.x / 2, y = at.y + size.y / 2 }))
+end
+
+-- Desktop::eFocusReason is a bitmask. Mouse-driven focus (FFM, click) must
+-- not warp the cursor; the pointer is already where it caused the focus.
+local MOUSE_FOCUS_REASONS = 1 | 16
 
 local function float(window, enabled)
     if window and window.mapped and window.floating ~= enabled then
@@ -135,11 +166,91 @@ function M.browse(delta)
     if ws then M.view(core.logical(ws.id) + delta) end
 end
 
+-- Hyprland fades a window out when it silently leaves a visible workspace,
+-- but only when the destination is empty: moving into an occupied one
+-- re-tiles the window and the fade is skipped, so it vanishes in one step.
+-- Parking the window on a private special workspace for the duration of the
+-- fade and hopping it to the real destination afterwards keeps the
+-- animation on every move. The second hop happens while the window is
+-- already invisible, so nothing more animates there.
 function M.move(number)
     local window = hl.get_active_window()
     if not window then return end
     local id = local_id(number, window.monitor)
-    if id then hl.dispatch(hl.dsp.window.move({ window = window, workspace = id, follow = false })) end
+    if not id then return end
+    local id_key = key(window)
+    local data = meta(window)
+    data.hop = id
+    hl.dispatch(hl.dsp.window.move({ window = window, workspace = "special:dots-fadehop", follow = false }))
+    later(function()
+        if data.hop ~= id then return end
+        data.hop = nil
+        -- Anything the user did with the window while it was fading
+        -- (minimize, another move, closing it) must not be undone.
+        local current = find(id_key)
+        local ws = current and current.workspace
+        if ws and ws.special and ws.name:match("fadehop$") then
+            hl.dispatch(hl.dsp.window.move({ window = current, workspace = id, follow = false }))
+        end
+    end, 500)
+end
+
+local function workspace_visible(id)
+    for _, monitor in ipairs(hl.get_monitors()) do
+        local ws = monitor.active_workspace
+        if ws and ws.id == id then return true end
+    end
+    return false
+end
+
+local function unmerge(predicate)
+    local count = 0
+    merging = true
+    for _, window in ipairs(hl.get_windows()) do
+        local data = state.windows[key(window)]
+        if data and data.merged_into and predicate(data) then
+            local home = data.home_ws
+            data.home_ws, data.merged_into = nil, nil
+            count = count + 1
+            if home and window.mapped then
+                hl.dispatch(hl.dsp.window.move({ window = window, workspace = home, follow = false }))
+            end
+        end
+    end
+    merging = false
+    return count
+end
+
+-- Awesome's viewtoggle: pull another workspace's windows onto the active one.
+-- state.merges[home] = host tracks the merge even while the home has no
+-- windows; per-window home_ws/merged_into returns each window when it ends.
+function M.toggle_co_view(number)
+    local active = active_workspace()
+    if not active or active.special then return end
+    local id = local_id(number)
+    if not id or id == active.id then return end
+    if state.merges[id] == active.id then
+        state.merges[id] = nil
+        unmerge(function(data) return data.merged_into == active.id and data.home_ws == id end)
+    else
+        state.merges[id] = nil
+        unmerge(function(data) return data.home_ws == id end)
+        merging = true
+        local target = hl.get_workspace(id)
+        if target then
+            for _, window in ipairs(hl.get_windows({ workspace = target })) do
+                if window.mapped then
+                    hl.dispatch(hl.dsp.window.move({ window = window, workspace = active.id, follow = false }))
+                    local data = meta(window)
+                    data.home_ws, data.merged_into = id, active.id
+                end
+            end
+        end
+        state.merges[id] = active.id
+        merging = false
+    end
+    publish_labels()
+    save()
 end
 
 local function tiled(ws)
@@ -181,39 +292,78 @@ function M.rebuild(ws)
     ws = ws or active_workspace()
     if not ws or ws.special or ws.tiled_layout ~= "dwindle" or rebuilding or mouse_active then return end
     local windows = ordered(ws)
-    if #windows == 0 then return end
+    -- One window cannot be out of order; rebuilding it only flickers.
+    if #windows < 2 then return end
+    -- The common cases are already in order: a new window splits the focused,
+    -- visually last one, and a removed window's siblings inherit boxes that
+    -- keep the reading order. But a removal can also re-lay the sibling subtree
+    -- out into a shape the rebuild would not produce, which reads as a wrong
+    -- order. Only skip when the sequence matches AND the rectangles still form
+    -- the canonical chain; otherwise re-tiling also cycles keyboard focus
+    -- through every window, which reads as quick focus swaps.
+    local settled = tiled(ws)
+    local unchanged = #settled == #windows
+    if unchanged then
+        for i = 1, #windows do
+            if key(windows[i]) ~= key(settled[i]) then unchanged = false; break end
+        end
+    end
+    if unchanged and core.canonical_chain(settled) then save(); return end
     local focused = hl.get_active_window()
     local focused_id = focused and key(focused)
     local original_ws = active_workspace()
     local original_id = original_ws and original_ws.id
     rebuilding = true
-    hl.dispatch(hl.dsp.focus({ workspace = ws }))
-    for _, window in ipairs(windows) do float(window, true) end
-    for i, window in ipairs(windows) do
-        if i > 1 then
-            hl.dispatch(hl.dsp.focus({ window = windows[i - 1] }))
-            hl.dispatch(hl.dsp.layout("preselect " .. core.split_direction(i)))
-        end
-        float(window, false)
+    -- Focus drives Dwindle insertion (use_active_for_splits), so re-tiling
+    -- cycles keyboard focus across every window, repainting the active border
+    -- on each one. Equal borders hide the whole cycle; the final focus is
+    -- restored before the real color returns, leaving one visible transition.
+    local active_color = border_color("general:col.active_border")
+    local inactive_color = border_color("general:col.inactive_border")
+    local masked = active_color and inactive_color and active_color ~= inactive_color
+    if masked then
+        hl.config({ general = { col = { active_border = inactive_color } } })
     end
-    hl.dispatch(hl.dsp.layout("preselect none"))
+    local ok, err = pcall(function()
+        hl.dispatch(hl.dsp.focus({ workspace = ws }))
+        for _, window in ipairs(windows) do float(window, true) end
+        for i, window in ipairs(windows) do
+            if i > 1 then
+                hl.dispatch(hl.dsp.focus({ window = windows[i - 1] }))
+                hl.dispatch(hl.dsp.layout("preselect " .. core.split_direction(i)))
+            end
+            float(window, false)
+        end
+        hl.dispatch(hl.dsp.layout("preselect none"))
+    end)
     rebuilding = false
     if focused_id and find(focused_id) then
         hl.dispatch(hl.dsp.focus({ window = find(focused_id) }))
     elseif original_id then
         hl.dispatch(hl.dsp.focus({ workspace = original_id }))
     end
+    if masked then
+        hl.config({ general = { col = { active_border = active_color } } })
+    end
+    if not ok then error(err) end
     save()
 end
 
+-- Rebuilding a hidden workspace would steal focus to re-tile it, flashing the
+-- screen on every move or merge. Defer until the workspace is actually shown.
 local function schedule_rebuild(id)
     if not id or id <= 0 or rebuilding or rebuild_pending[id] then return end
+    if not workspace_visible(id) then
+        rebuild_deferred[id] = true
+        return
+    end
     rebuild_pending[id] = true
     -- Moves and workspace rules settle after their event callback. Batch a
     -- dock/undock burst and resolve the workspace again; it may be gone by then.
     later(function()
         rebuild_pending[id] = nil
         if mouse_active then schedule_rebuild(id); return end
+        if not workspace_visible(id) then rebuild_deferred[id] = true; return end
         local ws = hl.get_workspace(id)
         if ws then M.rebuild(ws) end
     end, 150)
@@ -226,8 +376,14 @@ function M.mouse(action)
         local window = mouse_window
         hl.dispatch(hl.dsp.window[action]())
         mouse_active, mouse_window = false, nil
-        if action == "drag" and window and window.mapped and not window.floating and window.workspace then
-            capture_order(window.workspace)
+        if action == "drag" then
+            if window and window.mapped and not window.floating and window.workspace then
+                capture_order(window.workspace)
+            end
+            -- After a drag completes, the pointer sits wherever it was
+            -- released. Re-center it on the window so subsequent clicks
+            -- land on the moved client.
+            center_cursor_on(window)
         end
     else
         mouse_active = true
@@ -458,11 +614,50 @@ function M.magnify()
 end
 
 local apps = {
-    { "(com\\.visualstudio\\.(code\\.oss|CodeOSS)|[Cc]ode(-[Oo][Ss][Ss]| - OSS)?)", 1 },
+    -- Hyprland rules use regex; place_apps needs Lua patterns (% escapes, no
+    -- alternation), listed per entry as the optional third element.
+    { "(com\\.microsoft\\.VSCode|[Cc]ode)", 1, { "^com%.microsoft%.VSCode$", "^[Cc]ode$" } },
     { "[Ff]irefox", 2 }, { "[Aa]lacritty", 3 },
     { "[Nn]emo", 4 }, { "[Dd]iscord", 5 }, { "[Ss]potify", 6 },
-    { "(org\\.keepassxc\\.KeePassXC|[Kk]ee[Pp]ass[Xx][Cc])", 7 }, { "[Ss]team", 8 },
+    { "(org\\.keepassxc\\.KeePassXC|[Kk]ee[Pp]ass[Xx][Cc])", 7, { "^org%.keepassxc%.KeePassXC$", "^[Kk]ee[Pp]ass[Xx][Cc]$" } },
+    { "[Ss]team", 8 },
 }
+
+local function app_number(class)
+    for _, app in ipairs(apps) do
+        if app[3] then
+            for _, pattern in ipairs(app[3]) do
+                if class:match(pattern) then return app[2] end
+            end
+        elseif class:match(app[1]) then
+            return app[2]
+        end
+    end
+end
+
+-- Return known apps to their dedicated workspaces on the primary screen.
+-- Window rules only place new windows; a config reload calls this to repair
+-- the ones already open.
+function M.place_apps()
+    local monitors = hl.get_monitors()
+    local names = core.connected(monitors)
+    local fallback = fallback_monitor(monitors)
+    if not fallback then return end
+    core.assign_bases(state.bases, monitors)
+    local primary = names[state.primary] and state.primary or core.primary(monitors, fallback)
+    for _, window in ipairs(hl.get_windows()) do
+        local class = window.initial_class
+        if not class or class == "" then class = window.class end
+        local number = class and app_number(class)
+        if number then
+            local ws = window.workspace
+            local target = core.workspace(state.bases[primary], number)
+            if window.mapped and ws and not ws.special and ws.id ~= target then
+                hl.dispatch(hl.dsp.window.move({ window = window, workspace = target, follow = false }))
+            end
+        end
+    end
+end
 
 -- Called once after a display profile is applied, never on ordinary workspace
 -- changes. Users can still move windows back to the secondary screen.
@@ -507,6 +702,16 @@ function M.reconcile()
     local focused_id = focused and key(focused)
     local names = core.connected(monitors)
     core.assign_bases(state.bases, monitors)
+    local remapped = {}
+    for home, host in pairs(state.merges or {}) do
+        local new_home = core.destination(state.bases, monitors, home, fallback)
+        local new_host = core.destination(state.bases, monitors, host, fallback)
+        -- Drop zombie records whose host is hidden and remap collisions.
+        if new_home ~= new_host and workspace_visible(new_host) then
+            remapped[new_home] = new_host
+        end
+    end
+    state.merges = remapped
     local monitor_names = {}
     for name in pairs(names) do monitor_names[#monitor_names + 1] = name end
     table.sort(monitor_names)
@@ -538,6 +743,8 @@ function M.reconcile()
     for _, window in ipairs(hl.get_windows()) do
         local data = meta(window)
         if data.restore_ws then data.restore_ws = core.destination(state.bases, monitors, data.restore_ws, fallback) end
+        if data.home_ws then data.home_ws = core.destination(state.bases, monitors, data.home_ws, fallback) end
+        if data.merged_into then data.merged_into = core.destination(state.bases, monitors, data.merged_into, fallback) end
         if data.monitor and not names[data.monitor] then data.monitor = fallback end
         local ws = window.workspace
         if ws and not ws.special then
@@ -577,12 +784,39 @@ function M.setup()
     hl.on("hyprland.start", schedule_reconcile)
     hl.on("config.reloaded", schedule_reconcile)
     hl.on("monitor.added", schedule_reconcile)
+    -- Waybar creates a bar for a hotplugged screen hidden (start_hidden), even
+    -- while the bar is supposed to be shown. Re-send the desired state once the
+    -- new bar exists; the signal is absolute, so repeating it is harmless.
+    hl.on("monitor.added", function()
+        later(function() hl.exec_cmd("bash ~/.config/hypr/scripts/waybar.sh resync") end, 400)
+        later(function() hl.exec_cmd("bash ~/.config/hypr/scripts/waybar.sh resync") end, 2000)
+    end)
     hl.on("monitor.removed", schedule_reconcile)
     hl.on("workspace.created", schedule_reconcile)
     hl.on("window.move_to_workspace", function(window, ws)
         if window then
             ws = ws or window.workspace
             local data = meta(window)
+            -- Any move the merge code did not initiate ends the window's merge,
+            -- unless it lands on a merged-away home and is adopted below.
+            if not merging and data.merged_into then
+                data.home_ws, data.merged_into = nil, nil
+            end
+            -- A window arriving on a merged-away home joins the merge instead,
+            -- matching Awesome showing every client of a visible tag.
+            if not merging and ws and not ws.special then
+                local host = state.merges[ws.id]
+                if host and workspace_visible(host) then
+                    merging = true
+                    hl.dispatch(hl.dsp.window.move({ window = window, workspace = host, follow = false }))
+                    merging = false
+                    data.home_ws, data.merged_into = ws.id, host
+                    schedule_rebuild(host)
+                    schedule_reconcile()
+                    save()
+                    return
+                end
+            end
             if not window.floating or mouse_window == window then schedule_rebuild(data.order_workspace) end
             if ws and not ws.special then
                 if data.order_workspace ~= ws.id then
@@ -594,6 +828,10 @@ function M.setup()
                 -- The window's monitor may still be the source during this event.
                 if data.sticky and ws.monitor then data.monitor = ws.monitor.name end
             end
+            -- A window arriving on a visible workspace takes the pointer with
+            -- it. Hidden destinations and special workspaces (minimized) are
+            -- skipped: warping to an invisible rectangle yanks the pointer.
+            if ws and not ws.special and workspace_visible(ws.id) then center_cursor_on(window) end
         end
         schedule_reconcile()
     end)
@@ -605,7 +843,13 @@ function M.setup()
         reassert_top()
         save()
     end)
-    hl.on("window.active", function(window)
+    hl.on("window.active", function(window, reason)
+        -- Keyboard/binding focus changes take the cursor with them. Mouse
+        -- focus changes (FFM, click) leave it where the user put it. The
+        -- focus churn inside a rebuild must not drag the pointer along.
+        if not rebuilding and reason and (reason & MOUSE_FOCUS_REASONS) == 0 then
+            center_cursor_on(window)
+        end
         if not rebuilding and window and window.workspace and not window.workspace.special then
             local list = history[window.workspace.id] or {}
             local id = key(window)
@@ -621,6 +865,10 @@ function M.setup()
     end)
     hl.on("workspace.active", function(ws)
         if rebuilding or reconciling or not ws or ws.special then return end
+        if rebuild_deferred[ws.id] then
+            rebuild_deferred[ws.id] = nil
+            schedule_rebuild(ws.id)
+        end
         for _, window in ipairs(hl.get_windows()) do
             local data = meta(window)
             if data.sticky and not data.minimized and ws.monitor and data.monitor == ws.monitor.name
@@ -628,6 +876,16 @@ function M.setup()
                 hl.dispatch(hl.dsp.window.move({ window = window, workspace = ws, follow = false }))
             end
         end
+        -- Merges dissolve as soon as their host workspace is no longer shown.
+        local dissolved = 0
+        for home, host in pairs(state.merges) do
+            if not workspace_visible(host) then
+                state.merges[home] = nil
+                dissolved = dissolved + 1
+            end
+        end
+        dissolved = dissolved + unmerge(function(data) return not workspace_visible(data.merged_into) end)
+        if dissolved > 0 then save() end
         sync_bar()
         publish_labels()
     end)
@@ -657,6 +915,7 @@ function M.setup()
     gesture(4, "down", M.magnify)
     local function initialize()
         M.reconcile()
+        M.place_apps()
         local live = {}
         for _, window in ipairs(hl.get_windows()) do live[key(window)] = true end
         for id in pairs(state.windows) do if not live[id] then state.windows[id] = nil end end

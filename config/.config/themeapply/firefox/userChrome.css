@@ -34,3 +34,8 @@ browser {
 .browserContainer > findbar {
     background: #191919 !important;
 }
+
+/* Active tab stays darker than the rest so it stands out from page content. */
+tab[selected] .tab-background {
+    background-color: rgba(0, 0, 0, 0.85) !important;
+}

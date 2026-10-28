@@ -1,7 +1,7 @@
 {
   "ai_url": "http://127.0.0.1:8080/v1/chat/completions",
   "ai_model": "qwen3.8-27b-uncensored",
-  "ai_timeout": 30,
+  "ai_timeout": 90,
   "icon_color": "#67ffeb",
   "icons": {
     "files": "folder-search",

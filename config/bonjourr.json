@@ -1,6 +1,6 @@
 {
   "about": {
-    "browser": "firefox",
+    "browser": "online",
     "version": "22.3.0"
   },
   "advanced": {
@@ -57,7 +57,7 @@
     "synced": []
   },
   "backgrounds": {
-    "type": "color",
+    "type": "files",
     "fadein": 600,
     "blur": 15,
     "bright": 0.8,
@@ -77,10 +77,10 @@
   },
   "worldclocks": [
     {
-      "timezone": "Europe/Sofia"
+      "timezone": "Europe/Amsterdam"
     },
     {
-      "timezone": "Europe/Sofia"
+      "timezone": "Europe/Amsterdam"
     }
   ],
   "analogstyle": {
@@ -91,7 +91,7 @@
     "background": "#fff2"
   },
   "weather": {
-    "city": "Amsterdam",
+    "city": "Delft",
     "unit": "metric",
     "show_unit": true,
     "provider": "",

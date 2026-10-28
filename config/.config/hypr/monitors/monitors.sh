@@ -2,6 +2,7 @@
 # Apply saved display layouts; ask with Rofi for unknown displays.
 MONITOR_ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 MONITOR_SAVED=${XDG_CONFIG_HOME:-$HOME/.config}/dots-monitors/profiles.json
+MONITOR_MAIN=${XDG_CONFIG_HOME:-$HOME/.config}/dots-monitors/main.json
 MONITOR_LAYOUTS=(right left top bottom duplicate)
 
 monitor_query() { hyprctl monitors all -j | jq -ce 'if type=="array" then . else error("Invalid monitor response") end'; }
@@ -62,7 +63,7 @@ monitor_rule() {
         "$(monitor_lua_string "$position")" "$scale" "$transform" "$(monitor_lua_string "$mirror")"
 }
 monitor_apply() {
-    local internal=$1 external=$2 layout=$3 gather=$4 profiles=$5 positions monitor position mirror second live names tries command=''
+    local internal=$1 external=$2 layout=$3 gather=$4 profiles=$5 positions monitor position mirror second primary main live names tries command=''
     live=$(monitor_query) || return
     positions=$(monitor_positions "$layout" "$internal" "$external" "$live" "$profiles") || return
     second=$(jq -r '.name' <<<"$external")
@@ -80,7 +81,12 @@ monitor_apply() {
           INDEX(.name) as $live | all($expected[]; . as $p | $live[$p.name] as $m |
             if $p.mirrorOf!="none" then ($m.mirrorOf==$p.mirrorOf or $m.mirrorOf==($live[$p.mirrorOf].id|tostring))
             else $m.mirrorOf=="none" and [$m.x,$m.y]==[$p.x,$p.y] end)' <<<"$live" >/dev/null; then
-            monitor_dispatch "dots.set_primary($(monitor_lua_string "$second"), $gather)"
+            # A saved main-display choice wins; otherwise the external screen is
+            # the primary, matching the long-standing docked behavior.
+            main=$(monitor_read "$MONITOR_MAIN" 2>/dev/null) || main='{}'
+            primary=$(jq -r --argjson main "$main" --arg fallback "$second" '
+                ([.[] | select(.description == ($main.description // "") and (.disabled // false | not))][0].name) // $fallback' <<<"$live") || return
+            monitor_dispatch "dots.set_primary($(monitor_lua_string "$primary"), $gather)"
             return
         fi
         sleep .1
@@ -91,7 +97,7 @@ monitor_apply() {
 monitor_main() (
     set -euo pipefail
     local auto=false reload=false arg runtime monitors topology previous internal external saved profiles targets index
-    local monitor layout selected live first second gather rc lid temporary=''
+    local monitor layout selected live first second gather rc lid focused description temporary=''
     umask 077
     for arg in "$@"; do
         case $arg in --auto) auto=true;; --reload) reload=true;; *) printf 'Unknown option: %s\n' "$arg" >&2; exit 1;; esac
@@ -102,6 +108,8 @@ monitor_main() (
     sleep .3
     monitors=$(monitor_query)
     topology=$(jq -c '[.[]|.name+":"+.description]|sort' <<<"$monitors")
+    # Rofi opens on the focused screen; remember it before any menu steals focus.
+    focused=$(jq -r '[.[]|select(.focused)][0].name//""' <<<"$monitors")
     previous=$(monitor_read "$runtime")
     internal=$(jq -c '[.[]|select(.name|test("^(eDP-|LVDS-|DSI-)"))][0]//null' <<<"$monitors")
     external=$(jq -c --argjson internal "$internal" '[.[]|select(.name!=$internal.name and (.disabled//false|not))]' <<<"$monitors")
@@ -139,7 +147,7 @@ monitor_main() (
         if ! $auto; then notify-send Displays 'Connect an external monitor to choose a layout.'; fi
     else
         saved=$(monitor_read "$MONITOR_SAVED")
-        profiles=$(jq -c --argjson saved "$saved" '(.profiles//{})+$saved' <<<"$(monitor_read "$MONITOR_ROOT/monitors.json")")
+        profiles=$saved
         if $auto; then
             targets=$(jq -c --argjson previous "$previous" '[.[]|select((.name+":"+.description) as $id | ($previous.topology//[]|index($id))==null)]' <<<"$external")
             [[ $(jq length <<<"$targets") != 0 ]] || targets=$external
@@ -157,7 +165,22 @@ monitor_main() (
             layout=''; selected=false
             if $auto; then layout=$(jq -r --arg id "$(jq -r '.description' <<<"$monitor")" '.[$id].layout//""' <<<"$profiles"); fi
             case $layout in right|left|top|bottom|duplicate) ;; *)
-                index=$(monitor_choose 'External display position' Right Left Top Bottom Duplicate) || continue
+                index=$(monitor_choose 'External display position' Right Left Top Bottom Duplicate 'Make this screen main') || continue
+                if [[ $index == 5 ]]; then
+                    # The screen Rofi is open on becomes the main workspace host.
+                    [[ -n $focused ]] || exit 1
+                    description=$(jq -r --arg name "$focused" '[.[]|select(.name==$name)][0].description//""' <<<"$monitors")
+                    [[ -n $description ]] || exit 1
+                    monitor_dispatch "dots.set_primary($(monitor_lua_string "$focused"), true)" || exit 1
+                    mkdir -p "${MONITOR_MAIN%/*}"
+                    temporary=$(mktemp "$MONITOR_MAIN.XXXXXXXX")
+                    jq -nc --arg description "$description" '{description:$description}' > "$temporary"
+                    mv -- "$temporary" "$MONITOR_MAIN"; temporary=''
+                    notify-send Displays "Main display: $description"
+                    # Terminal action, but still let the loop end normally so the
+                    # runtime topology below stays current for future --auto runs.
+                    break
+                fi
                 [[ $index =~ ^[0-4]$ ]] || exit 1
                 layout=${MONITOR_LAYOUTS[index]}; selected=true;;
             esac

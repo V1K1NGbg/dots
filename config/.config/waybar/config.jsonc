@@ -5,7 +5,10 @@
     "start_hidden": true,
     "height": 30,
     "spacing": 3,
-    "on-sigusr1": "toggle",
+    // Absolute actions: a toggle flips each bar's own state, so a bar created
+    // hidden on monitor hotplug would flip the wrong way forever after.
+    "on-sigusr1": "show",
+    "on-sigusr2": "hide",
     "modules-left": [
       "group/workspace1",
       "group/workspace2",
@@ -380,6 +383,7 @@
     "passthrough": true,
     "start_hidden": false,
     "on-sigusr1": "noop",
+    "on-sigusr2": "noop",
     "margin-bottom": 48,
     "margin-right": 32,
     "modules-right": [

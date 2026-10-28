@@ -18,8 +18,6 @@ if [[ $app == discord ]]; then
         \( -name app.asar -o -name betterdiscord.app.asar \) -printf '%h\n' 2>/dev/null |
         sort -Vu | tail -n 1) || true
     [[ -n $resources ]] || { echo 'Open Discord once, then rerun its theme service.' >&2; exit 1; }
-    [[ -f $resources/app.asar || ! -f $resources/app/index.js ||
-       ! -f $config/BetterDiscord/data/betterdiscord.asar ]] || exit 0
     repo=BetterDiscord/cli
     asset_pattern='^bdcli_[0-9.]+_linux_amd64\.tar\.gz$'
 else
@@ -32,8 +30,6 @@ else
     spotify=$data/spotify-launcher/install/usr/share/spotify
     target=$spotify/spotify
     fingerprint=$(stat -c '%i:%s:%Y:%Z' "$target")
-    [[ -f $spotify/Apps/xpui.spa || ! -f $state/spotify.applied ||
-       $(cat "$state/spotify.applied") != "$fingerprint" ]] || exit 0
     # Spicetify reads its version from prefs, which may still describe the old client.
     # Give it the installed binary's version without changing the user's preferences.
     version=$("$target" --version)
@@ -50,23 +46,46 @@ fi
 
 scratch=$(mktemp -d "$state/download.XXXXXXXX")
 trap 'rm -rf -- "$scratch"' EXIT
-curl --fail --location --silent --show-error --max-time 60 \
-    "https://api.github.com/repos/$repo/releases/latest" > "$scratch/release.json"
-read -r url digest < <(jq -er --arg pattern "$asset_pattern" \
-    '.assets[] | select(.name | test($pattern)) | [.browser_download_url, .digest] | @tsv' \
-    "$scratch/release.json")
-[[ $url == "https://github.com/$repo/releases/download/"* &&
-   $digest =~ ^sha256:[0-9a-f]{64}$ ]] || { echo 'Invalid release asset or checksum.' >&2; exit 1; }
-curl --fail --location --silent --show-error --max-time 180 "$url" -o "$scratch/tool.tar.gz"
-printf '%s  %s\n' "${digest#sha256:}" "$scratch/tool.tar.gz" | sha256sum --check --status
-mkdir "$scratch/tool"
-tar -xzf "$scratch/tool.tar.gz" --no-same-owner -C "$scratch/tool"
 tool=$data/themeapply/$app
-mkdir -p "$tool"
-cp -R "$scratch/tool/." "$tool/"
+if [[ $app == spotify || ! -x $tool/bdcli ]]; then
+    curl --fail --location --silent --show-error --max-time 60 \
+        "https://api.github.com/repos/$repo/releases/latest" > "$scratch/release.json"
+fi
+if [[ $app == spotify ]]; then
+    latest=$(jq -er '.tag_name | ltrimstr("v")' "$scratch/release.json")
+    [[ $latest =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo 'Invalid Spicetify release version.' >&2; exit 1; }
+    installed=$([[ ! -x $tool/spicetify ]] || "$tool/spicetify" --version)
+    printf 'Spicetify: installed %s, latest %s\n' "${installed:-none}" "$latest"
+    applied="$fingerprint:$latest"
+    if [[ $installed == "$latest" && -d $spotify/Apps/xpui &&
+          ! -f $spotify/Apps/xpui.spa && -f $state/spotify.applied &&
+          $(cat "$state/spotify.applied") == "$applied" ]]; then
+        echo 'Spotify theme is already current.'
+        exit 0
+    fi
+fi
+if [[ ( $app == discord && ! -x $tool/bdcli ) ||
+      ( $app == spotify && $installed != "$latest" ) ]]; then
+    read -r url digest < <(jq -er --arg pattern "$asset_pattern" \
+        '.assets[] | select(.name | test($pattern)) | [.browser_download_url, .digest] | @tsv' \
+        "$scratch/release.json")
+    [[ $url == "https://github.com/$repo/releases/download/"* &&
+       $digest =~ ^sha256:[0-9a-f]{64}$ ]] || { echo 'Invalid release asset or checksum.' >&2; exit 1; }
+    curl --fail --location --silent --show-error --max-time 180 "$url" -o "$scratch/tool.tar.gz"
+    printf '%s  %s\n' "${digest#sha256:}" "$scratch/tool.tar.gz" | sha256sum --check --status
+    mkdir "$scratch/tool"
+    tar -xzf "$scratch/tool.tar.gz" --no-same-owner -C "$scratch/tool"
+    mkdir -p "$tool"
+    cp -R "$scratch/tool/." "$tool/"
+fi
 
 if [[ $app == discord ]]; then
-    "$tool/bdcli" install --path "$resources"
+    if [[ -f $resources/app.asar || ! -f $resources/app/index.js ||
+          ! -f $config/BetterDiscord/data/betterdiscord.asar ]]; then
+        "$tool/bdcli" install --path "$resources"
+    else
+        "$tool/bdcli" update
+    fi
 else
     printf 'app.last-launched-version="%s"\n' "$version" > "$scratch/prefs"
     trap '
@@ -81,10 +100,23 @@ else
     if [[ -f $spotify/Apps/xpui.spa ]]; then
         "$tool/spicetify" backup apply --no-restart
     else
-        # Retry an interrupted apply using its backup; never restore an old client.
-        "$tool/spicetify" apply --no-restart
+        # A new Spicetify needs fresh preprocessing, using only this client's backup.
+        backup_version=$(awk '/^\[/ { backup = ($0 ~ /^\[Backup\]/) }
+            backup && $1 == "version" && $2 == "=" { print $3 }' "$config/spicetify/config-xpui.ini")
+        backup_tool=$(awk '/^\[/ { backup = ($0 ~ /^\[Backup\]/) }
+            backup && $1 == "with" && $2 == "=" { print $3 }' "$config/spicetify/config-xpui.ini")
+        [[ $backup_version == "$version" ]] || {
+            echo 'Spotify backup does not match the installed client; refusing to restore it.' >&2
+            exit 1
+        }
+        if [[ $backup_tool != "$latest" ]]; then
+            "$tool/spicetify" restore backup apply --no-restart
+        else
+            "$tool/spicetify" apply --no-restart
+        fi
     fi
     [[ -d $spotify/Apps/xpui && ! -f $spotify/Apps/xpui.spa ]]
-    printf '%s\n' "$fingerprint" > "$state/spotify.applied"
+    printf '%s\n' "$applied" > "$scratch/spotify.applied"
+    mv "$scratch/spotify.applied" "$state/spotify.applied"
     echo 'Spotify theme applied; an already open window uses it on its next restart.'
 fi

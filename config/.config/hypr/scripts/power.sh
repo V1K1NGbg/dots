@@ -38,6 +38,55 @@ power_lock() {
     return 1
 }
 
+# Keep a locker alive while the session stays locked. hyprlock can die around
+# suspend/resume (rendering races, animation bugs); Hyprland then keeps the
+# session locked with its lock-dead screen until a manual TTY rescue. If the
+# locker disappears, replace it: starting a session lock over a dead one
+# requires misc:allow_session_lock_restore, so that hatch opens only while a
+# replacement locker starts (and is closed again even if this watcher dies).
+power_watch_lock() (
+    local failures=0 recovered=0 out
+    close_hatch() {
+        hyprctl eval 'hl.config({ misc = { allow_session_lock_restore = false } })' >/dev/null 2>&1 || :
+    }
+    umask 077; mkdir -p "$POWER_STATE"
+    exec 8>"$POWER_STATE/watch-lock"; flock -n 8 || exit 0
+    # Heal a hatch a killed predecessor left open, and close it on the way
+    # out no matter how this watcher ends.
+    trap close_hatch EXIT
+    trap 'exit 0' TERM INT HUP
+    close_hatch
+    while :; do
+        if out=$(hyprctl -j locked 2>/dev/null); then
+            # Unlocked is authoritative; a failed query is not (resume races).
+            jq -e '.locked == true' <<<"$out" >/dev/null || exit 0
+            failures=0
+        else
+            # ~30s of consecutive failures means the compositor is gone.
+            ((failures++ < 15)) || exit 0
+            sleep 2
+            continue
+        fi
+        if ! pidof hyprlock >/dev/null; then
+            # Re-check: the session may have unlocked between the two probes.
+            out=$(hyprctl -j locked 2>/dev/null) || out=
+            jq -e '.locked == true' <<<"$out" >/dev/null || exit 0
+            # A hyprlock that keeps dying instantly stays capped; one that
+            # survives a recovery resets the budget for later incidents.
+            ((recovered++ < 5)) || exit 0
+            hyprctl eval 'hl.config({ misc = { allow_session_lock_restore = true } })' >/dev/null || :
+            hyprctl dispatch 'hl.dsp.exec_cmd("pidof hyprlock || hyprlock --grace 0")' >/dev/null || :
+            # Let the replacement locker take over before closing the hatch;
+            # a failed attempt is retried by the next iteration.
+            sleep 3
+            close_hatch
+        else
+            recovered=0
+        fi
+        sleep 2
+    done
+)
+
 power_idle() {
     [[ ! -f $POWER_STATE/caffeine && $(power_source) == "$1" ]] || return 0
     power_lock || return
@@ -154,11 +203,12 @@ if [[ ${BASH_SOURCE[0]} == "$0" ]]; then
         caffeine) power_caffeine;;
         resume) power_resume;;
         lock) power_lock;;
+        watch-lock) power_watch_lock >/dev/null 2>&1 </dev/null &;;
         suspend) power_suspend;;
         lid) power_lid;;
         lid-state) power_lid_state;;
         power-changed) power_changed;;
         watch) power_watch;;
-        *) printf 'Usage: power.sh idle [battery|ac]|caffeine|resume|lock|suspend|lid|lid-state|power-changed|watch\n' >&2; exit 2;;
+        *) printf 'Usage: power.sh idle [battery|ac]|caffeine|resume|lock|watch-lock|suspend|lid|lid-state|power-changed|watch\n' >&2; exit 2;;
     esac
 fi

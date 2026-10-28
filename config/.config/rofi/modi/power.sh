@@ -11,7 +11,7 @@ brightness_menu() {
         case $CHOICE in
             0) value=5%+;;
             1) value=5%-;;
-            2) return 0;;
+            2) return 10;;
             *) continue;;
         esac
         selected=$CHOICE
@@ -29,8 +29,8 @@ power_menu() {
         1) error=$(rofi_suspend 2>&1) || info Suspend "$error";;
         2) systemctl reboot;;
         3) systemctl poweroff;;
-        4) rofi_native Escape -modi "power-mode:$ROOT/modi/power-mode.sh" -show power-mode;;
+        4) rofi_native Escape -modi "power-mode:$ROOT/modi/power-mode.sh" -show power-mode; return $?;;
         5) error=$(bash "$ROOT/../hypr/scripts/power.sh" caffeine 2>&1) || info Caffeine "$error";;
-        6) brightness_menu;;
+        6) brightness_menu; return $?;;
     esac
 }

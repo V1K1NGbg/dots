@@ -8,7 +8,7 @@ flock 9
 action=${1:-ensure}
 case $action in
     show|hide) printf '%s\n' "$action" > "$runtime/desired";;
-    ensure|restart|stop|refresh) ;;
+    ensure|restart|stop|refresh|resync) ;;
     *) exit 2;;
 esac
 pid=0
@@ -48,12 +48,13 @@ if ! $owned; then
     printf '%s\n' "$pid" > "$runtime/pid"
 fi
 # A signal before Waybar installs its handlers terminates the process. Wait for
-# the SIGUSR1 handler instead of assuming that a fixed startup delay is enough.
+# the SIGUSR1 and SIGUSR2 handlers instead of assuming a fixed delay is enough.
+# Bit 0x200 catches SIGUSR1 (10), 0x800 catches SIGUSR2 (12).
 ready=false
 for ((attempt=0; attempt<100; attempt++)); do
     if [[ $pid =~ ^[1-9][0-9]*$ && -r /proc/$pid/status ]]; then
         caught=$(awk '$1 == "SigCgt:" {print $2}' "/proc/$pid/status" 2>/dev/null) || break
-        if [[ -n $caught ]] && (( (16#$caught & 512) != 0 )) &&
+        if [[ -n $caught ]] && (( (16#$caught & 2560) == 2560 )) &&
             hyprctl layers -j | jq -e --argjson pid "$pid" \
                 'any(.. | objects; .pid? == $pid and .namespace? == "waybar")' >/dev/null; then
             ready=true; break
@@ -67,7 +68,11 @@ desired=hide
 old_pid=0; applied=hide
 [[ ! -r $runtime/applied ]] || read -r old_pid applied < "$runtime/applied"
 [[ $old_pid == "$pid" ]] || applied=hide
-if [[ $desired != "$applied" ]]; then
-    kill -USR1 "$pid"
+# The bar config maps USR1 to the absolute "show" action and USR2 to "hide", so
+# repeating the desired state is idempotent. A resync re-sends it even when the
+# books agree, healing bars Waybar created hidden ("start_hidden") while it was
+# supposed to be shown, e.g. after a monitor hotplug.
+if [[ $action == resync || $desired != "$applied" ]]; then
+    if [[ $desired == show ]]; then kill -USR1 "$pid"; else kill -USR2 "$pid"; fi
 fi
 printf '%s %s\n' "$pid" "$desired" > "$runtime/applied"

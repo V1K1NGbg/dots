@@ -124,8 +124,7 @@ installer_windows() {
         if dots_installer_windows then
             for _, hook in ipairs(dots_installer_windows) do hook:remove() end
         end
-        local apps = { code = true, ["code-oss"] = true, ["code - oss"] = true,
-            ["com.visualstudio.code.oss"] = true, ["com.visualstudio.codeoss"] = true,
+        local apps = { code = true, ["com.microsoft.vscode"] = true,
             firefox = true, ["org.mozilla.firefox"] = true,
             discord = true, spotify = true, steam = true }
         local function place(window)
@@ -177,7 +176,7 @@ rebuild_initramfs() (
 readonly -a REPO_PACKAGES=(
     acpi adw-gtk-theme alacritty alsa-utils aspell aspell-en
     baobab bash-completion blueman bluez bluez-utils brightnessctl btop bulky
-    capitaine-cursors cava code
+    capitaine-cursors cava
     cliphist clang cowsay curl dconf discord docker docker-compose dracut
     fastfetch fd firefox fprintd fzf gimp git github-cli gnome-disk-utility
     go gopls grim gtk3 gtk-layer-shell highlight htop hypridle hyprland hyprlock hyprpolkitagent hyprsunset
@@ -191,7 +190,7 @@ readonly -a REPO_PACKAGES=(
     prismlauncher pyright python python-black python-pillow jq qt5ct qt6ct
     ranger rofi rofi-calc rust rust-analyzer slurp sof-firmware spotify-launcher steam
     swappy tesseract tesseract-data-eng tesseract-data-bul tmux tree typescript-language-server unzip vim
-    vlc vulkan-radeon lib32-vulkan-radeon vulkan-tools
+    vulkan-radeon lib32-vulkan-radeon vulkan-tools
     waybar wayland wayland-protocols uthash wev wget wireplumber wl-clipboard xdg-desktop-portal-gtk
     xdg-desktop-portal-hyprland xdg-utils zip uwsm
 )
@@ -206,6 +205,7 @@ readonly -a AUR_PACKAGES=(
     plymouth-theme-hexagon-hud-git
     serena
     usbimager
+    visual-studio-code-bin
     wl_shimeji-git
 )
 
@@ -233,13 +233,12 @@ check_fingerprint()       { grep -q 'pam_fprintd' /etc/pam.d/sudo 2>/dev/null &&
 check_ohmybash()          { [[ -f "${HOME}/.oh-my-bash/oh-my-bash.sh" ]]; }
 check_bashrc()            { cmp -s "${CONFIG_DIR}/.bashrc" "${HOME}/.bashrc"; }
 check_nemo_config()       { dconf read /org/nemo/preferences/bulk-rename-tool 2>/dev/null | grep -q 'bulky'; }
-check_dotfiles()          { [[ -f "${HOME}/.vimrc" && -f "${HOME}/.tmux.conf" && -f "${HOME}/.bash_profile" && -f "${HOME}/.config/hypr/hyprland.lua" && -f "${HOME}/.config/waybar/config.jsonc" && -d "${HOME}/.config/alacritty" && -f "${HOME}/.config/Code - OSS/User/settings.json" ]]; }
+check_dotfiles()          { [[ -f "${HOME}/.vimrc" && -f "${HOME}/.tmux.conf" && -f "${HOME}/.bash_profile" && -f "${HOME}/.config/hypr/hyprland.lua" && -f "${HOME}/.config/waybar/config.jsonc" && -d "${HOME}/.config/alacritty" && -f "${HOME}/.config/Code/User/settings.json" ]]; }
 check_default_apps()      { default_apps check; }
 check_nvm()               { (load_nvm && [[ "$(nvm version default)" != "N/A" ]]) &>/dev/null; }
 check_vtop()              { (load_nvm && nvm use default && cmd_exists vtop) &>/dev/null; }
 check_docker()            { systemctl is-enabled docker.service &>/dev/null; }
 check_pcloud()            { cmd_exists pcloud; }
-check_vscode()            { is_marked vscode_transparency && code --list-extensions 2>/dev/null | grep -qx 'illixion.vscode-vibrancy-continued'; }
 check_discord()           { [[ -f /etc/pacman.d/hooks/95-themeapply-discord.hook ]]; }
 check_spotify()           { [[ -f /etc/pacman.d/hooks/95-themeapply-spotify.hook ]]; }
 check_firefox()           { is_marked "firefox_setup" && is_marked firefox_transparency; }
@@ -599,7 +598,7 @@ install_dotfiles() {
         opencode qt5ct qt6ct spicetify systemd themeapply uwsm visualizer waybar; do
         config_paths+=(".config/$config_dir")
     done
-    config_paths+=(".config/Code - OSS")
+    config_paths+=(".config/Code")
     # Initial setup can replace defaults created by applications or /etc/skel.
     # Keep recovery data private and outside the configuration being replaced.
     backup=$(mktemp -d "$STATE_DIR/dotfiles-backup.XXXXXXXX")
@@ -621,12 +620,6 @@ install_dotfiles() {
     print_step "Copying config directories..."
     tar -cpf - -C "$CONFIG_DIR" "${config_paths[@]}" .oh-my-bash .vim \
         | tar -xpf - --no-overwrite-dir -C "$HOME"
-    # Vibrancy reads literal filesystem paths; it does not expand $HOME or ~.
-    local code_settings="$HOME/.config/Code - OSS/User/settings.json" temporary
-    temporary=$(mktemp "${code_settings}.XXXXXXXX")
-    jq --arg css "$HOME/.config/Code - OSS/User/transparency.css" \
-        '.["vscode_vibrancy.imports"] = [$css]' "$code_settings" > "$temporary"
-    mv "$temporary" "$code_settings"
     if [[ -f $HOME/.mozilla/firefox/profiles.ini || -f ${XDG_CONFIG_HOME:-$HOME/.config}/mozilla/firefox/profiles.ini ]]; then
         bash "$HOME/.config/themeapply/firefox.sh"
         mark_done firefox_transparency
@@ -658,7 +651,7 @@ install_dotfiles() {
 }
 
 # One table drives both installation and completion checks. These are Arch's
-# package desktop IDs, including code and spotify-launcher.
+# package desktop IDs, including visual-studio-code-bin and spotify-launcher.
 default_apps() {
     local action=$1 desktop mime row directory found
     local -a types directories
@@ -681,8 +674,8 @@ default_apps() {
             done
         fi
     done <<'DEFAULTS'
-code-oss.desktop text/plain text/markdown application/json application/xml text/xml application/yaml text/yaml application/x-yaml application/x-shellscript text/x-shellscript text/css text/javascript application/javascript text/x-python application/x-code-workspace application/x-code-oss-workspace
-code-oss-url-handler.desktop x-scheme-handler/code-oss
+com.microsoft.VSCode.desktop text/plain text/markdown application/json application/xml text/xml application/yaml text/yaml application/x-yaml application/x-shellscript text/x-shellscript text/css text/javascript application/javascript text/x-python application/x-code-workspace
+com.microsoft.VSCode.UrlHandler.desktop x-scheme-handler/vscode
 firefox.desktop text/html application/xhtml+xml application/pdf x-scheme-handler/http x-scheme-handler/https
 vlc.desktop video/mp4 video/x-matroska video/webm video/x-msvideo video/quicktime video/mpeg audio/mpeg audio/flac audio/ogg audio/opus audio/x-wav audio/wav audio/aac audio/mp4
 gimp.desktop image/png image/jpeg image/gif image/webp image/tiff image/bmp image/svg+xml
@@ -752,12 +745,11 @@ install_pcloud() {
 }
 
 install_app_theme() {
-    local app=$1 package=$1 user hook
+    local app=$1 user hook
     case $app in
         discord|spotify) ;;
         *) print_error "Unsupported app theme: $app (use discord or spotify)"; return 2 ;;
     esac
-    [[ $app != spotify ]] || package=spotify-launcher
     user=$(id -un)
     [[ $user =~ ^[a-z_][a-z0-9_-]*$ ]] || {
         print_error 'Unsupported username for the application theme hook.'
@@ -769,7 +761,7 @@ install_app_theme() {
         return 1
     }
     hook="$STATE_DIR/themeapply-$app.hook"
-    sed -e "s/@APP@/$app/g" -e "s/@PACKAGE@/$package/g" -e "s/@USER@/$user/g" \
+    sed -e "s/@APP@/$app/g" -e "s/@USER@/$user/g" \
         "$CONFIG_DIR/system/pacman-hooks/95-themeapply.hook" > "$hook"
     sudo install -Dm0644 "$hook" "/etc/pacman.d/hooks/95-themeapply-$app.hook"
     systemctl --user daemon-reload
@@ -798,22 +790,6 @@ install_discord() {
     print_success "Automatic BetterDiscord setup enabled; account login remains yours"
 }
 
-install_vscode() {
-    print_header "Setting up VS Code background transparency"
-    local css="$HOME/.config/Code - OSS/User/transparency.css"
-    [[ -f $css ]] && jq -e --arg css "$css" \
-        '.["vscode_vibrancy.imports"] | index($css) != null' \
-        "$HOME/.config/Code - OSS/User/settings.json" >/dev/null || {
-        print_error 'Run Copy dotfiles before VS Code transparency setup.'
-        return 1
-    }
-    code --install-extension illixion.vscode-vibrancy-continued --force
-    code
-    read -rp '  In VS Code run "Reload Vibrancy" from F1, authorize its file patch, fully restart VS Code, then press Enter...'
-    mark_done vscode_transparency
-    print_success 'VS Code configured; run Reload Vibrancy again after editor updates'
-}
-
 install_spotify() {
     print_header "Setting up Spotify + Spicetify"
     install_app_theme spotify || return
@@ -829,11 +805,11 @@ install_firefox() {
     firefox > /dev/null 2>&1 &
     read -p "  Log in Firefox
   Sync settings
-  Import vimium-options.json and bonjourr.json from ~/dots/config/
+  Import vimium-options.json and bonjourr.json (and add bonjour.png) from ~/dots/config/
   Fix New Tab Override (https://online.bonjourr.fr/)
-  Fix persistant tabs
+  Fix persistant tabs (https://mail.google.com/mail/u/0/, https://calendar.google.com/calendar/u/0/, https://gemini.google.com/app https://www.edclub.com/)
   Fix bookmarks layout
-  Add cookies exceptions (google,github,bonjourr,...)
+  Add cookies exceptions (google.com, github.com, bonjourr.fr, edclub.com)
   and finally press Enter to continue..."
     killall firefox 2>/dev/null || true
     bash "$HOME/.config/themeapply/firefox.sh"
@@ -891,7 +867,6 @@ TASK_NAMES=(
     "Set up pCloud"
     "Authenticate GitHub CLI"
     "Set up fingerprint auth"
-    "Set up VS Code background transparency"
     "Set up Discord + BetterDiscord"
     "Set up Spotify + Spicetify"
     "Set up Firefox"
@@ -924,7 +899,6 @@ TASK_CHECKS=(
     check_pcloud
     check_gh_auth
     check_fingerprint
-    check_vscode
     check_discord
     check_spotify
     check_firefox
@@ -957,7 +931,6 @@ TASK_INSTALLS=(
     install_pcloud
     install_gh_auth
     install_fingerprint
-    install_vscode
     install_discord
     install_spotify
     install_firefox
