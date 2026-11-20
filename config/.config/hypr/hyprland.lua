@@ -229,7 +229,7 @@ bind(mod .. " + N", dots.minimize, "Minimize window")
 bind(mod .. " + SHIFT + N", dots.restore, "Restore the last minimized window")
 bind(mod .. " + M", hl.dsp.window.fullscreen({ mode = "maximized", action = "toggle" }), "Toggle maximized")
 
-bind(mod .. " + CTRL + SHIFT + P", hl.dsp.exec_cmd("bash ~/.config/rofi/modi/monitors.sh"), "Choose display layout")
+bind(mod .. " + CTRL + SHIFT + P", hl.dsp.exec_cmd("bash ~/.config/hypr/monitors/monitors.sh"), "Configure the external display")
 
 -- Monitor focus and client movement. Relative selectors follow Hyprland's
 -- configured monitor order, matching Awesome's focus_relative behavior.

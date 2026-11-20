@@ -20,7 +20,7 @@ time_menu() {
     local state rows item id action repeat input error label
     while :; do
         state=$("$ROOT/modi/time.sh" status)
-        rows=$(jq --argjson now "$(date +%s)" '[{label:"New timer",action:"timer"},{label:"New alarm",action:"alarm"},{label:"Stopwatch",action:"watch"}]+
+        rows=$(jq --argjson now "$(date +%s)" --arg location "Location · $(cfg '.weather.city // "unset"') · $(timezone_current)" '[{label:"New timer",action:"timer"},{label:"New alarm",action:"alarm"},{label:"Stopwatch",action:"watch"},{label:$location,action:"location"}]+
           [.items[]|{id:.id,action:"delete",label:(.label+" · "+(if .due==null then "completed" elif .kind=="timer" then (([.due-$now,0]|max|floor|tostring)+"s remaining") else (.clock+" · "+(.repeat//"once")) end))}]' <<<"$state")
         choose Time 'Timers and alarms are scheduled by systemd.' list < <(jq -r '.[].label|gsub("[\u0000-\u001f\u007f]";" ")' <<<"$rows") || return
         [[ $CHOICE == refresh ]] && continue
@@ -28,10 +28,35 @@ time_menu() {
         case $action in
             timer|alarm) live_menu time "$action"; return;;
             watch) watch_menu;;
+            location) location_menu;;
             delete) choose 'Delete clock?' '' list <<< $'Delete\nBack' && [[ $CHOICE == 0 ]] && "$ROOT/modi/time.sh" delete "$id";;
         esac
         return
     done
+}
+
+# Picking a location sets the system timezone (timedatectl asks polkit for
+# permission) and points the dashboard weather at that city.
+timezone_current() { timedatectl show -p Timezone --value 2>/dev/null || readlink /etc/localtime | sed 's|.*/zoneinfo/||'; }
+location_menu() {
+    local rows entry city timezone latitude longitude error settings=${ROFI_SETTINGS:-$ROOT/settings.json}
+    rows=$(cfg '.locations // [] | .[] | "\(.city)\t\(.timezone)\t\(.latitude)\t\(.longitude)"')
+    [[ -n $rows ]] || { info Location 'Add cities under "locations" in settings.json.'; return; }
+    choose Location "Current: $(cfg '.weather.city // "unset"') · $(timezone_current)" list \
+        < <(awk -F'\t' '{print $1 " · " $2}' <<<"$rows") || return
+    [[ $CHOICE =~ ^[0-9]+$ ]] || return
+    entry=$(sed -n "$((CHOICE+1))p" <<<"$rows")
+    IFS=$'\t' read -r city timezone latitude longitude <<<"$entry"
+    if [[ $timezone != "$(timezone_current)" ]] && ! error=$(timedatectl set-timezone "$timezone" 2>&1); then
+        info Location "Could not set timezone $timezone: $error"; return
+    fi
+    jq --arg city "$city" --argjson lat "$latitude" --argjson lon "$longitude" \
+        '.weather.city = $city | .weather.latitude = $lat | .weather.longitude = $lon' "$settings" |
+        atomic "$settings" || { info Location "Could not update $settings"; return; }
+    CONFIG=$(jq -e . "$settings")
+    # Drop the cached weather so the next open fetches the new city.
+    rm -f -- "$CACHE/weather"
+    (weather >/dev/null 2>&1 9>&- &)
 }
 
 # Live validation is performed on input changes; only acceptance saves a clock.

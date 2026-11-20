@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
+# Run is opened directly (Super+R); Tab returns 10 so the launcher shows the menu.
 run_menu() {
-    local back_keys=Tab ROFI_CANCEL_KEYS=Escape
-    if [[ ${1:-direct} == menu ]]; then back_keys=Tab,Escape; ROFI_CANCEL_KEYS=''; fi
-    rofi_native "$back_keys" -modi run -show run -display-run Run -show-icons \
+    ROFI_CANCEL_KEYS=Escape rofi_native Tab -modi run -show run -display-run Run -show-icons \
         -theme-str 'element { children: [element-icon, element-text]; }' \
         -terminal alacritty -kb-element-next '' -kb-row-tab ''
 }

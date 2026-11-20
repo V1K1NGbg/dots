@@ -5,19 +5,14 @@
   "icon_color": "#67ffeb",
   "icons": {
     "files": "folder-search",
-    "ai": "bot",
-    "time": "alarm-clock",
-    "music": "music",
-    "outputs": "volume-2",
     "window": "panels-top-left",
     "calc": "calculator",
     "clipboard": "clipboard",
-    "autocorrector": "spell-check",
-    "wifi": "wifi",
-    "bluetooth": "bluetooth",
-    "power": "power",
-    "power-mode": "zap",
-    "run": "layout-grid"
+    "ai": "bot",
+    "time": "alarm-clock",
+    "music": "music",
+    "network": "wifi",
+    "power": "power"
   },
   "exclude": [
     ".cache",
@@ -35,5 +30,31 @@
     "city": "Delft",
     "latitude": 52.0116,
     "longitude": 4.3571
-  }
+  },
+  "locations": [
+    {
+      "city": "Delft",
+      "timezone": "Europe/Amsterdam",
+      "latitude": 52.0116,
+      "longitude": 4.3571
+    },
+    {
+      "city": "Amsterdam",
+      "timezone": "Europe/Amsterdam",
+      "latitude": 52.3676,
+      "longitude": 4.9041
+    },
+    {
+      "city": "Sofia",
+      "timezone": "Europe/Sofia",
+      "latitude": 42.6977,
+      "longitude": 23.3219
+    },
+    {
+      "city": "Dublin",
+      "timezone": "Europe/Dublin",
+      "latitude": 53.3498,
+      "longitude": -6.2603
+    }
+  ]
 }

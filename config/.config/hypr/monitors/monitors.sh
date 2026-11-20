@@ -1,14 +1,43 @@
 #!/usr/bin/env bash
 # Apply saved display layouts; ask with Rofi for unknown displays.
 MONITOR_ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-MONITOR_SAVED=${XDG_CONFIG_HOME:-$HOME/.config}/dots-monitors/profiles.json
-MONITOR_MAIN=${XDG_CONFIG_HOME:-$HOME/.config}/dots-monitors/main.json
+# One file holds everything: per-display layouts keyed by EDID description, and
+# the main display per configuration (the sorted descriptions of every
+# connected screen), e.g. {"layouts":{"Dell …":"left"},"main":{"BOE … + Dell …":"Dell …"}}.
+MONITOR_CONFIG=${XDG_CONFIG_HOME:-$HOME/.config}/dots-monitors/monitors.json
+MONITOR_KEY='[.[].description]|sort|join(" + ")'
 MONITOR_LAYOUTS=(right left top bottom duplicate)
 
 monitor_query() { hyprctl monitors all -j | jq -ce 'if type=="array" then . else error("Invalid monitor response") end'; }
 monitor_lid_state() { bash "$MONITOR_ROOT/../scripts/power.sh" lid-state; }
 monitor_read() {
     if [[ -f $1 ]]; then jq -ce 'if type=="object" then . else error("Invalid profile object") end' "$1"; else printf '{}\n'; fi
+}
+# Load the config, migrating the old profiles.json/main.json pair once. The old
+# global main display is kept for the configuration currently connected.
+monitor_load() {
+    local monitors=$1 dir=${MONITOR_CONFIG%/*} legacy main
+    if [[ ! -f $MONITOR_CONFIG && ( -f $dir/profiles.json || -f $dir/main.json ) ]]; then
+        legacy=$(monitor_read "$dir/profiles.json") main=$(monitor_read "$dir/main.json")
+        monitor_write "$(jq -c --argjson legacy "$legacy" --argjson main "$main" "($MONITOR_KEY) as \$key | {
+            layouts: (\$legacy | map_values(.layout? // empty)),
+            main: (if (\$main.description // \"\") as \$d | any(.[]; .description == \$d) and \$d != \"\"
+                   then {(\$key): \$main.description} else {} end)}" <<<"$monitors")" || return
+        rm -f -- "$dir/profiles.json" "$dir/main.json"
+    fi
+    monitor_read "$MONITOR_CONFIG" | jq -c '{layouts: (.layouts // {}), main: (.main // {})}'
+}
+monitor_write() {
+    mkdir -p "${MONITOR_CONFIG%/*}" || return
+    temporary=$(mktemp "$MONITOR_CONFIG.XXXXXXXX") || return
+    jq . <<<"$1" > "$temporary" && mv -- "$temporary" "$MONITOR_CONFIG" || return
+    temporary=''
+}
+# The configuration's saved main display if it is connected and enabled,
+# otherwise the fallback name.
+monitor_primary() {
+    jq -r --argjson config "$2" --arg fallback "$3" "($MONITOR_KEY) as \$key |
+        ([.[] | select(.description == (\$config.main[\$key] // \"\") and (.disabled // false | not))][0].name) // \$fallback" <<<"$1"
 }
 monitor_lua_string() {
     # Encode UTF-8 bytes as Lua decimal escapes, including quotes and newlines.
@@ -23,11 +52,11 @@ monitor_dispatch() {
 }
 monitor_choose() {
     local title=$1; shift
-    printf '%s\n' "$@" | bash "$MONITOR_ROOT/../../rofi/modi/monitors.sh" --choose "$title" 8>&-
+    printf '%s\n' "$@" | bash "$MONITOR_ROOT/../../rofi/modi/monitors.sh" "$title" 8>&-
 }
 monitor_positions() {
     jq -cn --arg layout "$1" --argjson internal "$2" --argjson external "$3" \
-      --argjson monitors "$4" --argjson profiles "$5" '
+      --argjson monitors "$4" --argjson layouts "$5" '
       def nearest:
         floor as $f | if .-$f==0.5 then (if $f%2==0 then $f else $f+1 end) else round end;
       def size:
@@ -42,7 +71,7 @@ monitor_positions() {
         and (.name==$external.name or (.mirrorOf//"none")=="none")
         and (.name!=$external.name or $layout!="duplicate"))) as $monitor ($base;
         ($monitor|rectangle) as $m |
-        (if $m.name==$external.name then $layout else $profiles[$m.description].layout//"right" end) as $side |
+        (if $m.name==$external.name then $layout else $layouts[$m.description]//"right" end) as $side |
         # Only screens crossing the new display row/column can block placement.
         [ .[] | select(.mirrorOf=="none" and .y<$m.h and .y+.h>0) ] as $row |
         [ .[] | select(.mirrorOf=="none" and .x<$m.w and .x+.w>0) ] as $column |
@@ -63,9 +92,9 @@ monitor_rule() {
         "$(monitor_lua_string "$position")" "$scale" "$transform" "$(monitor_lua_string "$mirror")"
 }
 monitor_apply() {
-    local internal=$1 external=$2 layout=$3 gather=$4 profiles=$5 positions monitor position mirror second primary main live names tries command=''
+    local internal=$1 external=$2 layout=$3 gather=$4 config=$5 positions monitor position mirror second primary live names tries command=''
     live=$(monitor_query) || return
-    positions=$(monitor_positions "$layout" "$internal" "$external" "$live" "$profiles") || return
+    positions=$(monitor_positions "$layout" "$internal" "$external" "$live" "$(jq -c .layouts <<<"$config")") || return
     second=$(jq -r '.name' <<<"$external")
     while IFS= read -r monitor; do
         position=$(jq -r '[.x,.y]|map(tostring)|join("x")' <<<"$monitor") || return
@@ -81,22 +110,20 @@ monitor_apply() {
           INDEX(.name) as $live | all($expected[]; . as $p | $live[$p.name] as $m |
             if $p.mirrorOf!="none" then ($m.mirrorOf==$p.mirrorOf or $m.mirrorOf==($live[$p.mirrorOf].id|tostring))
             else $m.mirrorOf=="none" and [$m.x,$m.y]==[$p.x,$p.y] end)' <<<"$live" >/dev/null; then
-            # A saved main-display choice wins; otherwise the external screen is
-            # the primary, matching the long-standing docked behavior.
-            main=$(monitor_read "$MONITOR_MAIN" 2>/dev/null) || main='{}'
-            primary=$(jq -r --argjson main "$main" --arg fallback "$second" '
-                ([.[] | select(.description == ($main.description // "") and (.disabled // false | not))][0].name) // $fallback' <<<"$live") || return
+            # This configuration's saved main display wins; otherwise the
+            # external screen is the primary, matching the docked behavior.
+            primary=$(monitor_primary "$live" "$config" "$second") || return
             monitor_dispatch "dots.set_primary($(monitor_lua_string "$primary"), $gather)"
             return
         fi
         sleep .1
     done
-    printf 'Display layout did not settle; reopen Super+Ctrl+P to retry\n' >&2
+    printf 'Display layout did not settle; reopen Super+Ctrl+Shift+P to retry\n' >&2
     return 1
 }
 monitor_main() (
     set -euo pipefail
-    local auto=false reload=false arg runtime monitors topology previous internal external saved profiles targets index
+    local auto=false reload=false arg runtime monitors topology previous internal external config targets index
     local monitor layout selected live first second gather rc lid focused description temporary=''
     umask 077
     for arg in "$@"; do
@@ -111,6 +138,7 @@ monitor_main() (
     # Rofi opens on the focused screen; remember it before any menu steals focus.
     focused=$(jq -r '[.[]|select(.focused)][0].name//""' <<<"$monitors")
     previous=$(monitor_read "$runtime")
+    config=$(monitor_load "$monitors")
     internal=$(jq -c '[.[]|select(.name|test("^(eDP-|LVDS-|DSI-)"))][0]//null' <<<"$monitors")
     external=$(jq -c --argjson internal "$internal" '[.[]|select(.name!=$internal.name and (.disabled//false|not))]' <<<"$monitors")
     lid=$(monitor_lid_state)
@@ -120,7 +148,7 @@ monitor_main() (
             printf '%s\n' "$internal" > "$temporary"; mv "$temporary" "$runtime.panel"; temporary=''
             monitor_dispatch "hl.monitor({output=$(monitor_lua_string "$(jq -r .name <<<"$internal")"),disabled=true})"
         fi
-        monitor_dispatch "dots.set_primary($(monitor_lua_string "$(jq -r '.[0].name' <<<"$external")"), false)"
+        monitor_dispatch "dots.set_primary($(monitor_lua_string "$(monitor_primary "$monitors" "$config" "$(jq -r '.[0].name' <<<"$external")")"), false)"
         exit 0
     fi
     if [[ $internal != null && $(jq -r '.disabled//false' <<<"$internal") == true && ( -f $runtime.panel || $(jq length <<<"$external") == 0 ) ]]; then
@@ -146,8 +174,6 @@ monitor_main() (
         fi
         if ! $auto; then notify-send Displays 'Connect an external monitor to choose a layout.'; fi
     else
-        saved=$(monitor_read "$MONITOR_SAVED")
-        profiles=$saved
         if $auto; then
             targets=$(jq -c --argjson previous "$previous" '[.[]|select((.name+":"+.description) as $id | ($previous.topology//[]|index($id))==null)]' <<<"$external")
             [[ $(jq length <<<"$targets") != 0 ]] || targets=$external
@@ -163,7 +189,7 @@ monitor_main() (
         fi
         while IFS= read -r monitor; do
             layout=''; selected=false
-            if $auto; then layout=$(jq -r --arg id "$(jq -r '.description' <<<"$monitor")" '.[$id].layout//""' <<<"$profiles"); fi
+            if $auto; then layout=$(jq -r --arg id "$(jq -r '.description' <<<"$monitor")" '.layouts[$id]//""' <<<"$config"); fi
             case $layout in right|left|top|bottom|duplicate) ;; *)
                 index=$(monitor_choose 'External display position' Right Left Top Bottom Duplicate 'Make this screen main') || continue
                 if [[ $index == 5 ]]; then
@@ -172,10 +198,9 @@ monitor_main() (
                     description=$(jq -r --arg name "$focused" '[.[]|select(.name==$name)][0].description//""' <<<"$monitors")
                     [[ -n $description ]] || exit 1
                     monitor_dispatch "dots.set_primary($(monitor_lua_string "$focused"), true)" || exit 1
-                    mkdir -p "${MONITOR_MAIN%/*}"
-                    temporary=$(mktemp "$MONITOR_MAIN.XXXXXXXX")
-                    jq -nc --arg description "$description" '{description:$description}' > "$temporary"
-                    mv -- "$temporary" "$MONITOR_MAIN"; temporary=''
+                    config=$(jq -c --arg key "$(jq -r "$MONITOR_KEY" <<<"$monitors")" --arg description "$description" \
+                        '.main[$key]=$description' <<<"$config")
+                    monitor_write "$config"
                     notify-send Displays "Main display: $description"
                     # Terminal action, but still let the loop end normally so the
                     # runtime topology below stays current for future --auto runs.
@@ -190,15 +215,12 @@ monitor_main() (
             [[ $first != null && $second != null ]] || continue
             gather=true
             if $auto && [[ $(jq -c '.topology' <<<"$previous") == "$topology" ]]; then gather=false; fi
-            rc=0; monitor_apply "$first" "$second" "$layout" "$gather" "$profiles" || rc=$?
+            rc=0; monitor_apply "$first" "$second" "$layout" "$gather" "$config" || rc=$?
             ((rc!=2)) || continue
             ((rc==0)) || exit "$rc"
             if $selected; then
-                saved=$(jq -c --arg id "$(jq -r '.description' <<<"$monitor")" --arg layout "$layout" '.[$id]={layout:$layout}' <<<"$saved")
-                profiles=$(jq -c --argjson saved "$saved" '.+$saved' <<<"$profiles")
-                mkdir -p "${MONITOR_SAVED%/*}"
-                temporary=$(mktemp "$MONITOR_SAVED.XXXXXXXX")
-                printf '%s\n' "$saved" > "$temporary"; mv -- "$temporary" "$MONITOR_SAVED"; temporary=''
+                config=$(jq -c --arg id "$(jq -r '.description' <<<"$monitor")" --arg layout "$layout" '.layouts[$id]=$layout' <<<"$config")
+                monitor_write "$config"
             fi
         done < <(jq -c '.[]' <<<"$targets")
     fi

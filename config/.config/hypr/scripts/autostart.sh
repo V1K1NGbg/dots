@@ -34,6 +34,7 @@ systemctl --user import-environment \
     WAYLAND_DISPLAY HYPRLAND_INSTANCE_SIGNATURE XDG_CURRENT_DESKTOP XDG_SESSION_DESKTOP XDG_SESSION_TYPE
 systemctl --user start \
     dots-garden.service \
+    dots-visualizer.service \
     dots-battery.timer \
     hypridle.service \
     dots-power.service \

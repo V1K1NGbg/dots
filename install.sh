@@ -188,7 +188,7 @@ readonly -a REPO_PACKAGES=(
     pipewire-pulse playerctl plymouth
     poppler power-profiles-daemon prettier
     prismlauncher pyright python python-black python-pillow jq qt5ct qt6ct
-    ranger rofi rofi-calc rust rust-analyzer slurp sof-firmware spotify-launcher steam
+    ranger rofi rust rust-analyzer slurp sof-firmware spotify-launcher steam
     swappy tesseract tesseract-data-eng tesseract-data-bul tmux tree typescript-language-server unzip vim
     vulkan-radeon lib32-vulkan-radeon vulkan-tools
     waybar wayland wayland-protocols uthash wev wget wireplumber wl-clipboard xdg-desktop-portal-gtk

@@ -3,9 +3,9 @@
 set -euo pipefail
 # Edit this list to generate more Lucide icons. Names match lucide.dev/icons.
 ICONS=(
-    layout-grid folder-search bot alarm-clock music volume-2
-    panels-top-left calculator clipboard spell-check wifi bluetooth
-    power zap
+    layout-grid folder-search bot alarm-clock music
+    panels-top-left calculator clipboard wifi
+    power
 )
 root=$(cd -- "$(dirname -- "$0")/.." && pwd)
 config=$(jq -e . "${ROFI_SETTINGS:-$root/settings.json}")

@@ -18,12 +18,15 @@ else
 fi
 CONFIG=$(jq -e . "${ROFI_SETTINGS:-$ROOT/settings.json}")
 cfg() { jq -r "$1" <<<"$CONFIG"; }
-escape() { jq -Rrs '@html'; }
+# Pango-escape $1 into REPLY without spawning a process.
+esc() { REPLY=${1//"&"/"&amp;"}; REPLY=${REPLY//"<"/"&lt;"}; REPLY=${REPLY//">"/"&gt;"}; REPLY=${REPLY//'"'/"&quot;"}; REPLY=${REPLY//"'"/"&#39;"}; }
+escape() { local text; IFS= read -rd '' text || :; esc "$text"; printf '%s' "$REPLY"; }
 hms() { awk -v s="$1" 'BEGIN{s=int(s);if(s<0)s=0;printf "%02d:%02d:%02d",s/3600,s/60%60,s%60}'; }
-# One table defines the home letters, labels and routes. Icons live in settings.json.
-KEYS=(r f q t m w c v a n b p)
-LABELS=(Run Files 'Ask AI' Time Music Windows Calculator Clipboard Autocorrect Wi-Fi Bluetooth Power)
-MODES=(run files ai time music window calc clipboard autocorrector wifi bluetooth power)
+# One table defines the home letters, labels and routes (a 3x3 icon grid).
+# Run lives on its own shortcut. Icons live in settings.json.
+KEYS=(f w c v q t m n p)
+LABELS=(Files Windows Calculator 'Clipboard & Spelling' 'Ask AI' Time 'Music & Audio' 'Wi-Fi & Bluetooth' 'Power & Display')
+MODES=(files window calc clipboard ai time music network power)
 
 # Rofi also supports user plugins; packaged plugins remain the primary source.
 if [[ -f ${XDG_DATA_HOME:-$HOME/.local/share}/rofi/plugins/blocks.so ]]; then
@@ -31,12 +34,14 @@ if [[ -f ${XDG_DATA_HOME:-$HOME/.local/share}/rofi/plugins/blocks.so ]]; then
 fi
 menu_setup() {
     local monitor width height lines
-    monitor=$(hyprctl monitors -j 2>/dev/null | jq -c '[.[]|select(.focused)][0] // empty') || monitor=
     width=1100; height=720
     ROFI=(rofi -no-config -theme "$ROOT/theme.rasi" -i -matching fuzzy -no-sort)
+    monitor=$(hyprctl monitors -j 2>/dev/null | jq -r '[.[]|select(.focused)][0] // empty |
+        (if (.transform%2)==1 then [.height,.width] else [.width,.height] end) as $size |
+        [($size[0]/.scale*0.9|floor|[.,1100]|min),($size[1]/.scale*0.9|floor|[.,720]|min),.name]|@tsv') || monitor=
     if [[ -n $monitor ]]; then
-        read -r width height < <(jq -r '(if (.transform%2)==1 then [.height,.width] else [.width,.height] end) as $size | [($size[0]/.scale*0.9|floor|[.,1100]|min),($size[1]/.scale*0.9|floor|[.,720]|min)]|@tsv' <<<"$monitor")
-        ROFI+=(-monitor "$(jq -r .name <<<"$monitor")")
+        IFS=$'\t' read -r width height monitor <<<"$monitor"
+        ROFI+=(-monitor "$monitor")
     fi
     WIDTH=$width; HEIGHT=$height
     local font=15
@@ -45,26 +50,25 @@ menu_setup() {
     ROFI+=(-theme-str "window { width: ${width}px; } listview { lines: $lines; } * { font: \"Monocraft Nerd Font $font\"; }")
 }
 
-# Rows arrive on stdin. CHOICE is an index, key:N, or refresh; Escape returns 1.
+# Rows arrive on stdin. CHOICE is a row index, key:N (home) or refresh; Escape
+# returns 1. Kinds: home (the icon grid) and list (rows are numbered and the
+# bare digits 1-9, 0 pick and run them; letters still filter).
+# A row written as "## Title" becomes an unnumbered, unselectable heading.
 choose() {
-    local title=$1 message=${2:-} kind=${3:-list} rc=0 i
+    local title=$1 message=${2:-} kind=${3:-list} rc=0 i n=0 row
     shift 3
-    local args=("${ROFI[@]}" -dmenu -no-custom -p "$title" -format i)
+    local args=("${ROFI[@]}" -dmenu -no-custom -p "$title" -format i -markup-rows)
     if [[ -n $message ]]; then
         if [[ $kind == home ]]; then args+=(-mesg "$message")
-        else args+=(-mesg "$(printf '%s' "$message" | escape)"); fi
+        else esc "$message"; args+=(-mesg "$REPLY"); fi
     fi
     if [[ $kind == home ]]; then
-        args+=(-show-icons -markup-rows -theme-str 'inputbar { children: [prompt]; padding: 6px 4px 12px; } mainbox { spacing: 12px; } textbox { padding: 10px 16px; } listview { columns: 4; lines: 3; fixed-height: true; flow: horizontal; spacing: 12px; scrollbar: false; } element { children: [element-icon,element-text]; orientation: vertical; background-color: #242424; border-color: #404040; padding: 14px 8px; spacing: 10px; } element alternate.normal { background-color: #242424; } element-icon { size: 30px; horizontal-align: 0.5; } element-text { horizontal-align: 0.5; } element selected.normal { background-color: #223b37; border-color: #67ffeb; }')
+        args+=(-show-icons -theme-str 'inputbar { children: [prompt]; padding: 6px 4px 12px; } mainbox { spacing: 12px; } textbox { padding: 10px 16px; } listview { columns: 3; lines: 3; fixed-height: true; flow: horizontal; spacing: 12px; scrollbar: false; } element { children: [element-icon,element-text]; orientation: vertical; background-color: #242424; border-color: #404040; padding: 14px 8px; spacing: 10px; } element alternate.normal { background-color: #242424; } element-icon { size: 30px; horizontal-align: 0.5; } element-text { horizontal-align: 0.5; } element selected.normal { background-color: #223b37; border-color: #67ffeb; }')
         for i in "${!KEYS[@]}"; do args+=("-kb-custom-$((i+1))" "${KEYS[i]}"); done
-        args+=(-kb-custom-13 Tab -kb-element-next '' -kb-row-tab "" -kb-mode-next "")
+        args+=(-kb-element-next '' -kb-row-tab '' -kb-mode-next '')
         if ((WIDTH<1000 || HEIGHT<680)); then args+=(-theme-str 'mainbox { padding: 16px; spacing: 10px; } textbox { padding: 10px; } element { padding: 6px; spacing: 4px; } element-icon { size: 24px; }'); fi
-        if ((WIDTH<700)); then args+=(-theme-str "window { height: ${HEIGHT}px; }"); args+=(-theme-str 'listview { columns: 2; lines: 6; scrollbar: true; }'); fi
+        if ((WIDTH<700)); then args+=(-theme-str "window { height: ${HEIGHT}px; }"); args+=(-theme-str 'listview { columns: 2; lines: 5; scrollbar: true; }'); fi
         if ((HEIGHT<580)); then args+=(-theme-str '* { font: "Monocraft Nerd Font 11"; } mainbox { padding: 12px; spacing: 8px; } inputbar { padding: 6px; } textbox { padding: 8px; } listview { spacing: 6px; } element { padding: 4px; spacing: 2px; } element-icon { size: 18px; }'); fi
-    else
-        args+=(-kb-custom-1 Control+r)
-    fi
-    if [[ $kind == home ]]; then
         # Preserve the icon metadata (including NUL bytes) across the two views.
         local rows
         rows=$(mktemp "$RUNTIME/home-rows.XXXXXX") || return 1
@@ -83,15 +87,45 @@ choose() {
             CHOICE=$("${args[@]}" "$@" -selected-row 0 < "$rows" 9>&-) || rc=$?
         fi
         rm -f -- "$rows"
-    else
-        CHOICE=$("${args[@]}" "$@" 9>&-) || rc=$?
+        if ((rc==1)); then return 1; fi
+        if ((rc>=10 && rc<10+${#KEYS[@]})); then CHOICE=key:$((rc-10)); return; fi
+        [[ $rc == 0 && $CHOICE =~ ^[0-9]+$ ]]
+        return
     fi
+    local rows=() map=() extra=() selected=0
+    args+=(-kb-custom-1 Control+r)
+    while IFS= read -r row; do rows+=("$row"); done
+    # Rofi ignores Enter and custom keys while a heading is highlighted, so
+    # never start on one (Wi-Fi opens with its "## Wi-Fi" heading first).
+    while (($#)); do
+        if [[ $1 == -selected-row && $# -ge 2 ]]; then selected=$2; shift 2; else extra+=("$1"); shift; fi
+    done
+    while ((selected<${#rows[@]})) && [[ ${rows[selected]} == '## '* ]]; do ((selected++)); done
+    ((selected<${#rows[@]})) || selected=0
+    set -- "${extra[@]}" -selected-row "$selected"
+    for i in "${!rows[@]}"; do
+        [[ ${rows[i]} != '## '* ]] || continue
+        ((++n<=10)) || break
+        map[n]=$i
+        args+=("-kb-custom-$((n+1))" "$((n%10))")
+    done
+    CHOICE=$(n=0
+        for row in "${rows[@]}"; do
+            if [[ $row == '## '* ]]; then
+                esc "${row#'## '}"
+                printf '<span foreground="#808080" weight="bold">%s</span>\0nonselectable\x1ftrue\n' "$REPLY"
+                continue
+            fi
+            esc "$row"
+            if ((++n<=10)); then printf '<span foreground="#67ffeb" weight="bold">%s</span>  %s\n' "$((n%10))" "$REPLY"
+            else printf '   %s\n' "$REPLY"; fi
+        done | "${args[@]}" "$@" 9>&-) || rc=$?
     if ((rc==1)); then return 1; fi
-    if [[ $kind == home ]] && ((rc>=10 && rc<=22)); then CHOICE=key:$((rc-10)); return; fi
     if ((rc==10)); then CHOICE=refresh; return; fi
+    if ((rc>=11 && rc<=20)) && [[ -n ${map[rc-10]:-} ]]; then CHOICE=${map[rc-10]}; return; fi
     [[ $rc == 0 && $CHOICE =~ ^[0-9]+$ ]]
 }
-prompt() { ANSWER=$("${ROFI[@]}" -dmenu -p "$1" -mesg "$(printf '%s' "$2" | escape)" </dev/null 9>&-); }
+prompt() { esc "$2"; ANSWER=$("${ROFI[@]}" -dmenu -p "$1" -mesg "$REPLY" </dev/null 9>&-); }
 info() { choose "$1" "$2" list <<<'Back'; }
 
 home_rows() {
@@ -100,36 +134,67 @@ home_rows() {
     for i in "${!MODES[@]}"; do
         name=${names[i]}
         [[ $name =~ ^[a-z0-9-]+$ && -f $ROOT/icon-gen/icons/$name.svg ]] || name=layout-grid
-        printf '<span foreground="#67ffeb" weight="bold" size="large">%s</span>  %s\0icon\x1f%s\n' "${KEYS[i]}" "${LABELS[i]}" "$ROOT/icon-gen/icons/$name.svg"
+        esc "${LABELS[i]}"
+        printf '<span foreground="#67ffeb" weight="bold" size="large">%s</span>  %s\0icon\x1f%s\n' "${KEYS[i]}" "$REPLY" "$ROOT/icon-gen/icons/$name.svg"
     done
 }
+# CPU usage is the delta between cpu_snapshot (taken as the launcher starts)
+# and the dashboard, so the sample overlaps with Rofi setup instead of sleeping.
+cpu_snapshot() {
+    local _ user nice system idle iowait irq softirq steal
+    read -r _ user nice system idle iowait irq softirq steal _ < /proc/stat 2>/dev/null || return 0
+    CPU_TOTAL=$((user+nice+system+idle+iowait+irq+softirq+steal)) CPU_IDLE=$((idle+iowait)) CPU_TIME=${EPOCHREALTIME/[.,]/}
+}
 dashboard() {
-    stats
-    weather 2>/dev/null || :
-    local stats cpu temperature memory battery network weather
-    stats=$(cat "$CACHE/stats")
-    cpu=${stats#CPU }; cpu=${cpu%% · *}
-    temperature=${stats#* · }; temperature=${temperature%% · *}
-    memory=${stats##*RAM }
-    battery=$(cat "$CACHE/battery")
-    network=$(cat "$CACHE/network")
-    weather=$(cat "$CACHE/weather" 2>/dev/null || printf 'Unavailable')
+    local cpu=unavailable memory=unavailable temperature=unavailable battery=unavailable weather=Unavailable
+    local total idle old_total=${CPU_TOTAL:-} old_idle=${CPU_IDLE:-} wait key value unit name hottest=0 status
+    (weather >/dev/null 2>&1 9>&- &) # Refreshes the cache for the next open.
+    if [[ -n $old_total ]]; then
+        wait=$(( 50000-(${EPOCHREALTIME/[.,]/}-CPU_TIME) ))
+        ((wait<=0)) || sleep "0.$(printf '%06d' "$wait")"
+        cpu_snapshot
+        total=$((CPU_TOTAL-old_total)) idle=$((CPU_IDLE-old_idle))
+        ((total<=0)) || cpu="$((100-100*idle/total))%"
+    fi
+    local mem_total=0 mem_available=0
+    while read -r key value unit; do
+        case $key in MemTotal:) mem_total=$value;; MemAvailable:) mem_available=$value; break;; esac
+    done < /proc/meminfo 2>/dev/null
+    if ((mem_total>0)); then
+        value=$(( (mem_total-mem_available)*10/1048576 ))
+        memory="$((value/10)).$((value%10))/$(( (mem_total+524288)/1048576 )) GiB"
+    fi
+    for name in /sys/class/hwmon/hwmon*/name; do
+        read -r key 2>/dev/null < "$name" || continue
+        case $key in k10temp|coretemp|zenpower)
+            for value in "${name%/name}"/temp*_input; do
+                read -r value 2>/dev/null < "$value" || continue
+                [[ $value =~ ^[0-9]+$ ]] && ((value>hottest)) && hottest=$value
+            done;; esac
+    done
+    ((hottest>0)) && temperature="$((hottest/1000))°C"
+    for name in /sys/class/power_supply/*; do
+        read -r value 2>/dev/null < "$name/capacity" || continue
+        read -r status 2>/dev/null < "$name/status" || status=
+        battery="$value% $status"; break
+    done
+    [[ -r $CACHE/weather ]] && IFS= read -r weather < "$CACHE/weather"
     weather=${weather% · updated *}
-    dashboard_row "$(date +%H:%M)" "$(date '+%a, %d %b')" POWER "$battery"
+    dashboard_row "$(printf '%(%H:%M)T')" "$(printf '%(%a, %d %b)T')" POWER "$battery"
     dashboard_row CPU "$cpu" RAM "$memory"
     dashboard_row TEMP "$temperature" WEATHER "$weather"
 }
 # Monospaced columns use the available panel width, with a narrow-screen wrap.
 # Count before escaping so names containing markup characters keep their spacing.
 dashboard_row() {
-    local left="$1  $2" right="$4  $3" columns gap length font_width=13
+    local left="$1  $2" right="$4  $3" columns gap font_width=13 a b c d
     ((WIDTH>=1000 && HEIGHT>=680)) || font_width=11
     columns=$(( (WIDTH-88)/font_width ))
-    length=$(printf '%s' "$left$right" | jq -Rrs length)
-    gap=$((columns-length))
-    printf '<span foreground="#67ffeb">%s</span>  <span foreground="#f8f8f2">%s</span>' "$(printf '%s' "$1" | escape)" "$(printf '%s' "$2" | escape)"
+    gap=$((columns-${#left}-${#right}))
+    esc "$1"; a=$REPLY; esc "$2"; b=$REPLY; esc "$3"; c=$REPLY; esc "$4"; d=$REPLY
+    printf '<span foreground="#67ffeb">%s</span>  <span foreground="#f8f8f2">%s</span>' "$a" "$b"
     if ((gap<3)); then printf '\n'; else printf '%*s' "$gap" ''; fi
-    printf '<span foreground="#f8f8f2">%s</span>  <span foreground="#67ffeb">%s</span>\n' "$(printf '%s' "$4" | escape)" "$(printf '%s' "$3" | escape)"
+    printf '<span foreground="#f8f8f2">%s</span>  <span foreground="#67ffeb">%s</span>\n' "$d" "$c"
 }
 live_menu() {
     local command height args=()
@@ -174,7 +239,7 @@ weather() (
         (( $(date +%s)-stamp >= 900 )) || exit 0
     fi
     temp=$(mktemp "$CACHE/weather.XXXXXX"); trap 'rm -f -- "$temp"' EXIT
-    curl -fsS --connect-timeout 1 --max-time 2 --get 'https://api.open-meteo.com/v1/forecast' \
+    curl -fsS --connect-timeout 3 --max-time 8 --get 'https://api.open-meteo.com/v1/forecast' \
         --data-urlencode "latitude=$(cfg .weather.latitude)" --data-urlencode "longitude=$(cfg .weather.longitude)" \
         --data-urlencode 'current=temperature_2m,weather_code' --data-urlencode timezone=auto |
         jq -er --arg city "$(cfg .weather.city)" --arg stamp "$(date '+%H:%M')" '
@@ -184,35 +249,4 @@ weather() (
          elif $c<=86 then "Showers" else "Thunderstorms" end) as $condition |
         "\($city) \(.temperature_2m)°C · \($condition) · updated \($stamp)"' > "$temp" || return 1
     mv -f -- "$temp" "$CACHE/weather"
-)
-stats() (
-    set -euo pipefail
-    exec 9>"$RUNTIME/stats.lock"; flock -n 9 || exit 0
-    local total idle old_total=0 old_idle=0 cpu=unavailable memory=unavailable temp=0 value name battery=unavailable
-    if [[ -r /proc/stat ]]; then
-        read -r total idle < <(awk '/^cpu / {for(i=2;i<=9;i++)s+=$i;print s,$5+$6;exit}' /proc/stat)
-        old_total=$total; old_idle=$idle
-        sleep .1
-        read -r total idle < <(awk '/^cpu / {for(i=2;i<=9;i++)s+=$i;print s,$5+$6;exit}' /proc/stat)
-        if ((old_total>0 && total>old_total)); then cpu="$((100-100*(idle-old_idle)/(total-old_total)))%"; fi
-        memory=$(awk '/MemTotal:/{t=$2}/MemAvailable:/{a=$2}END{printf "%.1f/%.0f GiB",(t-a)/1048576,t/1048576}' /proc/meminfo)
-    fi
-    for name in /sys/class/hwmon/hwmon*/name; do
-        [[ -f $name ]] || continue
-        case $(cat "$name") in k10temp|coretemp|zenpower)
-            for value in "${name%/name}"/temp*_input; do
-                [[ -r $value ]] || continue; value=$(cat "$value")
-                if [[ $value =~ ^[0-9]+$ ]] && ((value>temp)); then temp=$value; fi
-            done;; esac
-    done
-    for name in /sys/class/power_supply/*; do
-        [[ -r $name/capacity ]] || continue
-        battery="$(cat "$name/capacity")% $(cat "$name/status")"; break
-    done
-    printf '%s\n' "$battery" | atomic "$CACHE/battery"
-    value=unavailable; ((temp>0)) && value="$((temp/1000))°C"
-    printf 'CPU %s · %s · RAM %s\n' "$cpu" "$value" "$memory" | atomic "$CACHE/stats"
-    local net
-    net=$(timeout 2 nmcli -t -f STATE,CONNECTION device 2>/dev/null | sed -n 's/^connected://p' | head -c 24 | clean) || net='Network unavailable'
-    printf '%s\n' "${net:-Disconnected}" | atomic "$CACHE/network"
 )

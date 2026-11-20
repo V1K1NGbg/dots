@@ -91,7 +91,7 @@ ai_live() {
             case $name in
                 'select entry')
                     case $value in
-                        'Copy answer') [[ $status != done ]] || jq -jr .answer <<<"$job" | wl-copy;;
+                        'Copy answer') [[ $status != done ]] || jq -jr .answer <<<"$job" | wl-copy 9>&-;;
                         'Follow-up') [[ $status == done ]] || continue
                             printf 'followup\n' > "$RUNTIME/ai-action"; return;;
                         'New question') printf 'new\n' > "$RUNTIME/ai-action"; return;;
